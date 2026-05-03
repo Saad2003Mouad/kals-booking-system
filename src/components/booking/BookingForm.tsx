@@ -207,7 +207,7 @@ export default function BookingForm() {
               
               {quote.guestFee > 0 && (
                 <div className="flex justify-between items-center mb-2 text-slate-600">
-                  <span>Extra Guest Fee (>50)</span>
+                  <span>Extra Guest Fee (&gt;50)</span>
                   <span>${quote.guestFee.toFixed(2)}</span>
                 </div>
               )}

@@ -13,7 +13,7 @@ export async function checkAvailability(date: string, startTime: string, duratio
     where: {
       eventDate: eventDate,
       status: { in: ['CONFIRMED', 'PENDING'] },
-      vehicleId: { in: vehicles.map(v => v.id) }
+      vehicleId: { in: vehicles.map((v: any) => v.id) }
     }
   });
 
@@ -21,8 +21,8 @@ export async function checkAvailability(date: string, startTime: string, duratio
   const reqStartMins = reqH * 60 + reqM;
   const reqEndMins = reqStartMins + durationMins + 60; // 60 min buffer
 
-  const availableVehicles = vehicles.filter(v => {
-    const vBookings = bookingsOnDate.filter(b => b.vehicleId === v.id);
+  const availableVehicles = vehicles.filter((v: any) => {
+    const vBookings = bookingsOnDate.filter((b: any) => b.vehicleId === v.id);
     
     for (const b of vBookings) {
       const [bH, bM] = b.startTime.split(':').map(Number);
