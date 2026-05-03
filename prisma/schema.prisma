@@ -1,0 +1,191 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+  DRIVER
+}
+
+enum VehicleType {
+  TRUCK
+  VAN
+}
+
+enum VehicleStatus {
+  AVAILABLE
+  MAINTENANCE
+  OUT_OF_SERVICE
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  role          Role      @default(CUSTOMER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  customer      Customer?
+  driver        Driver?
+  auditLogs     AuditLog[]
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  userId    String?  @unique
+  user      User?    @relation(fields: [userId], references: [id])
+  firstName String
+  lastName  String
+  phone     String
+  address   String?
+  city      String?
+  zip       String?
+  
+  bookings  Booking[]
+}
+
+model Vehicle {
+  id        String        @id @default(cuid())
+  name      String
+  type      VehicleType
+  status    VehicleStatus @default(AVAILABLE)
+  
+  drivers   Driver[]
+  bookings  Booking[]
+}
+
+model Driver {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  vehicleId String?
+  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id])
+  active    Boolean  @default(true)
+  
+  bookings  Booking[]
+}
+
+model Package {
+  id           String   @id @default(cuid())
+  name         String
+  type         VehicleType
+  durationMins Int
+  basePrice    Float
+  description  String?
+  isActive     Boolean  @default(true)
+  
+  bookings     Booking[]
+}
+
+model Booking {
+  id             String        @id @default(cuid())
+  bookingNumber  String        @unique // e.g. KB-1001
+  customerId     String
+  customer       Customer      @relation(fields: [customerId], references: [id])
+  
+  packageId      String
+  package        Package       @relation(fields: [packageId], references: [id])
+  
+  vehicleId      String?
+  vehicle        Vehicle?      @relation(fields: [vehicleId], references: [id])
+  
+  driverId       String?
+  driver         Driver?       @relation(fields: [driverId], references: [id])
+  
+  status         BookingStatus @default(PENDING)
+  
+  eventDate      DateTime
+  startTime      String        // "14:00"
+  durationMins   Int
+  
+  address        String
+  city           String
+  zip            String
+  guests         Int
+  notes          String?
+  
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  quote          Quote?
+  items          BookingItem[]
+  payments       Payment[]
+}
+
+model BookingItem {
+  id          String   @id @default(cuid())
+  bookingId   String
+  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  description String
+  quantity    Int      @default(1)
+  unitPrice   Float
+  totalPrice  Float
+}
+
+model Quote {
+  id             String   @id @default(cuid())
+  bookingId      String   @unique
+  booking        Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  
+  basePrice      Float
+  distanceMiles  Float
+  travelFee      Float
+  overtimeFee    Float
+  totalAmount    Float
+  
+  // Snapshot of pricing rules at time of quote
+  snapshotJson   String   // Stores base rates, miles free, per mile rate used
+  
+  createdAt      DateTime @default(now())
+}
+
+model Payment {
+  id             String   @id @default(cuid())
+  bookingId      String
+  booking        Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  
+  stripeIntentId String?  @unique
+  amount         Float
+  status         String   // "PENDING", "SUCCEEDED", "FAILED"
+  
+  createdAt      DateTime @default(now())
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+  action      String   // "BOOKING_CREATED", "STATUS_CHANGED"
+  entityType  String   // "Booking", "Payment"
+  entityId    String
+  details     String   // JSON string of changes
+  createdAt   DateTime @default(now())
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  recipientId String   // User ID or Customer ID
+  type        String   // "EMAIL", "SMS"
+  status      String   // "PENDING", "SENT", "FAILED"
+  content     String
+  createdAt   DateTime @default(now())
+}
+
+model Setting {
+  key   String @id
+  value String
+}
