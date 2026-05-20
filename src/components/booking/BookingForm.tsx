@@ -1,261 +1,580 @@
 "use client";
+import { useState, useEffect, useCallback } from "react";
+import dynamic from "next/dynamic";
+import { useSearchParams } from "next/navigation";
+import { ArrowLeft, ArrowRight, CheckCircle2, Loader2, XCircle, Clock, AlertCircle, CreditCard, MapPin, Navigation } from "lucide-react";
+import { SERVICE_AREAS } from "@/lib/serviceAreas";
+import OtpVerification from "./OtpVerification";
+const MapPicker = dynamic(()=>import("./MapPicker"),{ssr:false,loading:()=><div className="rounded-2xl bg-gray-100 animate-pulse" style={{height:280}}/>});
 
-import { useState } from "react";
-import { CheckCircle2, ChevronRight, Truck, Clock, MapPin, Users, CalendarDays } from "lucide-react";
+// ─── Shared premium input component ──────────────────────────────────────────
+const FN = "'Nunito',sans-serif";
+const inputBase = "w-full px-4 py-3.5 rounded-2xl border-2 font-semibold text-gray-800 outline-none transition-all bg-white";
+const inputFocus = "focus:border-[#FFA000] focus:shadow-[0_0_0_3px_rgba(255,160,0,0.12)]";
+const labelBase = "block text-xs font-black uppercase tracking-widest text-gray-400 mb-2";
 
-type Step = 1 | 2 | 3;
+function Field({ label, helper, error, children }: { label:string; helper?:string; error?:string; children:React.ReactNode }) {
+  return (
+    <div>
+      <label className={labelBase}>{label}</label>
+      {children}
+      {error  && <p className="text-red-500 text-xs font-bold mt-1.5 flex items-center gap-1">⚠ {error}</p>}
+      {!error && helper && <p className="text-gray-400 text-xs font-semibold mt-1.5">{helper}</p>}
+    </div>
+  );
+}
 
-const PACKAGES = [
-  { id: 'p1', name: 'Classic Truck', type: 'TRUCK', duration: 45, price: 250, desc: 'Includes up to 50 servings.' },
-  { id: 'p2', name: 'Premium Truck', type: 'TRUCK', duration: 60, price: 350, desc: 'Includes up to 100 servings.' },
-  { id: 'p3', name: 'Van Express', type: 'VAN', duration: 45, price: 300, desc: 'Sleek sprinter van, up to 75 servings.' },
-];
+function FormInput({ label, value, onChange, type="text", placeholder="", min="", helper="", error="" }:
+  { label:string; value:string; onChange:(v:string)=>void; type?:string; placeholder?:string; min?:string; helper?:string; error?:string }) {
+  return (
+    <Field label={label} helper={helper} error={error}>
+      <input type={type} value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder} min={min}
+        className={`${inputBase} ${inputFocus} ${error?"border-red-400 bg-red-50":"border-gray-200"}`}
+        style={{fontFamily:FN}} autoComplete="off"/>
+    </Field>
+  );
+}
 
-export default function BookingForm() {
-  const [step, setStep] = useState<Step>(1);
-  const [loading, setLoading] = useState(false);
-  
-  // Form State
-  const [selectedPkg, setSelectedPkg] = useState<any>(null);
-  const [formData, setFormData] = useState({
-    date: '',
-    time: '',
-    address: '',
-    city: '',
-    zip: '',
-    guests: 50,
-    name: '',
-    email: '',
-    phone: '',
-    notes: ''
-  });
+function SelectField({ label, value, onChange, options, placeholder="Select…", helper="" }:
+  { label:string; value:string; onChange:(v:string)=>void; options:string[]; placeholder?:string; helper?:string }) {
+  return (
+    <Field label={label} helper={helper}>
+      <select value={value} onChange={e=>onChange(e.target.value)}
+        className={`${inputBase} ${inputFocus} border-gray-200`} style={{fontFamily:FN}}>
+        <option value="">{placeholder}</option>
+        {options.map(o=><option key={o} value={o}>{o}</option>)}
+      </select>
+    </Field>
+  );
+}
 
-  const [quote, setQuote] = useState<any>(null);
-  const [availability, setAvailability] = useState<any>(null);
-
-  const handleNext = async () => {
-    if (step === 2) {
-      setLoading(true);
-      try {
-        // 1. Check Availability
-        const availRes = await fetch('/api/availability', {
-          method: 'POST',
-          body: JSON.stringify({
-            date: formData.date,
-            startTime: formData.time,
-            durationMins: selectedPkg.duration,
-            vehicleType: selectedPkg.type
-          })
-        });
-        const availData = await availRes.json();
-        setAvailability(availData);
-
-        // 2. Get Quote
-        // Mock distance calculation: random between 5 and 40 miles
-        const mockDistance = Math.floor(Math.random() * 35) + 5; 
-        
-        const quoteRes = await fetch('/api/quotes', {
-          method: 'POST',
-          body: JSON.stringify({
-            basePrice: selectedPkg.price,
-            durationMins: selectedPkg.duration, // requested duration (assuming same as pkg for MVP)
-            packageDurationMins: selectedPkg.duration,
-            distanceMiles: mockDistance,
-            guests: formData.guests
-          })
-        });
-        const quoteData = await quoteRes.json();
-        setQuote(quoteData.quote);
-        
-        setStep(3);
-      } catch (err) {
-        console.error(err);
-        alert('Error calculating quote.');
-      } finally {
-        setLoading(false);
-      }
-    } else {
-      setStep((prev) => (prev + 1) as Step);
-    }
-  };
+function ZipSelector({ zip, city, onZipChange }:{ zip:string; city:string; onZipChange:(zip:string,city:string)=>void }) {
+  const [open, setOpen]   = useState(false);
+  const [search, setSearch] = useState("");
+  const filtered = search.length>=2
+    ? SERVICE_AREAS.filter(a=>a.zip.startsWith(search)||a.city.toLowerCase().includes(search.toLowerCase())).slice(0,12)
+    : [];
 
   return (
-    <div className="w-full max-w-3xl mx-auto mt-8">
-      {/* Stepper Header */}
-      <div className="flex items-center justify-between mb-8 px-4">
-        {[1, 2, 3].map((s) => (
-          <div key={s} className="flex items-center">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg transition-all ${step >= s ? 'bg-primary-600 text-white shadow-lg' : 'bg-slate-200 text-slate-500'}`}>
-              {s}
+    <div className="md:col-span-2 grid md:grid-cols-2 gap-5">
+      <div className="relative">
+        <label className={labelBase}>ZIP Code</label>
+        <div className="relative">
+          <MapPin className="absolute left-3.5 top-4 w-4 h-4 text-gray-300 pointer-events-none"/>
+          <input
+            value={zip||search}
+            onChange={e=>{ setSearch(e.target.value); setOpen(true); if(e.target.value.length===5){ const found=SERVICE_AREAS.find(a=>a.zip===e.target.value); if(found) onZipChange(found.zip,found.city); } }}
+            onFocus={()=>setOpen(true)}
+            placeholder="02115 or Boston…"
+            className={`${inputBase} ${inputFocus} border-gray-200 pl-10`}
+            style={{fontFamily:FN}} autoComplete="off"/>
+        </div>
+        {open && filtered.length>0 && (
+          <div className="absolute left-0 right-0 top-full mt-1 bg-white rounded-2xl border border-gray-200 shadow-2xl z-50 max-h-52 overflow-y-auto">
+            {filtered.map(a=>(
+              <button key={a.zip} type="button" onClick={()=>{ onZipChange(a.zip,a.city); setSearch(""); setOpen(false); }}
+                className="w-full text-left px-4 py-3 hover:bg-amber-50 transition-colors flex items-center justify-between border-b border-gray-50 last:border-0">
+                <span className="font-bold text-sm" style={{color:"#000223"}}>{a.city}</span>
+                <span className="font-mono text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-lg">{a.zip}</span>
+              </button>
+            ))}
+          </div>
+        )}
+        {open && search.length>=2 && filtered.length===0 && (
+          <div className="absolute left-0 right-0 top-full mt-1 bg-white rounded-2xl border border-red-100 shadow-xl z-50 p-4 text-center">
+            <p className="text-red-600 font-bold text-sm">Outside service area</p>
+            <p className="text-gray-400 text-xs mt-1">We serve Greater Boston only</p>
+          </div>
+        )}
+        <p className="text-gray-400 text-xs font-semibold mt-1.5">Greater Boston service area</p>
+      </div>
+      <div>
+        <label className={labelBase}>City (auto-filled)</label>
+        <input readOnly value={city} placeholder="Select ZIP above"
+          className={`${inputBase} border-gray-200 bg-gray-50 text-gray-500 cursor-default`}
+          style={{fontFamily:FN}}/>
+      </div>
+    </div>
+  );
+}
+// ──────────────────────────────────────────────────────────────────────────────
+
+
+type Pkg = { id:string; name:string; type?:string; serviceType?:string; includedMinutes?:number; includedQty?:number; servings?:number; basePrice?:number; price?:number; extraPiecePrice?:number; description?:string; slug?:string };
+type Quote = { basePrice:number; travelFee:number; overtimeFee:number; extraPieceFee:number; totalAmount:number; distanceMiles:number; extraPiecePrice:number; breakdown:{label:string;amount:number}[] };
+type AIResult = { decision?:{ verdict:string; customerMessage:string; alternativeTimes?:string[] }; booking?:{ id:string; bookingNumber:string }; paymentUrl?:string };
+
+const EVENT_TYPES = ["Birthday Party","Corporate Event","Wedding Reception","Block Party","School Event","Fundraiser","Launch Party","Reunion","Sports Event","Other"];
+const STEPS = ["Package","Event Details","Contact","Verify","Review"];
+
+export default function BookingForm() {
+  const searchParams = useSearchParams();
+  const packageParamId = searchParams.get("package") || searchParams.get("packageId");
+  const [step, setStep]   = useState(0);
+  const [pkgList, setPkgList] = useState<{TRUCK:Pkg[];VAN:Pkg[]}>({TRUCK:[],VAN:[]});
+  const [pkgTab, setPkgTab]   = useState<"TRUCK"|"VAN">("TRUCK");
+  const [sel, setSel]     = useState<Pkg|null>(null);
+  const [eventDate, setEventDate]   = useState("");
+  const [startTime, setStartTime]   = useState("");
+  const [durationMins, setDuration] = useState("60");
+  const [guests, setGuests]         = useState("50");
+  const [eventType, setEventType]   = useState("");
+  const [address, setAddress]       = useState("");
+  const [zip, setZip]               = useState("");
+  const [city, setCity]             = useState("");
+  const [notes, setNotes]           = useState("");
+  const [extraServings, setExtra]   = useState("0");
+  const [firstName, setFirst]       = useState("");
+  const [lastName, setLast]         = useState("");
+  const [email, setEmail]           = useState("");
+  const [phone, setPhone]           = useState("");
+  const [lat, setLat]               = useState<number|null>(null);
+  const [lng, setLng]               = useState<number|null>(null);
+  const [drivingMiles, setDMiles]   = useState(0);
+  const [mapTravelFee, setMapFee]   = useState(0);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [quote, setQuote]   = useState<Quote|null>(null);
+  const [quoting, setQuoting] = useState(false);
+  const [quoteErr, setQuoteErr] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [result, setResult] = useState<AIResult|null>(null);
+  const [phoneErr, setPhoneErr] = useState("");
+  const [submitErr, setSubmitErr] = useState("");
+
+  useEffect(()=>{ 
+    fetch("/api/packages").then(r=>r.json()).then((pRes:any)=>{
+      // The new API wraps packages in `data`, the old one didn't. Handling both.
+      const p = Array.isArray(pRes) ? pRes : (pRes.data || []);
+      setPkgList({TRUCK:p.filter((x:any)=>x.type==="TRUCK" || x.serviceType==="AMERICANO_TRUCK"),VAN:p.filter((x:any)=>x.type==="VAN" || x.serviceType==="SPRINTER_VAN")});
+      if (packageParamId) {
+        const found = p.find((x:any) => x.id === packageParamId || x.slug === packageParamId);
+        if (found) {
+          setPkgTab((found.type==="TRUCK" || found.serviceType==="AMERICANO_TRUCK") ? "TRUCK" : "VAN");
+          setSel(found);
+          setStep(1); // Auto-advance to details
+        }
+      }
+    });
+  },[packageParamId]);
+
+  const handleZipChange = useCallback((z:string, c:string)=>{ setZip(z); setCity(c); },[]);
+
+  const toEnNum = (str: string) => {
+    if (!str) return str;
+    return String(str)
+      .replace(/[٠-٩]/g, d => '0123456789'[d.charCodeAt(0) - 1632])
+      .replace(/[۰-۹]/g, d => '0123456789'[d.charCodeAt(0) - 1776]);
+  };
+
+  const formatEnDate = (d: string) => {
+    if (!d) return "";
+    try {
+      const parts = d.split("-");
+      if (parts.length === 3) {
+        return `${parts[1]}/${parts[2]}/${parts[0]}`;
+      }
+      return new Date(d + "T12:00:00").toLocaleDateString("en-US", { year: 'numeric', month: '2-digit', day: '2-digit' });
+    } catch { return d; }
+  };
+  const formatEnTime = (t: string) => {
+    if (!t) return "";
+    try {
+      const [h,m] = t.split(":");
+      const hd = new Date(); hd.setHours(parseInt(h)); hd.setMinutes(parseInt(m));
+      return hd.toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit' });
+    } catch { return t; }
+  };
+
+  const fetchQuote = async () => {
+    setQuoting(true); setQuoteErr("");
+    const payload = { 
+      packageId: sel?.id, 
+      zip, 
+      guests: parseInt(toEnNum(guests) || "0"), 
+      durationMins: parseInt(toEnNum(durationMins) || "60"), 
+      extraServings: parseInt(toEnNum(extraServings) || "0"),
+      distanceMiles: drivingMiles 
+    };
+    console.log("Quote payload:", payload);
+    const r = await fetch("/api/quotes",{ method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload) });
+    const d = await r.json();
+    if(!r.ok){ setQuoteErr(d.error || JSON.stringify(d)); setQuoting(false); return; }
+    setQuote(d); setStep(2); setQuoting(false);
+  };
+
+  const validatePhone = (p: string) => {
+    const clean = toEnNum(p).replace(/\D/g, "");
+    if (!clean || clean.length < 10) return "Please enter a valid phone number (at least 10 digits).";
+    return "";
+  };
+
+  const submit = async () => {
+    // Inline phone validation before API call
+    const pErr = validatePhone(phone);
+    if (pErr) { setPhoneErr(pErr); setStep(2); setSubmitting(false); return; }
+    setPhoneErr("");
+    setSubmitErr("");
+    setSubmitting(true);
+    const cleanPhone = toEnNum(phone).replace(/[^\d+\-\s()]/g, "");
+    const payload = {
+      packageId: sel?.id,
+      eventDate: toEnNum(eventDate),
+      startTime: toEnNum(startTime).replace(" ص", " AM").replace(" م", " PM"),
+      durationMins: parseInt(toEnNum(durationMins) || "60"),
+      guests: parseInt(toEnNum(guests) || "0"),
+      eventType,
+      address,
+      city,
+      zip,
+      notes,
+      extraServings: parseInt(toEnNum(extraServings) || "0"),
+      firstName,
+      lastName,
+      email,
+      phone: cleanPhone,
+      totalAmount: quote?.totalAmount,
+      travelFee: quote?.travelFee,
+      overtimeFee: quote?.overtimeFee,
+      extraPieceFee: quote?.extraPieceFee,
+      distanceMiles: quote?.distanceMiles,
+      latitude: lat,
+      longitude: lng
+    };
+    console.log("Booking payload:", payload);
+    const r = await fetch("/api/bookings",{ method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload) });
+    const d:AIResult & { error?: string, missingFields?: string[] } = await r.json();
+    if (!r.ok) {
+      console.error("Booking failed:", d);
+      // Show field-level error for phone if that's the culprit
+      if (d.missingFields?.includes("phone")) {
+        setPhoneErr("Please enter your phone number before completing the booking.");
+        setStep(2);
+      } else {
+        setSubmitErr(d.error || "Something went wrong. Please try again.");
+      }
+      setSubmitting(false);
+      return;
+    }
+    setResult(d); setSubmitting(false);
+  };
+
+  // ── Result screens ──────────────────────────────────────────────────────
+  if(result){
+    const { decision, booking } = result;
+    if(decision?.verdict==="REJECTED") return (
+      <div className="max-w-xl mx-auto px-4 py-16 text-center">
+        <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-6"><XCircle className="w-10 h-10 text-red-500"/></div>
+        <h2 className="text-2xl font-black mb-3" style={{color:"#000223"}}>Request Not Available</h2>
+        <p className="text-gray-600 font-semibold leading-relaxed mb-8">{decision.customerMessage}</p>
+        {decision.alternativeTimes&&decision.alternativeTimes.length>0&&(
+          <div className="bg-amber-50 border border-amber-100 rounded-2xl p-6 mb-8 text-left">
+            <h3 className="font-black mb-4 flex items-center gap-2" style={{color:"#000223"}}><Clock className="w-5 h-5 text-[#FFA000]"/>Available Times</h3>
+            <div className="flex flex-wrap gap-3">
+              {decision.alternativeTimes.map(t=>(
+                <button key={t} onClick={()=>{setStartTime(t);setResult(null);setStep(1);}} className="px-5 py-2.5 rounded-full font-black text-sm border-2 hover:bg-[#000223] hover:text-[#000223] transition-all" style={{borderColor:"#000223",color:"#000223"}}>{t}</button>
+              ))}
             </div>
-            {s < 3 && <div className={`w-16 sm:w-32 h-1 mx-2 transition-all ${step > s ? 'bg-primary-600' : 'bg-slate-200'}`} />}
+          </div>
+        )}
+        <button onClick={()=>setResult(null)} className="px-8 py-3 rounded-full font-black border-2" style={{borderColor:"#000223",color:"#000223"}}>Modify Request</button>
+      </div>
+    );
+    if(decision?.verdict==="PENDING_REVIEW") return (
+      <div className="max-w-xl mx-auto px-4 py-16 text-center">
+        <div className="w-20 h-20 rounded-full bg-amber-50 flex items-center justify-center mx-auto mb-6"><AlertCircle className="w-10 h-10 text-amber-500"/></div>
+        <h2 className="text-2xl font-black mb-3" style={{color:"#000223"}}>Under Review</h2>
+        <p className="font-mono font-black text-lg mb-4" style={{color:"#000223"}}>#{booking?.bookingNumber}</p>
+        <p className="text-gray-600 font-semibold leading-relaxed mb-8">{decision.customerMessage}</p>
+        <div className="bg-blue-50 border border-blue-100 rounded-2xl p-5 text-left text-sm text-blue-700 font-semibold space-y-1.5 max-w-sm mx-auto">
+          <p>✓ Team reviews within 2–4 hours</p><p>✓ Confirmation sent to {email}</p><p>✓ No payment until approved</p>
+        </div>
+      </div>
+    );
+    return (
+      <div className="max-w-xl mx-auto px-4 py-16 text-center">
+        <div className="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-6"><CheckCircle2 className="w-10 h-10 text-emerald-500"/></div>
+        <h2 className="text-3xl font-black mb-3" style={{color:"#000223"}}>Booking Approved! 🎉</h2>
+        <p className="font-mono font-black text-lg mb-4" style={{color:"#000223"}}>#{booking?.bookingNumber}</p>
+        <div className="bg-amber-50 border border-amber-100 rounded-2xl p-5 mb-8 max-w-sm mx-auto">
+          <div className="flex justify-between pt-2"><span className="font-black" style={{color:"#000223"}}>Total Due</span><span className="text-xl font-black" style={{color:"#FFA000"}}>${quote?.totalAmount.toFixed(2)}</span></div>
+        </div>
+        <a href={result.paymentUrl??`/checkout/${booking?.id}`} className="inline-flex items-center gap-2 px-10 py-4 rounded-full font-black text-[#000223] shadow-xl" style={{background:"#000223"}}>
+          <CreditCard className="w-5 h-5"/> Pay ${quote?.totalAmount.toFixed(2)}
+        </a>
+        <p className="text-xs text-gray-400 font-semibold mt-4">🔒 Secured by Stripe</p>
+      </div>
+    );
+  }
+
+  const listPkgs = pkgList[pkgTab];
+
+  return (
+    <div className="booking-wrapper" style={{ fontFamily: "'Nunito', sans-serif" }}>
+      <div className="max-w-3xl mx-auto px-4 py-8 relative z-10 bg-white/80 backdrop-blur-md shadow-2xl rounded-3xl mb-12">
+
+      {/* Progress */}
+      <div className="flex items-center gap-2 mb-12">
+        {STEPS.map((s,i)=>(
+          <div key={i} className="flex items-center flex-1">
+            <div className="flex flex-col items-center">
+              <div className="w-9 h-9 rounded-full flex items-center justify-center font-black text-sm transition-all" style={{background:i<=step?"#000223":"#F3F4F6",color:i<=step?"#FFA000":"#9CA3AF"}}>
+                {i<step?<CheckCircle2 className="w-5 h-5"/>:i+1}
+              </div>
+              <span className="text-[10px] font-black uppercase tracking-wider mt-1.5 whitespace-nowrap" style={{color:i<=step?"#000223":"#9CA3AF"}}>{s}</span>
+            </div>
+            {i<STEPS.length-1&&<div className="flex-1 h-0.5 mx-2 mb-4 rounded-full" style={{background:i<step?"#FFA000":"#E5E7EB"}}/>}
           </div>
         ))}
       </div>
 
-      <div className="card-premium p-6 sm:p-10">
-        {step === 1 && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2"><Truck className="text-primary-500"/> Select Service Package</h2>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {PACKAGES.map((pkg) => (
-                <div 
-                  key={pkg.id} 
-                  onClick={() => setSelectedPkg(pkg)}
-                  className={`p-5 rounded-xl border-2 cursor-pointer transition-all ${selectedPkg?.id === pkg.id ? 'border-primary-500 bg-primary-50 shadow-md' : 'border-slate-200 hover:border-primary-300'}`}
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-bold text-lg">{pkg.name}</h3>
-                    <span className="font-semibold text-primary-700">${pkg.price}</span>
+      {/* ── STEP 0: Package ── */}
+      {step===0&&(
+        <div>
+          <h2 className="text-2xl font-black mb-1" style={{color:"#000223"}}>Choose Your Package</h2>
+          <p className="text-gray-400 font-semibold mb-6 text-sm">Select the vehicle type and package that fits your event</p>
+          {/* Tabs */}
+          <div className="flex gap-2 mb-6 p-1 bg-gray-100 rounded-2xl">
+            {(["TRUCK","VAN"] as const).map(t=>(
+              <button key={t} onClick={()=>{setPkgTab(t);setSel(null);}} className="flex-1 py-3 rounded-xl font-black text-sm transition-all"
+                style={pkgTab===t?{background:"#000223",color:"#FFA000",boxShadow:"0 4px 12px rgba(0,2,35,0.2)"}:{color:"#6B7280"}}>
+                {t==="TRUCK"?"🚐 Americano Truck":"🚌 Sprinter / Dodge Van"}
+              </button>
+            ))}
+          </div>
+          {/* Package Cards */}
+          <div className="space-y-3 mb-6">
+            {listPkgs.length===0&&<div className="text-center py-12 text-gray-400"><Loader2 className="w-7 h-7 animate-spin mx-auto mb-3"/><p className="font-semibold">Loading packages…</p></div>}
+            {listPkgs.map((p:any)=>(
+              <button key={p.id} onClick={()=>setSel(p)}
+                className="w-full text-left p-5 rounded-2xl border-2 transition-all flex items-center gap-4 hover:shadow-lg hover:-translate-y-0.5 group"
+                style={{borderColor:sel?.id===p.id?"#FFA000":"#F3F4F6",background:sel?.id===p.id?"linear-gradient(135deg,#FFFBEB,#FFF8DC)":"white",boxShadow:sel?.id===p.id?"0 8px 24px rgba(255,160,0,0.15)":"none"}}>
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 transition-all" style={{background:sel?.id===p.id?"#FFF0B3":"#F8F9FC"}}>
+                  {(p.type==="TRUCK"||p.serviceType==="AMERICANO_TRUCK")?"🚐":"🚌"}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-black text-base" style={{color:"#000223"}}>{p.name}</div>
+                  <div className="text-gray-400 font-semibold text-sm mt-0.5">
+                    {p.includedQty||p.servings} servings · {p.includedMinutes||60} min included
                   </div>
-                  <p className="text-sm text-slate-600 mb-3">{pkg.desc}</p>
-                  <div className="flex gap-3 text-xs font-medium text-slate-500">
-                    <span className="flex items-center gap-1"><Clock className="w-4 h-4"/> {pkg.duration}m</span>
-                    <span className="flex items-center gap-1"><Truck className="w-4 h-4"/> {pkg.type}</span>
-                  </div>
+                  <div className="text-xs text-gray-300 font-semibold mt-0.5">+${p.extraPiecePrice||(p.type==="TRUCK"?5:4)}/extra serving</div>
+                </div>
+                <div className="flex-shrink-0 text-right">
+                  <div className="font-black text-2xl" style={{color:sel?.id===p.id?"#FFA000":"#000223"}}>${p.basePrice||p.price}</div>
+                  {sel?.id===p.id&&<div className="text-xs font-black text-emerald-600 mt-1">✓ Selected</div>}
+                </div>
+              </button>
+            ))}
+          </div>
+          <div className="p-4 rounded-2xl border border-amber-100 bg-amber-50 text-sm text-amber-700 font-semibold mb-6 flex items-start gap-3">
+            <span className="text-lg">💡</span>
+            <span>Not sure about guest count? Start with 30 servings — we'll adjust at the event based on actual attendance.</span>
+          </div>
+          <div className="flex justify-end">
+            <button onClick={()=>setStep(1)} disabled={!sel}
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-black shadow-lg disabled:opacity-40 hover:-translate-y-0.5 transition-all"
+              style={{background:"#000223",color:"#FFA000"}}>
+              Continue <ArrowRight className="w-5 h-5"/>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── STEP 1: Event Details ── */}
+      {step===1&&(
+        <div>
+          <h2 className="text-2xl font-black mb-1" style={{color:"#000223"}}>Event Details</h2>
+          <p className="text-gray-400 font-semibold mb-6 text-sm">Tell us about your event so we can prepare perfectly</p>
+          <div className="grid md:grid-cols-2 gap-5">
+            <FormInput label="Event Date" value={eventDate} onChange={setEventDate} type="date"
+              min={new Date().toISOString().split("T")[0]} helper="Select a future date for your event"/>
+            <FormInput label="Start Time" value={startTime} onChange={setStartTime} type="time"
+              helper="When should we arrive and start serving?"/>
+            <Field label="Duration" helper={`Package includes ${sel?.includedMinutes||60} min. Overtime billed per 30 min.`}>
+              <select value={durationMins} onChange={e=>setDuration(e.target.value)}
+                className={`${inputBase} ${inputFocus} border-gray-200`} style={{fontFamily:FN}}>
+                {[45,60,90,120,150,180,240].map(m=><option key={m} value={m}>{m} min{sel&&m>(sel.includedMinutes||60)?` (+${Math.ceil((m-(sel.includedMinutes||60))/30)} overtime blocks)`:" (included)"}</option>)}
+              </select>
+            </Field>
+            <FormInput label="Estimated Guests" value={guests} onChange={v=>setGuests(toEnNum(v))} type="number" min="1"
+              helper="Approximate number of people at the event"/>
+            <div className="md:col-span-2">
+              <SelectField label="Event Type" value={eventType} onChange={setEventType}
+                options={EVENT_TYPES} placeholder="Select event type…" helper="Helps us customize the experience for you"/>
+            </div>
+            <div className="md:col-span-2">
+              <FormInput label="Street Address" value={address} onChange={setAddress} placeholder="123 Main Street"
+                helper="The exact address where the truck should park"/>
+            </div>
+            <ZipSelector zip={zip} city={city} onZipChange={handleZipChange}/>
+            {/* Map */}
+            <div className="md:col-span-2">
+              <label className={labelBase}>📍 Pin Event Location on Map</label>
+              <p className="text-xs text-gray-400 font-semibold mb-2">Click map to set event location. Distance is always calculated from <strong>Revere, MA 02151</strong> — your device location is never used as the origin.</p>
+              <MapPicker lat={lat} lng={lng} address={address} onLocationChange={(la,lo,addr,c,z,dm,tf)=>{
+                setLat(la); setLng(lo);
+                if(addr) setAddress(addr);
+                if(c) setCity(c);
+                if(z) setZip(z);
+                setDMiles(dm); setMapFee(tf);
+              }}/>
+              {drivingMiles>0&&(
+                <div className="mt-3 flex items-center gap-2 p-3 rounded-xl bg-amber-50 border border-amber-100">
+                  <Navigation className="w-4 h-4 text-[#FFA000] flex-shrink-0"/>
+                  <span className="text-sm font-bold" style={{color:"#000223"}}>{drivingMiles.toFixed(1)} mi from Revere base</span>
+                  {mapTravelFee>0
+                    ?<span className="ml-auto text-sm font-black text-amber-700">+${mapTravelFee.toFixed(2)} travel fee</span>
+                    :<span className="ml-auto text-sm font-black text-emerald-600">✓ Free travel zone</span>}
+                </div>
+              )}
+            </div>
+            <Field label="Extra Servings" helper={`+$${(sel as any)?.extraPiecePrice??((sel?.type==="TRUCK"||(sel as any)?.serviceType==="AMERICANO_TRUCK")?5:4)} per serving beyond package`}>
+              <input type="number" min="0" value={extraServings} onChange={e=>setExtra(toEnNum(e.target.value))}
+                className={`${inputBase} ${inputFocus} border-gray-200`} style={{fontFamily:FN}}/>
+            </Field>
+            <FormInput label="Notes (optional)" value={notes} onChange={setNotes} placeholder="Gate code, allergies, special requests…"
+              helper="Any details that would help us prepare"/>
+          </div>
+          {quoteErr&&<div className="mt-5 p-4 rounded-2xl bg-red-50 border border-red-100 text-red-700 font-bold text-sm">⚠ {quoteErr}</div>}
+          <div className="flex justify-between pt-6">
+            <button onClick={()=>setStep(0)} className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-black border-2" style={{borderColor:"#000223",color:"#000223"}}><ArrowLeft className="w-5 h-5"/>Back</button>
+            <button onClick={fetchQuote} disabled={quoting||!eventDate||!startTime||!zip||!eventType||!address}
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-black shadow-lg disabled:opacity-40 hover:-translate-y-0.5 transition-all" style={{background:"#000223",color:"#FFA000"}}>
+              {quoting?<><Loader2 className="w-5 h-5 animate-spin"/>Calculating…</>:<>Get My Quote <ArrowRight className="w-5 h-5"/>  </>}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── STEP 2: Contact ── */}
+      {step===2&&(
+        <div>
+          <h2 className="text-2xl font-black mb-1" style={{color:"#000223"}}>Your Information</h2>
+          <p className="text-gray-400 font-semibold mb-5 text-sm">We'll use this to confirm your booking and send updates</p>
+          {quote&&(
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-100 mb-6 flex items-center justify-between">
+              <span className="font-bold text-sm text-gray-500">Estimated Total</span>
+              <span className="text-2xl font-black" style={{color:"#FFA000"}}>${quote.totalAmount.toFixed(2)}</span>
+            </div>
+          )}
+          <div className="grid md:grid-cols-2 gap-5">
+            <FormInput label="First Name" value={firstName} onChange={setFirst} placeholder="Jane" helper="As it appears on your ID"/>
+            <FormInput label="Last Name" value={lastName} onChange={setLast} placeholder="Smith"/>
+            <FormInput label="Email Address" value={email} onChange={setEmail} type="email" placeholder="jane@email.com" helper="OTP code will be sent here"/>
+            <div>
+              <label className={labelBase}>Phone Number *</label>
+              <input type="tel" value={phone}
+                onChange={e=>{ setPhone(toEnNum(e.target.value)); if(phoneErr) setPhoneErr(""); }}
+                onBlur={()=>{ const err=validatePhone(phone); setPhoneErr(err); }}
+                placeholder="(617) 555-0000"
+                className={`${inputBase} ${inputFocus} ${phoneErr?"border-red-400 bg-red-50":"border-gray-200"}`}
+                style={{fontFamily:FN}} autoComplete="tel"/>
+              {phoneErr?<p className="text-red-500 text-xs font-bold mt-1.5">⚠ {phoneErr}</p>
+                :<p className="text-gray-400 text-xs font-semibold mt-1.5">US number preferred · we may call to confirm</p>}
+            </div>
+          </div>
+          <div className="flex justify-between pt-6">
+            <button onClick={()=>setStep(1)} className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-black border-2" style={{borderColor:"#000223",color:"#000223"}}><ArrowLeft className="w-5 h-5"/>Back</button>
+            <button onClick={()=>{ const err=validatePhone(phone); if(err){setPhoneErr(err);return;} setStep(3); }} disabled={!firstName||!lastName||!email||!phone}
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-black shadow-lg disabled:opacity-40 hover:-translate-y-0.5 transition-all" style={{background:"#000223",color:"#FFA000"}}>
+              Verify Email <ArrowRight className="w-5 h-5"/>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── STEP 3: OTP Verification ── */}
+      {step===3&&(
+        <div>
+          <h2 className="text-2xl font-black mb-6" style={{color:"#000223"}}>Verify Your Email</h2>
+          {otpVerified?(
+            <div className="text-center py-8">
+              <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-3"/>
+              <p className="font-black" style={{color:"#000223"}}>Email Verified!</p>
+              <button onClick={()=>setStep(4)} className="mt-4 btn-primary">Continue to Review <ArrowRight className="w-4 h-4"/></button>
+            </div>
+          ):(
+            <OtpVerification email={email} firstName={firstName} onVerified={()=>{setOtpVerified(true);setStep(4);}}/>
+          )}
+          <div className="flex justify-start pt-6">
+            <button onClick={()=>setStep(2)} className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-black border-2" style={{borderColor:"#000223",color:"#000223"}}><ArrowLeft className="w-5 h-5"/>Back</button>
+          </div>
+        </div>
+      )}
+
+      {/* ── STEP 4: Review ── */}
+      {step===4&&quote&&(
+        <div>
+          <h2 className="text-2xl font-black mb-1" style={{color:"#000223"}}>Review & Confirm</h2>
+          <p className="text-gray-400 font-semibold mb-5 text-sm">Please verify your details before we send to our AI dispatch system</p>
+          {submitErr&&<div className="mb-4 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 font-bold text-sm">⚠ {submitErr}</div>}
+          {/* Package Card */}
+          <div className="rounded-2xl border border-gray-100 bg-white shadow-sm mb-4 overflow-hidden">
+            <div className="px-5 py-3 border-b border-gray-50 flex items-center gap-2">
+              <span className="text-base">🚐</span>
+              <span className="text-xs font-black uppercase tracking-widest text-gray-400">Package</span>
+            </div>
+            <div className="px-5 py-4 flex items-center justify-between">
+              <div>
+                <div className="font-black" style={{color:"#000223"}}>{sel?.name}</div>
+                <div className="text-sm text-gray-400 font-semibold mt-0.5">{sel?.includedQty||sel?.servings} servings · {sel?.includedMinutes||60} min base</div>
+              </div>
+              <div className="font-black text-xl" style={{color:"#FFA000"}}>${sel?.basePrice||sel?.price}</div>
+            </div>
+          </div>
+          {/* Event Card */}
+          <div className="rounded-2xl border border-gray-100 bg-white shadow-sm mb-4 overflow-hidden">
+            <div className="px-5 py-3 border-b border-gray-50">
+              <span className="text-xs font-black uppercase tracking-widest text-gray-400">📅 Event Details</span>
+            </div>
+            <div className="divide-y divide-gray-50">
+              {[["Type",eventType],["Date",formatEnDate(eventDate)],["Time",formatEnTime(startTime)],["Duration",`${durationMins} min`],["Guests",toEnNum(guests)],["Location",`${address}, ${city} ${zip}`],["Travel",`${quote.distanceMiles.toFixed(1)} mi from Revere, MA 02151`]].map(([l,v])=>(
+                <div key={l} className="flex justify-between px-5 py-3 text-sm">
+                  <span className="text-gray-400 font-bold">{l}</span>
+                  <span className="font-black text-right max-w-[60%]" style={{color:"#000223"}}>{v}</span>
                 </div>
               ))}
             </div>
-            <div className="mt-8 flex justify-end">
-              <button 
-                disabled={!selectedPkg}
-                onClick={handleNext}
-                className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                Next Details <ChevronRight className="w-5 h-5"/>
-              </button>
+          </div>
+          {/* Contact Card */}
+          <div className="rounded-2xl border border-gray-100 bg-white shadow-sm mb-4 overflow-hidden">
+            <div className="px-5 py-3 border-b border-gray-50">
+              <span className="text-xs font-black uppercase tracking-widest text-gray-400">👤 Contact</span>
+            </div>
+            <div className="divide-y divide-gray-50">
+              {[["Name",`${firstName} ${lastName}`],["Email",email],["Phone",phone]].map(([l,v])=>(
+                <div key={l} className="flex justify-between px-5 py-3 text-sm">
+                  <span className="text-gray-400 font-bold">{l}</span>
+                  <span className="font-black" style={{color:"#000223"}}>{v}</span>
+                </div>
+              ))}
             </div>
           </div>
-        )}
-
-        {step === 2 && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2"><CalendarDays className="text-primary-500"/> Event Details</h2>
-            <div className="grid gap-5 sm:grid-cols-2">
-              <div>
-                <label className="label-premium">Date</label>
-                <input type="date" className="input-premium" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} />
+          {/* Pricing Card */}
+          <div className="rounded-2xl bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-100 p-5 mb-5">
+            <div className="text-xs font-black uppercase tracking-widest text-amber-600 mb-3">💰 Pricing Breakdown</div>
+            {quote.breakdown.map((b,i)=>(b.amount!==0||i===0)&&(
+              <div key={i} className="flex justify-between py-1.5 text-sm">
+                <span className="font-semibold text-gray-600">{b.label}</span>
+                <span className="font-black" style={{color:b.amount<0?"#10B981":"#000223"}}>{b.amount<0?`-$${Math.abs(b.amount).toFixed(2)}`:`$${b.amount.toFixed(2)}`}</span>
               </div>
-              <div>
-                <label className="label-premium">Start Time</label>
-                <input type="time" className="input-premium" value={formData.time} onChange={e => setFormData({...formData, time: e.target.value})} />
-              </div>
-              <div className="sm:col-span-2">
-                <label className="label-premium">Event Address</label>
-                <input type="text" placeholder="123 Main St" className="input-premium" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} />
-              </div>
-              <div>
-                <label className="label-premium">City</label>
-                <input type="text" placeholder="Boston" className="input-premium" value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} />
-              </div>
-              <div>
-                <label className="label-premium">ZIP Code</label>
-                <input type="text" placeholder="02151" className="input-premium" value={formData.zip} onChange={e => setFormData({...formData, zip: e.target.value})} />
-              </div>
-              <div>
-                <label className="label-premium">Estimated Guests</label>
-                <input type="number" className="input-premium" value={formData.guests} onChange={e => setFormData({...formData, guests: parseInt(e.target.value)})} />
-              </div>
-            </div>
-            
-            <hr className="my-8 border-slate-100" />
-            
-            <h2 className="text-xl font-bold mb-4">Contact Info</h2>
-            <div className="grid gap-5 sm:grid-cols-2">
-              <div className="sm:col-span-2">
-                <label className="label-premium">Full Name</label>
-                <input type="text" className="input-premium" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
-              </div>
-              <div>
-                <label className="label-premium">Email</label>
-                <input type="email" className="input-premium" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
-              </div>
-              <div>
-                <label className="label-premium">Phone</label>
-                <input type="tel" className="input-premium" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
-              </div>
-            </div>
-
-            <div className="mt-8 flex justify-between">
-              <button onClick={() => setStep(1)} className="text-slate-500 font-medium hover:text-slate-800 transition-colors">Back</button>
-              <button 
-                disabled={loading || !formData.date || !formData.time || !formData.address || !formData.name || !formData.email}
-                onClick={handleNext}
-                className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                {loading ? 'Calculating...' : 'Get Quote'} <ChevronRight className="w-5 h-5"/>
-              </button>
+            ))}
+            <div className="border-t border-amber-200 mt-3 pt-3 flex justify-between items-center">
+              <span className="font-black text-base" style={{color:"#000223"}}>Total</span>
+              <span className="text-2xl font-black" style={{color:"#FFA000"}}>${quote.totalAmount.toFixed(2)}</span>
             </div>
           </div>
-        )}
-
-        {step === 3 && quote && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle2 className="w-8 h-8" />
-              </div>
-              <h2 className="text-3xl font-bold">Your Custom Quote</h2>
-              <p className="text-slate-500 mt-2">Please review your pricing and availability below.</p>
-            </div>
-
-            <div className="bg-slate-50 rounded-xl p-6 border border-slate-100 mb-8">
-              <div className="flex justify-between items-center mb-4 pb-4 border-b border-slate-200">
-                <span className="font-semibold text-lg">{selectedPkg.name}</span>
-                <span className="font-medium">${quote.basePrice.toFixed(2)}</span>
-              </div>
-              
-              {quote.guestFee > 0 && (
-                <div className="flex justify-between items-center mb-2 text-slate-600">
-                  <span>Extra Guest Fee (&gt;50)</span>
-                  <span>${quote.guestFee.toFixed(2)}</span>
-                </div>
-              )}
-              
-              {quote.travelFee > 0 && (
-                <div className="flex justify-between items-center mb-2 text-slate-600">
-                  <span>Travel Fee ({quote.distanceMiles} miles)</span>
-                  <span>${quote.travelFee.toFixed(2)}</span>
-                </div>
-              )}
-
-              {quote.overtimeFee > 0 && (
-                <div className="flex justify-between items-center mb-2 text-slate-600">
-                  <span>Overtime Fee</span>
-                  <span>${quote.overtimeFee.toFixed(2)}</span>
-                </div>
-              )}
-
-              <div className="flex justify-between items-center mt-6 pt-4 border-t border-slate-200">
-                <span className="font-bold text-xl">Total</span>
-                <span className="font-bold text-2xl text-primary-600">${quote.totalAmount.toFixed(2)}</span>
-              </div>
-            </div>
-
-            {availability?.available ? (
-              <div className="bg-green-50 border border-green-200 text-green-800 p-4 rounded-xl mb-8 flex gap-3">
-                <CheckCircle2 className="w-6 h-6 flex-shrink-0" />
-                <div>
-                  <h4 className="font-bold">Great news!</h4>
-                  <p className="text-sm mt-1">We have a {selectedPkg.type.toLowerCase()} available for your date and time.</p>
-                </div>
-              </div>
-            ) : (
-              <div className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-xl mb-8">
-                <h4 className="font-bold">Currently Unavailable</h4>
-                <p className="text-sm mt-1">We do not have a {selectedPkg.type.toLowerCase()} available for the selected time. You can still submit a request, and we will contact you with options.</p>
-              </div>
-            )}
-
-            <div className="flex justify-between items-center">
-              <button onClick={() => setStep(2)} className="text-slate-500 font-medium hover:text-slate-800 transition-colors">Back</button>
-              <button className="btn-primary flex items-center gap-2">
-                Proceed to Checkout <ChevronRight className="w-5 h-5"/>
-              </button>
-            </div>
+          <p className="text-xs text-center text-gray-400 font-semibold mb-5">📍 Travel always calculated from <strong>Boston Legend base: Revere, MA 02151</strong></p>
+          <div className="flex justify-between">
+            <button onClick={()=>setStep(3)} className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-black border-2" style={{borderColor:"#000223",color:"#000223"}}><ArrowLeft className="w-5 h-5"/>Back</button>
+            <button onClick={submit} disabled={submitting}
+              className="inline-flex items-center gap-3 px-10 py-4 rounded-full font-black shadow-xl disabled:opacity-50 hover:-translate-y-0.5 transition-all text-lg" style={{background:"linear-gradient(135deg,#000223,#001a4c)",color:"#FFA000"}}>
+              {submitting?<><Loader2 className="w-5 h-5 animate-spin"/>Processing…</>
+                :<><CreditCard className="w-5 h-5"/>Confirm & Continue to Payment</>}
+            </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+    </div>
     </div>
   );
 }

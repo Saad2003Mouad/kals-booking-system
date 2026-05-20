@@ -1,0 +1,210 @@
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { evaluateBooking } from "@/lib/aiEngine";
+import { sendBookingPendingEmail, sendBookingApprovedEmail } from "@/lib/email";
+import { z } from "zod";
+
+async function withRetry<T>(fn: () => Promise<T>, retries = 2): Promise<T> {
+  let lastError: unknown;
+  for (let i = 0; i <= retries; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error;
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+  }
+  throw lastError;
+}
+
+const BookingSchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().min(1, "Phone is required").transform(v => v.replace(/[^\d+\-\s()]/g,"")),
+  address: z.string().min(1, "Address is required"),
+  city: z.string().min(1, "City is required"),
+  zip: z.string().length(5, "ZIP code must be 5 digits"),
+  eventDate: z.string().min(1, "Event date is required"),
+  startTime: z.string().min(1, "Start time is required"),
+  durationMins: z.coerce.number().min(30),
+  guests: z.coerce.number().min(1),
+  eventType: z.string().min(1, "Event type is required"),
+  packageId: z.string().optional().nullable(),
+  notes: z.string().optional().nullable(),
+  totalAmount: z.coerce.number().min(1),
+  travelFee: z.coerce.number().default(0),
+  overtimeFee: z.coerce.number().default(0),
+  extraPieceFee: z.coerce.number().default(0),
+  distanceMiles: z.coerce.number().default(0),
+  latitude: z.coerce.number().optional().nullable(),
+  longitude: z.coerce.number().optional().nullable(),
+});
+
+function genBookingNumber() {
+  const d = new Date();
+  const date = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}`;
+  return `BL-${date}-${Math.floor(1000+Math.random()*9000)}`;
+}
+
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const status = searchParams.get("status");
+  const page   = parseInt(searchParams.get("page") ?? "1");
+  const limit  = 20;
+  const where: any = status ? { status } : {};
+
+  const [bookings, total] = await withRetry(() => Promise.all([
+    prisma.booking.findMany({
+      where,
+      include: { customer: true, vehicle: true },
+      orderBy: { createdAt: "desc" },
+      skip: (page-1) * limit,
+      take: limit,
+    }),
+    prisma.booking.count({ where }),
+  ]));
+
+  return NextResponse.json({ bookings, total, page, pages: Math.ceil(total/limit) });
+}
+
+  export async function POST(req: NextRequest) {
+    try {
+      const json = await req.json();
+      console.log("Booking API body:", json);
+      const result = BookingSchema.safeParse(json);
+  
+      if (!result.success) {
+        return NextResponse.json({ 
+          error: "Validation failed", 
+          missingFields: Object.keys(result.error.flatten().fieldErrors),
+          details: result.error.flatten().fieldErrors 
+        }, { status: 400 });
+      }
+
+    const {
+      firstName, lastName, email, phone,
+      address, city, zip,
+      eventDate, startTime, durationMins,
+      guests, eventType, packageId, notes,
+      totalAmount, travelFee, overtimeFee, extraPieceFee, distanceMiles,
+      latitude, longitude
+    } = result.data;
+
+    // ── 1. Run AI Engine ──────────────────────────────────────
+    const aiDecision = await evaluateBooking({
+      eventDate, startTime,
+      durationMins,
+      zip, city,
+      totalAmount,
+      distanceMiles,
+      packageId: packageId || undefined, 
+      guests,
+      eventType,
+    });
+
+    // ── 2. If hard rejected, return immediately (no booking created) ──
+    if (aiDecision.verdict === "REJECTED") {
+      return NextResponse.json({
+        rejected: true,
+        decision: aiDecision,
+      }, { status: 200 });
+    }
+
+    // ── 3. Upsert customer ────────────────────────────────────
+    let customer = await withRetry(() => prisma.customer.findFirst({ where: { phone } }));
+    if (!customer) {
+      customer = await withRetry(() => prisma.customer.create({
+        data: { firstName, lastName, email, phone, address, city, zip },
+      }));
+    }
+
+    // ── 4. Determine booking status ───────────────────────────
+    // APPROVED → CONFIRMED (ready for payment)
+    // PENDING_REVIEW → PENDING_REVIEW (admin must approve/reject)
+    const status = aiDecision.autoConfirm ? "CONFIRMED" : "PENDING_REVIEW";
+
+    // ── 5. Create booking ─────────────────────────────────────
+    const booking = await withRetry(() => prisma.booking.create({
+      data: {
+        bookingNumber: genBookingNumber(),
+        customerId: customer.id,
+        packageId: packageId as string,
+        status: status as any,
+        eventDate: new Date(eventDate),
+        startTime,
+        durationMins: durationMins,
+        address, city, zip,
+        guests: guests,
+        eventType,
+        totalAmount,
+        notes: notes || null,
+        items: {
+          create: [
+            { lineType: "PACKAGE", description: "Package base price", quantity: 1, unitPrice: totalAmount - travelFee - overtimeFee - extraPieceFee, totalPrice: totalAmount - travelFee - overtimeFee - extraPieceFee },
+            ...(travelFee > 0 ? [{ lineType: "TRAVEL", description: "Travel fee",     quantity: 1, unitPrice: travelFee,   totalPrice: travelFee }]   : []),
+            ...(overtimeFee > 0 ? [{ lineType: "OVERTIME", description: "Overtime fee",   quantity: 1, unitPrice: overtimeFee, totalPrice: overtimeFee }] : []),
+            ...(extraPieceFee > 0 ? [{ lineType: "EXTRA_SERVINGS", description: "Extra servings",   quantity: 1, unitPrice: extraPieceFee, totalPrice: extraPieceFee }] : []),
+          ],
+        },
+        quote: {
+          create: {
+            basePrice:     totalAmount - travelFee - overtimeFee,
+            distanceMiles: distanceMiles,
+            travelFee:     travelFee,
+            overtimeFee:   overtimeFee,
+            totalAmount:   totalAmount,
+            snapshotJson:  JSON.stringify({ packageId, guests, durationMins, zip, city, aiFlags: aiDecision.flags }),
+          },
+        },
+      },
+      include: { customer: true },
+    }));
+
+    // ── 6. Audit log ──────────────────────────────────────────
+    await withRetry(() => prisma.auditLog.create({
+      data: {
+        entityType: "BOOKING",
+        entityId: booking.id,
+        action: `AI_${aiDecision.verdict}`,
+        metadataJson: JSON.stringify({ flags: aiDecision.flags, reason: aiDecision.reason }),
+      },
+    }));
+
+    // ── 7. Create Stripe payment intent and send Emails ────────
+    let paymentUrl: string | null = null;
+    if (aiDecision.autoConfirm) {
+      paymentUrl = `/checkout/${booking.id}`;
+      // Do not block response for emails
+      sendBookingApprovedEmail(email, firstName, booking.bookingNumber, paymentUrl, totalAmount.toFixed(2)).catch(console.error);
+    } else {
+      sendBookingPendingEmail(email, firstName, booking.bookingNumber, {
+        eventDate,
+        startTime,
+        durationMins,
+        guests,
+        eventType,
+        address,
+        city,
+        zip,
+        packageName: booking.packageId || 'Custom', // In reality fetch package name if needed
+        basePrice: totalAmount - travelFee - overtimeFee - extraPieceFee,
+        extraServingsFee: extraPieceFee,
+        travelFee,
+        overtimeFee,
+        totalAmount
+      }).catch(console.error);
+    }
+
+    return NextResponse.json({
+      booking,
+      decision: aiDecision,
+      paymentUrl,
+      status,
+    }, { status: 201 });
+
+  } catch (err) {
+    console.error("[Booking API Error]", err);
+    return NextResponse.json({ error: "Booking creation failed. Please try again." }, { status: 500 });
+  }
+}

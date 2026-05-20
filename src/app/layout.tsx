@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
-
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+import Providers from "./providers";
 
 export const metadata: Metadata = {
-  title: "Kals Ice Cream | Booking & Dispatch",
-  description: "Book an Americano Ice Cream Truck or Van for your next event.",
+  title: "Boston Legend Ice Cream",
+  description: "Boston's premier luxury ice cream truck booking and dispatch service.",
 };
 
 export default function RootLayout({
@@ -15,9 +14,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable}`}>
-      <body className="bg-slate-50 min-h-screen flex flex-col">
-        {children}
+    <html lang="en">
+      <body className="antialiased font-sans bg-amber-50">
+        <Providers>
+          {children}
+        </Providers>
+        {/* Unified Chat & Nav Injector */}
+        <Script src="/bl-widgets.js" strategy="afterInteractive" />
       </body>
     </html>
   );
