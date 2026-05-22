@@ -10,9 +10,7 @@ const nextConfig = {
   },
   async rewrites() {
     return {
-      beforeFiles: [
-        { source: "/", destination: "/index.html" },
-      ],
+      beforeFiles: [],
       afterFiles: [
         { source: "/about", destination: "/about.html" },
         { source: "/menu", destination: "/menu.html" },
