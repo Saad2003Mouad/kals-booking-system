@@ -7,16 +7,17 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.74",
     "@ai-sdk/groq": "^3.0.39",
     "@ai-sdk/openai": "^3.0.64",
     "@google/generative-ai": "^0.24.1",
-    "@prisma/client": "^5.14.0",
+    "@prisma/client": "5.22.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/leaflet": "^1.9.21",
     "@types/nodemailer": "^8.0.0",
@@ -46,7 +47,7 @@
     "eslint": "^8",
     "eslint-config-next": "14.2.3",
     "postcss": "^8.5.13",
-    "prisma": "^5.14.0",
+    "prisma": "5.22.0",
     "tailwindcss": "^3.4.19",
     "typescript": "^5",
     "vercel": "^54.2.0"
