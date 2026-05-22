@@ -1,8 +1,8 @@
-import { redirect } from "next/navigation";
+import { permanentRedirect } from "next/navigation";
 
 // Serve the Webflow homepage from public/index.html
-// This avoids a 404 at "/" since Next.js App Router needs a page.tsx
-// The actual homepage content is served from /index.html (public folder)
+// Next.js App Router needs a page.tsx to define the "/" route.
+// The actual homepage content lives in public/index.html (Webflow export).
 export default function HomePage() {
-  redirect("/index.html");
+  permanentRedirect("/index.html");
 }
