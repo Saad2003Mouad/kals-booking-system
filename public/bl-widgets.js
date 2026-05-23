@@ -18,6 +18,16 @@
     const rightLinks = document.querySelector('.right-menu-links');
     if (!rightLinks || document.getElementById('bl-signin-btn')) return;
 
+    // Guard: if a Sign In / login link already exists in the header, do nothing
+    const existingSignIn = rightLinks.querySelector('a[href*="login"]') || 
+                           Array.from(rightLinks.querySelectorAll('a')).some(a => a.textContent.includes('Sign In') || a.textContent.includes('Sign Up'));
+    if (existingSignIn) {
+      // Clean up any remaining Reserve Truck buttons if they exist
+      const bookingLinks = rightLinks.querySelectorAll('a[href*="booking"], a[href*="reserve"]');
+      bookingLinks.forEach(btn => btn.remove());
+      return;
+    }
+
     // Hide any existing "Reserve Truck" or other duplicate buttons
     const existingButtons = rightLinks.querySelectorAll('a.button, a.reserve-btn, a[href*="booking"], a[href*="reserve"]');
     existingButtons.forEach(btn => btn.style.display = 'none');
