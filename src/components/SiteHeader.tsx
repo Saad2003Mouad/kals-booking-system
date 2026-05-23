@@ -58,7 +58,7 @@ export default function SiteHeader() {
                 <img src="https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/67e39363a441f7dbfd2d79f8_87138d38a55ab32d7fd16103cc7b4b29_phone-boston-legend-ice-cream-truck.png" loading="lazy" width="23" height="23" alt="Phone" className="mr-5"/>
                 <div className="text-block">617-999-3803<br/></div>
               </a>
-              <Link href="/booking" className="link-bt menu-bt">Reserve Truck</Link>
+              <Link href="/login" className="link-bt menu-bt">Sign In or Sign Up</Link>
             </div>
             <div className="menu-button w-nav-button"><div className="icon w-icon-nav-menu"></div></div>
           </div>
