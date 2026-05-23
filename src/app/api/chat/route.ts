@@ -4,7 +4,7 @@ import { orchestrateAI } from "@/lib/ai/orchestrator";
 
 export async function POST(req: Request) {
   try {
-    const { messages } = await req.json();
+    const { messages, currentPage } = await req.json();
 
     if (!process.env.GROQ_API_KEY) {
       return NextResponse.json({ 
@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     const lowerMsg = lastUserMsg.toLowerCase();
     
     // Escalation Triggers
-    const needsHuman = ["human", "talk to someone", "call me", "speak to", "agent", "manager"].some(t => lowerMsg.includes(t));
+    const needsHuman = ["human", "talk to someone", "call me", "speak to", "agent", "manager", "payment issue"].some(t => lowerMsg.includes(t));
     
     if (needsHuman) {
       const { prisma } = await import("@/lib/prisma");
@@ -29,7 +29,7 @@ export async function POST(req: Request) {
         data: {
           name: "Anonymous Chat User",
           email: "Not provided",
-          notes: `[CHAT_ESCALATION] Customer requested human help.\nPage URL: ${req.url}\nLast Msg: ${lastUserMsg}\n\nChat Context:\n${messages.map((m: any) => m.role + ": " + m.content).join("\n")}`,
+          notes: `[CHAT_ESCALATION] Customer requested human help.\nPage URL: ${currentPage || req.url}\nLast Msg: ${lastUserMsg}\n\nChat Context:\n${messages.map((m: any) => m.role + ": " + m.content).join("\n")}`,
           status: "NEW",
         }
       });
@@ -86,15 +86,15 @@ export async function POST(req: Request) {
       reply: aiResponse.final_response 
     });
 
-  } catch (error) {
-    console.error("Groq AI Error:", error);
+  } catch (error: any) {
+    console.error("Groq AI Route Error:", error?.stack || error);
     
     return NextResponse.json({ 
       intent: "ERROR",
       tool_calls: [],
       data: {},
-      final_response: "I'm having a little trouble connecting right now. Please call us at 617-999-3803.",
-      reply: "I'm having a little trouble connecting right now. Please call us at 617-999-3803."
+      final_response: "Sorry, I’m having trouble right now. Please try again or request a human.",
+      reply: "Sorry, I’m having trouble right now. Please try again or request a human."
     }, { status: 500 });
   }
 }

@@ -313,16 +313,21 @@ export default function BookingForm() {
       <div className="max-w-3xl mx-auto px-4 py-8 relative z-10 bg-white/80 backdrop-blur-md shadow-2xl rounded-3xl mb-12">
 
       {/* Progress */}
-      <div className="flex items-center gap-2 mb-12">
+      <div className="sm:hidden text-center mb-6">
+        <p className="text-xs font-black uppercase tracking-wider text-slate-400">Step {step + 1} of 5</p>
+        <p className="text-lg font-black text-[#000223]">{STEPS[step]}</p>
+      </div>
+
+      <div className="flex items-center gap-2 mb-8 sm:mb-12">
         {STEPS.map((s,i)=>(
           <div key={i} className="flex items-center flex-1">
             <div className="flex flex-col items-center">
               <div className="w-9 h-9 rounded-full flex items-center justify-center font-black text-sm transition-all" style={{background:i<=step?"#000223":"#F3F4F6",color:i<=step?"#FFA000":"#9CA3AF"}}>
                 {i<step?<CheckCircle2 className="w-5 h-5"/>:i+1}
               </div>
-              <span className="text-[10px] font-black uppercase tracking-wider mt-1.5 whitespace-nowrap" style={{color:i<=step?"#000223":"#9CA3AF"}}>{s}</span>
+              <span className="text-[10px] font-black uppercase tracking-wider mt-1.5 whitespace-nowrap hidden sm:block" style={{color:i<=step?"#000223":"#9CA3AF"}}>{s}</span>
             </div>
-            {i<STEPS.length-1&&<div className="flex-1 h-0.5 mx-2 mb-4 rounded-full" style={{background:i<step?"#FFA000":"#E5E7EB"}}/>}
+            {i<STEPS.length-1&&<div className="flex-1 h-0.5 mx-2 mb-0 sm:mb-4 rounded-full transition-all" style={{background:i<step?"#FFA000":"#E5E7EB"}}/>}
           </div>
         ))}
       </div>
@@ -435,10 +440,10 @@ export default function BookingForm() {
               helper="Any details that would help us prepare"/>
           </div>
           {quoteErr&&<div className="mt-5 p-4 rounded-2xl bg-red-50 border border-red-100 text-red-700 font-bold text-sm">⚠ {quoteErr}</div>}
-          <div className="flex justify-between pt-6">
-            <button onClick={()=>setStep(0)} className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-black border-2" style={{borderColor:"#000223",color:"#000223"}}><ArrowLeft className="w-5 h-5"/>Back</button>
+          <div className="flex flex-col-reverse sm:flex-row justify-between gap-3 pt-6">
+            <button onClick={()=>setStep(0)} className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-black border-2 w-full sm:w-auto" style={{borderColor:"#000223",color:"#000223"}}><ArrowLeft className="w-5 h-5"/>Back</button>
             <button onClick={fetchQuote} disabled={quoting||!eventDate||!startTime||!zip||!eventType||!address}
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-black shadow-lg disabled:opacity-40 hover:-translate-y-0.5 transition-all" style={{background:"#000223",color:"#FFA000"}}>
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-black shadow-lg disabled:opacity-40 hover:-translate-y-0.5 transition-all w-full sm:w-auto" style={{background:"#000223",color:"#FFA000"}}>
               {quoting?<><Loader2 className="w-5 h-5 animate-spin"/>Calculating…</>:<>Get My Quote <ArrowRight className="w-5 h-5"/>  </>}
             </button>
           </div>
@@ -472,10 +477,10 @@ export default function BookingForm() {
                 :<p className="text-gray-400 text-xs font-semibold mt-1.5">US number preferred · we may call to confirm</p>}
             </div>
           </div>
-          <div className="flex justify-between pt-6">
-            <button onClick={()=>setStep(1)} className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-black border-2" style={{borderColor:"#000223",color:"#000223"}}><ArrowLeft className="w-5 h-5"/>Back</button>
+          <div className="flex flex-col-reverse sm:flex-row justify-between gap-3 pt-6">
+            <button onClick={()=>setStep(1)} className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-black border-2 w-full sm:w-auto" style={{borderColor:"#000223",color:"#000223"}}><ArrowLeft className="w-5 h-5"/>Back</button>
             <button onClick={()=>{ const err=validatePhone(phone); if(err){setPhoneErr(err);return;} setStep(3); }} disabled={!firstName||!lastName||!email||!phone}
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-black shadow-lg disabled:opacity-40 hover:-translate-y-0.5 transition-all" style={{background:"#000223",color:"#FFA000"}}>
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-black shadow-lg disabled:opacity-40 hover:-translate-y-0.5 transition-all w-full sm:w-auto" style={{background:"#000223",color:"#FFA000"}}>
               Verify Email <ArrowRight className="w-5 h-5"/>
             </button>
           </div>
@@ -496,7 +501,7 @@ export default function BookingForm() {
             <OtpVerification email={email} firstName={firstName} onVerified={()=>{setOtpVerified(true);setStep(4);}}/>
           )}
           <div className="flex justify-start pt-6">
-            <button onClick={()=>setStep(2)} className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-black border-2" style={{borderColor:"#000223",color:"#000223"}}><ArrowLeft className="w-5 h-5"/>Back</button>
+            <button onClick={()=>setStep(2)} className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-black border-2 w-full sm:w-auto" style={{borderColor:"#000223",color:"#000223"}}><ArrowLeft className="w-5 h-5"/>Back</button>
           </div>
         </div>
       )}
@@ -564,10 +569,10 @@ export default function BookingForm() {
             </div>
           </div>
           <p className="text-xs text-center text-gray-400 font-semibold mb-5">📍 Travel always calculated from <strong>Boston Legend base: Revere, MA 02151</strong></p>
-          <div className="flex justify-between">
-            <button onClick={()=>setStep(3)} className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-black border-2" style={{borderColor:"#000223",color:"#000223"}}><ArrowLeft className="w-5 h-5"/>Back</button>
+          <div className="flex flex-col-reverse sm:flex-row justify-between gap-3 pt-6">
+            <button onClick={()=>setStep(3)} className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-black border-2 w-full sm:w-auto" style={{borderColor:"#000223",color:"#000223"}}><ArrowLeft className="w-5 h-5"/>Back</button>
             <button onClick={submit} disabled={submitting}
-              className="inline-flex items-center gap-3 px-10 py-4 rounded-full font-black shadow-xl disabled:opacity-50 hover:-translate-y-0.5 transition-all text-lg" style={{background:"linear-gradient(135deg,#000223,#001a4c)",color:"#FFA000"}}>
+              className="inline-flex items-center justify-center gap-3 px-6 sm:px-10 py-4 rounded-full font-black shadow-xl disabled:opacity-50 hover:-translate-y-0.5 transition-all text-base sm:text-lg w-full sm:w-auto" style={{background:"linear-gradient(135deg,#000223,#001a4c)",color:"#FFA000"}}>
               {submitting?<><Loader2 className="w-5 h-5 animate-spin"/>Processing…</>
                 :<><CreditCard className="w-5 h-5"/>Confirm & Continue to Payment</>}
             </button>

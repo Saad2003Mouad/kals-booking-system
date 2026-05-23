@@ -163,17 +163,17 @@ export default function SettingsPage() {
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <input
-                          type="number"
+                          type={s.key.includes("EMAIL") ? "text" : "number"}
                           value={values[s.key] ?? s.default}
                           onChange={e => setValues(v => ({ ...v, [s.key]: e.target.value }))}
-                          className="w-28 px-3 py-2.5 rounded-xl border-2 text-center font-black text-sm outline-none transition-all"
+                          className={`${s.key.includes("EMAIL") ? "w-64 text-left" : "w-28 text-center"} px-3 py-2.5 rounded-xl border-2 font-black text-sm outline-none transition-all`}
                           style={{
                             borderColor: changed ? "#FFA000" : "#E5E7EB",
                             background: changed ? "#FFFBEB" : "#F8F9FC",
                             color: "#000223",
-                            fontFamily: "monospace",
+                            fontFamily: s.key.includes("EMAIL") ? "inherit" : "monospace",
                           }}
-                          step="any"
+                          step={s.key.includes("EMAIL") ? undefined : "any"}
                         />
                         <span className="text-xs font-bold text-slate-400 w-8">{s.unit}</span>
                       </div>

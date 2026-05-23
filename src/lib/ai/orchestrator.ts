@@ -29,7 +29,10 @@ const CUSTOMER_TOOLS = {
     parameters: z.object({
       date: z.string().describe("Date in YYYY-MM-DD format"),
     }),
-    execute: async ({ date }: any) => checkAvailability(date),
+    execute: async (args: any) => {
+      const { date } = args || {};
+      return checkAvailability(date);
+    },
   } as any),
   estimatePrice: tool({
     description: "Estimate the price for a booking given guest count and package ID.",
@@ -37,7 +40,10 @@ const CUSTOMER_TOOLS = {
       guests: z.number().describe("Number of guests"),
       packageId: z.string().describe("Package ID"),
     }),
-    execute: async ({ guests, packageId }: any) => estimatePrice(guests, packageId),
+    execute: async (args: any) => {
+      const { guests, packageId } = args || {};
+      return estimatePrice(guests, packageId);
+    },
   } as any),
 };
 
@@ -63,7 +69,8 @@ const ADMIN_TOOLS = {
     parameters: z.object({
       status: z.enum(["ALL", "PENDING_REVIEW", "PENDING_PAYMENT", "CONFIRMED", "COMPLETED", "CANCELLED"]).describe("Booking status filter"),
     }),
-    execute: async ({ status }: any) => {
+    execute: async (args: any) => {
+      const { status } = args || {};
       const res = await getBookings(status === "ALL" ? undefined : status);
       return JSON.parse(JSON.stringify(res));
     }
@@ -81,7 +88,8 @@ const ADMIN_TOOLS = {
     parameters: z.object({
       status: z.enum(["ALL", "NEW", "IN_PROGRESS", "RESOLVED", "CLOSED"]).describe("Filter inquiries by status"),
     }),
-    execute: async ({ status }: any) => {
+    execute: async (args: any) => {
+      const { status } = args || {};
       const { prisma } = await import("@/lib/prisma");
       const res = await prisma.inquiry.findMany({ where: status && status !== "ALL" ? { status } : {}, orderBy: { createdAt: "desc" }, take: 10 });
       return JSON.parse(JSON.stringify(res));
@@ -92,10 +100,86 @@ const ADMIN_TOOLS = {
     parameters: z.object({
       status: z.enum(["ALL", "TODO", "IN_PROGRESS", "DONE", "BLOCKED"]).describe("Filter tasks by status"),
     }),
-    execute: async ({ status }: any) => {
+    execute: async (args: any) => {
+      const { status } = args || {};
       const { prisma } = await import("@/lib/prisma");
       const res = await prisma.task.findMany({ where: status && status !== "ALL" ? { status } : {}, orderBy: { createdAt: "desc" }, take: 10 });
       return JSON.parse(JSON.stringify(res));
+    }
+  } as any),
+  getTodayBookings: tool({
+    description: "Get bookings scheduled for today.",
+    parameters: z.object({ dummy: z.string().optional() }),
+    execute: async () => {
+      const { prisma } = await import("@/lib/prisma");
+      const startOfDay = new Date();
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date();
+      endOfDay.setHours(23, 59, 59, 999);
+      const res = await prisma.booking.findMany({
+        where: {
+          eventDate: {
+            gte: startOfDay,
+            lte: endOfDay
+          }
+        },
+        include: { customer: true },
+        orderBy: { startTime: "asc" }
+      });
+      return JSON.parse(JSON.stringify(res));
+    }
+  } as any),
+  getFleetStatus: tool({
+    description: "Get the current list of all vehicles in the fleet and their operational status.",
+    parameters: z.object({ dummy: z.string().optional() }),
+    execute: async () => {
+      const { prisma } = await import("@/lib/prisma");
+      const res = await prisma.vehicle.findMany({
+        orderBy: { code: "asc" }
+      });
+      return JSON.parse(JSON.stringify(res));
+    }
+  } as any),
+  getUnpaidBookings: tool({
+    description: "Get all bookings that are confirmed or pending but unpaid (PENDING_PAYMENT status).",
+    parameters: z.object({ dummy: z.string().optional() }),
+    execute: async () => {
+      const { prisma } = await import("@/lib/prisma");
+      const res = await prisma.booking.findMany({
+        where: { status: "PENDING_PAYMENT" },
+        include: { customer: true },
+        orderBy: { eventDate: "asc" }
+      });
+      return JSON.parse(JSON.stringify(res));
+    }
+  } as any),
+  getWeeklyRevenue: tool({
+    description: "Get revenue stats grouped by day for the last 7 days to analyze weekly revenue.",
+    parameters: z.object({ dummy: z.string().optional() }),
+    execute: async () => {
+      const { prisma } = await import("@/lib/prisma");
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      sevenDaysAgo.setHours(0, 0, 0, 0);
+
+      const bookings = await prisma.booking.findMany({
+        where: {
+          status: "CONFIRMED",
+          eventDate: { gte: sevenDaysAgo }
+        },
+        include: { quote: true }
+      });
+
+      const totalRevenue = bookings.reduce((sum, b) => sum + (b.quote?.totalAmount || 0), 0);
+      return {
+        totalRevenueThisWeek: totalRevenue,
+        confirmedCount: bookings.length,
+        bookings: bookings.map(b => ({
+          bookingNumber: b.bookingNumber,
+          amount: b.quote?.totalAmount || 0,
+          date: b.eventDate.toISOString().split("T")[0]
+        }))
+      };
     }
   } as any)
 };
@@ -195,11 +279,52 @@ Present the results in a clear, professional markdown format.
 
 ${dataContext}`;
 
+      // Clean/format generated messages to comply with strict AI SDK v6 schemas
+      const formattedGenerated = generatedMessages.map((m: any) => {
+        if (m.role === "tool") {
+          return {
+            role: "tool",
+            content: Array.isArray(m.content)
+              ? m.content.map((c: any) => {
+                  if (c.type === "tool-result") {
+                    const rawVal = c.output?.value ?? c.output ?? c.result ?? {};
+                    return {
+                      type: "tool-result",
+                      toolCallId: c.toolCallId,
+                      toolName: c.toolName,
+                      output: { type: "json", value: rawVal }
+                    };
+                  }
+                  return c;
+                })
+              : m.content
+          };
+        }
+        if (m.role === "assistant") {
+          return {
+            role: "assistant",
+            content: Array.isArray(m.content)
+              ? m.content.map((c: any) => {
+                  if (c.type === "tool-call") {
+                    return {
+                      type: "tool-call",
+                      toolCallId: c.toolCallId,
+                      toolName: c.toolName,
+                      input: c.input || {},
+                    };
+                  }
+                  return c;
+                })
+              : m.content
+          };
+        }
+        return m;
+      });
+
       const updatedMessages = [
         ...messages,
-        ...generatedMessages
+        ...formattedGenerated
       ].filter((m: any) => m.role !== "system");
-
 
       // Step 2: Synthesize a natural response from the tool results
       const step2 = await generateText({

@@ -165,7 +165,7 @@ export default function AdminBookingsPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-collapse min-w-[850px]">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200">
                   <th className="px-5 py-3.5 text-xs font-black uppercase tracking-wider text-slate-400">Booking</th>
