@@ -1,4 +1,5 @@
 import { createGroq } from "@ai-sdk/groq";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateText, tool } from "ai";
 import { z } from "zod";
 import { getPackages, estimatePrice, checkAvailability } from "./tools/businessLogic";
@@ -8,6 +9,18 @@ import { getBookings } from "./tools/bookings";
 // Initialize Groq provider with Next.js fetch caching disabled
 const groq = createGroq({
   apiKey: process.env.GROQ_API_KEY || "",
+  fetch: (url, init) => {
+    return fetch(url, {
+      ...init,
+      cache: "no-store",
+      next: { revalidate: 0 }
+    } as any);
+  }
+});
+
+// Initialize Google Gemini provider with Next.js fetch caching disabled
+const google = createGoogleGenerativeAI({
+  apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY || "",
   fetch: (url, init) => {
     return fetch(url, {
       ...init,
@@ -240,12 +253,26 @@ type ChatMessage = { role: "user" | "assistant" | "system"; content: string };
 export async function orchestrateAI(role: "customer" | "admin", messages: ChatMessage[]) {
   const tools = role === "customer" ? CUSTOMER_TOOLS : ADMIN_TOOLS;
   const systemPrompt = role === "customer" ? CUSTOMER_PROMPT : ADMIN_PROMPT;
-  const model = groq("llama-3.3-70b-versatile");
+  
+  const useGemini = !!process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  const useGroq = !!process.env.GROQ_API_KEY;
 
-  try {
-    // Step 1: Call generateText with tools — model decides which tool to call
+  let model: any;
+  let providerUsed: "google" | "groq" = "groq";
+
+  if (useGemini) {
+    model = google("gemini-2.5-flash");
+    providerUsed = "google";
+  } else if (useGroq) {
+    model = groq("llama-3.3-70b-versatile");
+    providerUsed = "groq";
+  } else {
+    throw new Error("No AI API keys configured in environment.");
+  }
+
+  async function executeCall(selectedModel: any) {
     const step1 = await generateText({
-      model,
+      model: selectedModel,
       system: systemPrompt,
       messages: messages as any,
       tools,
@@ -253,11 +280,9 @@ export async function orchestrateAI(role: "customer" | "admin", messages: ChatMe
 
     const firstStep = step1.steps[0];
 
-    // Check if the model requested tool execution
     if (firstStep && firstStep.finishReason === "tool-calls") {
       const generatedMessages = firstStep.response.messages;
 
-      // Extract tool results from the step content
       const toolResults = firstStep.content
         .filter((c: any) => c.type === "tool-result")
         .map((c: any) => ({
@@ -265,8 +290,6 @@ export async function orchestrateAI(role: "customer" | "admin", messages: ChatMe
           result: c.output?.value ?? c.output ?? {}
         }));
 
-      // Build a data-aware system prompt for Step 2 so the model
-      // summarizes REAL DB data instead of hallucinating
       const dataContext = toolResults
         .map(tr => `[${tr.toolName} LIVE DATA]\n${JSON.stringify(tr.result, null, 2)}`)
         .join("\n\n");
@@ -279,7 +302,6 @@ Present the results in a clear, professional markdown format.
 
 ${dataContext}`;
 
-      // Clean/format generated messages to comply with strict AI SDK v6 schemas
       const formattedGenerated = generatedMessages.map((m: any) => {
         if (m.role === "tool") {
           return {
@@ -326,9 +348,8 @@ ${dataContext}`;
         ...formattedGenerated
       ].filter((m: any) => m.role !== "system");
 
-      // Step 2: Synthesize a natural response from the tool results
       const step2 = await generateText({
-        model,
+        model: selectedModel,
         system: step2System,
         messages: updatedMessages as any,
       });
@@ -343,16 +364,30 @@ ${dataContext}`;
       };
     }
 
-    // No tool was called — direct conversational response
     return {
       intent: "CONVERSATION",
       tool_calls: [],
       data: [],
       final_response: step1.text || "",
     };
+  }
 
-  } catch (error) {
-    console.error("Groq AI Execution Error:", error);
+  try {
+    try {
+      return await executeCall(model);
+    } catch (error: any) {
+      console.warn(`[AI Orchestrator] Primary provider (${providerUsed}) failed, trying fallback:`, error.message || error);
+      
+      if (providerUsed === "google" && useGroq) {
+        return await executeCall(groq("llama-3.3-70b-versatile"));
+      } else if (providerUsed === "groq" && useGemini) {
+        return await executeCall(google("gemini-2.5-flash"));
+      }
+      
+      throw error;
+    }
+  } catch (error: any) {
+    console.error("[AI Orchestrator] Execution Error (all providers failed):", error);
     return {
       intent: "ERROR",
       tool_calls: [],
