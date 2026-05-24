@@ -273,3 +273,15 @@ model OtpCode {
   verified  Boolean  @default(false)
   createdAt DateTime @default(now())
 }
+
+// ─── SERVICE ZIP CODES (Massachusetts) ───────────────
+model ServiceZipCode {
+  id        String   @id @default(cuid())
+  zip       String   @unique
+  city      String
+  county    String?
+  isActive  Boolean  @default(true)
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

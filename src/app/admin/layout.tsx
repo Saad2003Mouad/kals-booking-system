@@ -6,7 +6,7 @@ import {
   LayoutDashboard, Calendar, Users, Settings, Truck,
   UserCircle, Package, ClipboardList, MessageSquare,
   Inbox, LogOut, Bell, Search, Menu, X, ChevronRight,
-  CheckCircle, AlertTriangle, Clock, ChevronDown
+  CheckCircle, AlertTriangle, Clock, ChevronDown, MapPin
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
@@ -40,9 +40,10 @@ const NAV_GROUPS: NavGroup[] = [
   {
     title: "System",
     items: [
-      { href: "/admin/packages",   label: "Packages",     icon: Package },
-      { href: "/admin/users",      label: "Staff & Roles",icon: Users },
-      { href: "/admin/settings",   label: "Settings",     icon: Settings },
+      { href: "/admin/packages",       label: "Packages",       icon: Package },
+      { href: "/admin/service-areas",  label: "Service Areas",  icon: MapPin },
+      { href: "/admin/users",          label: "Staff & Roles",  icon: Users },
+      { href: "/admin/settings",       label: "Settings",       icon: Settings },
     ]
   }
 ];

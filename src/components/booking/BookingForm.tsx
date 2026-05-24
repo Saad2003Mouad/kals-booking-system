@@ -48,11 +48,13 @@ function SelectField({ label, value, onChange, options, placeholder="Select…",
   );
 }
 
-function ZipSelector({ zip, city, onZipChange }:{ zip:string; city:string; onZipChange:(zip:string,city:string)=>void }) {
+function ZipSelector({ zip, city, onZipChange, serviceZones }:{ zip:string; city:string; onZipChange:(zip:string,city:string)=>void; serviceZones:{zip:string;city:string}[] }) {
   const [open, setOpen]   = useState(false);
   const [search, setSearch] = useState("");
+  // Use dynamic DB zones first, fallback to static list
+  const zones = serviceZones.length > 0 ? serviceZones : SERVICE_AREAS;
   const filtered = search.length>=2
-    ? SERVICE_AREAS.filter(a=>a.zip.startsWith(search)||a.city.toLowerCase().includes(search.toLowerCase())).slice(0,12)
+    ? zones.filter(a=>a.zip.startsWith(search)||a.city.toLowerCase().includes(search.toLowerCase())).slice(0,12)
     : [];
 
   return (
@@ -63,7 +65,7 @@ function ZipSelector({ zip, city, onZipChange }:{ zip:string; city:string; onZip
           <MapPin className="absolute left-3.5 top-4 w-4 h-4 text-gray-300 pointer-events-none"/>
           <input
             value={zip||search}
-            onChange={e=>{ setSearch(e.target.value); setOpen(true); if(e.target.value.length===5){ const found=SERVICE_AREAS.find(a=>a.zip===e.target.value); if(found) onZipChange(found.zip,found.city); } }}
+            onChange={e=>{ setSearch(e.target.value); setOpen(true); if(e.target.value.length===5){ const found=zones.find(a=>a.zip===e.target.value); if(found) onZipChange(found.zip,found.city); } }}
             onFocus={()=>setOpen(true)}
             placeholder="02115 or Boston…"
             className={`${inputBase} ${inputFocus} border-gray-200 pl-10`}
@@ -83,10 +85,10 @@ function ZipSelector({ zip, city, onZipChange }:{ zip:string; city:string; onZip
         {open && search.length>=2 && filtered.length===0 && (
           <div className="absolute left-0 right-0 top-full mt-1 bg-white rounded-2xl border border-red-100 shadow-xl z-50 p-4 text-center">
             <p className="text-red-600 font-bold text-sm">Outside service area</p>
-            <p className="text-gray-400 text-xs mt-1">We serve Greater Boston only</p>
+            <p className="text-gray-400 text-xs mt-1">We serve Massachusetts only</p>
           </div>
         )}
-        <p className="text-gray-400 text-xs font-semibold mt-1.5">Greater Boston service area</p>
+        <p className="text-gray-400 text-xs font-semibold mt-1.5">Massachusetts service area</p>
       </div>
       <div>
         <label className={labelBase}>City (auto-filled)</label>
@@ -140,6 +142,7 @@ export default function BookingForm() {
   const [result, setResult] = useState<AIResult|null>(null);
   const [phoneErr, setPhoneErr] = useState("");
   const [submitErr, setSubmitErr] = useState("");
+  const [serviceZones, setServiceZones] = useState<{zip:string;city:string}[]>([]);
 
   useEffect(()=>{ 
     fetch("/api/packages").then(r=>r.json()).then((pRes:any)=>{
@@ -155,6 +158,11 @@ export default function BookingForm() {
         }
       }
     });
+    // Load dynamic service zones from DB (falls back to static list if empty)
+    fetch("/api/admin/service-areas?active=true")
+      .then(r=>r.ok?r.json():null)
+      .then((d:any)=>{ if(d?.data?.length) setServiceZones(d.data.map((z:any)=>({zip:z.zip,city:z.city}))); })
+      .catch(()=>{}); // silent fallback to static
   },[packageParamId]);
 
   const handleZipChange = useCallback((z:string, c:string)=>{ setZip(z); setCity(c); },[]);
@@ -177,11 +185,11 @@ export default function BookingForm() {
     } catch { return d; }
   };
   const formatEnTime = (t: string) => {
+    // Display time in 24h HH:mm format — no AM/PM
     if (!t) return "";
     try {
       const [h,m] = t.split(":");
-      const hd = new Date(); hd.setHours(parseInt(h)); hd.setMinutes(parseInt(m));
-      return hd.toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit' });
+      return `${h.padStart(2,"0")}:${(m||"00").padStart(2,"0")}`;
     } catch { return t; }
   };
 
@@ -431,7 +439,7 @@ export default function BookingForm() {
               <FormInput label="Street Address" value={address} onChange={setAddress} placeholder="123 Main Street"
                 helper="The exact address where the truck should park"/>
             </div>
-            <ZipSelector zip={zip} city={city} onZipChange={handleZipChange}/>
+            <ZipSelector zip={zip} city={city} onZipChange={handleZipChange} serviceZones={serviceZones}/>
             {/* Map */}
             <div className="md:col-span-2">
               <label className={labelBase}>📍 Pin Event Location on Map</label>
