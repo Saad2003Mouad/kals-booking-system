@@ -48,14 +48,14 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
     // Send confirmation email
     const paymentUrl = `/checkout/${booking.id}`;
-    sendBookingApprovedEmail(
+    await sendBookingApprovedEmail(
       booking.customer.email,
       booking.customer.firstName,
       booking.bookingNumber,
       paymentUrl,
       booking.totalAmount.toFixed(2),
       booking.id
-    ).catch(console.error);
+    );
 
     return NextResponse.json({ success: true, booking: updated });
   } catch (err) {

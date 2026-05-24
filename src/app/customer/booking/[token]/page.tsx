@@ -3,23 +3,23 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { 
   Clock, MapPin, Phone, Mail, Users, CheckCircle2, 
-  AlertCircle, XCircle, Loader2, Edit, Calendar, DollarSign, ArrowLeft, ArrowRight
+  AlertCircle, XCircle, Loader2, Edit, Calendar, DollarSign, Printer, ArrowRight, HelpCircle
 } from "lucide-react";
 
 const LOGO = "https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/67e3936366827af4bed1d0d0_logo-boston-legend-ice-cream-truck.avif";
 
-const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string; icon: any }> = {
-  PENDING_REVIEW:  { label: "Under Review",    bg: "bg-amber-50 border-amber-200",   text: "text-amber-700",  icon: Clock },
-  PENDING_PAYMENT: { label: "Awaiting Payment", bg: "bg-blue-50 border-blue-200",    text: "text-blue-700",   icon: DollarSign },
-  CONFIRMED:       { label: "Confirmed",       bg: "bg-emerald-50 border-emerald-200", text: "text-emerald-700",icon: CheckCircle2 },
-  COMPLETED:       { label: "Completed",       bg: "bg-slate-50 border-slate-200",   text: "text-slate-600",  icon: CheckCircle2 },
-  CANCELLED:       { label: "Cancelled",       bg: "bg-red-50 border-red-200",     text: "text-red-700",    icon: XCircle },
-  REJECTED:        { label: "Rejected",        bg: "bg-rose-50 border-rose-200",    text: "text-rose-700",   icon: XCircle },
+const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string; icon: any; desc: string }> = {
+  PENDING_REVIEW:  { label: "Under Review",    bg: "bg-amber-50 border-amber-200 text-amber-700",   text: "text-amber-700",  icon: Clock, desc: "Our team is reviewing your event details. We'll update you shortly!" },
+  PENDING_PAYMENT: { label: "Awaiting Payment", bg: "bg-blue-50 border-blue-200 text-blue-700",    text: "text-blue-700",   icon: DollarSign, desc: "Your booking is approved! We are finalizing the details." },
+  CONFIRMED:       { label: "Confirmed",       bg: "bg-emerald-50 border-emerald-200 text-emerald-700", text: "text-emerald-700",icon: CheckCircle2, desc: "Awesome! Your legendary ice cream event is fully confirmed." },
+  COMPLETED:       { label: "Completed",       bg: "bg-slate-100 border-slate-200 text-slate-700",   text: "text-slate-600",  icon: CheckCircle2, desc: "This event has been completed. Thank you for choosing Boston Legend!" },
+  CANCELLED:       { label: "Cancelled",       bg: "bg-red-50 border-red-200 text-red-700",     text: "text-red-700",    icon: XCircle, desc: "This booking request has been cancelled." },
+  REJECTED:        { label: "Needs Info / Rejected",        bg: "bg-rose-50 border-rose-200 text-rose-700",    text: "text-rose-700",   icon: XCircle, desc: "This request requires updates or has been declined." },
 };
 
 export default function CustomerBookingPortal({ params }: { params: { token: string } }) {
   const [booking, setBooking] = useState<any>(null);
-  const [paymentEnabled, setPaymentEnabled] = useState(true);
+  const [paymentEnabled, setPaymentEnabled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   
@@ -115,26 +115,51 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
   };
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50">
+    <div className="min-h-screen flex items-center justify-center bg-[#f8fafc]">
       <div className="text-center">
-        <Image src={LOGO} alt="Boston Legend" width={160} height={54} className="h-12 w-auto mx-auto mb-6" unoptimized />
-        <Loader2 className="w-8 h-8 animate-spin mx-auto text-[#FFA000]" />
+        <img src={LOGO} alt="Boston Legend" className="h-16 w-auto mx-auto mb-6 animate-pulse" />
+        <Loader2 className="w-10 h-10 animate-spin mx-auto text-[#FFA000]" />
       </div>
     </div>
   );
 
   if (error || !booking) return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
-      <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-slate-200 shadow-xl text-center">
-        <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
-          <XCircle className="w-8 h-8 text-red-500" />
+    <div className="min-h-screen bg-[#f8fafc] flex flex-col justify-between" style={{ fontFamily: "'Nunito', sans-serif" }}>
+      {/* Header */}
+      <header className="bg-[#000223] py-4 px-6 border-b border-white/10 shadow-lg">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <a href="/"><img src={LOGO} alt="Boston Legend" className="h-10 w-auto" /></a>
+          <a href="/packages" className="px-5 py-2.5 rounded-full font-black text-sm bg-[#FFA000] text-[#000223] hover:bg-white transition-all shadow-md">
+            Start Your Booking
+          </a>
         </div>
-        <h2 className="text-xl font-black text-[#000223] mb-2">Access Denied</h2>
-        <p className="text-slate-500 font-semibold text-sm leading-relaxed mb-6">{error || "Invalid secure token."}</p>
-        <a href="https://bostonlegendwebflowio.vercel.app/" className="inline-block py-2.5 px-6 rounded-xl font-black text-sm text-white bg-[#000223] hover:bg-[#FFA000] hover:text-[#000223] transition-all">
-          Back to Website
-        </a>
-      </div>
+      </header>
+
+      {/* Main content */}
+      <main className="flex-grow flex items-center justify-center px-4 py-16">
+        <div className="max-w-xl w-full bg-white rounded-[32px] p-10 border border-slate-100 shadow-[0_20px_50px_rgba(0,2,35,0.06)] text-center">
+          <div className="w-20 h-20 rounded-full bg-amber-50 flex items-center justify-center mx-auto mb-6">
+            <HelpCircle className="w-10 h-10 text-[#FFA000]" />
+          </div>
+          <h2 className="text-2xl font-black text-[#000223] mb-4">Booking Not Found</h2>
+          <p className="text-slate-500 font-bold leading-relaxed mb-8">
+            We couldn’t find this booking, but we’d love to help you plan your next ice cream event.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="/packages" className="py-3 px-8 rounded-full font-black text-sm text-[#000223] bg-[#FFA000] hover:bg-[#FFB020] transition-all shadow-md">
+              Start Your Booking
+            </a>
+            <a href="/contact-us" className="py-3 px-8 rounded-full font-black text-sm text-white bg-[#000223] hover:bg-[#001a4c] transition-all shadow-md">
+              Contact Boston Legend
+            </a>
+          </div>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-slate-100 py-6 border-t border-slate-200 text-center text-xs text-slate-400 font-bold">
+        &copy; {new Date().getFullYear()} Boston Legend. All rights reserved.
+      </footer>
     </div>
   );
 
@@ -148,172 +173,280 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
     day: "numeric",
   });
 
+  const quote = booking.quote;
+  const pkg = booking.package;
+
+  // Calculate dynamic servings breakdown
+  const servingsLimit = pkg?.servings ?? 50;
+  const extraPiecePrice = pkg?.extraPiecePrice ?? 5;
+  const extraGuestsCount = Math.max(0, booking.guests - servingsLimit);
+  const extraGuestsFee = extraGuestsCount * extraPiecePrice;
+
+  // Travel calculation
+  const totalMiles = quote?.distanceMiles ?? 0;
+  const freeMiles = 10;
+  const billableMiles = Math.max(0, totalMiles - freeMiles);
+  const travelFee = quote?.travelFee ?? 0;
+
   return (
-    <div className="min-h-screen bg-slate-50 pb-20" style={{ fontFamily: "'Nunito', sans-serif" }}>
+    <div className="min-h-screen bg-[#f8fafc] pb-24" style={{ fontFamily: "'Nunito', sans-serif" }}>
       {/* Top Banner Header */}
-      <div className="sticky top-0 z-40 bg-[#000223] shadow-md">
-        <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Image src={LOGO} alt="Boston Legend" width={120} height={40} className="h-9 w-auto" unoptimized />
-          <span className="text-xs font-black text-white/50 uppercase tracking-widest">Client Portal</span>
+      <header className="sticky top-0 z-40 bg-[#000223] border-b border-white/10 shadow-md print:hidden">
+        <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img src={LOGO} alt="Boston Legend" className="h-10 w-auto" />
+            <span className="hidden sm:inline-block h-6 w-px bg-white/20"></span>
+            <span className="hidden sm:inline-block text-xs font-black text-white/60 uppercase tracking-widest">Customer Portal</span>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <a href={`/customer/booking/${params.token}`} className="hidden md:inline-flex items-center text-xs font-black text-[#FFA000] border border-[#FFA000]/30 hover:border-[#FFA000] px-4 py-2 rounded-full transition-all">
+              View My Booking
+            </a>
+            <a href="/packages" className="px-5 py-2.5 rounded-full font-black text-xs bg-[#FFA000] text-[#000223] hover:bg-white hover:text-[#000223] transition-all shadow-md">
+              Book Another Event
+            </a>
+          </div>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <div className="bg-[#000223] text-white py-12 px-6 border-b border-slate-800 relative overflow-hidden shadow-inner">
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-900/10 to-transparent"></div>
+        <div className="max-w-4xl mx-auto relative z-10">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+              <div className="flex flex-wrap items-center gap-3 mb-3">
+                <span className="text-xs font-black uppercase tracking-widest text-[#FFA000]">Booking Reference</span>
+                <span className="text-xs text-white/40 font-bold">•</span>
+                <span className="text-sm font-mono font-bold text-white/80">#{booking.bookingNumber}</span>
+              </div>
+              <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-2">
+                {pkg?.name || "Ice Cream Truck Booking"}
+              </h1>
+              <p className="text-white/60 font-semibold text-sm max-w-xl">
+                {sc.desc}
+              </p>
+            </div>
+
+            <div className="flex flex-col items-start md:items-end gap-3">
+              <span className={`inline-flex items-center gap-1.5 px-4.5 py-2 rounded-full text-sm font-black border ${sc.bg}`}>
+                <StatusIcon className="w-4 h-4" />
+                {sc.label}
+              </span>
+              <p className="text-xs text-white/40 font-bold">Updated: {new Date(booking.updatedAt).toLocaleDateString()}</p>
+            </div>
+          </div>
+
+          {/* Quick Actions (Change, Cancel, Print) */}
+          <div className="mt-8 pt-8 border-t border-white/10 flex flex-wrap gap-3.5 print:hidden">
+            {["PENDING_REVIEW", "PENDING_PAYMENT", "CONFIRMED"].includes(booking.status) && (
+              <>
+                <button onClick={() => setShowRequestModal("CHANGE")} className="flex-1 sm:flex-initial py-3 px-6 bg-white/5 hover:bg-white/10 border border-white/20 hover:border-white/40 text-white rounded-full font-black text-sm shadow-sm transition-all flex items-center justify-center gap-2">
+                  <Edit className="w-4 h-4" /> Request a Change
+                </button>
+                <button onClick={() => setShowRequestModal("CANCEL")} className="flex-1 sm:flex-initial py-3 px-6 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 hover:text-red-300 rounded-full font-black text-sm transition-all flex items-center justify-center gap-2">
+                  <XCircle className="w-4 h-4" /> Request Cancellation
+                </button>
+              </>
+            )}
+            <button onClick={() => window.print()} className="flex-1 sm:flex-initial py-3 px-6 bg-[#FFA000] hover:bg-white text-[#000223] rounded-full font-black text-sm transition-all flex items-center justify-center gap-2 shadow-md">
+              <Printer className="w-4 h-4" /> Print Confirmation
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 mt-8 space-y-6">
+      {/* Grid of structured cards */}
+      <div className="max-w-4xl mx-auto px-6 mt-12 grid md:grid-cols-2 gap-8">
         
-        {/* Status Header Block */}
-        <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 text-center">
-          <span className="text-xs font-black uppercase tracking-widest text-slate-400">Booking Reference</span>
-          <h1 className="text-3xl font-black text-[#000223] mt-1">#{booking.bookingNumber}</h1>
-          <div className="mt-4 flex items-center justify-center">
-            <span className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-black border ${sc.bg} ${sc.text}`}>
-              <StatusIcon className="w-4 h-4" />
-              {sc.label}
-            </span>
+        {/* Card 1: Event Details */}
+        <div className="bg-white rounded-[24px] p-7 border border-slate-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_10px_45px_rgba(0,0,0,0.04)]">
+          <h2 className="font-black text-xs uppercase tracking-widest text-[#FFA000] mb-6 flex items-center gap-2">
+            <span>📅</span> Event Details
+          </h2>
+          <div className="space-y-4.5 text-sm font-semibold text-slate-700">
+            <div className="flex justify-between border-b border-slate-50 pb-3">
+              <span className="text-slate-400">Date</span>
+              <span className="font-black text-[#000223]">{eventDate}</span>
+            </div>
+            <div className="flex justify-between border-b border-slate-50 pb-3">
+              <span className="text-slate-400">Serving Time</span>
+              <span className="font-black text-[#000223]">{booking.startTime}</span>
+            </div>
+            <div className="flex justify-between border-b border-slate-50 pb-3">
+              <span className="text-slate-400">Duration</span>
+              <span className="font-black text-[#000223]">{booking.durationMins} minutes</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-400">Expected Guests</span>
+              <span className="font-black text-[#000223]">{booking.guests} servings</span>
+            </div>
           </div>
         </div>
 
-        {/* Customer & Info Block */}
-        <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6">
-          <div className="flex justify-between items-center mb-5">
-            <h2 className="font-black text-xs uppercase tracking-widest text-slate-400">Contact Details</h2>
-            <button onClick={() => setShowEditModal(true)} className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1">
-              <Edit className="w-3.5 h-3.5"/> Edit details
+        {/* Card 2: Package Details */}
+        <div className="bg-white rounded-[24px] p-7 border border-slate-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_10px_45px_rgba(0,0,0,0.04)]">
+          <h2 className="font-black text-xs uppercase tracking-widest text-[#FFA000] mb-6 flex items-center gap-2">
+            <span>🍦</span> Package Details
+          </h2>
+          <div className="space-y-4.5 text-sm font-semibold text-slate-700">
+            <div className="flex justify-between border-b border-slate-50 pb-3">
+              <span className="text-slate-400">Selected Package</span>
+              <span className="font-black text-[#000223]">{pkg?.name || "Standard Event"}</span>
+            </div>
+            <div className="flex justify-between border-b border-slate-50 pb-3">
+              <span className="text-slate-400">Included Servings</span>
+              <span className="font-black text-[#000223]">{servingsLimit} Servings</span>
+            </div>
+            <div className="flex justify-between border-b border-slate-50 pb-3">
+              <span className="text-slate-400">Package Base Price</span>
+              <span className="font-black text-[#000223]">${(pkg?.price ?? 250).toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-400">Extra Servings Rate</span>
+              <span className="font-black text-emerald-600">${extraPiecePrice}/person</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Card 3: Customer Contact */}
+        <div className="bg-white rounded-[24px] p-7 border border-slate-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_10px_45px_rgba(0,0,0,0.04)]">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="font-black text-xs uppercase tracking-widest text-[#FFA000] flex items-center gap-2">
+              <span>👤</span> Contact Contact
+            </h2>
+            <button onClick={() => setShowEditModal(true)} className="text-xs font-black text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1">
+              <Edit className="w-3.5 h-3.5"/> Edit contact info
             </button>
           </div>
-          <div className="space-y-4 text-sm font-bold">
-            <div className="flex justify-between"><span className="text-slate-400">Name</span><span className="text-[#000223]">{booking.customer.firstName} {booking.customer.lastName}</span></div>
-            <div className="flex justify-between"><span className="text-slate-400">Email</span><span className="text-slate-700">{booking.customer.email}</span></div>
-            <div className="flex justify-between"><span className="text-slate-400">Phone</span><span className="text-slate-700">{booking.customer.phone}</span></div>
+          <div className="space-y-4.5 text-sm font-semibold text-slate-700">
+            <div className="flex justify-between border-b border-slate-50 pb-3">
+              <span className="text-slate-400">Customer Name</span>
+              <span className="font-black text-[#000223]">{booking.customer.firstName} {booking.customer.lastName}</span>
+            </div>
+            <div className="flex justify-between border-b border-slate-50 pb-3">
+              <span className="text-slate-400">Email</span>
+              <span className="font-black text-[#000223]">{booking.customer.email}</span>
+            </div>
+            <div className="flex justify-between border-b border-slate-50 pb-3">
+              <span className="text-slate-400">Phone</span>
+              <span className="font-black text-[#000223]">{booking.customer.phone}</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-slate-400 mb-1">Event Location</span>
+              <span className="font-black text-[#000223] text-left">{booking.address}, {booking.city}, MA {booking.zip}</span>
+            </div>
             {booking.notes && (
-              <div className="border-t border-slate-100 pt-4 mt-4 text-slate-500 font-semibold italic text-xs">
+              <div className="border-t border-slate-100 pt-4 text-slate-500 font-semibold italic text-xs">
                 📝 Notes: {booking.notes}
               </div>
             )}
           </div>
         </div>
 
-        {/* Event Details Card */}
-        <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6">
-          <h2 className="font-black text-xs uppercase tracking-widest text-slate-400 mb-5">Event Details</h2>
-          <div className="space-y-4 text-sm font-semibold">
-            {[
-              { label: "Date",     value: eventDate, icon: Calendar },
-              { label: "Time",     value: booking.startTime, icon: Clock },
-              { label: "Duration", value: `${booking.durationMins} minutes`, icon: Clock },
-              { label: "Guests",   value: `${booking.guests} servings included`, icon: Users },
-              { label: "Location",  value: `${booking.address}, ${booking.city}, MA ${booking.zip}`, icon: MapPin },
-            ].map((row, idx) => {
-              const Icon = row.icon;
-              return (
-                <div key={idx} className="flex items-start gap-3">
-                  <Icon className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
-                  <div className="flex-1 flex justify-between">
-                    <span className="text-slate-400">{row.label}</span>
-                    <span className="text-right font-black text-[#000223] ml-4">{row.value}</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Pricing Estimate Card */}
-        <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6">
-          <h2 className="font-black text-xs uppercase tracking-widest text-slate-400 mb-5">Package & Estimated Total</h2>
-          <div className="space-y-4 text-sm font-semibold">
-            <div className="flex justify-between"><span className="text-slate-400">Selected Package</span><span className="font-black text-[#000223]">{booking.package?.name || "Standard Event"}</span></div>
-            <div className="flex justify-between"><span className="text-slate-400">Servings Size</span><span className="font-black text-[#000223]">{booking.package?.servings || 50} Servings</span></div>
-            {booking.quote && (
-              <>
-                <div className="flex justify-between"><span className="text-slate-400">Total Distance</span><span className="font-black text-[#000223]">{Number(booking.quote.distanceMiles).toFixed(1)} miles</span></div>
-                <div className="flex justify-between"><span className="text-slate-400">Travel Fee</span><span className="font-black text-[#000223]">{Number(booking.quote.travelFee) > 0 ? `$${Number(booking.quote.travelFee).toFixed(2)}` : "Free ($0.00)"}</span></div>
-              </>
-            )}
-            <div className="border-t border-slate-100 pt-4 flex justify-between items-center">
-              <span className="text-slate-800 font-bold text-base">Estimated Price</span>
-              <span className="text-2xl font-black text-emerald-600">${Number(booking.quote?.totalAmount ?? booking.totalAmount).toFixed(2)}</span>
+        {/* Card 4: Travel & Mileage */}
+        <div className="bg-white rounded-[24px] p-7 border border-slate-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_10px_45px_rgba(0,0,0,0.04)]">
+          <h2 className="font-black text-xs uppercase tracking-widest text-[#FFA000] mb-6 flex items-center gap-2">
+            <span>📍</span> Travel & Mileage
+          </h2>
+          <div className="space-y-4.5 text-sm font-semibold text-slate-700">
+            <div className="flex justify-between border-b border-slate-50 pb-3">
+              <span className="text-slate-400">Origin</span>
+              <span className="font-black text-[#000223]">Boston Revere — 84 Fernwood Ave</span>
+            </div>
+            <div className="flex justify-between border-b border-slate-50 pb-3">
+              <span className="text-slate-400">Total Miles</span>
+              <span className="font-black text-[#000223]">{totalMiles.toFixed(1)} miles</span>
+            </div>
+            <div className="flex justify-between border-b border-slate-50 pb-3">
+              <span className="text-slate-400">Free Miles</span>
+              <span className="font-black text-[#000223]">{freeMiles} miles</span>
+            </div>
+            <div className="flex justify-between border-b border-slate-50 pb-3">
+              <span className="text-slate-400">Billable Miles</span>
+              <span className="font-black text-[#000223]">{billableMiles.toFixed(1)} miles</span>
+            </div>
+            <div className="flex justify-between border-b border-slate-50 pb-3">
+              <span className="text-slate-400">Travel Fee</span>
+              <span className="font-black text-amber-600">${travelFee.toFixed(2)}</span>
             </div>
             
-            {paymentEnabled ? (
-              booking.status === "PENDING_PAYMENT" && (
-                <a href={`/checkout/${booking.id}`} className="mt-4 w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black text-center shadow-lg transition-all flex items-center justify-center gap-2 print:hidden">
-                  <DollarSign className="w-5 h-5"/> Complete Secure Payment
-                </a>
-              )
-            ) : (
-              <div className="mt-4 p-4 bg-amber-50/50 border border-amber-200 rounded-2xl text-xs font-semibold text-amber-800 space-y-1">
-                <p className="font-black uppercase tracking-wider mb-1 flex items-center gap-1">💵 Cash Payment Policy</p>
-                <p>No online payment required. Payment will be collected in cash at the end of your event.</p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Policies Card */}
-        <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6">
-          <h2 className="font-black text-xs uppercase tracking-widest text-slate-400 mb-5">Booking Policies</h2>
-          <div className="space-y-4 text-xs font-semibold text-slate-600 leading-relaxed">
-            <div className="p-3 bg-slate-50 border border-slate-150 rounded-xl">
-              <p className="font-black text-[#000223] mb-1">📍 Distance Policy</p>
-              <p>The first 10 miles are free. Any additional miles will be calculated based on the travel distance from our garage at <strong>Boston Revere, 84 Fernwood Ave</strong> to your event location.</p>
-            </div>
-            <div className="p-3 bg-slate-50 border border-slate-150 rounded-xl">
-              <p className="font-black text-[#000223] mb-1">👥 Extra Guests</p>
-              <p>If your guest count increases, we'll be prepared. Extra guests beyond the included package count are calculated at <strong>$5 per person</strong>.</p>
+            <div className="bg-amber-50/70 border border-amber-100 rounded-xl p-3 text-xs text-amber-800 font-semibold flex items-center justify-between">
+              <span>🎁 Your first 10 miles are FREE.</span>
+              <span className="font-black uppercase tracking-wider text-[10px] bg-amber-600 text-white py-0.5 px-2 rounded-full">Included</span>
             </div>
           </div>
         </div>
 
-        {/* Self-Service Operations & Print */}
-        <div className="space-y-3 print:hidden">
-          {["PENDING_REVIEW", "PENDING_PAYMENT", "CONFIRMED"].includes(booking.status) && (
-            <div className="flex flex-col sm:flex-row gap-3">
-              <button onClick={() => setShowRequestModal("CHANGE")} className="flex-1 py-3 bg-white border-2 border-slate-200 text-[#000223] hover:border-[#000223] rounded-2xl font-black text-sm shadow-sm transition-all">
-                Request Booking Change
-              </button>
-              <button onClick={() => setShowRequestModal("CANCEL")} className="flex-1 py-3 bg-red-50 hover:bg-red-100 text-red-600 rounded-2xl font-black text-sm border-2 border-transparent transition-all">
-                Request Cancellation
-              </button>
+        {/* Card 5: Payment Policy */}
+        <div className="bg-white rounded-[24px] p-7 border border-slate-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_10px_45px_rgba(0,0,0,0.04)]">
+          <h2 className="font-black text-xs uppercase tracking-widest text-[#FFA000] mb-6 flex items-center gap-2">
+            <span>💵</span> Payment Policy
+          </h2>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center border-b border-slate-50 pb-4">
+              <span className="text-slate-400 font-bold">Estimated Total</span>
+              <span className="text-2xl font-black text-emerald-600">${booking.totalAmount.toFixed(2)}</span>
             </div>
-          )}
-          
-          <button onClick={() => window.print()} className="w-full py-3 bg-slate-800 hover:bg-slate-900 text-white rounded-2xl font-black text-sm transition-all flex items-center justify-center gap-2 shadow-sm">
-            Print Confirmation / Save PDF
-          </button>
+            
+            <div className="p-4 bg-emerald-50/50 border border-emerald-100 rounded-2xl text-xs font-semibold text-slate-700 leading-relaxed">
+              <p className="font-black text-emerald-800 uppercase tracking-wider mb-2 flex items-center gap-1">💵 Cash Payment Policy</p>
+              <p>Payment will be collected in cash at the end of the event.</p>
+              <p className="mt-1.5 font-bold text-slate-400">No online payment or credit card checkouts are required to reserve.</p>
+            </div>
+          </div>
         </div>
 
-        <style>{`
-          @media print {
-            body { background: white !important; color: black !important; }
-            header, .print\\:hidden, button, a, form { display: none !important; }
-            .shadow-sm, .shadow-xl { box-shadow: none !important; border: 1px solid #e2e8f0 !important; }
-          }
-        `}</style>
+        {/* Card 6: Change / Cancellation Policy */}
+        <div className="bg-white rounded-[24px] p-7 border border-slate-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_10px_45px_rgba(0,0,0,0.04)]">
+          <h2 className="font-black text-xs uppercase tracking-widest text-[#FFA000] mb-6 flex items-center gap-2">
+            <span>📋</span> Change & Cancellation Policy
+          </h2>
+          <div className="space-y-4 text-xs font-semibold text-slate-500 leading-relaxed">
+            <div className="p-3 bg-slate-50 rounded-xl border border-slate-150">
+              <p className="font-black text-[#000223] mb-1">⏱ Change Deadline</p>
+              <p>Please submit any guest counts, date, or time changes at least <strong>48 hours</strong> prior to your event. We will do our best to accommodate schedule shifts.</p>
+            </div>
+            <div className="p-3 bg-slate-50 rounded-xl border border-slate-150">
+              <p className="font-black text-[#000223] mb-1">❄️ Weather Contingency</p>
+              <p>In case of severe rain or storms, you can reschedule for free up to 2 hours before the start. Cancellations are free if rescheduled.</p>
+            </div>
+          </div>
+        </div>
 
       </div>
 
-      {/* EDIT MODAL */}
+      <style>{`
+        @media print {
+          body { background: white !important; color: black !important; }
+          header, .print\\:hidden, button, a, form { display: none !important; }
+          .shadow-sm, .shadow-xl { box-shadow: none !important; border: 1px solid #e2e8f0 !important; }
+        }
+      `}</style>
+
+      {/* EDIT CONTACT MODAL */}
       {showEditModal && (
         <div className="fixed inset-0 bg-[#000223]/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl animate-in fade-in zoom-in duration-200">
+          <div className="bg-white rounded-[32px] p-8 max-w-md w-full shadow-2xl animate-in fade-in zoom-in duration-200 border border-slate-100">
             <h2 className="text-xl font-black text-[#000223] mb-6">Update Contact Details</h2>
             <form onSubmit={handleUpdateContact} className="space-y-4">
               <div>
                 <label className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1.5">Email Address</label>
-                <input required type="email" value={editForm.email} onChange={e=>setEditForm({...editForm, email:e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 font-bold outline-none focus:border-[#FFA000]" />
+                <input required type="email" value={editForm.email} onChange={e=>setEditForm({...editForm, email:e.target.value})} className="w-full px-4 py-3 rounded-2xl border border-slate-200 font-bold outline-none focus:border-[#FFA000]" />
               </div>
               <div>
                 <label className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1.5">Phone Number</label>
-                <input required type="tel" value={editForm.phone} onChange={e=>setEditForm({...editForm, phone:e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 font-bold outline-none focus:border-[#FFA000]" />
+                <input required type="tel" value={editForm.phone} onChange={e=>setEditForm({...editForm, phone:e.target.value})} className="w-full px-4 py-3 rounded-2xl border border-slate-200 font-bold outline-none focus:border-[#FFA000]" />
               </div>
               <div>
                 <label className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1.5">Booking Notes</label>
-                <textarea value={editForm.notes} onChange={e=>setEditForm({...editForm, notes:e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-200 font-bold outline-none focus:border-[#FFA000]" rows={3} placeholder="Add specific gate details or request details..." />
+                <textarea value={editForm.notes} onChange={e=>setEditForm({...editForm, notes:e.target.value})} className="w-full px-4 py-3 rounded-2xl border border-slate-200 font-bold outline-none focus:border-[#FFA000]" rows={3} placeholder="Add gate details or special requests..." />
               </div>
               
               <div className="flex gap-3 pt-4">
-                <button type="button" disabled={submitting} onClick={()=>setShowEditModal(false)} className="flex-1 py-2.5 rounded-xl font-black text-sm bg-slate-100 hover:bg-slate-200">Cancel</button>
-                <button type="submit" disabled={submitting} className="flex-1 py-2.5 rounded-xl font-black text-sm text-[#000223] bg-[#FFA000] hover:bg-[#FFB020] flex items-center justify-center gap-1.5">
+                <button type="button" disabled={submitting} onClick={()=>setShowEditModal(false)} className="flex-1 py-3 rounded-full font-black text-sm bg-slate-100 hover:bg-slate-200">Cancel</button>
+                <button type="submit" disabled={submitting} className="flex-1 py-3 rounded-full font-black text-sm text-[#000223] bg-[#FFA000] hover:bg-[#FFB020] flex items-center justify-center gap-1.5">
                   {submitting && <Loader2 className="w-4 h-4 animate-spin"/>} Save Details
                 </button>
               </div>
@@ -325,7 +458,7 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
       {/* REQUEST MODAL (CHANGE/CANCEL) */}
       {showRequestModal && (
         <div className="fixed inset-0 bg-[#000223]/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl animate-in fade-in zoom-in duration-200">
+          <div className="bg-white rounded-[32px] p-8 max-w-md w-full shadow-2xl animate-in fade-in zoom-in duration-200 border border-slate-100">
             <h2 className="text-xl font-black text-[#000223] mb-4">
               {showRequestModal === "CANCEL" ? "Request Cancellation" : "Request Change"}
             </h2>
@@ -345,12 +478,12 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
             <form onSubmit={handleRequestAction} className="space-y-4">
               <div>
                 <label className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1.5">Reason & Details</label>
-                <textarea required value={requestReason} onChange={e=>setRequestReason(e.target.value)} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 font-bold outline-none focus:border-[#FFA000]" rows={4} placeholder={showRequestModal === "CANCEL" ? "E.g. Weather conditions..." : "E.g. Change time from 2:00 PM to 4:00 PM..."} />
+                <textarea required value={requestReason} onChange={e=>setRequestReason(e.target.value)} className="w-full px-4 py-3 rounded-2xl border border-slate-200 font-bold outline-none focus:border-[#FFA000]" rows={4} placeholder={showRequestModal === "CANCEL" ? "E.g. Weather conditions..." : "E.g. Change time from 2:00 PM to 4:00 PM..."} />
               </div>
               
               <div className="flex gap-3 pt-4">
-                <button type="button" disabled={submitting} onClick={()=>setShowRequestModal(null)} className="flex-1 py-2.5 rounded-xl font-black text-sm bg-slate-100 hover:bg-slate-200">Cancel</button>
-                <button type="submit" disabled={submitting || !requestReason.trim()} className="flex-1 py-2.5 rounded-xl font-black text-sm text-white bg-[#000223] hover:bg-[#FFA000] hover:text-[#000223] flex items-center justify-center gap-1.5">
+                <button type="button" disabled={submitting} onClick={()=>setShowRequestModal(null)} className="flex-1 py-3 rounded-full font-black text-sm bg-slate-100 hover:bg-slate-200">Cancel</button>
+                <button type="submit" disabled={submitting || !requestReason.trim()} className="flex-1 py-3 rounded-full font-black text-sm text-white bg-[#000223] hover:bg-[#FFA000] hover:text-[#000223] flex items-center justify-center gap-1.5">
                   {submitting && <Loader2 className="w-4 h-4 animate-spin"/>} Submit Request
                 </button>
               </div>

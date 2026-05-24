@@ -123,7 +123,7 @@ export default function BookingForm() {
   const [zip, setZip]               = useState("");
   const [city, setCity]             = useState("");
   const [notes, setNotes]           = useState("");
-  const [extraServings, setExtra]   = useState("0");
+  const extraServings = "0";
   const [firstName, setFirst]       = useState("");
   const [lastName, setLast]         = useState("");
   const [email, setEmail]           = useState("");
@@ -282,11 +282,11 @@ export default function BookingForm() {
     if(decision?.verdict==="PENDING_REVIEW") return (
       <div className="max-w-xl mx-auto px-4 py-16 text-center">
         <div className="w-20 h-20 rounded-full bg-amber-50 flex items-center justify-center mx-auto mb-6"><AlertCircle className="w-10 h-10 text-amber-500"/></div>
-        <h2 className="text-2xl font-black mb-3" style={{color:"#000223"}}>Under Review</h2>
+        <h2 className="text-2xl font-black mb-3" style={{color:"#000223"}}>Request Received</h2>
         <p className="font-mono font-black text-lg mb-4" style={{color:"#000223"}}>#{booking?.bookingNumber}</p>
-        <p className="text-gray-600 font-semibold leading-relaxed mb-8">{decision.customerMessage}</p>
+        <p className="text-gray-600 font-semibold leading-relaxed mb-8">Your booking request is being reviewed by our team. You can track updates or request changes anytime from your booking page.</p>
         <div className="bg-blue-50 border border-blue-100 rounded-2xl p-5 text-left text-sm text-blue-700 font-semibold space-y-1.5 max-w-sm mx-auto mb-8">
-          <p>✓ Team reviews within 2–4 hours</p><p>✓ Confirmation sent to {email}</p><p>✓ No payment until approved</p>
+          <p>✓ Team reviews request details</p><p>✓ Confirmation sent to {email}</p><p>✓ Payment will be collected in cash at the end of the event.</p>
         </div>
         <a href={result.customerPortalUrl??`/customer/booking/${booking?.id}`} className="inline-flex items-center gap-2 px-10 py-4 rounded-full font-black text-white shadow-xl hover:bg-[#FFA000] hover:text-[#000223] transition-all bg-[#000223]">
           View or Manage Your Booking
@@ -297,7 +297,7 @@ export default function BookingForm() {
     return (
       <div className="max-w-xl mx-auto px-4 py-16 text-center">
         <div className="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-6"><CheckCircle2 className="w-10 h-10 text-emerald-500"/></div>
-        <h2 className="text-3xl font-black mb-3" style={{color:"#000223"}}>Booking Approved! 🎉</h2>
+        <h2 className="text-3xl font-black mb-3" style={{color:"#000223"}}>Booking Confirmed</h2>
         <p className="font-mono font-black text-lg mb-4" style={{color:"#000223"}}>#{booking?.bookingNumber}</p>
         
         {paymentEnabled ? (
@@ -312,12 +312,13 @@ export default function BookingForm() {
           </>
         ) : (
           <>
+            <p className="text-gray-600 font-semibold leading-relaxed mb-8">Your ice cream event request has been confirmed. Payment will be collected in cash at the end of the event.</p>
             <div className="bg-amber-50 border border-amber-100 rounded-2xl p-5 mb-8 max-w-sm mx-auto text-left text-sm font-semibold text-slate-700">
-              <p className="text-center font-black text-emerald-600 text-base mb-2">No Online Payment Required</p>
+              <p className="text-center font-black text-emerald-600 text-base mb-2">Cash Payment</p>
               <p className="mb-1 text-xs text-slate-500">Total estimated amount: <span className="font-black text-slate-800">${quote?.totalAmount.toFixed(2)}</span></p>
-              <p className="text-xs text-slate-500">Payment will be collected in **Cash** at the end of the event.</p>
+              <p className="text-xs text-slate-500">Payment will be collected in cash at the end of the event.</p>
             </div>
-            <a href={result.customerPortalUrl??result.paymentUrl??`/customer/booking/${booking?.id}`} className="inline-flex items-center gap-2 px-10 py-4 rounded-full font-black text-[#000223] shadow-xl hover:bg-[#FFA000] hover:text-[#000223] transition-all" style={{background:"#FFA000"}}>
+            <a href={result.customerPortalUrl??result.paymentUrl??`/customer/booking/${booking?.id}`} className="inline-flex items-center gap-2 px-10 py-4 rounded-full font-black text-white bg-[#000223] shadow-xl hover:bg-[#FFA000] hover:text-[#000223] transition-all">
               View or Manage Your Booking
             </a>
           </>

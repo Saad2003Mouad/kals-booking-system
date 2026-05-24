@@ -187,10 +187,10 @@ export async function GET(req: NextRequest) {
     let paymentUrl: string | null = null;
     if (aiDecision.autoConfirm) {
       paymentUrl = paymentEnabled ? `/checkout/${booking.id}` : `/customer/booking/${booking.id}`;
-      // Do not block response for emails
-      sendBookingApprovedEmail(email, firstName, booking.bookingNumber, paymentUrl, totalAmount.toFixed(2), booking.id).catch(console.error);
+      // Block response for emails so they finish on serverless environments like Vercel
+      await sendBookingApprovedEmail(email, firstName, booking.bookingNumber, paymentUrl, totalAmount.toFixed(2), booking.id);
     } else {
-      sendBookingPendingEmail(email, firstName, booking.bookingNumber, {
+      await sendBookingPendingEmail(email, firstName, booking.bookingNumber, {
         eventDate,
         startTime,
         durationMins,
@@ -206,7 +206,7 @@ export async function GET(req: NextRequest) {
         overtimeFee,
         totalAmount,
         distanceMiles: distanceMiles
-      }, booking.id).catch(console.error);
+      }, booking.id);
     }
 
     return NextResponse.json({

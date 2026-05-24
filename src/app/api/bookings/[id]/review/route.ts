@@ -101,23 +101,25 @@ export async function POST(
         ? `/checkout/${booking.id}`
         : `/customer/booking/${booking.id}`;
 
-      // Send approval email (non-blocking)
-      sendBookingApprovedEmail(
+      // Send approval email (blocking)
+      await sendBookingApprovedEmail(
         booking.customer.email,
         booking.customer.firstName,
         booking.bookingNumber,
         paymentUrl,
         booking.totalAmount.toFixed(2),
         booking.id
-      ).catch(console.error);
+      );
 
       return NextResponse.json({
         success: true,
         action: "APPROVED",
-        newStatus: "PENDING_PAYMENT",
+        newStatus: paymentEnabled ? "PENDING_PAYMENT" : "CONFIRMED",
         booking: updated,
         paymentUrl,
-        message: "Booking approved. Customer notified with payment link. Status will become CONFIRMED after payment.",
+        message: paymentEnabled
+          ? "Booking approved. Customer notified with payment link. Status will become CONFIRMED after payment."
+          : "Booking approved. Customer notified of cash terms. Status is CONFIRMED.",
       });
     }
 
@@ -144,15 +146,15 @@ export async function POST(
       },
     });
 
-    // Send rejection email (non-blocking)
+    // Send rejection email (blocking)
     const { sendBookingRejectedEmail } = await import("@/lib/email");
-    sendBookingRejectedEmail(
+    await sendBookingRejectedEmail(
       booking.customer.email,
       booking.customer.firstName,
       booking.bookingNumber,
       reason || "Your request did not meet our availability criteria.",
       booking.id
-    ).catch(console.error);
+    );
 
     return NextResponse.json({
       success: true,

@@ -148,10 +148,9 @@ export async function evaluateBooking(req: BookingRequest): Promise<AIDecision> 
   const isLongDistance = req.distanceMiles > distanceReviewThreshold;
   const isOutsideHours = flags.includes("OUTSIDE_HOURS");
   
-  const autoConfirm = req.totalAmount >= autoConfirmThreshold && !isLongDistance && !isOutsideHours;
+  const autoConfirm = !isLongDistance;
 
   if (!autoConfirm) {
-    if (req.totalAmount < autoConfirmThreshold) flags.push(`BELOW_THRESHOLD_$${autoConfirmThreshold}`);
     if (isLongDistance && !flags.includes("REQUIRES_DISTANCE_REVIEW")) flags.push("REQUIRES_DISTANCE_REVIEW");
   }
 
@@ -160,17 +159,13 @@ export async function evaluateBooking(req: BookingRequest): Promise<AIDecision> 
   let customerMessage: string;
   if (autoConfirm) {
     customerMessage = `Great news! Your booking for ${req.eventType} on ${eventDate.toLocaleDateString("en-US", { month: "long", day: "numeric" })} has been confirmed. ${suggestedVehicle.name} will be assigned to your event. Payment will be collected in cash at the end of your event.`;
-  } else if (isOutsideHours) {
-    customerMessage = `Your requested time is outside our standard business hours. We've sent your request to our team for review, and we'll contact you shortly with availability options.`;
-  } else if (isLongDistance) {
-    customerMessage = `Your event appears to be outside our standard service area (${req.distanceMiles.toFixed(1)} miles from our garage at Boston Revere, 84 Fernwood Ave). We've sent your request to our team for review, and we'll contact you shortly with availability and travel options.`;
   } else {
-    customerMessage = `Thank you for your request! Your booking for ${req.eventType} on ${eventDate.toLocaleDateString("en-US", { month: "long", day: "numeric" })} is under review by our team. We'll contact you within 2–4 hours to confirm.`;
+    customerMessage = `Your event appears to be outside our standard service area (${req.distanceMiles.toFixed(1)} miles from our garage at Boston Revere, 84 Fernwood Ave). We've sent your request to our team for review, and we'll contact you shortly with availability and travel options.`;
   }
 
   return {
     verdict,
-    reason: autoConfirm ? "All checks passed" : isOutsideHours ? "Outside business hours requires manual review" : isLongDistance ? "Distance requires manual review" : "Manual review required",
+    reason: autoConfirm ? "All checks passed" : "Distance requires manual review",
     customerMessage,
     suggestedVehicle: suggestedVehicle.name,
     autoConfirm,
