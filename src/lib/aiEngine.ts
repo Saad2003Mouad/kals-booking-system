@@ -85,8 +85,11 @@ export async function evaluateBooking(req: BookingRequest): Promise<AIDecision> 
   // ── 3. Business hours check ───────────────────────────────────
   // Outside hours → PENDING_REVIEW, not auto-rejected.
   // Admin can approve off-hours events with custom arrangements.
-  if (startMins < BUSINESS_START || endMins > BUSINESS_END) {
-    flags.push("OUTSIDE_HOURS");
+  // Bypassed if 24/7 business hours are configured (start = 0, end = 24).
+  if (bStartHour > 0 || bEndHour < 24) {
+    if (startMins < BUSINESS_START || endMins > BUSINESS_END) {
+      flags.push("OUTSIDE_HOURS");
+    }
   }
 
   // ── 4. Distance check ─────────────────────────────────────────
@@ -167,11 +170,11 @@ export async function evaluateBooking(req: BookingRequest): Promise<AIDecision> 
 
   let customerMessage: string;
   if (autoConfirm) {
-    customerMessage = `Great news! Your booking for ${req.eventType} on ${eventDate.toLocaleDateString("en-US", { month: "long", day: "numeric" })} has been confirmed. ${suggestedVehicle.name} will be assigned to your event. Please complete your payment to secure your booking.`;
+    customerMessage = `Great news! Your booking for ${req.eventType} on ${eventDate.toLocaleDateString("en-US", { month: "long", day: "numeric" })} has been confirmed. ${suggestedVehicle.name} will be assigned to your event. Payment will be collected in cash at the end of your event.`;
   } else if (isOutsideHours) {
     customerMessage = `Your requested time is outside our standard business hours. We've sent your request to our team for review, and we'll contact you shortly with availability options.`;
   } else if (isLongDistance) {
-    customerMessage = `Your event appears to be outside our standard service area (${req.distanceMiles.toFixed(1)} miles from our Revere, MA base). We've sent your request to our team for review, and we'll contact you shortly with availability and travel options.`;
+    customerMessage = `Your event appears to be outside our standard service area (${req.distanceMiles.toFixed(1)} miles from our garage at Boston Revere, 84 Fernwood Ave). We've sent your request to our team for review, and we'll contact you shortly with availability and travel options.`;
   } else {
     customerMessage = `Thank you for your request! Your booking for ${req.eventType} on ${eventDate.toLocaleDateString("en-US", { month: "long", day: "numeric" })} is under review by our team. We'll contact you within 2–4 hours to confirm.`;
   }

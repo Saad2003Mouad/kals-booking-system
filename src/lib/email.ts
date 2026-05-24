@@ -82,21 +82,42 @@ export async function sendEmail({ to, subject, html, title }: { to: string; subj
 
 export async function sendBookingApprovedEmail(to: string, firstName: string, bookingNumber: string, paymentUrl: string, amount: string, bookingId: string) {
   const portalUrl = `${process.env.NEXTAUTH_URL || 'https://bostonlegendwebflowio.vercel.app'}/customer/booking/${bookingId}`;
+  
+  // Check if online payments are enabled
+  const paymentEnabled = process.env.PAYMENT_ENABLED === "true";
+  
+  let paymentBoxHtml = "";
+  if (paymentEnabled) {
+    paymentBoxHtml = `
+      <div style="background:#FFFBEB;border:2px solid ${BRAND_GOLD};border-radius:16px;padding:24px;margin-bottom:32px;text-align:center;">
+        <p style="margin:0 0 4px;color:#92400E;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;">Total Amount Due</p>
+        <p style="margin:0 0 20px;color:${BRAND_NAVY};font-size:36px;font-weight:900;">$${amount}</p>
+        <a href="${paymentUrl}" style="display:inline-block;background:${BRAND_NAVY};color:${BRAND_GOLD};padding:16px 32px;border-radius:32px;text-decoration:none;font-weight:900;font-size:15px;box-shadow:0 10px 20px rgba(0,2,35,0.15);">Complete Secure Payment →</a>
+      </div>
+      <p style="margin:0 0 20px;color:#6B7280;font-size:14px;font-weight:500;text-align:center;">
+        Please complete the payment within 24 hours to finalize your date. Once paid, you'll receive a final confirmation with driver details.
+      </p>
+    `;
+  } else {
+    paymentBoxHtml = `
+      <div style="background:#ECFDF5;border:2px solid #10B981;border-radius:16px;padding:24px;margin-bottom:32px;text-align:center;">
+        <p style="margin:0 0 4px;color:#065F46;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;">Estimated Total (Cash Payment)</p>
+        <p style="margin:0 0 10px;color:${BRAND_NAVY};font-size:36px;font-weight:900;">$${amount}</p>
+        <p style="margin:0;color:#047857;font-size:14px;font-weight:700;">No online payment required. Payment will be collected in cash at the end of your event.</p>
+      </div>
+      <div style="text-align:center;margin-bottom:32px;">
+        <a href="${portalUrl}" style="display:inline-block;background:${BRAND_NAVY};color:${BRAND_GOLD};padding:16px 32px;border-radius:32px;text-decoration:none;font-weight:900;font-size:15px;box-shadow:0 10px 20px rgba(0,2,35,0.15);">View or Manage Your Booking →</a>
+      </div>
+    `;
+  }
+
   const html = `
     <h2 style="margin:0 0 16px;color:${BRAND_NAVY};font-size:28px;font-weight:900;">Legendary News, ${firstName}! 🎉</h2>
     <p style="margin:0 0 24px;color:#4B5563;font-size:16px;line-height:1.6;font-weight:600;">
-      Your ice cream truck reservation **#${bookingNumber}** has been officially **APPROVED**. We can't wait to sweeten your event!
+      Your reservation **#${bookingNumber}** has been officially **APPROVED**. We can't wait to sweeten your event!
     </p>
     
-    <div style="background:#FFFBEB;border:2px solid ${BRAND_GOLD};border-radius:16px;padding:24px;margin-bottom:32px;text-align:center;">
-      <p style="margin:0 0 4px;color:#92400E;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;">Total Amount Due</p>
-      <p style="margin:0 0 20px;color:${BRAND_NAVY};font-size:36px;font-weight:900;">$${amount}</p>
-      <a href="${paymentUrl}" style="display:inline-block;background:${BRAND_NAVY};color:${BRAND_GOLD};padding:16px 32px;border-radius:32px;text-decoration:none;font-weight:900;font-size:15px;box-shadow:0 10px 20px rgba(0,2,35,0.15);">Complete Secure Payment →</a>
-    </div>
-
-    <p style="margin:0 0 20px;color:#6B7280;font-size:14px;font-weight:500;text-align:center;">
-      Please complete the payment within 24 hours to finalize your date. Once paid, you'll receive a final confirmation with driver details.
-    </p>
+    ${paymentBoxHtml}
     
     <div style="text-align:center;margin-top:20px;padding:15px;background:#F8F9FC;border-radius:12px;">
       <p style="margin:0 0 8px;font-size:13px;font-weight:700;color:${BRAND_NAVY};">Need to change or cancel details?</p>
@@ -209,10 +230,21 @@ export async function sendBookingPendingEmail(
       </tr>
     </table>
 
-    <!-- Status & Call to Action -->
+    <!-- Policies & Call to Action -->
+    <div style="background:#FFFBEB;border:1px solid ${BRAND_GOLD};border-radius:12px;padding:20px;margin-bottom:24px;font-size:13px;line-height:1.6;color:#92400E;text-align:left;">
+      <p style="margin:0 0 8px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:${BRAND_NAVY};">📍 Travel & Distance Policy</p>
+      <p style="margin:0 0 12px;font-weight:600;">The first 10 miles are free. Any additional miles will be calculated based on the travel distance from our garage at Boston Revere, 84 Fernwood Ave to your event location.</p>
+      
+      <p style="margin:0 0 8px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:${BRAND_NAVY};">👥 Extra Guests Policy</p>
+      <p style="margin:0 0 12px;font-weight:600;">If your guest count increases, we’ll be prepared. Extra guests beyond the included package count are calculated at $5 per person.</p>
+      
+      <p style="margin:0 0 8px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:${BRAND_NAVY};">💵 Cash Payment Terms</p>
+      <p style="margin:0;font-weight:600;">No online payment is required to reserve. Payment will be collected in cash at the end of your event.</p>
+    </div>
+
     <div style="text-align:center;margin-bottom:24px;">
       <p style="margin:0 0 16px;color:#4B5563;font-size:14px;font-weight:600;">
-        You will hear from us within <strong>2-4 hours</strong> with final approval. No payment is required until then.
+        You will hear from us within <strong>2-4 hours</strong> with final approval.
       </p>
       <a href="${portalUrl}" style="display:inline-block;background:${BRAND_NAVY};color:white;padding:14px 28px;border-radius:24px;text-decoration:none;font-weight:800;font-size:14px;">View Request Status & Portal</a>
     </div>
@@ -226,37 +258,40 @@ export async function sendBookingPendingEmail(
   return sendEmail({ to, subject: `Your Boston Legend Booking Request #${bookingNumber}`, html });
 }
 
-// ─── Booking Rejected (Admin Decision) ─────────────────────────────────────
+// ─── Booking Rejected / Needs Action (Admin Decision) ──────────────────────
 export async function sendBookingRejectedEmail(
   to: string,
   firstName: string,
   bookingNumber: string,
-  reason: string
+  reason: string,
+  bookingId: string
 ) {
-  const html = baseTemplate(`
+  const portalUrl = `${process.env.NEXTAUTH_URL || 'https://bostonlegendwebflowio.vercel.app'}/customer/booking/${bookingId}`;
+  
+  const html = `
     <div style="text-align:center;padding:32px 0 24px;">
       <div style="width:72px;height:72px;border-radius:50%;background:#FEF2F2;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
-        <span style="font-size:32px;">❌</span>
+        <span style="font-size:32px;">ℹ️</span>
       </div>
-      <h1 style="margin:0 0 8px;color:${BRAND_NAVY};font-size:26px;font-weight:900;">Booking Not Available</h1>
-      <p style="margin:0;color:#6B7280;font-size:15px;font-weight:600;">Hi ${firstName}, we're sorry we couldn't accommodate your request.</p>
+      <h2 style="margin:0 0 8px;color:${BRAND_NAVY};font-size:26px;font-weight:900;">Update Needed for Your Request</h2>
+      <p style="margin:0;color:#6B7280;font-size:15px;font-weight:600;">Hi ${firstName}, thank you for choosing Boston Legend. We reviewed your request and it needs a quick adjustment before we can confirm it.</p>
     </div>
 
-    <div style="background:#FEF2F2;border-radius:16px;padding:20px 24px;margin-bottom:24px;">
+    <div style="background:#F3F4F6;border-radius:16px;padding:20px 24px;margin-bottom:24px;">
       <p style="margin:0 0 6px;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:#9CA3AF;">Booking Reference</p>
       <p style="margin:0;font-family:monospace;font-size:20px;font-weight:900;color:${BRAND_NAVY};">#${bookingNumber}</p>
     </div>
 
     <div style="background:#FFF7ED;border-radius:16px;padding:20px 24px;margin-bottom:24px;">
-      <p style="margin:0 0 8px;font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:#D97706;">Reason</p>
+      <p style="margin:0 0 8px;font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:#D97706;">Details / Reason</p>
       <p style="margin:0;color:#92400E;font-size:15px;font-weight:600;">${reason}</p>
     </div>
 
     <div style="text-align:center;margin-bottom:24px;">
       <p style="margin:0 0 16px;color:#4B5563;font-size:14px;font-weight:600;">
-        We'd love to find an alternative that works for you. Please contact us to discuss other options.
+        You can still update your request using the link below, and our team will be happy to review it again.
       </p>
-      <a href="https://boston-legend.com/booking" style="display:inline-block;background:${BRAND_NAVY};color:white;padding:14px 28px;border-radius:24px;text-decoration:none;font-weight:800;font-size:14px;">Book Again</a>
+      <a href="${portalUrl}" style="display:inline-block;background:${BRAND_NAVY};color:${BRAND_GOLD};padding:16px 32px;border-radius:32px;text-decoration:none;font-weight:900;font-size:15px;box-shadow:0 10px 20px rgba(0,2,35,0.15);">Update My Booking Request →</a>
     </div>
 
     <div style="background:#F3F4F6;border-radius:12px;padding:20px;text-align:center;">
@@ -264,7 +299,8 @@ export async function sendBookingRejectedEmail(
         Questions? Call us at <a href="tel:617-999-3803" style="color:${BRAND_NAVY};text-decoration:none;font-weight:800;">617-999-3803</a>
       </p>
     </div>
-  `, `Boston Legend Booking Update #${bookingNumber}`);
-  return sendEmail({ to, subject: `Update on Your Boston Legend Booking #${bookingNumber}`, html });
+  `;
+  return sendEmail({ to, subject: `Update Needed: Your Boston Legend Booking Request #${bookingNumber}`, html });
 }
+
 

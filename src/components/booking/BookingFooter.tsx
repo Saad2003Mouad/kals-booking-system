@@ -65,8 +65,8 @@ export default function BookingFooter() {
               </div>
               <div>
                 <div className="text-[10px] font-black uppercase tracking-widest text-white/30 mb-1">Office Hours</div>
-                <div className="text-sm font-bold text-white/70">Mon-Fri: 8:00AM - 10:00PM</div>
-                <div className="text-sm font-bold text-white/70">Sat-Sun: 9:00AM - 10:00PM</div>
+                <div className="text-sm font-bold text-white/70">Open 24 Hours for Scheduled Events</div>
+                <div className="text-sm font-bold text-white/70">Available 24 hours by reservation</div>
               </div>
               <div>
                 <div className="text-[10px] font-black uppercase tracking-widest text-white/30 mb-1">Service Area</div>

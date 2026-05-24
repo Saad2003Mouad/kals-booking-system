@@ -100,7 +100,7 @@ export default function MapPicker({ lat, lng, address, onLocationChange }: MapPi
       </div>
       {/* Origin note */}
       <div className="absolute bottom-4 right-4 z-10 bg-white/90 px-3 py-2 rounded-xl text-xs font-bold text-gray-500 shadow">
-        📍 Distance from: Revere, MA 02151
+        📍 Distance from: Boston Revere — 84 Fernwood Ave
       </div>
 
       {/* Helpful hint overlay if no location set */}

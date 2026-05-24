@@ -213,8 +213,8 @@ export default function SiteFooter() {
             </div>
 
             <div className="footer-titel-s mt-4">Work Hours</div>
-            <div>Mon-Fri: 8:00AM - 10:00PM</div>
-            <div>Sat-Sun: 9:00AM - 10:00PM</div>
+            <div>Open 24 Hours for Scheduled Events</div>
+            <div>Available 24 hours by reservation</div>
           </div>
         </div>
       </div>

@@ -14,11 +14,10 @@ export async function GET(req: NextRequest, { params }: { params: { token: strin
       }
     });
 
-    if (!booking) {
-      return NextResponse.json({ error: "Booking not found" }, { status: 404 });
-    }
+    const paymentEnabledSetting = await prisma.setting.findUnique({ where: { key: "PAYMENT_ENABLED" } });
+    const paymentEnabled = paymentEnabledSetting?.value === "true" || process.env.PAYMENT_ENABLED === "true";
 
-    return NextResponse.json({ success: true, data: booking });
+    return NextResponse.json({ success: true, data: booking, paymentEnabled });
   } catch (error: any) {
     console.error("Customer booking fetch error:", error);
     return NextResponse.json({ error: "Failed to fetch booking details" }, { status: 500 });

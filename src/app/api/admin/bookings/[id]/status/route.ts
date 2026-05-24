@@ -8,7 +8,15 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   try {
     const { status, internalNote } = await req.json();
 
-    const updateData: any = { status };
+    const paymentEnabledSetting = await prisma.setting.findUnique({ where: { key: "PAYMENT_ENABLED" } });
+    const paymentEnabled = paymentEnabledSetting?.value === "true" || process.env.PAYMENT_ENABLED === "true";
+
+    let targetStatus = status;
+    if (!paymentEnabled && status === "PENDING_PAYMENT") {
+      targetStatus = "CONFIRMED";
+    }
+
+    const updateData: any = { status: targetStatus };
     if (internalNote !== undefined) {
       updateData.internalNote = internalNote;
     }
@@ -27,15 +35,17 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         entityType: "BOOKING",
         entityId: booking.id,
         bookingId: booking.id,
-        action: `STATUS_CHANGED_TO_${status}`,
-        metadataJson: JSON.stringify({ previousStatus: "UNKNOWN", newStatus: status, internalNote })
+        action: `STATUS_CHANGED_TO_${targetStatus}`,
+        metadataJson: JSON.stringify({ previousStatus: "UNKNOWN", newStatus: targetStatus, internalNote })
       }
     });
 
     // Send emails on status change
     try {
       if (status === "CONFIRMED" || status === "PENDING_PAYMENT") {
-        const paymentUrl = `${process.env.NEXTAUTH_URL || 'https://bostonlegendwebflowio.vercel.app'}/checkout/${booking.id}`;
+        const paymentUrl = paymentEnabled
+          ? `${process.env.NEXTAUTH_URL || 'https://bostonlegendwebflowio.vercel.app'}/checkout/${booking.id}`
+          : `${process.env.NEXTAUTH_URL || 'https://bostonlegendwebflowio.vercel.app'}/customer/booking/${booking.id}`;
         await sendBookingApprovedEmail(
           booking.customer.email,
           booking.customer.firstName,
@@ -49,7 +59,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
           booking.customer.email,
           booking.customer.firstName,
           booking.bookingNumber,
-          internalNote || "We are fully booked or outside our service window."
+          internalNote || "We are fully booked or outside our service window.",
+          booking.id
         );
       }
     } catch (emailErr) {

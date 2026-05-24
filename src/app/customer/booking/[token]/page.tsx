@@ -19,6 +19,7 @@ const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string; i
 
 export default function CustomerBookingPortal({ params }: { params: { token: string } }) {
   const [booking, setBooking] = useState<any>(null);
+  const [paymentEnabled, setPaymentEnabled] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   
@@ -39,6 +40,9 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
       const json = await res.json();
       if (res.ok && json.success) {
         setBooking(json.data);
+        if (json.paymentEnabled !== undefined) {
+          setPaymentEnabled(json.paymentEnabled);
+        }
         setEditForm({
           email: json.data.customer.email || "",
           phone: json.data.customer.phone || "",
@@ -223,25 +227,62 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
               <span className="text-slate-800 font-bold text-base">Estimated Price</span>
               <span className="text-2xl font-black text-emerald-600">${Number(booking.quote?.totalAmount ?? booking.totalAmount).toFixed(2)}</span>
             </div>
-            {booking.status === "PENDING_PAYMENT" && (
-              <a href={`/checkout/${booking.id}`} className="mt-4 w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black text-center shadow-lg transition-all flex items-center justify-center gap-2">
-                <DollarSign className="w-5 h-5"/> Complete Secure Payment
-              </a>
+            
+            {paymentEnabled ? (
+              booking.status === "PENDING_PAYMENT" && (
+                <a href={`/checkout/${booking.id}`} className="mt-4 w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black text-center shadow-lg transition-all flex items-center justify-center gap-2 print:hidden">
+                  <DollarSign className="w-5 h-5"/> Complete Secure Payment
+                </a>
+              )
+            ) : (
+              <div className="mt-4 p-4 bg-amber-50/50 border border-amber-200 rounded-2xl text-xs font-semibold text-amber-800 space-y-1">
+                <p className="font-black uppercase tracking-wider mb-1 flex items-center gap-1">💵 Cash Payment Policy</p>
+                <p>No online payment required. Payment will be collected in **Cash** at the end of your event.</p>
+              </div>
             )}
           </div>
         </div>
 
-        {/* Self-Service Operations */}
-        {["PENDING_REVIEW", "PENDING_PAYMENT", "CONFIRMED"].includes(booking.status) && (
-          <div className="flex flex-col sm:flex-row gap-3 pt-4">
-            <button onClick={() => setShowRequestModal("CHANGE")} className="flex-1 py-3 bg-white border-2 border-slate-200 text-[#000223] hover:border-[#000223] rounded-2xl font-black text-sm shadow-sm transition-all">
-              Request Booking Change
-            </button>
-            <button onClick={() => setShowRequestModal("CANCEL")} className="flex-1 py-3 bg-red-50 hover:bg-red-100 text-red-600 rounded-2xl font-black text-sm border-2 border-transparent transition-all">
-              Request Cancellation
-            </button>
+        {/* Policies Card */}
+        <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6">
+          <h2 className="font-black text-xs uppercase tracking-widest text-slate-400 mb-5">Booking Policies</h2>
+          <div className="space-y-4 text-xs font-semibold text-slate-600 leading-relaxed">
+            <div className="p-3 bg-slate-50 border border-slate-150 rounded-xl">
+              <p className="font-black text-[#000223] mb-1">📍 Distance Policy</p>
+              <p>The first 10 miles are free. Any additional miles will be calculated based on the travel distance from our garage at <strong>Boston Revere, 84 Fernwood Ave</strong> to your event location.</p>
+            </div>
+            <div className="p-3 bg-slate-50 border border-slate-150 rounded-xl">
+              <p className="font-black text-[#000223] mb-1">👥 Extra Guests</p>
+              <p>If your guest count increases, we'll be prepared. Extra guests beyond the included package count are calculated at <strong>$5 per person</strong>.</p>
+            </div>
           </div>
-        )}
+        </div>
+
+        {/* Self-Service Operations & Print */}
+        <div className="space-y-3 print:hidden">
+          {["PENDING_REVIEW", "PENDING_PAYMENT", "CONFIRMED"].includes(booking.status) && (
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button onClick={() => setShowRequestModal("CHANGE")} className="flex-1 py-3 bg-white border-2 border-slate-200 text-[#000223] hover:border-[#000223] rounded-2xl font-black text-sm shadow-sm transition-all">
+                Request Booking Change
+              </button>
+              <button onClick={() => setShowRequestModal("CANCEL")} className="flex-1 py-3 bg-red-50 hover:bg-red-100 text-red-600 rounded-2xl font-black text-sm border-2 border-transparent transition-all">
+                Request Cancellation
+              </button>
+            </div>
+          )}
+          
+          <button onClick={() => window.print()} className="w-full py-3 bg-slate-800 hover:bg-slate-900 text-white rounded-2xl font-black text-sm transition-all flex items-center justify-center gap-2 shadow-sm">
+            Print Confirmation / Save PDF
+          </button>
+        </div>
+
+        <style>{`
+          @media print {
+            body { background: white !important; color: black !important; }
+            header, .print\\:hidden, button, a, form { display: none !important; }
+            .shadow-sm, .shadow-xl { box-shadow: none !important; border: 1px solid #e2e8f0 !important; }
+          }
+        `}</style>
 
       </div>
 

@@ -51,10 +51,13 @@ export async function POST(
       );
     }
 
+    const paymentEnabledSetting = await prisma.setting.findUnique({ where: { key: "PAYMENT_ENABLED" } });
+    const paymentEnabled = paymentEnabledSetting?.value === "true" || process.env.PAYMENT_ENABLED === "true";
+
     if (action === "APPROVE") {
       // Optionally update travel fee
       const updateData: any = {
-        status: "PENDING_PAYMENT",   // CONFIRMED only after payment webhook
+        status: paymentEnabled ? "PENDING_PAYMENT" : "CONFIRMED",
         internalNote: reason || null,
       };
 
@@ -93,8 +96,10 @@ export async function POST(
         },
       });
 
-      // Payment URL
-      const paymentUrl = `/checkout/${booking.id}`;
+      // Payment URL or Portal URL
+      const paymentUrl = paymentEnabled
+        ? `/checkout/${booking.id}`
+        : `/customer/booking/${booking.id}`;
 
       // Send approval email (non-blocking)
       sendBookingApprovedEmail(
@@ -145,7 +150,8 @@ export async function POST(
       booking.customer.email,
       booking.customer.firstName,
       booking.bookingNumber,
-      reason || "Your request did not meet our availability criteria."
+      reason || "Your request did not meet our availability criteria.",
+      booking.id
     ).catch(console.error);
 
     return NextResponse.json({

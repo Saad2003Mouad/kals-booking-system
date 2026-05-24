@@ -31,7 +31,7 @@ export default function AdminPackagesPage() {
 
   const loadPackages = () => {
     setLoading(true);
-    fetch("/api/packages")
+    fetch("/api/admin/packages")
       .then(res => res.json())
       .then(data => {
         if (data.success && data.data) {

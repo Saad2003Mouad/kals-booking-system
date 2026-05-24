@@ -3,6 +3,24 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
+export async function GET(req: Request) {
+  try {
+    const role = req.headers.get("x-mock-user-role") || "OWNER";
+    if (!["OWNER", "ADMIN"].includes(role)) {
+      return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
+    }
+
+    const packages = await prisma.package.findMany({
+      orderBy: { sortOrder: "asc" }
+    });
+
+    return NextResponse.json({ success: true, data: packages });
+  } catch (error: any) {
+    console.error("Fetch admin packages error:", error);
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const role = req.headers.get("x-mock-user-role") || "OWNER";
