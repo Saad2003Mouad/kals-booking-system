@@ -176,7 +176,7 @@ export async function GET(req: NextRequest) {
     if (aiDecision.autoConfirm) {
       paymentUrl = `/checkout/${booking.id}`;
       // Do not block response for emails
-      sendBookingApprovedEmail(email, firstName, booking.bookingNumber, paymentUrl, totalAmount.toFixed(2)).catch(console.error);
+      sendBookingApprovedEmail(email, firstName, booking.bookingNumber, paymentUrl, totalAmount.toFixed(2), booking.id).catch(console.error);
     } else {
       sendBookingPendingEmail(email, firstName, booking.bookingNumber, {
         eventDate,
@@ -193,7 +193,7 @@ export async function GET(req: NextRequest) {
         travelFee,
         overtimeFee,
         totalAmount
-      }).catch(console.error);
+      }, booking.id).catch(console.error);
     }
 
     return NextResponse.json({

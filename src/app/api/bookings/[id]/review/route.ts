@@ -102,7 +102,8 @@ export async function POST(
         booking.customer.firstName,
         booking.bookingNumber,
         paymentUrl,
-        booking.totalAmount.toFixed(2)
+        booking.totalAmount.toFixed(2),
+        booking.id
       ).catch(console.error);
 
       return NextResponse.json({

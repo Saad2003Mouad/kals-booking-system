@@ -80,7 +80,8 @@ export async function sendEmail({ to, subject, html, title }: { to: string; subj
   }
 }
 
-export async function sendBookingApprovedEmail(to: string, firstName: string, bookingNumber: string, paymentUrl: string, amount: string) {
+export async function sendBookingApprovedEmail(to: string, firstName: string, bookingNumber: string, paymentUrl: string, amount: string, bookingId: string) {
+  const portalUrl = `${process.env.NEXTAUTH_URL || 'https://bostonlegendwebflowio.vercel.app'}/customer/booking/${bookingId}`;
   const html = `
     <h2 style="margin:0 0 16px;color:${BRAND_NAVY};font-size:28px;font-weight:900;">Legendary News, ${firstName}! 🎉</h2>
     <p style="margin:0 0 24px;color:#4B5563;font-size:16px;line-height:1.6;font-weight:600;">
@@ -93,9 +94,14 @@ export async function sendBookingApprovedEmail(to: string, firstName: string, bo
       <a href="${paymentUrl}" style="display:inline-block;background:${BRAND_NAVY};color:${BRAND_GOLD};padding:16px 32px;border-radius:32px;text-decoration:none;font-weight:900;font-size:15px;box-shadow:0 10px 20px rgba(0,2,35,0.15);">Complete Secure Payment →</a>
     </div>
 
-    <p style="margin:0;color:#6B7280;font-size:14px;font-weight:500;">
+    <p style="margin:0 0 20px;color:#6B7280;font-size:14px;font-weight:500;text-align:center;">
       Please complete the payment within 24 hours to finalize your date. Once paid, you'll receive a final confirmation with driver details.
     </p>
+    
+    <div style="text-align:center;margin-top:20px;padding:15px;background:#F8F9FC;border-radius:12px;">
+      <p style="margin:0 0 8px;font-size:13px;font-weight:700;color:${BRAND_NAVY};">Need to change or cancel details?</p>
+      <a href="${portalUrl}" style="color:${BRAND_GOLD};font-weight:900;text-decoration:underline;font-size:14px;">Access Your Booking Portal →</a>
+    </div>
   `;
   return sendEmail({ to, subject: `Approved: Your Boston Legend Booking #${bookingNumber}`, html });
 }
@@ -119,8 +125,11 @@ export async function sendBookingPendingEmail(
     travelFee: number;
     overtimeFee: number;
     totalAmount: number;
-  }
+  },
+  bookingId: string
 ) {
+  const portalUrl = `${process.env.NEXTAUTH_URL || 'https://bostonlegendwebflowio.vercel.app'}/customer/booking/${bookingId}`;
+  
   const formatEnDate = (d: string) => {
     if (!d) return "";
     try {
@@ -205,7 +214,7 @@ export async function sendBookingPendingEmail(
       <p style="margin:0 0 16px;color:#4B5563;font-size:14px;font-weight:600;">
         You will hear from us within <strong>2-4 hours</strong> with final approval. No payment is required until then.
       </p>
-      <a href="https://boston-legend.vercel.app/booking/status/${bookingNumber}" style="display:inline-block;background:${BRAND_NAVY};color:white;padding:14px 28px;border-radius:24px;text-decoration:none;font-weight:800;font-size:14px;">View Request Status</a>
+      <a href="${portalUrl}" style="display:inline-block;background:${BRAND_NAVY};color:white;padding:14px 28px;border-radius:24px;text-decoration:none;font-weight:800;font-size:14px;">View Request Status & Portal</a>
     </div>
 
     <div style="background:#F3F4F6;border-radius:12px;padding:20px;text-align:center;">

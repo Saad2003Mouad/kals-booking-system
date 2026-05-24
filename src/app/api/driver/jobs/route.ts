@@ -35,5 +35,5 @@ export async function GET(req: NextRequest) {
     orderBy: { assignedAt: "asc" },
   });
 
-  return NextResponse.json(assignments.map(a => a.booking));
+  return NextResponse.json(assignments);
 }

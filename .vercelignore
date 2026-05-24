@@ -1,0 +1,10 @@
+# Ignore scraper files and other temporary assets
+boston-legend.webflow.io
+cdn.jsdelivr.net
+cdn.prod.website-files.com
+challenges.cloudflare.com
+d3e54v103j8qbb.cloudfront.net
+_DataURI
+node_modules
+.next
+.vercel

@@ -14,12 +14,41 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     return NextResponse.json({ error: "Invalid status" }, { status: 400 });
   }
 
-  const assignment = await prisma.booking.update({
+  const driver = await prisma.driver.findFirst({ where: { userId: (token as any).id as string } });
+  if (!driver) {
+    return NextResponse.json({ error: "Driver profile not found" }, { status: 404 });
+  }
+
+  const check = await prisma.vehicleAssignment.findFirst({
+    where: { id: params.id, driverId: driver.id }
+  });
+  if (!check) {
+    return NextResponse.json({ error: "Assignment not found or unauthorized" }, { status: 404 });
+  }
+
+  const assignment = await prisma.vehicleAssignment.update({
     where: { id: params.id },
-    data: { status: jobStatus === "COMPLETED" ? "COMPLETED" : "CONFIRMED" },
+    data: {
+      jobStatus,
+      driverNote: driverNote !== undefined ? driverNote : undefined,
+    },
+    include: {
+      booking: true
+    }
   });
 
-  // Status is now updated directly on booking
+  // Sync associated booking status
+  let bookingStatus = "CONFIRMED";
+  if (jobStatus === "COMPLETED") {
+    bookingStatus = "COMPLETED";
+  } else if (jobStatus === "ON_THE_WAY" || jobStatus === "ARRIVED") {
+    bookingStatus = "IN_PROGRESS";
+  }
+
+  await prisma.booking.update({
+    where: { id: assignment.bookingId },
+    data: { status: bookingStatus as any }
+  });
 
   return NextResponse.json(assignment);
 }

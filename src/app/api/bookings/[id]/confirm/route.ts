@@ -53,7 +53,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       booking.customer.firstName,
       booking.bookingNumber,
       paymentUrl,
-      booking.totalAmount.toFixed(2)
+      booking.totalAmount.toFixed(2),
+      booking.id
     ).catch(console.error);
 
     return NextResponse.json({ success: true, booking: updated });

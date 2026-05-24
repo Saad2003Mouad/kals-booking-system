@@ -11,6 +11,12 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
   const [updating, setUpdating] = useState("");
   const [internalNote, setInternalNote] = useState("");
 
+  const [vehicles, setVehicles] = useState<any[]>([]);
+  const [drivers, setDrivers] = useState<any[]>([]);
+  const [selectedVehicleId, setSelectedVehicleId] = useState("");
+  const [selectedDriverId, setSelectedDriverId] = useState("");
+  const [assigning, setAssigning] = useState(false);
+
   const loadBooking = async () => {
     setLoading(true);
     try {
@@ -18,12 +24,62 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
       if (res.ok) {
         const json = await res.json();
         setBooking(json.data);
+        if (json.data.assignment) {
+          setSelectedVehicleId(json.data.assignment.vehicleId || "");
+          setSelectedDriverId(json.data.assignment.driverId || "");
+        } else if (json.data.vehicleId) {
+          setSelectedVehicleId(json.data.vehicleId);
+        }
       }
     } catch (e) { }
     setLoading(false);
   };
 
-  useEffect(() => { loadBooking(); }, [params.id]);
+  useEffect(() => {
+    loadBooking();
+    const fetchDropdowns = async () => {
+      try {
+        const [resV, resD] = await Promise.all([
+          fetch("/api/admin/vehicles"),
+          fetch("/api/admin/drivers")
+        ]);
+        if (resV.ok) setVehicles(await resV.json());
+        if (resD.ok) {
+          // Flatten drivers if nested inside user structure
+          const driversData = await resD.json();
+          setDrivers(driversData);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    fetchDropdowns();
+  }, [params.id]);
+
+  const saveAssignment = async () => {
+    setAssigning(true);
+    try {
+      const res = await fetch(`/api/admin/bookings/${params.id}/assign`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          vehicleId: selectedVehicleId,
+          driverId: selectedDriverId || null
+        })
+      });
+      if (res.ok) {
+        alert("Assignment saved successfully!");
+        await loadBooking();
+      } else {
+        const json = await res.json();
+        alert(json.error || "Failed to save assignment.");
+      }
+    } catch (e) {
+      alert("Network error saving assignment.");
+    } finally {
+      setAssigning(false);
+    }
+  };
 
   const updateStatus = async (status: string) => {
     setUpdating(status);
@@ -121,14 +177,43 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
           <div>
             <h3 className="text-lg font-black mb-4 flex items-center gap-2 text-[#000223]"><Truck className="w-5 h-5 text-indigo-500" /> Dispatch Assignment</h3>
             <div className="space-y-4 font-semibold text-sm">
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                <div className="text-slate-400 mb-1">Assigned Vehicle</div>
-                <div className="text-slate-800 text-base">{booking.assignment?.vehicle?.code || "Unassigned"}</div>
+              <div>
+                <label className="block text-xs font-black uppercase text-slate-400 mb-1.5">Vehicle</label>
+                <select
+                  value={selectedVehicleId}
+                  onChange={e => setSelectedVehicleId(e.target.value)}
+                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200 font-bold text-sm bg-white outline-none focus:border-[#FFA000]"
+                >
+                  <option value="">Unassigned</option>
+                  {vehicles.map(v => (
+                    <option key={v.id} value={v.id}>{v.code} - {v.name} ({v.type})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-black uppercase text-slate-400 mb-1.5">Driver</label>
+                <select
+                  value={selectedDriverId}
+                  onChange={e => setSelectedDriverId(e.target.value)}
+                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200 font-bold text-sm bg-white outline-none focus:border-[#FFA000]"
+                >
+                  <option value="">Unassigned</option>
+                  {drivers.map(d => (
+                    <option key={d.id} value={d.id}>{d.name}</option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>
-          <button disabled className="btn-secondary w-full py-2.5 mt-6 border-slate-200 opacity-50 cursor-not-allowed flex items-center justify-center gap-2">
-            Manage Fleet Assignment <span className="text-[10px] bg-slate-200 px-2 py-0.5 rounded-full text-slate-500 uppercase tracking-wider">Coming Soon</span>
+          
+          <button
+            onClick={saveAssignment}
+            disabled={assigning || !selectedVehicleId}
+            className="w-full py-2.5 mt-6 rounded-xl font-black text-sm text-[#000223] bg-[#FFA000] hover:bg-[#FFB020] hover:shadow-lg disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+          >
+            {assigning ? <Loader2 className="w-4 h-4 animate-spin"/> : <CheckCircle2 className="w-4 h-4"/>}
+            Save Assignment
           </button>
         </div>
       </div>

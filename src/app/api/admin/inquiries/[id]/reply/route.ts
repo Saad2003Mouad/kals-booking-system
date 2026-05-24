@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { checkPermission, unauthorized } from "@/lib/rbac";
+import { sendEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -18,9 +19,27 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       return NextResponse.json({ success: false, error: "No email address found for this inquiry" }, { status: 400 });
     }
 
-    // In a real application, you would use a mail service like SendGrid, AWS SES, or Resend here.
-    // Example: await sendEmail({ to: inquiry.email, subject, body });
-    console.log(`Mock Email Sent to: ${inquiry.email}\nSubject: ${subject}\nBody: ${body}`);
+    // Send email using Nodemailer
+    const emailSent = await sendEmail({
+      to: inquiry.email,
+      subject: subject || "Reply from Boston Legend",
+      html: `
+        <div style="font-family: 'Nunito', sans-serif; font-size: 16px; color: #000223; line-height: 1.6;">
+          <p>Hi ${inquiry.name},</p>
+          <div style="white-space: pre-wrap; color: #4B5563; margin-top: 15px; margin-bottom: 25px;">
+            ${body}
+          </div>
+          <p style="margin: 0; font-size: 14px; color: #9CA3AF; font-weight: 700;">
+            Boston Legend Ice Cream Concierge Team
+          </p>
+        </div>
+      `,
+      title: subject || "Reply from Boston Legend"
+    });
+
+    if (!emailSent) {
+      return NextResponse.json({ success: false, error: "Failed to send email. SMTP transporter returned failure." }, { status: 500 });
+    }
 
     // Create an audit log of the reply
     await prisma.auditLog.create({
