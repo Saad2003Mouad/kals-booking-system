@@ -223,6 +223,12 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
           <div className="space-y-4 text-sm font-semibold">
             <div className="flex justify-between"><span className="text-slate-400">Selected Package</span><span className="font-black text-[#000223]">{booking.package?.name || "Standard Event"}</span></div>
             <div className="flex justify-between"><span className="text-slate-400">Servings Size</span><span className="font-black text-[#000223]">{booking.package?.servings || 50} Servings</span></div>
+            {booking.quote && (
+              <>
+                <div className="flex justify-between"><span className="text-slate-400">Total Distance</span><span className="font-black text-[#000223]">{Number(booking.quote.distanceMiles).toFixed(1)} miles</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">Travel Fee</span><span className="font-black text-[#000223]">{Number(booking.quote.travelFee) > 0 ? `$${Number(booking.quote.travelFee).toFixed(2)}` : "Free ($0.00)"}</span></div>
+              </>
+            )}
             <div className="border-t border-slate-100 pt-4 flex justify-between items-center">
               <span className="text-slate-800 font-bold text-base">Estimated Price</span>
               <span className="text-2xl font-black text-emerald-600">${Number(booking.quote?.totalAmount ?? booking.totalAmount).toFixed(2)}</span>
@@ -237,7 +243,7 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
             ) : (
               <div className="mt-4 p-4 bg-amber-50/50 border border-amber-200 rounded-2xl text-xs font-semibold text-amber-800 space-y-1">
                 <p className="font-black uppercase tracking-wider mb-1 flex items-center gap-1">💵 Cash Payment Policy</p>
-                <p>No online payment required. Payment will be collected in **Cash** at the end of your event.</p>
+                <p>No online payment required. Payment will be collected in cash at the end of your event.</p>
               </div>
             )}
           </div>

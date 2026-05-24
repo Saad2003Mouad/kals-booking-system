@@ -102,7 +102,7 @@ function ZipSelector({ zip, city, onZipChange }:{ zip:string; city:string; onZip
 
 type Pkg = { id:string; name:string; type?:string; serviceType?:string; includedMinutes?:number; includedQty?:number; servings?:number; basePrice?:number; price?:number; extraPiecePrice?:number; description?:string; slug?:string };
 type Quote = { basePrice:number; travelFee:number; overtimeFee:number; extraPieceFee:number; totalAmount:number; distanceMiles:number; extraPiecePrice:number; breakdown:{label:string;amount:number}[] };
-type AIResult = { decision?:{ verdict:string; customerMessage:string; alternativeTimes?:string[] }; booking?:{ id:string; bookingNumber:string }; paymentUrl?:string; paymentEnabled?:boolean };
+type AIResult = { decision?:{ verdict:string; customerMessage:string; alternativeTimes?:string[] }; booking?:{ id:string; bookingNumber:string }; paymentUrl?:string; paymentEnabled?:boolean; customerPortalUrl?:string };
 
 const EVENT_TYPES = ["Birthday Party","Corporate Event","Wedding Reception","Block Party","School Event","Fundraiser","Launch Party","Reunion","Sports Event","Other"];
 const STEPS = ["Package","Event Details","Contact","Verify","Review"];
@@ -285,9 +285,12 @@ export default function BookingForm() {
         <h2 className="text-2xl font-black mb-3" style={{color:"#000223"}}>Under Review</h2>
         <p className="font-mono font-black text-lg mb-4" style={{color:"#000223"}}>#{booking?.bookingNumber}</p>
         <p className="text-gray-600 font-semibold leading-relaxed mb-8">{decision.customerMessage}</p>
-        <div className="bg-blue-50 border border-blue-100 rounded-2xl p-5 text-left text-sm text-blue-700 font-semibold space-y-1.5 max-w-sm mx-auto">
+        <div className="bg-blue-50 border border-blue-100 rounded-2xl p-5 text-left text-sm text-blue-700 font-semibold space-y-1.5 max-w-sm mx-auto mb-8">
           <p>✓ Team reviews within 2–4 hours</p><p>✓ Confirmation sent to {email}</p><p>✓ No payment until approved</p>
         </div>
+        <a href={result.customerPortalUrl??`/customer/booking/${booking?.id}`} className="inline-flex items-center gap-2 px-10 py-4 rounded-full font-black text-white shadow-xl hover:bg-[#FFA000] hover:text-[#000223] transition-all bg-[#000223]">
+          View or Manage Your Booking
+        </a>
       </div>
     );
     const paymentEnabled = result.paymentEnabled !== false;
@@ -314,7 +317,7 @@ export default function BookingForm() {
               <p className="mb-1 text-xs text-slate-500">Total estimated amount: <span className="font-black text-slate-800">${quote?.totalAmount.toFixed(2)}</span></p>
               <p className="text-xs text-slate-500">Payment will be collected in **Cash** at the end of the event.</p>
             </div>
-            <a href={result.paymentUrl??`/customer/booking/${booking?.id}`} className="inline-flex items-center gap-2 px-10 py-4 rounded-full font-black text-[#000223] shadow-xl hover:bg-[#FFA000] hover:text-[#000223] transition-all" style={{background:"#FFA000"}}>
+            <a href={result.customerPortalUrl??result.paymentUrl??`/customer/booking/${booking?.id}`} className="inline-flex items-center gap-2 px-10 py-4 rounded-full font-black text-[#000223] shadow-xl hover:bg-[#FFA000] hover:text-[#000223] transition-all" style={{background:"#FFA000"}}>
               View or Manage Your Booking
             </a>
           </>
@@ -439,20 +442,47 @@ export default function BookingForm() {
                 if(z) setZip(z);
                 setDMiles(dm); setMapFee(tf);
               }}/>
-              {drivingMiles>0&&(
-                <div className="mt-3 flex items-center gap-2 p-3 rounded-xl bg-amber-50 border border-amber-100">
-                  <Navigation className="w-4 h-4 text-[#FFA000] flex-shrink-0"/>
-                  <span className="text-sm font-bold" style={{color:"#000223"}}>{drivingMiles.toFixed(1)} mi from Boston Revere garage</span>
-                  {mapTravelFee>0
-                    ?<span className="ml-auto text-sm font-black text-amber-700">+${mapTravelFee.toFixed(2)} travel fee</span>
-                    :<span className="ml-auto text-sm font-black text-emerald-600">✓ Free travel zone</span>}
+              {drivingMiles > 0 && (
+                <div className="mt-4 p-5 rounded-2xl bg-slate-50 border border-slate-200 text-left">
+                  <h4 className="text-xs font-black tracking-wider text-slate-400 uppercase mb-2">Travel Distance</h4>
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <p className="text-lg font-black text-[#000223]">
+                        {drivingMiles.toFixed(1)} miles
+                      </p>
+                      <p className="text-xs font-semibold text-slate-500 mt-0.5">
+                        from our garage at Boston Revere — 84 Fernwood Ave
+                      </p>
+                    </div>
+                    <span className="text-2xl">🎁</span>
+                  </div>
+                  
+                  <div className="bg-amber-50 border border-amber-100 rounded-xl p-3.5 text-xs text-amber-800 font-semibold space-y-1">
+                    <p className="font-black text-amber-900 text-sm flex items-center gap-1.5">
+                      <span>First 10 miles are FREE</span>
+                    </p>
+                    <p className="text-slate-500">Only additional miles after the first 10 are calculated.</p>
+                  </div>
+
+                  <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-sm">
+                    {drivingMiles <= 10 ? (
+                      <div className="w-full">
+                        <p className="text-emerald-700 font-black">Great news! Your event is within our free 10-mile travel zone.</p>
+                        <p className="text-xs font-semibold text-slate-400 mt-0.5">Travel fee: $0</p>
+                      </div>
+                    ) : (
+                      <div className="w-full flex justify-between items-center">
+                        <div>
+                          <p className="text-[#000223] font-bold">Your first 10 miles are free.</p>
+                          <p className="text-xs font-semibold text-slate-500">Billable miles: {(drivingMiles - 10).toFixed(1)} miles</p>
+                        </div>
+                        <span className="text-base font-black text-amber-700">Estimated travel fee: ${mapTravelFee.toFixed(2)}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
-            <Field label="Extra Servings" helper={`+$${(sel as any)?.extraPiecePrice??((sel?.type==="TRUCK"||(sel as any)?.serviceType==="AMERICANO_TRUCK")?5:4)} per serving beyond package`}>
-              <input type="number" min="0" value={extraServings} onChange={e=>setExtra(toEnNum(e.target.value))}
-                className={`${inputBase} ${inputFocus} border-gray-200`} style={{fontFamily:FN}}/>
-            </Field>
             <FormInput label="Notes (optional)" value={notes} onChange={setNotes} placeholder="Gate code, allergies, special requests…"
               helper="Any details that would help us prepare"/>
           </div>
@@ -549,7 +579,19 @@ export default function BookingForm() {
               <span className="text-xs font-black uppercase tracking-widest text-gray-400">📅 Event Details</span>
             </div>
             <div className="divide-y divide-gray-50">
-              {[["Type",eventType],["Date",formatEnDate(eventDate)],["Time",formatEnTime(startTime)],["Duration",`${durationMins} min`],["Guests",toEnNum(guests)],["Location",`${address}, ${city} ${zip}`],["Travel",`${quote.distanceMiles.toFixed(1)} mi from Boston Revere garage`]].map(([l,v])=>(
+              {[
+                ["Type", eventType],
+                ["Date", formatEnDate(eventDate)],
+                ["Time", formatEnTime(startTime)],
+                ["Duration", `${durationMins} min`],
+                ["Guests", toEnNum(guests)],
+                ["Location", `${address}, ${city} ${zip}`],
+                ["Garage Origin", "Boston Revere — 84 Fernwood Ave"],
+                ["Total Distance", `${quote.distanceMiles.toFixed(1)} miles`],
+                ["Free Miles Zone", "First 10.0 miles FREE"],
+                ["Billable Distance", `${Math.max(0, quote.distanceMiles - 10).toFixed(1)} miles`],
+                ["Travel Fee", quote.travelFee > 0 ? `$${quote.travelFee.toFixed(2)}` : "Free ($0.00)"]
+              ].map(([l,v])=>(
                 <div key={l} className="flex justify-between px-5 py-3 text-sm">
                   <span className="text-gray-400 font-bold">{l}</span>
                   <span className="font-black text-right max-w-[60%]" style={{color:"#000223"}}>{v}</span>
@@ -591,7 +633,7 @@ export default function BookingForm() {
             <button onClick={submit} disabled={submitting}
               className="inline-flex items-center justify-center gap-3 px-6 sm:px-10 py-4 rounded-full font-black shadow-xl disabled:opacity-50 hover:-translate-y-0.5 transition-all text-base sm:text-lg w-full sm:w-auto" style={{background:"linear-gradient(135deg,#000223,#001a4c)",color:"#FFA000"}}>
               {submitting?<><Loader2 className="w-5 h-5 animate-spin"/>Processing…</>
-                :<><CreditCard className="w-5 h-5"/>Confirm & Continue to Payment</>}
+                :<><CheckCircle2 className="w-5 h-5"/>Confirm Booking Request</>}
             </button>
           </div>
         </div>

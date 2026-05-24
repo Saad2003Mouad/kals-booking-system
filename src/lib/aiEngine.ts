@@ -76,21 +76,10 @@ export async function evaluateBooking(req: BookingRequest): Promise<AIDecision> 
   const eventDateStr = eventDate.toISOString().split("T")[0];
   const isWeekend = eventDate.getDay() === 0 || eventDate.getDay() === 6;
 
-  // Business hours stored as integer hours in DB (e.g. "8" = 8:00, "22" = 22:00)
-  const bStartHour = getSetting(isWeekend ? "BUSINESS_START_WEEKEND" : "BUSINESS_START_WEEKDAY", isWeekend ? 9  : 8);
-  const bEndHour   = getSetting(isWeekend ? "BUSINESS_END_WEEKEND"   : "BUSINESS_END_WEEKDAY",   22);
-  const BUSINESS_START = bStartHour * 60;   // convert hour → minutes
-  const BUSINESS_END   = bEndHour   * 60;
-
-  // ── 3. Business hours check ───────────────────────────────────
-  // Outside hours → PENDING_REVIEW, not auto-rejected.
-  // Admin can approve off-hours events with custom arrangements.
-  // Bypassed if 24/7 business hours are configured (start = 0, end = 24).
-  if (bStartHour > 0 || bEndHour < 24) {
-    if (startMins < BUSINESS_START || endMins > BUSINESS_END) {
-      flags.push("OUTSIDE_HOURS");
-    }
-  }
+  // ── 3. Business hours check (Bypassed - 24/7) ───────────────────
+  // Bypassed: 24h work policy. Never flag OUTSIDE_HOURS.
+  const BUSINESS_START = 0;
+  const BUSINESS_END   = 24 * 60;
 
   // ── 4. Distance check ─────────────────────────────────────────
   // Per requirements: distance > threshold → PENDING_REVIEW only (never REJECTED)

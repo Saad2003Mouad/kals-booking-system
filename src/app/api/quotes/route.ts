@@ -57,7 +57,7 @@ export async function POST(req: Request) {
 
     const breakdown = [
       { label: "Base Package", amount: q.basePrice },
-      { label: q.extraServingsCount > 0 ? `Extra Servings (${q.extraServingsCount} × $${q.extraPiecePrice})` : "Extra Servings", amount: q.extraPieceFee },
+      { label: q.extraServingsCount > 0 ? `Extra Guests (${q.extraServingsCount} × $${q.extraPiecePrice})` : "Extra Guests Fee", amount: q.extraPieceFee },
       { label: "Travel Fee", amount: q.travelFee },
       { label: "Overtime Fee", amount: q.overtimeFee },
     ];

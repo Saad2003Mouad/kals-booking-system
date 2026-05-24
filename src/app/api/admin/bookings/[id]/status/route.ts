@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { sendBookingApprovedEmail, sendBookingRejectedEmail } from "@/lib/email";
+import { sendBookingApprovedEmail, sendBookingRejectedEmail, sendBookingPendingReviewEmail } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
@@ -59,7 +59,15 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
           booking.customer.email,
           booking.customer.firstName,
           booking.bookingNumber,
-          internalNote || "We are fully booked or outside our service window.",
+          internalNote || "Unfortunately, we’re unable to approve this request as submitted.",
+          booking.id
+        );
+      } else if (status === "PENDING_REVIEW" || status === "PENDING") {
+        await sendBookingPendingReviewEmail(
+          booking.customer.email,
+          booking.customer.firstName,
+          booking.bookingNumber,
+          internalNote || "Thank you for choosing Boston Legend. We reviewed your request and it needs a quick adjustment before we can confirm it.",
           booking.id
         );
       }

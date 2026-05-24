@@ -171,6 +171,15 @@ export async function GET(req: NextRequest) {
       },
     }));
 
+    // Fetch readable package name
+    let dbPackageName = "Custom Package";
+    if (packageId) {
+      const dbPkg = await prisma.package.findUnique({ where: { id: packageId } });
+      if (dbPkg) {
+        dbPackageName = dbPkg.name;
+      }
+    }
+
     // ── 7. Create Stripe payment intent and send Emails ────────
     const paymentEnabledSetting = await prisma.setting.findUnique({ where: { key: "PAYMENT_ENABLED" } });
     const paymentEnabled = paymentEnabledSetting?.value === "true" || process.env.PAYMENT_ENABLED === "true";
@@ -190,12 +199,13 @@ export async function GET(req: NextRequest) {
         address,
         city,
         zip,
-        packageName: booking.packageId || 'Custom', // In reality fetch package name if needed
+        packageName: dbPackageName,
         basePrice: totalAmount - travelFee - overtimeFee - extraPieceFee,
         extraServingsFee: extraPieceFee,
         travelFee,
         overtimeFee,
-        totalAmount
+        totalAmount,
+        distanceMiles: distanceMiles
       }, booking.id).catch(console.error);
     }
 
@@ -205,6 +215,7 @@ export async function GET(req: NextRequest) {
       paymentUrl,
       paymentEnabled,
       status,
+      customerPortalUrl: `/customer/booking/${booking.id}`
     }, { status: 201 });
 
   } catch (err) {
