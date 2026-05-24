@@ -6,6 +6,9 @@ export const dynamic = "force-dynamic";
 
 // GET — list all service ZIP codes
 export async function GET(req: NextRequest) {
+  const hasAccess = await checkPermission(req, "manage_settings");
+  if (!hasAccess) return unauthorized();
+
   const { searchParams } = new URL(req.url);
   const activeOnly = searchParams.get("active") === "true";
 

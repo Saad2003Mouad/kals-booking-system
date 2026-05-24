@@ -159,7 +159,7 @@ export default function BookingForm() {
       }
     });
     // Load dynamic service zones from DB (falls back to static list if empty)
-    fetch("/api/admin/service-areas?active=true")
+    fetch("/api/service-areas")
       .then(r=>r.ok?r.json():null)
       .then((d:any)=>{ if(d?.data?.length) setServiceZones(d.data.map((z:any)=>({zip:z.zip,city:z.city}))); })
       .catch(()=>{}); // silent fallback to static
