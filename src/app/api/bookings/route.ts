@@ -180,15 +180,10 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // ── 7. Create Stripe payment intent and send Emails ────────
-    const paymentEnabledSetting = await prisma.setting.findUnique({ where: { key: "PAYMENT_ENABLED" } });
-    const paymentEnabled = paymentEnabledSetting?.value === "true" || process.env.PAYMENT_ENABLED === "true";
-
-    let paymentUrl: string | null = null;
+    // ── 7. Send Emails ────────────────────────────────────────
     if (aiDecision.autoConfirm) {
-      paymentUrl = paymentEnabled ? `/checkout/${booking.id}` : `/customer/booking/${booking.id}`;
       // Block response for emails so they finish on serverless environments like Vercel
-      await sendBookingApprovedEmail(email, firstName, booking.bookingNumber, paymentUrl, totalAmount.toFixed(2), booking.id);
+      await sendBookingApprovedEmail(email, firstName, booking.bookingNumber, `/customer/booking/${booking.id}`, totalAmount.toFixed(2), booking.id);
     } else {
       await sendBookingPendingEmail(email, firstName, booking.bookingNumber, {
         eventDate,
@@ -212,8 +207,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       booking,
       decision: aiDecision,
-      paymentUrl,
-      paymentEnabled,
+      paymentUrl: null,
+      paymentEnabled: false,
       status,
       customerPortalUrl: `/customer/booking/${booking.id}`
     }, { status: 201 });

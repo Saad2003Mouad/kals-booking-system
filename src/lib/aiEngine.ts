@@ -50,80 +50,44 @@ export async function evaluateBooking(req: BookingRequest): Promise<AIDecision> 
   const startMins = timeToMins(req.startTime);
   const endMins   = startMins + req.durationMins;
 
-  // ── 1. Service area check ────────────────────────────────────
-  const zipPrefix = req.zip.slice(0, 3);
-  if (!SERVICE_ZIP_PREFIXES.includes(zipPrefix)) {
-    return {
-      verdict: "REJECTED",
-      reason: "Location outside service area",
-      customerMessage: `We're sorry — we don't currently serve the ${req.city} area (ZIP ${req.zip}). We serve Greater Boston and surrounding communities. Please check our service area map for covered cities.`,
-      autoConfirm: false,
-      flags: ["OUT_OF_AREA"],
-    };
+  // ── 1. Fetch package price from DB ────────────────────────────
+  let packagePrice = 0;
+  if (req.packageId) {
+    const pkg = await prisma.package.findUnique({ where: { id: req.packageId } });
+    if (pkg) {
+      packagePrice = pkg.price;
+    }
   }
 
-  // ── 2. Fetch settings ─────────────────────────────────────────
-  const settings = await prisma.setting.findMany();
-  const getSettingStr = (k: string, fb: string) => settings.find(s => s.key === k)?.value ?? fb;
-  const getSetting = (k: string, fb: number) => parseFloat(getSettingStr(k, String(fb)));
-  const autoConfirmThreshold       = getSetting("AUTO_CONFIRM_THRESHOLD", 500);
-  const distanceReviewThreshold    = getSetting("DISTANCE_REVIEW_THRESHOLD_MILES", 30);
-  const freeMiles                  = getSetting("FREE_MILES", 10);
-  // MAX_DISTANCE_MILES is a soft informational flag only — never causes REJECTED
-  const maxDistanceSoft            = getSetting("MAX_DISTANCE_MILES", 45);
-
+  // ── 2. Availability check ────────────────────────────────────
   const eventDate = new Date(req.eventDate);
-  const eventDateStr = eventDate.toISOString().split("T")[0];
-  const isWeekend = eventDate.getDay() === 0 || eventDate.getDay() === 6;
-
-  // ── 3. Business hours check (Bypassed - 24/7) ───────────────────
-  // Bypassed: 24h work policy. Never flag OUTSIDE_HOURS.
-  const BUSINESS_START = 0;
-  const BUSINESS_END   = 24 * 60;
-
-  // ── 4. Distance check ─────────────────────────────────────────
-  // Per requirements: distance > threshold → PENDING_REVIEW only (never REJECTED)
-  if (req.distanceMiles > distanceReviewThreshold) {
-    flags.push("LONG_DISTANCE");
-    flags.push("REQUIRES_DISTANCE_REVIEW");
-  }
-  // Soft informational flag — does NOT cause rejection
-  if (req.distanceMiles > maxDistanceSoft) {
-    flags.push("EXCEEDS_TYPICAL_RANGE");
-  }
-
-  // ── 5. Availability check ────────────────────────────────────
-
   const conflictingBookings = await prisma.booking.findMany({
     where: {
       eventDate: eventDate,
-      status: { in: ["CONFIRMED", "PENDING"] },
+      status: { in: ["CONFIRMED", "PENDING", "PENDING_REVIEW"] },
     },
     include: { vehicle: true },
   });
 
-  // Find conflicting time windows
+  // Find conflicting time windows (with 60-min buffer)
   const conflicts = conflictingBookings.filter(b => {
     const bStart = timeToMins(b.startTime);
-    const bEnd   = bStart + b.durationMins + 60; // 60-min buffer
+    const bEnd   = bStart + b.durationMins + 60;
     return startMins < bEnd && endMins > bStart;
   });
 
-  // Count available vehicles (7 total)
+  // Count available vehicles
   const allVehicles = await prisma.vehicle.findMany({ where: { status: "AVAILABLE" } });
   const busyVehicleIds = new Set(conflicts.map(b => b.vehicleId).filter(Boolean));
   const freeVehicles = allVehicles.filter(v => !busyVehicleIds.has(v.id));
 
   if (freeVehicles.length === 0) {
-    // Suggest alternative times
-    const alternatives = findAlternativeTimes(conflictingBookings, req.durationMins, eventDateStr, BUSINESS_START, BUSINESS_END);
     return {
-      verdict: "REJECTED",
-      reason: "No vehicles available at requested time",
-      customerMessage: `We're sorry — all of our vehicles are booked for ${minsToTime(startMins)} on ${eventDate.toLocaleDateString("en-US", { month: "long", day: "numeric" })}. Here are some available time slots on the same day that might work for you:`,
-      alternativeTimes: alternatives,
+      verdict: "PENDING_REVIEW",
+      reason: "Vehicle availability needs manual review",
+      customerMessage: "Your booking request is being reviewed because we need to manually coordinate vehicle availability for your requested slot. Our team will follow up shortly.",
       autoConfirm: false,
-      flags: ["NO_AVAILABILITY"],
+      flags: ["NO_VEHICLE_AVAILABLE"],
     };
   }
 
@@ -132,67 +96,26 @@ export async function evaluateBooking(req: BookingRequest): Promise<AIDecision> 
   const suggestedVehicle = freeVehicles.find(v => !preferredType || v.type === preferredType) ?? freeVehicles[0];
   flags.push(`VEHICLE_${suggestedVehicle.name}`);
 
-  // ── 6. Pricing validation ─────────────────────────────────────
-  if (req.totalAmount < 150) {
+  // ── 3. Decision logic ─────────────────────────────────────────
+  const requiresReview = req.distanceMiles > 30 && packagePrice < 500;
+
+  if (requiresReview) {
     return {
-      verdict: "REJECTED",
-      reason: "Booking value below minimum",
-      customerMessage: `The minimum booking value is $150. Based on your selections, the estimated total is $${req.totalAmount.toFixed(2)}. Please select a larger package or extended duration to meet the minimum.`,
+      verdict: "PENDING_REVIEW",
+      reason: "Long distance + package below $500",
+      customerMessage: "Your request is being reviewed because your event is outside our standard 30-mile travel range and the selected package is below the automatic approval threshold. Our team will review it and follow up shortly.",
       autoConfirm: false,
-      flags: [...flags, "BELOW_MINIMUM"],
+      flags: [...flags, "LONG_DISTANCE_LOW_PACKAGE_VALUE"],
+      suggestedVehicle: suggestedVehicle.name,
     };
   }
 
-  // ── 7. Auto-confirm logic ─────────────────────────────────────
-  // autoConfirm only if amount >= threshold AND distance is within review threshold AND within business hours
-  const isLongDistance = req.distanceMiles > distanceReviewThreshold;
-  const isOutsideHours = flags.includes("OUTSIDE_HOURS");
-  
-  const autoConfirm = !isLongDistance;
-
-  if (!autoConfirm) {
-    if (isLongDistance && !flags.includes("REQUIRES_DISTANCE_REVIEW")) flags.push("REQUIRES_DISTANCE_REVIEW");
-  }
-
-  const verdict = autoConfirm ? "APPROVED" : "PENDING_REVIEW";
-
-  let customerMessage: string;
-  if (autoConfirm) {
-    customerMessage = `Great news! Your booking for ${req.eventType} on ${eventDate.toLocaleDateString("en-US", { month: "long", day: "numeric" })} has been confirmed. ${suggestedVehicle.name} will be assigned to your event. Payment will be collected in cash at the end of your event.`;
-  } else {
-    customerMessage = `Your event appears to be outside our standard service area (${req.distanceMiles.toFixed(1)} miles from our garage at Boston Revere, 84 Fernwood Ave). We've sent your request to our team for review, and we'll contact you shortly with availability and travel options.`;
-  }
-
   return {
-    verdict,
-    reason: autoConfirm ? "All checks passed" : "Distance requires manual review",
-    customerMessage,
-    suggestedVehicle: suggestedVehicle.name,
-    autoConfirm,
+    verdict: "APPROVED",
+    reason: "All checks passed",
+    customerMessage: "Your booking request has been confirmed. Payment will be collected in cash at the end of the event.",
+    autoConfirm: true,
     flags,
+    suggestedVehicle: suggestedVehicle.name,
   };
-}
-
-function findAlternativeTimes(
-  busyBookings: { startTime: string; durationMins: number }[],
-  requestedDuration: number,
-  _dateStr: string,
-  businessStart: number,
-  businessEnd: number
-): string[] {
-  const occupied = busyBookings.map(b => ({
-    start: timeToMins(b.startTime) - 30,
-    end: timeToMins(b.startTime) + b.durationMins + 90,
-  }));
-
-  const slots: string[] = [];
-  for (let t = businessStart; t <= businessEnd - requestedDuration; t += 60) {
-    const slotEnd = t + requestedDuration + 60;
-    const conflict = occupied.some(o => t < o.end && slotEnd > o.start);
-    if (!conflict) {
-      slots.push(minsToTime(t));
-      if (slots.length >= 3) break;
-    }
-  }
-  return slots;
 }

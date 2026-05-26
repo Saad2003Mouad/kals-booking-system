@@ -48,7 +48,7 @@ export function calculateQuote(params: PricingParams) {
     overtimeFee,
     distanceMiles,
     totalAmount: total,
-    requiresReview: distanceMiles > 30 || total < 500,
+    requiresReview: distanceMiles > 30 && packagePrice < 500,
     includedServings: servings,
     guestCount: guests,
     extraServingsCount,

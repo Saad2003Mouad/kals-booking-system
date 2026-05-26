@@ -54,8 +54,8 @@ export async function sendOtpEmail(to: string, otp: string, firstName?: string):
               <tr><td style="background:linear-gradient(135deg,#000223 0%,#001a4c 100%);padding:40px;text-align:center;">
                 <img src="https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/67e3936366827af4bed1d0d0_logo-boston-legend-ice-cream-truck.avif" width="180" alt="BL"/>
               </td></tr>
-              <tr><td style="padding:48px 48px 40px;">${html}</td></tr>
-              <tr><td style="background:#F8F9FC;padding:32px;text-align:center;border-top:1px solid #EEEEEE;color:#9CA3AF;font-size:12px;">
+              <tr><td style="padding:32px 20px;">${html}</td></tr>
+              <tr><td style="background:#F8F9FC;padding:24px 20px;text-align:center;border-top:1px solid #EEEEEE;color:#9CA3AF;font-size:12px;">
                 Boston Legend Ice Cream Truck · Greater Boston, MA · 617-999-3803
               </td></tr>
             </table>

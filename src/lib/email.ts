@@ -32,14 +32,14 @@ function baseTemplate(content: string, title: string) {
 
             <!-- Content -->
             <tr>
-              <td style="padding:48px 48px 40px;">
+              <td style="padding:32px 20px;">
                 ${content}
               </td>
             </tr>
 
             <!-- Footer -->
             <tr>
-              <td style="background:#F8F9FC;padding:32px 48px;text-align:center;border-top:1px solid #EEEEEE;">
+              <td style="background:#F8F9FC;padding:24px 20px;text-align:center;border-top:1px solid #EEEEEE;">
                 <p style="margin:0 0 8px;color:#9CA3AF;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Boston Legend Ice Cream Truck</p>
                 <p style="margin:0 0 16px;color:#6B7280;font-size:13px;font-weight:600;">Greater Boston, MA · 617-999-3803</p>
                 <div style="margin-bottom:20px;">

@@ -120,12 +120,28 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
         </div>
 
         {booking.status === "PENDING_REVIEW" && (
-          <div className="flex gap-3 w-full md:w-auto p-4 bg-amber-50 rounded-2xl border border-amber-200">
-            <button disabled={!!updating} onClick={() => updateStatus("REJECTED")} className="btn-secondary py-2 px-6 text-sm text-red-600 border-red-200 hover:bg-red-50 disabled:opacity-50 flex items-center gap-2"><XCircle className="w-4 h-4"/> Reject</button>
-            <button disabled={!!updating} onClick={() => updateStatus("PENDING_PAYMENT")} className="btn-primary py-2 px-6 text-sm bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 flex items-center gap-2">
-              {updating === "PENDING_PAYMENT" ? <Loader2 className="w-4 h-4 animate-spin"/> : <CheckCircle2 className="w-4 h-4"/>}
-              Approve and Mark Pending Payment
-            </button>
+          <div className="flex flex-col gap-2 p-4 bg-amber-50 rounded-2xl border border-amber-200 w-full md:w-auto">
+            <div className="text-xs font-black text-amber-800 uppercase tracking-wider mb-1">
+              Review Reason: {booking.quote?.snapshotJson ? (() => {
+                try {
+                  const snap = JSON.parse(booking.quote.snapshotJson);
+                  if (snap.aiFlags?.includes("LONG_DISTANCE_LOW_PACKAGE_VALUE")) {
+                    return "Long distance + package below $500";
+                  }
+                  if (snap.aiFlags?.includes("NO_VEHICLE_AVAILABLE")) {
+                    return "Vehicle availability needs manual review";
+                  }
+                } catch(e){}
+                return "Long distance + package below $500";
+              })() : "Long distance + package below $500"}
+            </div>
+            <div className="flex gap-3">
+              <button disabled={!!updating} onClick={() => updateStatus("REJECTED")} className="btn-secondary py-2 px-6 text-sm text-red-600 border-red-200 hover:bg-red-50 disabled:opacity-50 flex items-center gap-2"><XCircle className="w-4 h-4"/> Reject</button>
+              <button disabled={!!updating} onClick={() => updateStatus("CONFIRMED")} className="btn-primary py-2 px-6 text-sm bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 flex items-center gap-2">
+                {updating === "CONFIRMED" ? <Loader2 className="w-4 h-4 animate-spin"/> : <CheckCircle2 className="w-4 h-4"/>}
+                Approve Booking
+              </button>
+            </div>
           </div>
         )}
       </div>

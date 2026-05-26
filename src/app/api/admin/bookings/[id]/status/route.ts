@@ -8,11 +8,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   try {
     const { status, internalNote } = await req.json();
 
-    const paymentEnabledSetting = await prisma.setting.findUnique({ where: { key: "PAYMENT_ENABLED" } });
-    const paymentEnabled = paymentEnabledSetting?.value === "true" || process.env.PAYMENT_ENABLED === "true";
-
     let targetStatus = status;
-    if (!paymentEnabled && status === "PENDING_PAYMENT") {
+    if (status === "PENDING_PAYMENT") {
       targetStatus = "CONFIRMED";
     }
 
@@ -43,14 +40,12 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     // Send emails on status change
     try {
       if (status === "CONFIRMED" || status === "PENDING_PAYMENT") {
-        const paymentUrl = paymentEnabled
-          ? `${process.env.NEXTAUTH_URL || 'https://bostonlegendwebflowio.vercel.app'}/checkout/${booking.id}`
-          : `${process.env.NEXTAUTH_URL || 'https://bostonlegendwebflowio.vercel.app'}/customer/booking/${booking.id}`;
+        const portalUrl = `${process.env.NEXTAUTH_URL || 'https://bostonlegendwebflowio.vercel.app'}/customer/booking/${booking.id}`;
         await sendBookingApprovedEmail(
           booking.customer.email,
           booking.customer.firstName,
           booking.bookingNumber,
-          paymentUrl,
+          portalUrl,
           booking.totalAmount.toFixed(2),
           booking.id
         );

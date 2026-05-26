@@ -55,9 +55,8 @@ export async function POST(
     const paymentEnabled = paymentEnabledSetting?.value === "true" || process.env.PAYMENT_ENABLED === "true";
 
     if (action === "APPROVE") {
-      // Optionally update travel fee
       const updateData: any = {
-        status: paymentEnabled ? "PENDING_PAYMENT" : "CONFIRMED",
+        status: "CONFIRMED",
         internalNote: reason || null,
       };
 
@@ -96,17 +95,14 @@ export async function POST(
         },
       });
 
-      // Payment URL or Portal URL
-      const paymentUrl = paymentEnabled
-        ? `/checkout/${booking.id}`
-        : `/customer/booking/${booking.id}`;
+      const portalUrl = `/customer/booking/${booking.id}`;
 
       // Send approval email (blocking)
       await sendBookingApprovedEmail(
         booking.customer.email,
         booking.customer.firstName,
         booking.bookingNumber,
-        paymentUrl,
+        portalUrl,
         booking.totalAmount.toFixed(2),
         booking.id
       );
@@ -114,12 +110,10 @@ export async function POST(
       return NextResponse.json({
         success: true,
         action: "APPROVED",
-        newStatus: paymentEnabled ? "PENDING_PAYMENT" : "CONFIRMED",
+        newStatus: "CONFIRMED",
         booking: updated,
-        paymentUrl,
-        message: paymentEnabled
-          ? "Booking approved. Customer notified with payment link. Status will become CONFIRMED after payment."
-          : "Booking approved. Customer notified of cash terms. Status is CONFIRMED.",
+        paymentUrl: portalUrl,
+        message: "Booking approved. Customer notified of cash terms. Status is CONFIRMED.",
       });
     }
 
