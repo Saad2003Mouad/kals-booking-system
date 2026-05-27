@@ -11,6 +11,7 @@ export async function GET(req: NextRequest, { params }: { params: { token: strin
         customer: true,
         package: true,
         quote: true,
+        stops: true,
       }
     });
 

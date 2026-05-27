@@ -169,10 +169,30 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
           </div>
         </div>
 
-        {/* Location Info */}
+        {/* Location Info & Route Stops */}
         <div className="card-premium p-6 md:col-span-2">
-          <h3 className="text-lg font-black mb-4 flex items-center gap-2 text-[#000223]"><MapPin className="w-5 h-5 text-rose-500" /> Location</h3>
-          <p className="text-slate-800 bg-slate-50 font-semibold p-4 rounded-xl border border-slate-100">{booking.address}, {booking.city}, {booking.zip}</p>
+          <h3 className="text-lg font-black mb-4 flex items-center gap-2 text-[#000223]"><MapPin className="w-5 h-5 text-rose-500" /> Route & Stops</h3>
+          
+          <div className="space-y-4">
+            <div className="flex flex-col border-l-2 border-slate-200 pl-4 py-1 relative">
+              <div className="absolute w-3 h-3 bg-emerald-500 rounded-full -left-[7px] top-2 border-2 border-white"></div>
+              <span className="text-xs font-black uppercase text-emerald-600 mb-1">Primary Location</span>
+              <span className="font-bold text-[#000223] text-sm">{booking.address}</span>
+              <span className="font-semibold text-slate-500 text-xs">{booking.city}, {booking.zip}</span>
+            </div>
+            
+            {booking.stops?.map((stop: any, idx: number) => (
+              <div key={stop.id} className="flex flex-col border-l-2 border-slate-200 pl-4 py-1 relative">
+                <div className="absolute w-3 h-3 bg-blue-500 rounded-full -left-[7px] top-2 border-2 border-white"></div>
+                <span className="text-xs font-black uppercase text-blue-600 mb-1">Additional Stop {idx + 1}</span>
+                <span className="font-bold text-[#000223] text-sm">{stop.street}</span>
+                <span className="font-semibold text-slate-500 text-xs">{stop.city}, {stop.state} {stop.zipCode}</span>
+                {stop.notes && (
+                  <span className="font-semibold text-slate-400 text-xs mt-1.5 italic">📝 {stop.notes}</span>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Pricing Info */}
@@ -181,6 +201,9 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
           <div className="space-y-3 text-sm font-bold pb-4 border-b border-slate-100 mb-4">
             <div className="flex justify-between items-center"><span className="text-slate-400">Base Price:</span> <span className="text-slate-800">${booking.quote?.basePrice?.toFixed(2) || "0.00"}</span></div>
             <div className="flex justify-between items-center"><span className="text-slate-400">Travel Fee:</span> <span className="text-slate-800">${booking.quote?.travelFee?.toFixed(2) || "0.00"}</span></div>
+            {(booking.additionalStopsFee || 0) > 0 && (
+              <div className="flex justify-between items-center"><span className="text-slate-400">Additional Stops Fee:</span> <span className="text-slate-800">${booking.additionalStopsFee?.toFixed(2) || "0.00"}</span></div>
+            )}
           </div>
           <div className="flex justify-between items-center text-xl font-black">
             <span className="text-[#000223]">Total:</span>

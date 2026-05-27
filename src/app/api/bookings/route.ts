@@ -41,6 +41,7 @@ const BookingSchema = z.object({
   additionalStopsFee: z.coerce.number().default(0),
   latitude: z.coerce.number().optional().nullable(),
   longitude: z.coerce.number().optional().nullable(),
+  bookingStops: z.array(z.any()).optional(),
 });
 
 function genBookingNumber() {
@@ -90,7 +91,7 @@ export async function GET(req: NextRequest) {
       eventDate, startTime, durationMins,
       guests, eventType, packageId, notes,
       totalAmount, travelFee, overtimeFee, extraPieceFee, distanceMiles,
-      additionalStops, additionalStopsFee,
+      additionalStops, additionalStopsFee, bookingStops,
       latitude, longitude
     } = result.data;
 
@@ -163,8 +164,20 @@ export async function GET(req: NextRequest) {
             snapshotJson:  JSON.stringify({ packageId, guests, durationMins, zip, city, additionalStops, aiFlags: aiDecision.flags }),
           },
         },
+        ...(bookingStops && bookingStops.length > 0 ? {
+          stops: {
+            create: bookingStops.map((stop: any, idx: number) => ({
+              stopOrder: idx + 1,
+              street: stop.street,
+              city: stop.city,
+              state: stop.state || "MA",
+              zipCode: stop.zipCode,
+              notes: stop.notes || null,
+            }))
+          }
+        } : {})
       },
-      include: { customer: true },
+      include: { customer: true, stops: true },
     }));
 
     // ── 6. Audit log ──────────────────────────────────────────

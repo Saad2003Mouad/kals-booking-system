@@ -449,6 +449,8 @@ export default function BookingForm() {
   const [serviceZones, setServiceZones] = useState<{ zip: string; city: string }[]>([]);
   const [phoneFocused, setPhoneFocused] = useState(false);
   const [additionalStops, setAdditionalStops] = useState(0);
+  const [hasMultipleLocations, setHasMultipleLocations] = useState(false);
+  const [bookingStops, setBookingStops] = useState<{ street: string; city: string; state: string; zipCode: string; notes: string }[]>([]);
 
   useEffect(() => {
     fetch("/api/packages")
@@ -559,6 +561,23 @@ export default function BookingForm() {
       setSubmitting(false);
       return;
     }
+    
+    if (hasMultipleLocations && bookingStops.length > 0) {
+      for (let i = 0; i < bookingStops.length; i++) {
+        const stop = bookingStops[i];
+        if (!stop.street || !stop.city || !stop.state || !stop.zipCode) {
+          setSubmitErr(`Please fill out all address fields for Stop #${i + 1}`);
+          setSubmitting(false);
+          return;
+        }
+        if (stop.zipCode.length !== 5) {
+          setSubmitErr(`Please enter a valid 5-digit ZIP code for Stop #${i + 1}`);
+          setSubmitting(false);
+          return;
+        }
+      }
+    }
+
     setPhoneErr("");
     setSubmitErr("");
     setSubmitting(true);
@@ -584,8 +603,9 @@ export default function BookingForm() {
       overtimeFee: quote?.overtimeFee,
       extraPieceFee: quote?.extraPieceFee,
       distanceMiles: quote?.distanceMiles,
-      additionalStops,
-      additionalStopsFee: (quote as any)?.additionalStopsFee ?? 0,
+      additionalStops: bookingStops.length,
+      additionalStopsFee: bookingStops.length * 50,
+      bookingStops,
       latitude: lat,
       longitude: lng
     };
@@ -1104,38 +1124,128 @@ export default function BookingForm() {
                 {/* Multi-Stop Section */}
                 <div className="md:col-span-2 border-t border-dashed border-slate-200/50 pt-8 mt-4">
                   <label className="block text-sm font-black uppercase tracking-[0.18em] mb-1" style={{ color: NAVY, opacity: 0.7, fontFamily: FN }}>
-                    Additional Stops
+                    Multiple Locations
                   </label>
                   <p className="text-xs sm:text-sm font-semibold text-slate-400 mb-5">
-                    Need service at multiple locations? Each additional stop is <strong style={{ color: NAVY }}>$50</strong>.
+                    Will this event include more than one stop? Each additional stop is <strong style={{ color: NAVY }}>$50</strong>. Additional travel distance between multiple stops may be reviewed by our team if needed.
                   </p>
-                  <div className="flex items-center gap-4">
-                    <button
-                      type="button"
-                      onClick={() => setAdditionalStops(Math.max(0, additionalStops - 1))}
-                      className="w-12 h-12 rounded-full border-2 font-black text-xl flex items-center justify-center transition-all hover:bg-slate-100"
-                      style={{ borderColor: additionalStops === 0 ? "rgba(0,2,35,0.12)" : NAVY, color: NAVY }}
-                    >
-                      −
-                    </button>
-                    <div className="flex-1 text-center">
-                      <span className="text-3xl font-black" style={{ color: NAVY, fontFamily: F_SERIF }}>{additionalStops}</span>
-                      <span className="block text-xs font-bold text-slate-400 mt-0.5">additional stop{additionalStops !== 1 ? "s" : ""}</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setAdditionalStops(Math.min(5, additionalStops + 1))}
-                      className="w-12 h-12 rounded-full border-2 font-black text-xl flex items-center justify-center transition-all hover:bg-amber-50"
-                      style={{ borderColor: NAVY, color: NAVY }}
-                    >
-                      +
-                    </button>
-                    {additionalStops > 0 && (
-                      <div className="ml-4 px-5 py-2.5 rounded-full font-black text-sm" style={{ background: "rgba(255,160,0,0.15)", color: NAVY }}>
-                        +${additionalStops * 50}.00
+                  
+                  <div className="flex flex-col gap-3 mb-6">
+                    <label className="flex items-center gap-3 cursor-pointer group">
+                      <div className="relative flex items-center justify-center w-6 h-6 rounded-full border-2 transition-all" style={{ borderColor: !hasMultipleLocations ? GOLD : "rgba(0,2,35,0.15)", background: !hasMultipleLocations ? "rgba(255,160,0,0.1)" : "transparent" }}>
+                        {(!hasMultipleLocations) && <div className="w-3 h-3 rounded-full" style={{ background: GOLD }} />}
                       </div>
-                    )}
+                      <span className="font-semibold text-base transition-colors" style={{ color: !hasMultipleLocations ? NAVY : "rgba(0,2,35,0.6)" }}>No, one location only</span>
+                      <input type="radio" className="hidden" checked={!hasMultipleLocations} onChange={() => {
+                        setHasMultipleLocations(false);
+                        setBookingStops([]);
+                      }} />
+                    </label>
+
+                    <label className="flex items-center gap-3 cursor-pointer group">
+                      <div className="relative flex items-center justify-center w-6 h-6 rounded-full border-2 transition-all" style={{ borderColor: hasMultipleLocations ? GOLD : "rgba(0,2,35,0.15)", background: hasMultipleLocations ? "rgba(255,160,0,0.1)" : "transparent" }}>
+                        {(hasMultipleLocations) && <div className="w-3 h-3 rounded-full" style={{ background: GOLD }} />}
+                      </div>
+                      <span className="font-semibold text-base transition-colors" style={{ color: hasMultipleLocations ? NAVY : "rgba(0,2,35,0.6)" }}>Yes, add additional stops</span>
+                      <input type="radio" className="hidden" checked={hasMultipleLocations} onChange={() => {
+                        setHasMultipleLocations(true);
+                        if (bookingStops.length === 0) {
+                          setBookingStops([{ street: "", city: "", state: "MA", zipCode: "", notes: "" }]);
+                        }
+                      }} />
+                    </label>
                   </div>
+
+                  {hasMultipleLocations && (
+                    <div className="space-y-6">
+                      {bookingStops.map((stop, idx) => (
+                        <div key={idx} className="bg-slate-50 p-6 rounded-2xl border border-slate-100 relative">
+                          <div className="flex justify-between items-center mb-4">
+                            <h4 className="font-black text-[#000223]">Stop #{idx + 1}</h4>
+                            <button
+                              type="button"
+                              onClick={() => setBookingStops(bookingStops.filter((_, i) => i !== idx))}
+                              className="text-red-500 text-sm font-bold hover:text-red-600 px-3 py-1 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                            <div className="sm:col-span-2">
+                              <PremiumInput
+                                label="Street Address"
+                                value={stop.street}
+                                onChange={(val) => {
+                                  const newStops = [...bookingStops];
+                                  newStops[idx].street = val;
+                                  setBookingStops(newStops);
+                                }}
+                                placeholder="123 Additional St"
+                              />
+                            </div>
+                            <PremiumInput
+                              label="City"
+                              value={stop.city}
+                              onChange={(val) => {
+                                const newStops = [...bookingStops];
+                                newStops[idx].city = val;
+                                setBookingStops(newStops);
+                              }}
+                              placeholder="City"
+                            />
+                            <div className="grid grid-cols-2 gap-4">
+                              <PremiumInput
+                                label="State"
+                                value={stop.state}
+                                onChange={(val) => {
+                                  const newStops = [...bookingStops];
+                                  newStops[idx].state = val;
+                                  setBookingStops(newStops);
+                                }}
+                                placeholder="MA"
+                              />
+                              <PremiumInput
+                                label="ZIP Code"
+                                value={stop.zipCode}
+                                onChange={(val) => {
+                                  const newStops = [...bookingStops];
+                                  newStops[idx].zipCode = val;
+                                  setBookingStops(newStops);
+                                }}
+                                placeholder="02108"
+                              />
+                            </div>
+                          </div>
+                          <PremiumInput
+                            label="Stop Notes (Optional)"
+                            value={stop.notes}
+                            onChange={(val) => {
+                              const newStops = [...bookingStops];
+                              newStops[idx].notes = val;
+                              setBookingStops(newStops);
+                            }}
+                            placeholder="Parking instructions, arrival time, etc."
+                            helper="Any specific details for this stop"
+                          />
+                        </div>
+                      ))}
+
+                      {bookingStops.length < 5 ? (
+                        <button
+                          type="button"
+                          onClick={() => setBookingStops([...bookingStops, { street: "", city: "", state: "MA", zipCode: "", notes: "" }])}
+                          className="w-full py-3.5 border-2 border-dashed border-[#FFA000] rounded-xl font-black text-[#FFA000] hover:bg-[#FFA000] hover:text-[#000223] transition-all"
+                        >
+                          + Add Another Stop
+                        </button>
+                      ) : (
+                        <p className="text-center text-sm font-bold text-slate-500 py-3 bg-slate-50 rounded-xl border border-slate-100">
+                          Need more than 5 stops? Add the details in the main notes below and our team will review it.
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="md:col-span-2">

@@ -13,6 +13,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         package: true,
         vehicle: true,
         quote: true,
+        stops: { orderBy: { stopOrder: 'asc' } },
         assignment: { include: { vehicle: true, driver: true } }
       }
     });

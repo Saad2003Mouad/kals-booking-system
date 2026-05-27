@@ -19,7 +19,7 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     console.log("Quotes API body:", body);
-    const { packageId, durationMins, distanceMiles, guests, additionalStops } = body;
+    const { packageId, durationMins, distanceMiles, guests, additionalStops, bookingStops } = body;
 
     const missingFields = [];
     if (!packageId) missingFields.push("packageId");
@@ -56,7 +56,7 @@ export async function POST(req: Request) {
       packageDurationMins,
       distanceMiles: parseFloat(distanceMiles as string) || 0,
       guests: parseInt(guests as string) || 0,
-      additionalStops: parseInt(additionalStops as string) || 0,
+      additionalStops: bookingStops ? bookingStops.length : (parseInt(additionalStops as string) || 0),
       freeMiles,
       ratePerMile
     });

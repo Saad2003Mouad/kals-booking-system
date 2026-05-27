@@ -351,7 +351,36 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
           </div>
         </div>
 
-        {/* Card 4: Travel & Mileage */}
+        {/* Card 4: Route & Stops */}
+        {booking.stops && booking.stops.length > 0 && (
+          <div className="bg-white rounded-[24px] p-7 border border-slate-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_10px_45px_rgba(0,0,0,0.04)]">
+            <h2 className="font-black text-xs uppercase tracking-widest text-[#FFA000] mb-6 flex items-center gap-2">
+              <span>🗺️</span> Route & Stops
+            </h2>
+            <div className="space-y-4">
+              <div className="flex flex-col border-l-2 border-slate-200 pl-4 py-1 relative">
+                <div className="absolute w-3 h-3 bg-emerald-500 rounded-full -left-[7px] top-2 border-2 border-white"></div>
+                <span className="text-xs font-black uppercase text-emerald-600 mb-1">Primary Location</span>
+                <span className="font-bold text-[#000223] text-sm">{booking.address}</span>
+                <span className="font-semibold text-slate-500 text-xs">{booking.city}, {booking.zip}</span>
+              </div>
+              
+              {booking.stops.map((stop: any, idx: number) => (
+                <div key={stop.id} className="flex flex-col border-l-2 border-slate-200 pl-4 py-1 relative">
+                  <div className="absolute w-3 h-3 bg-blue-500 rounded-full -left-[7px] top-2 border-2 border-white"></div>
+                  <span className="text-xs font-black uppercase text-blue-600 mb-1">Additional Stop {idx + 1}</span>
+                  <span className="font-bold text-[#000223] text-sm">{stop.street}</span>
+                  <span className="font-semibold text-slate-500 text-xs">{stop.city}, {stop.state} {stop.zipCode}</span>
+                  {stop.notes && (
+                    <span className="font-semibold text-slate-400 text-xs mt-1.5 italic">📝 {stop.notes}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Card 5: Travel & Mileage */}
         <div className="bg-white rounded-[24px] p-7 border border-slate-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_10px_45px_rgba(0,0,0,0.04)]">
           <h2 className="font-black text-xs uppercase tracking-widest text-[#FFA000] mb-6 flex items-center gap-2">
             <span>📍</span> Travel & Mileage

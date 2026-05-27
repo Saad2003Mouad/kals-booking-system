@@ -22,6 +22,7 @@ type Assignment = {
     customer: { firstName: string; lastName: string; phone: string; email: string };
     vehicle: { code: string; name: string } | null;
     package: { name: string } | null;
+    stops?: { id: string; stopOrder: number; street: string; city: string; state: string; zipCode: string; notes: string | null }[];
   };
 };
 
@@ -266,6 +267,19 @@ export default function DriverDashboard() {
                     <div>
                       <div className="font-bold text-sm text-gray-700">{selected.booking.address}</div>
                       <div className="text-xs text-gray-400 font-semibold">{selected.booking.city}, MA {selected.booking.zip}</div>
+                      {selected.booking.stops && selected.booking.stops.length > 0 && (
+                        <div className="mt-3 space-y-3">
+                          {selected.booking.stops.map((stop, idx) => (
+                            <div key={stop.id} className="relative pl-3 border-l-2 border-blue-200">
+                              <div className="absolute w-2 h-2 bg-blue-500 rounded-full -left-[5px] top-1.5"></div>
+                              <div className="font-bold text-xs text-blue-600 uppercase mb-0.5">Stop {idx + 1}</div>
+                              <div className="font-bold text-sm text-gray-700">{stop.street}</div>
+                              <div className="text-xs text-gray-400 font-semibold">{stop.city}, {stop.state} {stop.zipCode}</div>
+                              {stop.notes && <div className="text-xs text-gray-500 italic mt-1">📝 {stop.notes}</div>}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-3">

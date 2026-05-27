@@ -132,7 +132,13 @@ function formatBookingDetailsHtml(booking: any) {
       </tr>
       <tr>
         <td style="font-weight:800;color:${BRAND_NAVY};border-bottom:1px solid #F3F4F6;">Location</td>
-        <td style="border-bottom:1px solid #F3F4F6;font-weight:600;">${booking.address}, ${booking.city} ${booking.zip}</td>
+        <td style="border-bottom:1px solid #F3F4F6;font-weight:600;">
+          ${booking.address}, ${booking.city} ${booking.zip}
+          ${booking.stops && booking.stops.length > 0 ? `<br/><br/>
+            <strong style="color:${BRAND_GOLD}">Additional Stops:</strong><br/>
+            ${booking.stops.map((s: any, i: number) => `Stop ${i+1}: ${s.street}, ${s.city} ${s.state} ${s.zipCode}`).join('<br/>')}
+          ` : ''}
+        </td>
       </tr>
       <tr>
         <td style="font-weight:800;color:${BRAND_NAVY};border-bottom:1px solid #F3F4F6;">Garage Origin</td>

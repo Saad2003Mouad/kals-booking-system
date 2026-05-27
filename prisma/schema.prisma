@@ -116,6 +116,7 @@ model Booking {
   updatedAt           DateTime @updatedAt
 
   quote       Quote?
+  stops       BookingStop[]
   items       BookingItem[]
   payments    Payment[]
   assignment  VehicleAssignment?
@@ -133,6 +134,28 @@ model BookingItem {
   quantity    Int     @default(1)
   unitPrice   Float
   totalPrice  Float
+}
+
+model BookingStop {
+  id          String   @id @default(cuid())
+  bookingId   String
+  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  stopOrder   Int
+  label       String?
+  street      String
+  city        String
+  state       String   @default("MA")
+  zipCode     String
+  latitude    Float?
+  longitude   Float?
+  notes       String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([bookingId])
+  @@index([zipCode])
 }
 
 model Quote {
