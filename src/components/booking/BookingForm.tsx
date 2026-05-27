@@ -429,7 +429,7 @@ export default function BookingForm() {
   const [zip, setZip] = useState("");
   const [city, setCity] = useState("");
   const [notes, setNotes] = useState("");
-  const extraServings = "0";
+  const extraServings = "0"; // legacy — extra guests handled by extraGuestPrice from package
   const [firstName, setFirst] = useState("");
   const [lastName, setLast] = useState("");
   const [email, setEmail] = useState("");
@@ -448,6 +448,7 @@ export default function BookingForm() {
   const [submitErr, setSubmitErr] = useState("");
   const [serviceZones, setServiceZones] = useState<{ zip: string; city: string }[]>([]);
   const [phoneFocused, setPhoneFocused] = useState(false);
+  const [additionalStops, setAdditionalStops] = useState(0);
 
   useEffect(() => {
     fetch("/api/packages")
@@ -524,8 +525,8 @@ export default function BookingForm() {
       zip,
       guests: parseInt(toEnNum(guests) || "0"),
       durationMins: parseInt(toEnNum(durationMins) || "60"),
-      extraServings: parseInt(toEnNum(extraServings) || "0"),
-      distanceMiles: drivingMiles
+      distanceMiles: drivingMiles,
+      additionalStops,
     };
     const r = await fetch("/api/quotes", {
       method: "POST",
@@ -573,7 +574,7 @@ export default function BookingForm() {
       city,
       zip,
       notes,
-      extraServings: parseInt(toEnNum(extraServings) || "0"),
+      extraServings: 0,
       firstName,
       lastName,
       email,
@@ -583,6 +584,8 @@ export default function BookingForm() {
       overtimeFee: quote?.overtimeFee,
       extraPieceFee: quote?.extraPieceFee,
       distanceMiles: quote?.distanceMiles,
+      additionalStops,
+      additionalStopsFee: (quote as any)?.additionalStopsFee ?? 0,
       latitude: lat,
       longitude: lng
     };
@@ -681,7 +684,7 @@ export default function BookingForm() {
             </div>
             <div className="flex items-start gap-2.5">
               <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-              <span>Payment collected in cash after event. No deposit needed.</span>
+              <span>Payment is collected after the service. We accept multiple payment methods.</span>
             </div>
           </div>
           <a
@@ -708,17 +711,17 @@ export default function BookingForm() {
         </p>
 
         <p className="text-slate-600 font-semibold text-base sm:text-lg leading-relaxed mb-10 max-w-lg mx-auto">
-          Your ice cream event has been confirmed. Payment will be collected in cash at the end of the event.
+          Your ice cream event has been confirmed. Payment is collected after the service — we accept multiple payment methods.
         </p>
 
         <div className="bg-amber-50/40 border border-amber-200 rounded-3xl p-6.5 mb-10 max-w-md mx-auto text-left text-sm sm:text-base font-semibold text-slate-700">
-          <p className="text-center font-black text-emerald-600 text-base sm:text-lg mb-3">Cash Payment Policy</p>
+          <p className="text-center font-black text-emerald-600 text-base sm:text-lg mb-3">Payment Policy</p>
           <div className="flex justify-between py-2 border-b border-dashed border-amber-200">
             <span>Estimated Total:</span>
             <span className="font-black text-slate-800">${quote?.totalAmount.toFixed(2)}</span>
           </div>
           <p className="text-xs sm:text-sm text-slate-500 mt-3.5 text-center leading-relaxed">
-            No upfront deposits or credit card pre-authorizations are required.
+            Payment is collected after the service. We accept cash, Zelle, Venmo, and other methods.
           </p>
         </div>
 
@@ -874,7 +877,7 @@ export default function BookingForm() {
                           </span>
                         </div>
                         <div className="text-xs sm:text-sm font-bold mt-2.5 flex items-center gap-1" style={{ color: GOLD }}>
-                          <Star className="w-4 h-4 fill-current" /> Extra servings billed at ${p.extraPiecePrice || (p.type === "TRUCK" ? 5 : 4)} each
+                          <Star className="w-4 h-4 fill-current" /> Extra guests billed at ${(p as any).extraGuestPrice || p.extraPiecePrice || 5} per person
                         </div>
                       </div>
 
@@ -898,7 +901,7 @@ export default function BookingForm() {
                 <div>
                   <p className="font-extrabold text-amber-900 text-base sm:text-lg">Need more servings?</p>
                   <p className="text-slate-600 mt-1">
-                    Select the package closest to your estimate. Extra servings are calculated and charged based on actual count served at the event.
+                    Select the package closest to your estimate. Extra guests beyond the included count are billed at the package rate per person.
                   </p>
                 </div>
               </div>
@@ -1098,6 +1101,43 @@ export default function BookingForm() {
                   )}
                 </div>
 
+                {/* Multi-Stop Section */}
+                <div className="md:col-span-2 border-t border-dashed border-slate-200/50 pt-8 mt-4">
+                  <label className="block text-sm font-black uppercase tracking-[0.18em] mb-1" style={{ color: NAVY, opacity: 0.7, fontFamily: FN }}>
+                    Additional Stops
+                  </label>
+                  <p className="text-xs sm:text-sm font-semibold text-slate-400 mb-5">
+                    Need service at multiple locations? Each additional stop is <strong style={{ color: NAVY }}>$50</strong>.
+                  </p>
+                  <div className="flex items-center gap-4">
+                    <button
+                      type="button"
+                      onClick={() => setAdditionalStops(Math.max(0, additionalStops - 1))}
+                      className="w-12 h-12 rounded-full border-2 font-black text-xl flex items-center justify-center transition-all hover:bg-slate-100"
+                      style={{ borderColor: additionalStops === 0 ? "rgba(0,2,35,0.12)" : NAVY, color: NAVY }}
+                    >
+                      −
+                    </button>
+                    <div className="flex-1 text-center">
+                      <span className="text-3xl font-black" style={{ color: NAVY, fontFamily: F_SERIF }}>{additionalStops}</span>
+                      <span className="block text-xs font-bold text-slate-400 mt-0.5">additional stop{additionalStops !== 1 ? "s" : ""}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setAdditionalStops(Math.min(5, additionalStops + 1))}
+                      className="w-12 h-12 rounded-full border-2 font-black text-xl flex items-center justify-center transition-all hover:bg-amber-50"
+                      style={{ borderColor: NAVY, color: NAVY }}
+                    >
+                      +
+                    </button>
+                    {additionalStops > 0 && (
+                      <div className="ml-4 px-5 py-2.5 rounded-full font-black text-sm" style={{ background: "rgba(255,160,0,0.15)", color: NAVY }}>
+                        +${additionalStops * 50}.00
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 <div className="md:col-span-2">
                   <PremiumInput
                     label="Special Notes or Delivery Instructions"
@@ -1108,6 +1148,7 @@ export default function BookingForm() {
                   />
                 </div>
               </div>
+
 
               {quoteErr && (
                 <div className="mt-8 p-4.5 rounded-2xl bg-rose-50 border border-rose-100 text-rose-700 font-bold text-sm sm:text-base flex items-center gap-2.5">
@@ -1174,7 +1215,7 @@ export default function BookingForm() {
                       Payment Method
                     </span>
                     <span className="text-base sm:text-lg font-black mt-1 block" style={{ color: NAVY }}>
-                      💵 Cash after event
+                      💳 Payment after service
                     </span>
                   </div>
                 </div>
@@ -1505,9 +1546,9 @@ export default function BookingForm() {
                     <DollarSign className="w-6 h-6 text-emerald-600" />
                   </div>
                   <div>
-                    <p className="font-extrabold text-base text-emerald-900" style={{ fontFamily: F_SERIF }}>Cash Payment on Delivery</p>
+                    <p className="font-extrabold text-base text-emerald-900" style={{ fontFamily: F_SERIF }}>Payment After Service</p>
                     <p className="text-xs sm:text-sm font-semibold text-emerald-700 mt-1.5 leading-relaxed" style={{ fontFamily: FN }}>
-                      No card authorization required. Payments are collected in cash at the end of the catering event.
+                      Payment is collected after the service. We accept multiple payment methods.
                     </p>
                   </div>
                 </div>

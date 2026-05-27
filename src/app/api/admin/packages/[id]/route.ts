@@ -19,10 +19,13 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     if (data.price !== undefined) updateData.price = parseFloat(data.price);
     if (data.servings !== undefined) updateData.servings = parseInt(data.servings);
     if (data.extraPiecePrice !== undefined) updateData.extraPiecePrice = parseFloat(data.extraPiecePrice);
+    if (data.extraGuestPrice !== undefined) updateData.extraGuestPrice = parseFloat(data.extraGuestPrice);
+    if (data.durationMins !== undefined) updateData.durationMins = parseInt(data.durationMins);
     if (data.features !== undefined) updateData.features = JSON.stringify(data.features);
     if (data.image !== undefined) updateData.imageUrl = data.image;
     if (data.isActive !== undefined) updateData.isActive = data.isActive;
     if (data.sortOrder !== undefined) updateData.sortOrder = parseInt(data.sortOrder);
+    if (data.badge !== undefined) updateData.badge = data.badge;
 
     const updated = await prisma.package.update({
       where: { id: params.id },

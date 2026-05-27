@@ -203,9 +203,9 @@ export async function sendBookingApprovedEmail(to: string, firstName: string, bo
     </p>
     
     <div style="background:#ECFDF5;border:2px solid #10B981;border-radius:16px;padding:24px;margin-bottom:32px;text-align:center;">
-      <p style="margin:0 0 4px;color:#065F46;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;">Estimated Total (Cash Payment)</p>
+      <p style="margin:0 0 4px;color:#065F46;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;">Estimated Total</p>
       <p style="margin:0 0 10px;color:${BRAND_NAVY};font-size:36px;font-weight:900;">$${amount}</p>
-      <p style="margin:0;color:#047857;font-size:14px;font-weight:700;">No online payment required. Payment will be collected in cash at the end of your event.</p>
+      <p style="margin:0;color:#047857;font-size:14px;font-weight:700;">Payment is collected after the service. We accept multiple payment methods.</p>
     </div>
     
     ${bookingDetailsHtml}
@@ -261,8 +261,8 @@ export async function sendBookingPendingEmail(
       <p style="margin:0 0 8px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:${BRAND_NAVY};">👥 Extra Guests Policy</p>
       <p style="margin:0 0 12px;font-weight:600;">If your guest count increases, we’ll be prepared. Extra guests beyond the included package count are calculated at $5 per person.</p>
       
-      <p style="margin:0 0 8px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:${BRAND_NAVY};">💵 Cash Payment Terms</p>
-      <p style="margin:0;font-weight:600;">No online payment is required to reserve. Payment will be collected in cash at the end of your event.</p>
+      <p style="margin:0 0 8px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:${BRAND_NAVY};">💳 Payment Policy</p>
+      <p style="margin:0;font-weight:600;">Payment is collected after the service. We accept multiple payment methods.</p>
     </div>
 
     <div style="text-align:center;margin-bottom:24px;">

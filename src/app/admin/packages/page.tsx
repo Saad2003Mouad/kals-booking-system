@@ -10,7 +10,9 @@ const EMPTY_PACKAGE = {
   serviceType: "AMERICANO_TRUCK",
   price: 0,
   servings: 50,
-  extraPiecePrice: 3.00,
+  extraPiecePrice: 5,
+  extraGuestPrice: 5,
+  durationMins: 60,
   sortOrder: 10,
   image: "https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/67dc601bc29781a5af163351_image-01-products-boston-legend-ice-cream-truck.webp",
   isActive: true,
@@ -195,7 +197,8 @@ export default function AdminPackagesPage() {
 
               <div className="space-y-2 text-sm text-slate-600 font-semibold mb-5 bg-slate-50 p-3 rounded-xl border border-slate-100">
                 <div className="flex justify-between"><span>Servings:</span> <span className="font-black text-[#000223]">{pkg.servings || pkg.includedQty}</span></div>
-                <div className="flex justify-between"><span>Extra Piece:</span> <span className="font-black text-[#000223]">${pkg.extraPiecePrice}</span></div>
+                <div className="flex justify-between"><span>Extra Guest:</span> <span className="font-black text-[#000223]">${pkg.extraGuestPrice ?? pkg.extraPiecePrice}/person</span></div>
+                <div className="flex justify-between"><span>Duration:</span> <span className="font-black text-[#000223]">{pkg.durationMins ?? 60} min</span></div>
                 <div className="flex justify-between"><span>Sort Order:</span> <span className="font-black text-[#000223]">{pkg.sortOrder || 0}</span></div>
               </div>
 
@@ -260,9 +263,15 @@ export default function AdminPackagesPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="label-premium">Extra Piece Price ($)</label>
-                      <input required type="number" step="0.01" value={formData.extraPiecePrice} onChange={e=>setFormData({...formData, extraPiecePrice:e.target.value})} className="input-premium py-2 w-full font-bold" />
+                      <label className="label-premium">Extra Guest Price ($)</label>
+                      <input required type="number" step="0.01" value={formData.extraGuestPrice ?? formData.extraPiecePrice} onChange={e=>setFormData({...formData, extraGuestPrice:e.target.value, extraPiecePrice:e.target.value})} className="input-premium py-2 w-full font-bold" />
                     </div>
+                    <div>
+                      <label className="label-premium">Duration (mins)</label>
+                      <input required type="number" value={formData.durationMins ?? 60} onChange={e=>setFormData({...formData, durationMins:e.target.value})} className="input-premium py-2 w-full font-bold" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="label-premium">Service Type</label>
                       <select value={formData.serviceType} onChange={e=>setFormData({...formData, serviceType:e.target.value})} className="input-premium py-2 w-full text-sm font-bold">
@@ -270,8 +279,6 @@ export default function AdminPackagesPage() {
                         <option value="VAN">Delivery Van</option>
                       </select>
                     </div>
-                  </div>
-                  <div className="grid grid-cols-1 gap-4">
                     <div>
                       <label className="label-premium">Sort Order</label>
                       <input required type="number" value={formData.sortOrder} onChange={e=>setFormData({...formData, sortOrder:e.target.value})} className="input-premium py-2 w-full font-bold" />

@@ -113,7 +113,7 @@ export async function evaluateBooking(req: BookingRequest): Promise<AIDecision> 
   return {
     verdict: "APPROVED",
     reason: "All checks passed",
-    customerMessage: "Your booking request has been confirmed. Payment will be collected in cash at the end of the event.",
+    customerMessage: "Your booking request has been confirmed. Payment is collected after the service — we accept multiple payment methods.",
     autoConfirm: true,
     flags,
     suggestedVehicle: suggestedVehicle.name,

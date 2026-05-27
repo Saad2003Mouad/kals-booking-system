@@ -113,7 +113,7 @@ export async function POST(
         newStatus: "CONFIRMED",
         booking: updated,
         paymentUrl: portalUrl,
-        message: "Booking approved. Customer notified of cash terms. Status is CONFIRMED.",
+        message: "Booking approved. Customer notified. Status is CONFIRMED.",
       });
     }
 

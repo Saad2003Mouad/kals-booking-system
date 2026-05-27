@@ -37,6 +37,8 @@ const BookingSchema = z.object({
   overtimeFee: z.coerce.number().default(0),
   extraPieceFee: z.coerce.number().default(0),
   distanceMiles: z.coerce.number().default(0),
+  additionalStops: z.coerce.number().default(0),
+  additionalStopsFee: z.coerce.number().default(0),
   latitude: z.coerce.number().optional().nullable(),
   longitude: z.coerce.number().optional().nullable(),
 });
@@ -88,6 +90,7 @@ export async function GET(req: NextRequest) {
       eventDate, startTime, durationMins,
       guests, eventType, packageId, notes,
       totalAmount, travelFee, overtimeFee, extraPieceFee, distanceMiles,
+      additionalStops, additionalStopsFee,
       latitude, longitude
     } = result.data;
 
@@ -137,14 +140,17 @@ export async function GET(req: NextRequest) {
         address, city, zip,
         guests: guests,
         eventType,
+        additionalStops: additionalStops ?? 0,
+        additionalStopsFee: additionalStopsFee ?? 0,
         totalAmount,
         notes: notes || null,
         items: {
           create: [
-            { lineType: "PACKAGE", description: "Package base price", quantity: 1, unitPrice: totalAmount - travelFee - overtimeFee - extraPieceFee, totalPrice: totalAmount - travelFee - overtimeFee - extraPieceFee },
+            { lineType: "PACKAGE", description: "Package base price", quantity: 1, unitPrice: totalAmount - travelFee - overtimeFee - extraPieceFee - (additionalStopsFee ?? 0), totalPrice: totalAmount - travelFee - overtimeFee - extraPieceFee - (additionalStopsFee ?? 0) },
             ...(travelFee > 0 ? [{ lineType: "TRAVEL", description: "Travel fee",     quantity: 1, unitPrice: travelFee,   totalPrice: travelFee }]   : []),
             ...(overtimeFee > 0 ? [{ lineType: "OVERTIME", description: "Overtime fee",   quantity: 1, unitPrice: overtimeFee, totalPrice: overtimeFee }] : []),
-            ...(extraPieceFee > 0 ? [{ lineType: "EXTRA_SERVINGS", description: "Extra servings",   quantity: 1, unitPrice: extraPieceFee, totalPrice: extraPieceFee }] : []),
+            ...(extraPieceFee > 0 ? [{ lineType: "EXTRA_GUESTS", description: "Extra guests fee",   quantity: 1, unitPrice: extraPieceFee, totalPrice: extraPieceFee }] : []),
+            ...((additionalStopsFee ?? 0) > 0 ? [{ lineType: "MULTI_STOP", description: `Additional stops (${additionalStops})`, quantity: additionalStops ?? 1, unitPrice: 50, totalPrice: additionalStopsFee ?? 0 }] : []),
           ],
         },
         quote: {
@@ -154,7 +160,7 @@ export async function GET(req: NextRequest) {
             travelFee:     travelFee,
             overtimeFee:   overtimeFee,
             totalAmount:   totalAmount,
-            snapshotJson:  JSON.stringify({ packageId, guests, durationMins, zip, city, aiFlags: aiDecision.flags }),
+            snapshotJson:  JSON.stringify({ packageId, guests, durationMins, zip, city, additionalStops, aiFlags: aiDecision.flags }),
           },
         },
       },

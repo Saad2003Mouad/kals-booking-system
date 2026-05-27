@@ -304,7 +304,7 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
               <span className="font-black text-[#000223]">${(pkg?.price ?? 250).toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-400">Extra Servings Rate</span>
+              <span className="text-slate-400">Extra Guests Rate</span>
               <span className="font-black text-emerald-600">${extraPiecePrice}/person</span>
             </div>
           </div>
@@ -391,8 +391,8 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
             </div>
             
             <div className="p-4 bg-emerald-50/50 border border-emerald-100 rounded-2xl text-xs font-semibold text-slate-700 leading-relaxed">
-              <p className="font-black text-emerald-800 uppercase tracking-wider mb-2 flex items-center gap-1">💵 Cash Payment Policy</p>
-              <p>Payment will be collected in cash at the end of the event.</p>
+              <p className="font-black text-emerald-800 uppercase tracking-wider mb-2 flex items-center gap-1">💳 Payment Policy</p>
+              <p>Payment is collected after the service. We accept multiple payment methods.</p>
               <p className="mt-1.5 font-bold text-slate-400">No online payment or credit card checkouts are required to reserve.</p>
             </div>
           </div>

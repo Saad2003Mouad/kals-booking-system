@@ -58,6 +58,8 @@ model Package {
   servings        Int
   price           Float
   extraPiecePrice Float
+  extraGuestPrice Float   @default(5)
+  durationMins    Int     @default(60)
   imageUrl        String?
   badge           String?
   features        String?
@@ -96,20 +98,22 @@ model Booking {
   vehicleId     String?
   vehicle       Vehicle?  @relation(fields: [vehicleId], references: [id])
 
-  status       String   @default("PENDING") // PENDING|PENDING_REVIEW|PENDING_PAYMENT|CONFIRMED|ASSIGNED|IN_PROGRESS|COMPLETED|CANCELLED|REJECTED
-  eventDate    DateTime
-  startTime    String
-  durationMins Int
-  address      String
-  city         String
-  zip          String
-  guests       Int
-  eventType    String
-  notes        String?
-  totalAmount  Float    @default(0)
-  internalNote String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  status              String   @default("PENDING") // PENDING|PENDING_REVIEW|PENDING_PAYMENT|CONFIRMED|ASSIGNED|IN_PROGRESS|COMPLETED|CANCELLED|REJECTED
+  eventDate           DateTime
+  startTime           String
+  durationMins        Int
+  address             String
+  city                String
+  zip                 String
+  guests              Int
+  eventType           String
+  notes               String?
+  additionalStops     Int      @default(0)
+  additionalStopsFee  Float    @default(0)
+  totalAmount         Float    @default(0)
+  internalNote        String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   quote       Quote?
   items       BookingItem[]

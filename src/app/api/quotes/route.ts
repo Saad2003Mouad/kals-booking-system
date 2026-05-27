@@ -14,11 +14,12 @@ async function withRetry<T>(fn: () => Promise<T>, retries = 2): Promise<T> {
   }
   throw lastError;
 }
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     console.log("Quotes API body:", body);
-    const { packageId, durationMins, distanceMiles, guests } = body;
+    const { packageId, durationMins, distanceMiles, guests, additionalStops } = body;
 
     const missingFields = [];
     if (!packageId) missingFields.push("packageId");
@@ -43,23 +44,29 @@ export async function POST(req: Request) {
     const freeMiles = freeMilesSetting ? parseFloat(freeMilesSetting) : 10;
     const ratePerMile = ratePerMileSetting ? parseFloat(ratePerMileSetting) : 2.25;
 
+    // Use package's own durationMins and extraGuestPrice
+    const packageDurationMins = (pkg as any).durationMins ?? 60;
+    const extraGuestPrice = (pkg as any).extraGuestPrice ?? pkg.extraPiecePrice ?? 5;
+
     const q = calculateQuote({
       packagePrice: pkg.price,
       servings: pkg.servings,
-      extraPiecePrice: pkg.extraPiecePrice,
+      extraGuestPrice,
       durationMins: parseInt(durationMins as string) || 60,
-      packageDurationMins: 60, // default
+      packageDurationMins,
       distanceMiles: parseFloat(distanceMiles as string) || 0,
       guests: parseInt(guests as string) || 0,
+      additionalStops: parseInt(additionalStops as string) || 0,
       freeMiles,
       ratePerMile
     });
 
     const breakdown = [
       { label: "Base Package", amount: q.basePrice },
-      { label: q.extraServingsCount > 0 ? `Extra Guests (${q.extraServingsCount} × $${q.extraPiecePrice})` : "Extra Guests Fee", amount: q.extraPieceFee },
+      { label: q.extraServingsCount > 0 ? `Extra Guests (${q.extraServingsCount} × $${q.extraGuestPrice})` : "Extra Guests Fee", amount: q.extraPieceFee },
       { label: "Travel Fee", amount: q.travelFee },
       { label: "Overtime Fee", amount: q.overtimeFee },
+      ...(q.additionalStopsFee > 0 ? [{ label: `Additional Stops (${q.additionalStops} × $50)`, amount: q.additionalStopsFee }] : []),
     ];
 
     // Return the flat quote object + breakdown to match frontend expectations
