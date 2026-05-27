@@ -164,6 +164,11 @@ function formatBookingDetailsHtml(booking: any) {
         <td style="font-weight:600;">Extra Guests Fee (${extraGuestsCount} × $${extraPiecePrice})</td>
         <td align="right" style="font-weight:800;color:${BRAND_NAVY};">+$${extraGuestsFee.toFixed(2)}</td>
       </tr>` : ''}
+      ${(booking.additionalStopsFee || 0) > 0 ? `
+      <tr>
+        <td style="font-weight:600;">Additional Stops (${booking.additionalStops})</td>
+        <td align="right" style="font-weight:800;color:${BRAND_NAVY};">+$${booking.additionalStopsFee.toFixed(2)}</td>
+      </tr>` : ''}
       ${overtimeFee > 0 ? `
       <tr>
         <td style="font-weight:600;">Overtime Fee</td>

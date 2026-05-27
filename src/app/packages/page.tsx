@@ -14,6 +14,7 @@ type Package = {
   servings: number;
   price: number;
   extraPiecePrice: number;
+  extraGuestPrice?: number;
   imageUrl: string;
   badge: string;
   features: string;
@@ -177,7 +178,7 @@ function PackageCard({ pkg }: { pkg: Package }) {
           </li>
           <li className="flex items-center gap-3 text-gray-700 font-medium">
             <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
-            <span>Extra pieces at <strong>${pkg.extraPiecePrice} each</strong></span>
+            <span>Extra guests at <strong>${pkg.extraGuestPrice ?? pkg.extraPiecePrice} each</strong></span>
           </li>
         </ul>
 

@@ -303,6 +303,12 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
               <span className="text-slate-400">Package Base Price</span>
               <span className="font-black text-[#000223]">${(pkg?.price ?? 250).toFixed(2)}</span>
             </div>
+            {booking.additionalStops > 0 && (
+              <div className="flex justify-between border-b border-slate-50 pb-3">
+                <span className="text-slate-400">Additional Stops ({booking.additionalStops})</span>
+                <span className="font-black text-emerald-600">+${(booking.additionalStopsFee ?? 0).toFixed(2)}</span>
+              </div>
+            )}
             <div className="flex justify-between">
               <span className="text-slate-400">Extra Guests Rate</span>
               <span className="font-black text-emerald-600">${extraPiecePrice}/person</span>
