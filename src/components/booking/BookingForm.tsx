@@ -68,21 +68,21 @@ function Field({
   return (
     <div className="flex flex-col gap-2.5 w-full">
       <label
-        className="block text-xs sm:text-sm font-black uppercase tracking-[0.18em]"
-        style={{ color: NAVY, opacity: 0.7, fontFamily: FN }}
+        className="block text-sm sm:text-base font-black uppercase tracking-[0.18em]"
+        style={{ color: NAVY, opacity: 0.95, fontFamily: FN }}
       >
         {label}
       </label>
       {children}
       {error && (
-        <p className="text-red-600 text-sm font-bold flex items-center gap-1.5 mt-0.5">
-          <AlertCircle className="w-4.5 h-4.5" /> {error}
+        <p className="text-red-700 text-sm sm:text-base font-black flex items-center gap-2 mt-1">
+          <AlertCircle className="w-5 h-5" /> {error}
         </p>
       )}
       {!error && helper && (
         <p
-          className="text-xs sm:text-sm font-semibold leading-relaxed"
-          style={{ color: NAVY, opacity: 0.5, fontFamily: FN }}
+          className="text-sm sm:text-base font-bold leading-relaxed text-slate-700 mt-1"
+          style={{ fontFamily: FN }}
         >
           {helper}
         </p>
@@ -119,8 +119,8 @@ function PremiumInput({
       <div className="relative w-full">
         {Icon && (
           <Icon
-            className="absolute left-4.5 top-1/2 -translate-y-1/2 w-5.5 h-5.5 pointer-events-none transition-colors"
-            style={{ color: focused ? GOLD : error ? "#EF4444" : "#8E8EA8" }}
+            className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 pointer-events-none transition-colors"
+            style={{ color: focused ? GOLD : error ? "#EF4444" : "#6B7280" }}
           />
         )}
         <input
@@ -131,17 +131,17 @@ function PremiumInput({
           min={min}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          className="w-full py-4.5 pr-6 rounded-2xl border-2 font-semibold text-base sm:text-lg outline-none transition-all shadow-sm"
+          className="w-full py-5 pr-6 rounded-2xl border-2 font-bold text-lg sm:text-xl outline-none transition-all shadow-md"
           style={{
             fontFamily: FN,
-            paddingLeft: Icon ? "3.25rem" : "1.5rem",
-            borderColor: error ? "rgba(239, 68, 68, 0.4)" : focused ? GOLD : "rgba(0, 2, 35, 0.08)",
-            background: error ? "rgba(254, 242, 242, 0.9)" : "rgba(255, 255, 255, 0.95)",
+            paddingLeft: Icon ? "3.75rem" : "1.75rem",
+            borderColor: error ? "rgba(239, 68, 68, 0.5)" : focused ? GOLD : "rgba(0, 2, 35, 0.12)",
+            background: error ? "rgba(254, 242, 242, 0.95)" : "rgba(255, 255, 255, 0.85)",
             color: NAVY,
             boxShadow: focused
-              ? `0 0 0 5px rgba(255, 160, 0, 0.15), 0 4px 12px rgba(0,0,0,0.02)`
+              ? `0 0 0 6px rgba(255, 160, 0, 0.2), 0 8px 24px rgba(0,0,0,0.04)`
               : error
-              ? "0 0 0 5px rgba(239, 68, 68, 0.05)"
+              ? "0 0 0 6px rgba(239, 68, 68, 0.08)"
               : "none"
           }}
           autoComplete="off"
@@ -175,8 +175,8 @@ function PremiumSelect({
       <div className="relative w-full">
         {Icon && (
           <Icon
-            className="absolute left-4.5 top-1/2 -translate-y-1/2 w-5.5 h-5.5 pointer-events-none transition-colors"
-            style={{ color: focused ? GOLD : "#8E8EA8" }}
+            className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 pointer-events-none transition-colors"
+            style={{ color: focused ? GOLD : "#6B7280" }}
           />
         )}
         <select
@@ -184,14 +184,14 @@ function PremiumSelect({
           onChange={(e) => onChange(e.target.value)}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          className="w-full py-4.5 pr-12 rounded-2xl border-2 font-semibold text-base sm:text-lg outline-none transition-all appearance-none shadow-sm cursor-pointer"
+          className="w-full py-5 pr-12 rounded-2xl border-2 font-bold text-lg sm:text-xl outline-none transition-all appearance-none shadow-md cursor-pointer"
           style={{
             fontFamily: FN,
-            paddingLeft: Icon ? "3.25rem" : "1.5rem",
-            borderColor: focused ? GOLD : "rgba(0, 2, 35, 0.08)",
-            background: "rgba(255, 255, 255, 0.95)",
+            paddingLeft: Icon ? "3.75rem" : "1.75rem",
+            borderColor: focused ? GOLD : "rgba(0, 2, 35, 0.12)",
+            background: "rgba(255, 255, 255, 0.85)",
             color: NAVY,
-            boxShadow: focused ? `0 0 0 5px rgba(255, 160, 0, 0.15)` : "none"
+            boxShadow: focused ? `0 0 0 6px rgba(255, 160, 0, 0.2)` : "none"
           }}
         >
           <option value="">{placeholder}</option>
@@ -202,10 +202,10 @@ function PremiumSelect({
           ))}
         </select>
         <div
-          className="absolute right-4.5 top-1/2 -translate-y-1/2 pointer-events-none border-solid border-t-6 border-l-6 border-r-6 border-transparent transition-transform duration-300"
+          className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none border-solid border-t-6 border-l-6 border-r-6 border-transparent transition-transform duration-300"
           style={{
             borderTopColor: NAVY,
-            opacity: 0.6,
+            opacity: 0.8,
             transform: focused ? "rotate(180deg)" : "none",
             borderLeftColor: "transparent",
             borderRightColor: "transparent",
@@ -248,14 +248,14 @@ function ZipSelector({
     <div className="md:col-span-2 grid md:grid-cols-2 gap-6">
       <div className="relative flex flex-col gap-2.5 w-full">
         <label
-          className="block text-xs sm:text-sm font-black uppercase tracking-[0.18em]"
-          style={{ color: NAVY, opacity: 0.7, fontFamily: FN }}
+          className="block text-sm sm:text-base font-black uppercase tracking-[0.18em]"
+          style={{ color: NAVY, opacity: 0.95, fontFamily: FN }}
         >
           ZIP Code
         </label>
         <div className="relative">
           <MapPin
-            className="absolute left-4.5 top-1/2 -translate-y-1/2 w-5.5 h-5.5 pointer-events-none transition-colors"
+            className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 pointer-events-none transition-colors"
             style={{ color: focused ? GOLD : "#8E8EA8" }}
           />
           <input
@@ -277,13 +277,13 @@ function ZipSelector({
               setTimeout(() => setOpen(false), 250);
             }}
             placeholder="02115 or Boston…"
-            className="w-full py-4.5 pl-12 pr-6 rounded-2xl border-2 font-semibold text-base sm:text-lg outline-none transition-all shadow-sm"
+            className="w-full py-5 pl-14 pr-6 rounded-2xl border-2 font-bold text-lg sm:text-xl outline-none transition-all shadow-md"
             style={{
               fontFamily: FN,
-              borderColor: focused ? GOLD : "rgba(0, 2, 35, 0.08)",
-              background: "rgba(255, 255, 255, 0.95)",
+              borderColor: focused ? GOLD : "rgba(0, 2, 35, 0.12)",
+              background: "rgba(255, 255, 255, 0.85)",
               color: NAVY,
-              boxShadow: focused ? `0 0 0 5px rgba(255, 160, 0, 0.15)` : "none"
+              boxShadow: focused ? `0 0 0 6px rgba(255, 160, 0, 0.2)` : "none"
             }}
             autoComplete="off"
           />
@@ -299,16 +299,16 @@ function ZipSelector({
                   setSearch("");
                   setOpen(false);
                 }}
-                className="w-full text-left px-5 py-4 hover:bg-amber-50/60 transition-colors flex items-center justify-between"
+                className="w-full text-left px-6 py-4.5 hover:bg-amber-50/60 transition-colors flex items-center justify-between"
               >
-                <span className="font-extrabold text-sm sm:text-base" style={{ color: NAVY, fontFamily: FN }}>
+                <span className="font-extrabold text-base sm:text-lg" style={{ color: NAVY, fontFamily: FN }}>
                   {a.city}
                 </span>
                 <span
-                  className="font-mono text-xs font-black px-2.5 py-1 rounded-lg border"
+                  className="font-mono text-sm font-black px-3 py-1.5 rounded-lg border-2"
                   style={{
                     background: CREAM,
-                    borderColor: "rgba(0, 2, 35, 0.08)",
+                    borderColor: "rgba(0, 2, 35, 0.12)",
                     color: GOLD
                   }}
                 >
@@ -320,16 +320,16 @@ function ZipSelector({
         )}
         {open && search.length >= 2 && filtered.length === 0 && (
           <div
-            className="absolute left-0 right-0 top-full mt-2 rounded-2xl border border-red-100/80 p-4.5 text-center z-50 shadow-xl backdrop-blur-md"
+            className="absolute left-0 right-0 top-full mt-2 rounded-2xl border-2 border-red-200/80 p-5 text-center z-50 shadow-xl backdrop-blur-md"
             style={{ background: "rgba(254, 242, 242, 0.95)" }}
           >
-            <p className="text-red-600 font-black text-sm sm:text-base">Outside service area</p>
-            <p className="text-red-400 text-xs sm:text-sm font-bold mt-1">We serve Massachusetts only</p>
+            <p className="text-red-755 font-black text-base sm:text-lg">Outside service area</p>
+            <p className="text-red-500 text-sm font-bold mt-1.5">We serve Massachusetts only</p>
           </div>
         )}
         <p
-          className="text-xs sm:text-sm font-semibold mt-0.5"
-          style={{ color: NAVY, opacity: 0.5, fontFamily: FN }}
+          className="text-sm sm:text-base font-bold text-slate-700 mt-1"
+          style={{ fontFamily: FN }}
         >
           Massachusetts service area
         </p>
@@ -337,8 +337,8 @@ function ZipSelector({
 
       <div className="flex flex-col gap-2.5 w-full">
         <label
-          className="block text-xs sm:text-sm font-black uppercase tracking-[0.18em]"
-          style={{ color: NAVY, opacity: 0.7, fontFamily: FN }}
+          className="block text-sm sm:text-base font-black uppercase tracking-[0.18em]"
+          style={{ color: NAVY, opacity: 0.95, fontFamily: FN }}
         >
           City (auto-filled)
         </label>
@@ -346,13 +346,13 @@ function ZipSelector({
           readOnly
           value={city}
           placeholder="Select ZIP above"
-          className="w-full py-4.5 px-6 rounded-2xl border-2 font-semibold text-base sm:text-lg outline-none cursor-default shadow-inner"
+          className="w-full py-5 px-6 rounded-2xl border-2 font-bold text-lg sm:text-xl outline-none cursor-default shadow-inner"
           style={{
             fontFamily: FN,
-            borderColor: "rgba(0, 2, 35, 0.05)",
-            background: "rgba(0, 2, 35, 0.02)",
+            borderColor: "rgba(0, 2, 35, 0.08)",
+            background: "rgba(0, 2, 35, 0.04)",
             color: NAVY,
-            opacity: 0.85
+            opacity: 0.9
           }}
         />
       </div>
@@ -865,13 +865,9 @@ export default function BookingForm() {
   const listPkgs = pkgList[pkgTab];
 
   return (
-    <div className="booking-wrapper py-8 sm:py-16 relative overflow-hidden min-h-screen flex items-center justify-center bg-[#FAF8F2]" style={{ fontFamily: FN }}>
-      {/* Premium ambient decorative blurred background circles */}
-      <div className="absolute top-[-5%] left-[-5%] w-[350px] sm:w-[500px] h-[350px] sm:h-[500px] bg-amber-200/20 rounded-full blur-[80px] sm:blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-5%] right-[-5%] w-[450px] sm:w-[600px] h-[450px] sm:h-[600px] bg-blue-200/10 rounded-full blur-[100px] sm:blur-[150px] pointer-events-none" />
-      
-      <div className="w-full max-w-4xl mx-auto px-4 sm:px-8 relative z-10">
-        <div className="backdrop-blur-2xl bg-white/40 border border-white/30 shadow-xl rounded-2xl p-6 sm:p-12 transition-all duration-300">
+    <div className="booking-wrapper w-full relative" style={{ fontFamily: FN }}>
+      <div className="w-full relative z-10">
+        <div className="backdrop-blur-2xl bg-white/75 border-2 border-white/60 shadow-2xl rounded-3xl p-6 sm:p-12 transition-all duration-300">
           
           {/* Stepper Header */}
           <div className="mb-10 sm:mb-14">
@@ -967,16 +963,16 @@ export default function BookingForm() {
                     <button
                       key={p.id}
                       onClick={() => setSel(p)}
-                      className="w-full text-left p-6 sm:p-8 rounded-[2rem] border-2 transition-all duration-300 flex flex-col sm:flex-row sm:items-center gap-6 hover:shadow-2xl hover:-translate-y-1 group bg-white/95"
+                      className="w-full text-left p-6 sm:p-8 rounded-3xl border-2 transition-all duration-300 flex flex-col sm:flex-row sm:items-center gap-6 hover:shadow-2xl hover:-translate-y-1 group backdrop-blur-md"
                       style={{
-                        borderColor: isSelected ? GOLD : "rgba(0, 2, 35, 0.08)",
-                        background: isSelected ? CREAM : "rgba(255, 255, 255, 0.95)",
-                        boxShadow: isSelected ? "0 15px 35px rgba(255,160,0,0.15)" : "0 4px 20px rgba(0,0,0,0.01)"
+                        borderColor: isSelected ? GOLD : "rgba(0, 2, 35, 0.12)",
+                        background: isSelected ? "rgba(255, 253, 245, 0.85)" : "rgba(255, 255, 255, 0.65)",
+                        boxShadow: isSelected ? "0 12px 35px rgba(255,160,0,0.15)" : "0 4px 20px rgba(0,0,0,0.02)"
                       }}
                     >
                       {/* Vehicle Icon Badge */}
                       <div
-                        className="w-16 h-16 rounded-[1.25rem] flex items-center justify-center text-4xl flex-shrink-0 transition-transform duration-300 group-hover:scale-105"
+                        className="w-18 h-18 rounded-2xl flex items-center justify-center text-4xl flex-shrink-0 transition-transform duration-300 group-hover:scale-105 shadow-sm"
                         style={{ background: isSelected ? "#FFF0B3" : CREAM_LIGHT }}
                       >
                         {p.type === "TRUCK" || p.serviceType === "AMERICANO_TRUCK" ? "🚐" : "🚌"}
@@ -985,35 +981,35 @@ export default function BookingForm() {
                       {/* Details */}
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2.5">
-                          <span className="font-extrabold text-xl sm:text-2xl tracking-tight leading-tight" style={{ color: NAVY, fontFamily: F_SERIF }}>
+                          <span className="font-black text-2xl sm:text-3xl tracking-tight leading-tight" style={{ color: NAVY, fontFamily: F_SERIF }}>
                             {p.name}
                           </span>
                           {isSelected && (
-                            <span className="px-3 py-1 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200">
+                            <span className="px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-emerald-100/90 text-emerald-800 border border-emerald-250">
                               Selected
                             </span>
                           )}
                         </div>
-                        <div className="text-slate-700 font-semibold text-sm sm:text-base mt-2.5 flex flex-wrap items-center gap-4">
+                        <div className="text-slate-800 font-bold text-base sm:text-lg mt-3 flex flex-wrap items-center gap-4">
                           <span className="flex items-center gap-1.5">
-                            <Users className="w-5 h-5 text-slate-500" /> {p.includedQty || p.servings} Servings Included
+                            <Users className="w-5.5 h-5.5 text-slate-650" /> {p.includedQty || p.servings} Servings Included
                           </span>
-                          <span className="w-1.5 h-1.5 rounded-full bg-slate-350 hidden sm:inline" />
+                          <span className="w-2 h-2 rounded-full bg-slate-400 hidden sm:inline" />
                           <span className="flex items-center gap-1.5">
-                            <Clock className="w-5 h-5 text-slate-500" /> {p.includedMinutes || 60} Min Duration
+                            <Clock className="w-5.5 h-5.5 text-slate-650" /> {p.includedMinutes || 60} Min Duration
                           </span>
                         </div>
-                        <div className="text-xs sm:text-sm font-extrabold mt-2.5 flex items-center gap-1" style={{ color: GOLD }}>
-                          <Star className="w-4 h-4 fill-current" /> Extra guests billed at ${(p as any).extraGuestPrice || p.extraPiecePrice || 5} per person
+                        <div className="text-sm sm:text-base font-black mt-3 flex items-center gap-1.5" style={{ color: GOLD }}>
+                          <Star className="w-5 h-5 fill-current" /> Extra guests billed at ${(p as any).extraGuestPrice || p.extraPiecePrice || 5} per person
                         </div>
                       </div>
 
                       {/* Pricing */}
-                      <div className="flex-shrink-0 text-left sm:text-right border-t sm:border-t-0 pt-4 sm:pt-0 border-dashed border-slate-200 flex sm:flex-col items-baseline sm:items-end justify-between sm:justify-center">
-                        <span className="text-xs font-bold uppercase tracking-wider text-slate-500 sm:hidden">
+                      <div className="flex-shrink-0 text-left sm:text-right border-t sm:border-t-0 pt-4 sm:pt-0 border-dashed border-slate-350 flex sm:flex-col items-baseline sm:items-end justify-between sm:justify-center">
+                        <span className="text-sm font-black uppercase tracking-wider text-slate-600 sm:hidden">
                           Base Price:
                         </span>
-                        <span className="text-3xl sm:text-4xl font-black tracking-tight" style={{ color: isSelected ? GOLD : NAVY }}>
+                        <span className="text-4xl sm:text-5xl font-black tracking-tight" style={{ color: isSelected ? GOLD : NAVY }}>
                           ${p.basePrice || p.price}
                         </span>
                       </div>
@@ -1023,11 +1019,11 @@ export default function BookingForm() {
               </div>
 
               {/* Microcopy note */}
-              <div className="p-6 rounded-[2rem] border border-amber-100 bg-amber-50/40 text-sm sm:text-base text-slate-700 font-semibold mb-10 flex items-start gap-4 leading-relaxed">
-                <span className="text-2xl shrink-0 mt-0.5">💡</span>
+              <div className="p-6 sm:p-8 rounded-3xl border-2 border-amber-200/80 bg-amber-50/60 text-base sm:text-lg text-slate-800 font-bold mb-10 flex items-start gap-4.5 leading-relaxed shadow-sm">
+                <span className="text-3xl shrink-0 mt-0.5">💡</span>
                 <div>
-                  <p className="font-extrabold text-amber-900 text-base sm:text-lg">Need more servings?</p>
-                  <p className="text-slate-600 mt-1">
+                  <p className="font-black text-amber-950 text-lg sm:text-xl">Need more servings?</p>
+                  <p className="text-slate-700 mt-2">
                     Select the package closest to your estimate. Extra guests beyond the included count are billed at the package rate per person.
                   </p>
                 </div>
@@ -1038,10 +1034,10 @@ export default function BookingForm() {
                 <button
                   onClick={() => setStep(1)}
                   disabled={!sel}
-                  className="inline-flex items-center gap-2.5 px-10 py-5 rounded-full font-black text-base sm:text-lg shadow-2xl disabled:opacity-40 hover:-translate-y-1 transition-all duration-300 w-full sm:w-auto justify-center"
+                  className="inline-flex items-center gap-3 px-12 py-5.5 rounded-full font-black text-lg sm:text-xl shadow-2xl disabled:opacity-40 hover:-translate-y-1 active:translate-y-0 transition-all duration-300 w-full sm:w-auto justify-center"
                   style={{ background: NAVY, color: GOLD, fontFamily: FN }}
                 >
-                  Continue to Details <ArrowRight className="w-5 h-5" />
+                  Continue to Details <ArrowRight className="w-5.5 h-5.5" />
                 </button>
               </div>
             </div>
@@ -1051,10 +1047,10 @@ export default function BookingForm() {
           {step === 1 && (
             <div>
               <div className="mb-10 text-center sm:text-left">
-                <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight" style={{ color: NAVY, fontFamily: F_SERIF }}>
+                <h2 className="text-4xl sm:text-5xl font-black tracking-tight" style={{ color: NAVY, fontFamily: F_SERIF }}>
                   Event Details
                 </h2>
-                <p className="text-slate-500 font-semibold text-base sm:text-lg mt-2 leading-relaxed" style={{ fontFamily: FN }}>
+                <p className="text-slate-700 font-bold text-lg sm:text-xl mt-2.5 leading-relaxed" style={{ fontFamily: FN }}>
                   Provide timing and location for dispatch scheduling
                 </p>
               </div>
@@ -1083,17 +1079,14 @@ export default function BookingForm() {
                   helper="Select start time in 24h format (e.g. 14:00)"
                 />
 
-                {/* Duration field REMOVED — duration comes from package */}
-                {/* Estimated Guests field REMOVED — replaced with additionalGuests below */}
-
                 {/* Package duration info banner */}
-                <div className="md:col-span-2 bg-amber-50/60 border border-amber-100 rounded-2xl p-5 flex items-center gap-4">
-                  <span className="text-2xl">⏱️</span>
+                <div className="md:col-span-2 bg-amber-50/70 border-2 border-amber-200 rounded-3xl p-6 flex items-center gap-4.5 shadow-sm">
+                  <span className="text-3xl">⏱️</span>
                   <div>
-                    <p className="font-black text-[#000223] text-base">
-                      Included service time: {(sel as any)?.durationMins ?? sel?.includedMinutes ?? 60} minutes
+                    <p className="font-black text-[#000223] text-lg sm:text-xl">
+                      Included Service Time: {(sel as any)?.durationMins ?? sel?.includedMinutes ?? 60} minutes
                     </p>
-                    <p className="text-sm font-semibold text-slate-700 mt-0.5">
+                    <p className="text-base font-bold text-slate-700 mt-1">
                       This package serves up to {sel?.servings ?? sel?.includedQty ?? 50} guests.
                     </p>
                   </div>
@@ -1101,35 +1094,35 @@ export default function BookingForm() {
 
                 {/* Optional Additional Guests stepper */}
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-black uppercase tracking-[0.18em] mb-1" style={{ color: NAVY, opacity: 0.95, fontFamily: FN }}>
+                  <label className="block text-base font-black uppercase tracking-[0.18em] mb-1.5" style={{ color: NAVY, opacity: 0.95, fontFamily: FN }}>
                     Additional Guests (Optional)
                   </label>
-                  <p className="text-xs sm:text-sm font-semibold text-slate-600 mb-4">
+                  <p className="text-sm sm:text-base font-bold text-slate-700 mb-5 leading-relaxed">
                     Only enter guests <strong style={{ color: NAVY }}>beyond the included package amount</strong>. Extra guests are billed at ${(sel as any)?.extraGuestPrice ?? sel?.extraPiecePrice ?? 5}/person.
                   </p>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-6 bg-white/40 backdrop-blur-md border-2 border-slate-200/80 rounded-3xl p-5 shadow-sm">
                     <button
                       type="button"
                       onClick={() => setAdditionalGuests(Math.max(0, additionalGuests - 1))}
-                      className="w-12 h-12 rounded-full border-2 font-black text-xl flex items-center justify-center transition-all hover:bg-slate-100"
+                      className="w-14 h-14 rounded-full border-2 font-black text-2xl flex items-center justify-center transition-all hover:bg-slate-100 bg-white"
                       style={{ borderColor: additionalGuests === 0 ? "rgba(0,2,35,0.12)" : NAVY, color: NAVY }}
                     >
                       −
                     </button>
-                    <div className="flex-1 text-center">
-                      <span className="text-3xl font-black" style={{ color: NAVY, fontFamily: F_SERIF }}>{additionalGuests}</span>
-                      <span className="block text-xs font-bold text-slate-500 mt-0.5">additional guest{additionalGuests !== 1 ? "s" : ""}</span>
+                    <div className="flex-grow text-center">
+                      <span className="text-4xl font-black block" style={{ color: NAVY, fontFamily: F_SERIF }}>{additionalGuests}</span>
+                      <span className="block text-xs sm:text-sm font-bold text-slate-600 mt-1">additional guest{additionalGuests !== 1 ? "s" : ""}</span>
                     </div>
                     <button
                       type="button"
                       onClick={() => setAdditionalGuests(Math.min(200, additionalGuests + 1))}
-                      className="w-12 h-12 rounded-full border-2 font-black text-xl flex items-center justify-center transition-all hover:bg-amber-50"
+                      className="w-14 h-14 rounded-full border-2 font-black text-2xl flex items-center justify-center transition-all hover:bg-amber-50 bg-white"
                       style={{ borderColor: NAVY, color: NAVY }}
                     >
                       +
                     </button>
                     {additionalGuests > 0 && (
-                      <div className="ml-4 px-5 py-2.5 rounded-full font-black text-sm" style={{ background: "rgba(255,160,0,0.15)", color: NAVY }}>
+                      <div className="px-6 py-3 rounded-2xl font-black text-base sm:text-lg shadow-sm" style={{ background: "rgba(255,160,0,0.18)", color: NAVY }}>
                         +${(additionalGuests * ((sel as any)?.extraGuestPrice ?? sel?.extraPiecePrice ?? 5)).toFixed(2)}
                       </div>
                     )}
@@ -1138,14 +1131,14 @@ export default function BookingForm() {
 
                 {/* Additional Service Time selector */}
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-black uppercase tracking-[0.18em] mb-1" style={{ color: NAVY, opacity: 0.95, fontFamily: FN }}>
+                  <label className="block text-base font-black uppercase tracking-[0.18em] mb-1.5" style={{ color: NAVY, opacity: 0.95, fontFamily: FN }}>
                     Additional Service Time (Optional)
                   </label>
-                  <p className="text-xs sm:text-sm font-semibold text-slate-600 mb-4">
+                  <p className="text-sm sm:text-base font-bold text-slate-700 mb-5 leading-relaxed">
                     Every additional <strong style={{ color: NAVY }}>30 minutes</strong> beyond your package's included service time is{" "}
                     <strong style={{ color: NAVY }}>$35</strong>.
                   </p>
-                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
                     {[0, 30, 60, 90, 120].map((mins) => {
                       const fee = (mins / 30) * 35;
                       const isSelected = extraServiceMins === mins;
@@ -1154,23 +1147,23 @@ export default function BookingForm() {
                           key={mins}
                           type="button"
                           onClick={() => setExtraServiceMins(mins)}
-                          className="py-4 rounded-2xl border-2 font-black text-sm text-center transition-all hover:-translate-y-0.5"
+                          className="py-5 rounded-2xl border-2 font-black text-base text-center transition-all hover:-translate-y-0.5 shadow-sm"
                           style={{
-                            borderColor: isSelected ? NAVY : "rgba(0,2,35,0.1)",
-                            background: isSelected ? NAVY : "rgba(255,255,255,0.9)",
+                            borderColor: isSelected ? NAVY : "rgba(0,2,35,0.12)",
+                            background: isSelected ? NAVY : "rgba(255,255,255,0.85)",
                             color: isSelected ? GOLD : NAVY,
-                            boxShadow: isSelected ? "0 4px 12px rgba(0,2,35,0.2)" : "none"
+                            boxShadow: isSelected ? "0 8px 20px rgba(0,2,35,0.18)" : "none"
                           }}
                         >
-                          <span className="block text-lg">{mins === 0 ? "None" : `+${mins} min`}</span>
-                          <span className="block text-xs mt-0.5 font-bold opacity-70">{mins === 0 ? "$0" : `$${fee}`}</span>
+                          <span className="block text-xl">{mins === 0 ? "None" : `+${mins} Min`}</span>
+                          <span className="block text-xs sm:text-sm mt-1 font-bold opacity-80">{mins === 0 ? "$0" : `$${fee}`}</span>
                         </button>
                       );
                     })}
                   </div>
                   {extraServiceMins > 0 && (
-                    <div className="mt-3 flex items-center gap-2 text-sm font-bold text-amber-850 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5">
-                      <Clock className="w-4 h-4 text-amber-600" />
+                    <div className="mt-4 flex items-center gap-2.5 text-base font-bold text-amber-955 bg-amber-50/80 border-2 border-amber-200 rounded-2xl px-5 py-4 shadow-sm animate-fade-in">
+                      <Clock className="w-5 h-5 text-amber-600" />
                       <span>+{extraServiceMins} min additional service time → <strong>+${(extraServiceMins / 30) * 35} added to total</strong></span>
                     </div>
                   )}
@@ -1201,66 +1194,66 @@ export default function BookingForm() {
                 <div className="md:col-span-2 mt-2">
                   {primaryLoc.latitude !== null && primaryLoc.longitude !== null ? (
                     <div
-                      className="p-5 rounded-xl border text-left bg-white shadow-sm"
-                      style={{ borderColor: "rgba(0, 2, 35, 0.08)", borderLeftColor: GOLD, borderLeftWidth: "4px" }}
+                      className="p-6 rounded-3xl border-2 text-left bg-white/70 backdrop-blur-md shadow-md"
+                      style={{ borderColor: "rgba(0, 2, 35, 0.12)", borderLeftColor: GOLD, borderLeftWidth: "6px" }}
                     >
-                      <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center justify-between mb-4">
                         <div>
-                          <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block">
+                          <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-650 block">
                             Travel Distance & Routing
                           </span>
-                          <span className="text-xl font-bold tracking-tight mt-0.5 block" style={{ color: NAVY }}>
-                            {drivingMiles.toFixed(1)} miles total
+                          <span className="text-2xl font-black tracking-tight mt-1 block" style={{ color: NAVY }}>
+                            {drivingMiles.toFixed(1)} Miles Total
                           </span>
                         </div>
-                        <span className="text-2xl">📍</span>
+                        <span className="text-3xl">📍</span>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4 border-t border-dashed border-slate-200 pt-4 text-xs font-semibold text-slate-700">
+                      <div className="grid grid-cols-2 gap-6 border-t-2 border-dashed border-slate-200/80 pt-5 text-sm font-bold text-slate-700">
                         <div>
                           <span className="text-slate-500 block">First 10.0 miles:</span>
-                          <span className="text-emerald-600 font-bold">FREE (Included)</span>
+                          <span className="text-emerald-700 font-extrabold text-base">FREE (Included)</span>
                         </div>
                         <div>
                           <span className="text-slate-500 block">Billable miles:</span>
-                          <span className="text-slate-800 font-bold">
+                          <span className="text-slate-800 font-extrabold text-base">
                             {Math.max(0, drivingMiles - 10).toFixed(1)} miles
                           </span>
                         </div>
                       </div>
 
-                      <div className="mt-4 p-3 rounded-lg bg-amber-50 border border-amber-100 flex items-center justify-between text-sm font-bold text-amber-800">
+                      <div className="mt-5 p-4 rounded-xl bg-amber-50 border-2 border-amber-200/60 flex items-center justify-between text-base sm:text-lg font-black text-amber-900 shadow-inner">
                         <span>Travel Fee:</span>
                         <span>
                           {drivingMiles <= 10 ? (
-                            <span className="text-emerald-600">Free ($0.00)</span>
+                            <span className="text-emerald-755 font-black">Free ($0.00)</span>
                           ) : (
                             <span>${mapTravelFee.toFixed(2)}</span>
                           )}
                         </span>
                       </div>
 
-                      <p className="text-[10px] text-slate-400 font-medium mt-3 text-center">
+                      <p className="text-xs text-slate-550 font-bold mt-4 text-center">
                         Garage: <strong>Boston Revere — 84 Fernwood Ave</strong>
                       </p>
                     </div>
                   ) : (
-                    <div className="p-4 rounded-xl border border-dashed border-slate-300 text-center bg-slate-50 text-sm font-semibold text-slate-500">
+                    <div className="p-6 rounded-2xl border-2 border-dashed border-slate-300 text-center bg-slate-50/50 text-base font-bold text-slate-500 shadow-inner">
                       Confirm your event location to calculate accurate travel distance.
                     </div>
                   )}
                 </div>
 
                 {/* Multi-Stop Section */}
-                <div className="md:col-span-2 border-t border-slate-100 pt-6 mt-4">
-                  <label className="block text-sm font-bold text-[#000223] mb-1.5">
+                <div className="md:col-span-2 border-t-2 border-slate-200/50 pt-8 mt-6">
+                  <label className="block text-base font-black text-[#000223] mb-2">
                     Will this event include more than one location?
                   </label>
-                  <p className="text-xs text-slate-500 mb-4">
+                  <p className="text-sm sm:text-base font-bold text-slate-600 mb-5">
                     Select a multi-location routing mode if you need catering services across multiple spots. Each additional stop is <strong>$50</strong>.
                   </p>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                     {[
                       { mode: "SINGLE_LOCATION", title: "Single Location", desc: "No, one location only" },
                       { mode: "SEQUENTIAL_STOPS", title: "Sequential Stops", desc: "Multiple stops in order (single vehicle)" },
@@ -1292,14 +1285,14 @@ export default function BookingForm() {
                               }]);
                             }
                           }}
-                          className={`p-3.5 rounded-xl border text-left transition-all ${
+                          className={`p-5 rounded-2xl border-2 text-left transition-all backdrop-blur-sm ${
                             isSel
-                              ? "bg-amber-50/40 border-[#FFA000] shadow-sm"
-                              : "bg-white border-slate-200 hover:bg-slate-50"
+                              ? "bg-amber-50/60 border-[#FFA000] shadow-md ring-2 ring-amber-100"
+                              : "bg-white/60 border-slate-200 hover:bg-slate-50/60"
                           }`}
                         >
-                          <div className="font-bold text-sm text-[#000223] mb-0.5">{opt.title}</div>
-                          <div className="text-xs text-slate-500 font-medium">{opt.desc}</div>
+                          <div className="font-black text-base text-[#000223] mb-1">{opt.title}</div>
+                          <div className="text-xs sm:text-sm text-slate-600 font-bold">{opt.desc}</div>
                         </button>
                       );
                     })}
@@ -1308,13 +1301,13 @@ export default function BookingForm() {
                   {locationMode !== "SINGLE_LOCATION" && (
                     <div className="space-y-6">
                       {bookingStops.map((stop, idx) => (
-                        <div key={idx} className="bg-[#FAF8F5] border border-slate-200 p-5 rounded-xl relative shadow-sm space-y-4">
-                          <div className="flex justify-between items-center pb-2 border-b border-slate-200">
-                            <h4 className="font-bold text-sm text-[#000223]">Stop #{idx + 1}</h4>
+                        <div key={idx} className="bg-white/70 backdrop-blur-sm border-2 border-slate-200 p-6 rounded-2xl relative shadow-md space-y-4">
+                          <div className="flex justify-between items-center pb-3 border-b border-slate-200/80">
+                            <h4 className="font-black text-base text-[#000223]">Stop #{idx + 1}</h4>
                             <button
                               type="button"
                               onClick={() => setBookingStops(bookingStops.filter((_, i) => i !== idx))}
-                              className="text-red-500 text-xs font-bold hover:text-red-650 px-2.5 py-1 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                              className="text-red-650 text-sm font-black hover:text-red-800 px-4 py-2 bg-red-50 rounded-xl hover:bg-red-100 transition-all shadow-sm border border-red-200/50"
                             >
                               Remove Stop
                             </button>
@@ -1331,7 +1324,7 @@ export default function BookingForm() {
                           />
                           
                           <div>
-                            <label className="block text-xs font-bold text-slate-500 mb-1">Stop Notes (Optional)</label>
+                            <label className="block text-sm font-black text-slate-700 mb-1.5 uppercase tracking-wide">Stop Notes (Optional)</label>
                             <input
                               type="text"
                               value={stop.notes || ""}
@@ -1341,7 +1334,7 @@ export default function BookingForm() {
                                 setBookingStops(newStops);
                               }}
                               placeholder="e.g. Set up by the garden gate"
-                              className="w-full py-2 px-3 rounded-lg border border-slate-250 text-sm font-semibold focus:border-[#FFA000] focus:ring-2 focus:ring-[#FFA000]/5"
+                              className="w-full py-4.5 px-4.5 rounded-xl border-2 border-slate-250 font-bold text-base focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/10 bg-white"
                             />
                           </div>
                         </div>
@@ -1363,12 +1356,12 @@ export default function BookingForm() {
                             locationVerifiedAt: null,
                             notes: ""
                           }])}
-                          className="w-full py-3 border border-dashed border-[#FFA000] rounded-xl font-bold text-[#FFA000] hover:bg-[#FFA000]/5 transition-colors text-sm"
+                          className="w-full py-4 border-2 border-dashed border-[#FFA000] rounded-2xl font-black text-[#FFA000] hover:bg-[#FFA000]/10 transition-all text-base shadow-sm"
                         >
                           + Add Another Stop
                         </button>
                       ) : (
-                        <p className="text-center text-xs font-bold text-slate-500 py-3 bg-slate-50 rounded-xl border border-slate-100">
+                        <p className="text-center text-sm font-bold text-slate-600 py-4 bg-slate-50 border-2 rounded-2xl">
                           Need more than 5 stops? Add the details in the main notes below and our team will review it.
                         </p>
                       )}
@@ -1387,35 +1380,34 @@ export default function BookingForm() {
                 </div>
               </div>
 
-
               {quoteErr && (
-                <div className="mt-8 p-4.5 rounded-2xl bg-rose-50 border border-rose-100 text-rose-700 font-bold text-sm sm:text-base flex items-center gap-2.5">
-                  <AlertCircle className="w-5 h-5 shrink-0" />
+                <div className="mt-8 p-5 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-800 font-bold text-base flex items-center gap-3 shadow-sm animate-fade-in">
+                  <AlertCircle className="w-6 h-6 shrink-0 text-rose-600" />
                   <span>{quoteErr}</span>
                 </div>
               )}
 
-              <div className="flex flex-col-reverse sm:flex-row justify-between gap-4 mt-12">
+              <div className="flex flex-col-reverse sm:flex-row justify-between gap-4 mt-14">
                 <button
                   onClick={() => setStep(0)}
-                  className="inline-flex items-center justify-center gap-2 px-8 py-5 rounded-full font-black text-base border-2 w-full sm:w-auto transition-all"
+                  className="inline-flex items-center justify-center gap-2.5 px-10 py-5.5 rounded-full font-black text-lg border-2 w-full sm:w-auto transition-all bg-white hover:bg-slate-50"
                   style={{ borderColor: NAVY, color: NAVY, fontFamily: FN }}
                 >
-                  <ArrowLeft className="w-5 h-5" /> Back
+                  <ArrowLeft className="w-5.5 h-5.5" /> Back
                 </button>
                 <button
                   onClick={fetchQuote}
                   disabled={quoting || !eventDate || !startTime || !eventType || !canContinueStep1}
-                  className="inline-flex items-center justify-center gap-2 px-10 py-5 rounded-full font-black text-base sm:text-lg shadow-2xl disabled:opacity-40 hover:-translate-y-1 transition-all duration-300 w-full sm:w-auto justify-center"
+                  className="inline-flex items-center justify-center gap-3 px-12 py-5.5 rounded-full font-black text-lg sm:text-xl shadow-2xl disabled:opacity-40 hover:-translate-y-1 active:translate-y-0 transition-all duration-300 w-full sm:w-auto justify-center"
                   style={{ background: NAVY, color: GOLD, fontFamily: FN }}
                 >
                   {quoting ? (
                     <>
-                      <Loader2 className="w-5 h-5 animate-spin" /> Calculating…
+                      <Loader2 className="w-5.5 h-5.5 animate-spin" /> Calculating…
                     </>
                   ) : (
                     <>
-                      Request Quote <ArrowRight className="w-5 h-5" />
+                      Request Quote <ArrowRight className="w-5.5 h-5.5" />
                     </>
                   )}
                 </button>
@@ -1427,33 +1419,33 @@ export default function BookingForm() {
           {step === 2 && (
             <div>
               <div className="mb-10 text-center sm:text-left">
-                <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight" style={{ color: NAVY, fontFamily: F_SERIF }}>
+                <h2 className="text-4xl sm:text-5xl font-black tracking-tight" style={{ color: NAVY, fontFamily: F_SERIF }}>
                   Customer Information
                 </h2>
-                <p className="text-slate-500 font-semibold text-base sm:text-lg mt-2 leading-relaxed" style={{ fontFamily: FN }}>
+                <p className="text-slate-700 font-bold text-lg sm:text-xl mt-2.5 leading-relaxed" style={{ fontFamily: FN }}>
                   Enter your details to generate your digital catering quote
                 </p>
               </div>
 
               {quote && (
                 <div
-                  className="p-6 rounded-[2rem] border-2 mb-10 flex items-center justify-between shadow-sm"
-                  style={{ background: "#FFFBEB", borderColor: "#FDE68A" }}
+                  className="p-6 sm:p-8 rounded-3xl border-2 mb-10 flex items-center justify-between shadow-md"
+                  style={{ background: "rgba(255, 251, 235, 0.8)", borderColor: "#FDE68A" }}
                 >
                   <div>
-                    <span className="text-xs font-black uppercase tracking-wider text-amber-700 block" style={{ fontFamily: FN }}>
+                    <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-amber-800 block" style={{ fontFamily: FN }}>
                       Estimated Total
                     </span>
-                    <span className="text-2xl sm:text-3xl font-black tracking-tight mt-1 block" style={{ color: NAVY, fontFamily: F_SERIF }}>
+                    <span className="text-3xl sm:text-4xl font-black tracking-tight mt-1.5 block" style={{ color: NAVY, fontFamily: F_SERIF }}>
                       ${quote.totalAmount.toFixed(2)}
                     </span>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs font-black uppercase tracking-wider text-slate-400 block" style={{ fontFamily: FN }}>
+                    <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-500 block" style={{ fontFamily: FN }}>
                       Payment Method
                     </span>
-                    <span className="text-base sm:text-lg font-black mt-1 block" style={{ color: NAVY }}>
-                      💳 Payment after service
+                    <span className="text-lg sm:text-xl font-black mt-1.5 block" style={{ color: NAVY }}>
+                      💳 Pay After Service
                     </span>
                   </div>
                 </div>
@@ -1487,14 +1479,14 @@ export default function BookingForm() {
 
                 <div className="flex flex-col gap-2.5 w-full">
                   <label
-                    className="block text-xs sm:text-sm font-black uppercase tracking-[0.18em]"
-                    style={{ color: NAVY, opacity: 0.7, fontFamily: FN }}
+                    className="block text-sm sm:text-base font-black uppercase tracking-[0.18em]"
+                    style={{ color: NAVY, opacity: 0.95, fontFamily: FN }}
                   >
                     Phone Number
                   </label>
                   <div className="relative">
                     <Phone
-                      className="absolute left-4.5 top-1/2 -translate-y-1/2 w-5.5 h-5.5 pointer-events-none transition-colors"
+                      className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 pointer-events-none transition-colors"
                       style={{ color: phoneErr ? "#EF4444" : phoneFocused ? GOLD : "#8E8EA8" }}
                     />
                     <input
@@ -1511,30 +1503,30 @@ export default function BookingForm() {
                         setPhoneErr(err);
                       }}
                       placeholder="(617) 555-0000"
-                      className="w-full py-4.5 pr-6 rounded-2xl border-2 font-semibold text-base sm:text-lg outline-none transition-all shadow-sm"
+                      className="w-full py-5 pr-6 rounded-2xl border-2 font-bold text-lg sm:text-xl outline-none transition-all shadow-md bg-white"
                       style={{
                         fontFamily: FN,
-                        paddingLeft: "3.25rem",
-                        borderColor: phoneErr ? "rgba(239, 68, 68, 0.4)" : phoneFocused ? GOLD : "rgba(0, 2, 35, 0.08)",
-                        background: phoneErr ? "rgba(254, 242, 242, 0.95)" : "rgba(255, 255, 255, 0.95)",
+                        paddingLeft: "3.75rem",
+                        borderColor: phoneErr ? "rgba(239, 68, 68, 0.5)" : phoneFocused ? GOLD : "rgba(0, 2, 35, 0.12)",
+                        background: phoneErr ? "rgba(254, 242, 242, 0.95)" : "rgba(255, 255, 255, 0.85)",
                         color: NAVY,
                         boxShadow: phoneFocused
-                          ? `0 0 0 5px rgba(255, 160, 0, 0.15)`
+                          ? `0 0 0 6px rgba(255, 160, 0, 0.2)`
                           : phoneErr
-                          ? "0 0 0 5px rgba(239, 68, 68, 0.05)"
+                          ? "0 0 0 6px rgba(239, 68, 68, 0.08)"
                           : "none"
                       }}
                       autoComplete="tel"
                     />
                   </div>
                   {phoneErr ? (
-                    <p className="text-red-500 text-sm font-bold flex items-center gap-1.5 mt-0.5">
-                      <AlertCircle className="w-4.5 h-4.5" /> {phoneErr}
+                    <p className="text-red-700 text-sm sm:text-base font-black flex items-center gap-2 mt-1">
+                      <AlertCircle className="w-5 h-5" /> {phoneErr}
                     </p>
                   ) : (
                     <p
-                      className="text-xs sm:text-sm font-semibold mt-0.5"
-                      style={{ color: NAVY, opacity: 0.5, fontFamily: FN }}
+                      className="text-sm sm:text-base font-bold text-slate-700 mt-1"
+                      style={{ fontFamily: FN }}
                     >
                       US phone number preferred for catering dispatch
                     </p>
@@ -1543,20 +1535,20 @@ export default function BookingForm() {
               </div>
 
               {/* Trust Note Card */}
-              <div className="flex items-center gap-4 p-6 rounded-[2rem] border border-slate-200 mt-10 bg-white/50 backdrop-blur-md">
-                <Shield className="w-6 h-6 shrink-0" style={{ color: GOLD }} />
-                <p className="text-xs sm:text-sm font-semibold leading-relaxed text-slate-500">
+              <div className="flex items-center gap-4.5 p-6 rounded-3xl border-2 border-slate-200 mt-10 bg-white/60 backdrop-blur-md shadow-sm">
+                <Shield className="w-7 h-7 shrink-0 text-[#FFA000]" />
+                <p className="text-sm sm:text-base font-bold leading-relaxed text-slate-600">
                   Privacy Protection: Your details will only be used to facilitate scheduling dispatch, sending automated updates, and confirmation notifications.
                 </p>
               </div>
 
-              <div className="flex flex-col-reverse sm:flex-row justify-between gap-4 mt-12">
+              <div className="flex flex-col-reverse sm:flex-row justify-between gap-4 mt-14">
                 <button
                   onClick={() => setStep(1)}
-                  className="inline-flex items-center justify-center gap-2 px-8 py-5 rounded-full font-black text-base border-2 w-full sm:w-auto transition-all"
+                  className="inline-flex items-center justify-center gap-2.5 px-10 py-5.5 rounded-full font-black text-lg border-2 w-full sm:w-auto transition-all bg-white hover:bg-slate-50"
                   style={{ borderColor: NAVY, color: NAVY, fontFamily: FN }}
                 >
-                  <ArrowLeft className="w-5 h-5" /> Back
+                  <ArrowLeft className="w-5.5 h-5.5" /> Back
                 </button>
                 <button
                   onClick={() => {
@@ -1568,10 +1560,10 @@ export default function BookingForm() {
                     setStep(3);
                   }}
                   disabled={!firstName || !lastName || !email || !phone}
-                  className="inline-flex items-center justify-center gap-2 px-10 py-5 rounded-full font-black text-base sm:text-lg shadow-2xl disabled:opacity-40 hover:-translate-y-1 transition-all duration-300 w-full sm:w-auto justify-center"
+                  className="inline-flex items-center justify-center gap-3 px-12 py-5.5 rounded-full font-black text-lg sm:text-xl shadow-2xl disabled:opacity-40 hover:-translate-y-1 active:translate-y-0 transition-all duration-300 w-full sm:w-auto justify-center"
                   style={{ background: NAVY, color: GOLD, fontFamily: FN }}
                 >
-                  Verify Contact Details <ArrowRight className="w-5 h-5" />
+                  Verify Contact Details <ArrowRight className="w-5.5 h-5.5" />
                 </button>
               </div>
             </div>
@@ -1581,28 +1573,29 @@ export default function BookingForm() {
           {step === 3 && (
             <div>
               <div className="mb-10 text-center sm:text-left">
-                <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight" style={{ color: NAVY, fontFamily: F_SERIF }}>
+                <h2 className="text-4xl sm:text-5xl font-black tracking-tight" style={{ color: NAVY, fontFamily: F_SERIF }}>
                   Verify Your Email
                 </h2>
-                <p className="text-slate-500 font-semibold text-base sm:text-lg mt-2 leading-relaxed" style={{ fontFamily: FN }}>
+                <p className="text-slate-700 font-bold text-lg sm:text-xl mt-2.5 leading-relaxed" style={{ fontFamily: FN }}>
                   Enter the passcode sent to your email to confirm contact details
                 </p>
               </div>
 
               {otpVerified ? (
                 <div className="text-center py-16">
-                  <div className="w-20 h-20 bg-emerald-100 rounded-[1.5rem] flex items-center justify-center mx-auto mb-5 border border-emerald-200">
-                    <CheckCircle2 className="w-10 h-10 text-emerald-600" />
+                  <div className="w-24 h-24 bg-emerald-50 border-2 border-emerald-100 flex items-center justify-center mx-auto mb-6 shadow-md rounded-full">
+                    <CheckCircle2 className="w-12 h-12 text-emerald-600" />
                   </div>
-                  <p className="text-xl font-black" style={{ color: NAVY, fontFamily: FN }}>
+                  <p className="text-2xl font-black mb-1" style={{ color: NAVY, fontFamily: FN }}>
                     Email Verified!
                   </p>
+                  <p className="text-slate-500 font-bold text-base">Proceeding to review your details...</p>
                   <button
                     onClick={() => setStep(4)}
-                    className="mt-8 inline-flex items-center gap-2.5 px-10 py-4.5 rounded-full text-white font-black shadow-2xl hover:-translate-y-0.5 transition-all duration-300"
+                    className="mt-8 inline-flex items-center gap-3 px-12 py-5.5 rounded-full text-white font-black shadow-2xl hover:-translate-y-1 active:translate-y-0 transition-all duration-300 text-lg"
                     style={{ background: NAVY, fontFamily: FN }}
                   >
-                    Proceed to Review <ArrowRight className="w-5 h-5" />
+                    Proceed to Review <ArrowRight className="w-5.5 h-5.5" />
                   </button>
                 </div>
               ) : (
@@ -1619,10 +1612,10 @@ export default function BookingForm() {
               <div className="flex justify-start mt-12">
                 <button
                   onClick={() => setStep(2)}
-                  className="inline-flex items-center justify-center gap-2 px-8 py-5 rounded-full font-black text-base border-2 w-full sm:w-auto transition-all"
+                  className="inline-flex items-center justify-center gap-2.5 px-10 py-5.5 rounded-full font-black text-lg border-2 w-full sm:w-auto transition-all bg-white hover:bg-slate-50"
                   style={{ borderColor: NAVY, color: NAVY, fontFamily: FN }}
                 >
-                  <ArrowLeft className="w-5 h-5" /> Back
+                  <ArrowLeft className="w-5.5 h-5.5" /> Back
                 </button>
               </div>
             </div>
@@ -1632,49 +1625,48 @@ export default function BookingForm() {
           {step === 4 && quote && (
             <div>
               <div className="mb-10 text-center sm:text-left">
-                <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight" style={{ color: NAVY, fontFamily: F_SERIF }}>
+                <h2 className="text-4xl sm:text-5xl font-black tracking-tight" style={{ color: NAVY, fontFamily: F_SERIF }}>
                   Review & Confirm
                 </h2>
-                <p className="text-slate-500 font-semibold text-base sm:text-lg mt-2 leading-relaxed" style={{ fontFamily: FN }}>
+                <p className="text-slate-700 font-bold text-lg sm:text-xl mt-2.5 leading-relaxed" style={{ fontFamily: FN }}>
                   Please verify details before submitting booking dispatch
                 </p>
               </div>
 
               {submitErr && (
-                <div className="mb-6 p-4.5 rounded-2xl bg-rose-50 border border-rose-100 text-rose-700 font-bold text-sm sm:text-base flex items-center gap-2.5">
-                  <AlertCircle className="w-5 h-5 shrink-0" />
+                <div className="mb-8 p-5 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-800 font-bold text-base flex items-center gap-3 shadow-sm animate-fade-in">
+                  <AlertCircle className="w-6 h-6 shrink-0 text-rose-600" />
                   <span>{submitErr}</span>
                 </div>
               )}
 
               <div className="space-y-6 sm:space-y-8 mb-10">
                 {/* Package Summary Card */}
-                {/* Package Summary Card */}
-                <div className="rounded-xl border border-slate-250 bg-white overflow-hidden shadow-sm">
-                  <div className="px-5 py-3 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
-                    <span className="text-base">Catering Package</span>
+                <div className="rounded-2xl border-2 border-slate-200/80 bg-white/70 backdrop-blur-md overflow-hidden shadow-md">
+                  <div className="px-6 py-4 bg-slate-100/80 border-b-2 border-slate-200/80 flex items-center gap-2.5 font-black text-[#000223] text-base sm:text-lg">
+                    <span className="text-base sm:text-lg">Catering Package</span>
                   </div>
-                  <div className="px-5 py-5 flex items-center justify-between">
+                  <div className="px-6 py-6 flex items-center justify-between">
                     <div>
-                      <span className="font-bold text-lg block text-[#000223]">
+                      <span className="font-black text-xl block text-[#000223]">
                         {sel?.name}
                       </span>
-                      <span className="text-sm text-slate-600 mt-1 block">
+                      <span className="text-base font-bold text-slate-655 mt-1.5 block">
                         {sel?.includedQty || sel?.servings} servings included · {sel?.includedMinutes || 60} mins setup
                       </span>
                     </div>
-                    <span className="font-bold text-xl text-[#FFA000]">
+                    <span className="font-black text-2xl text-[#FFA000]">
                       ${sel?.basePrice || sel?.price}
                     </span>
                   </div>
                 </div>
 
                 {/* Event Details Summary Card */}
-                <div className="rounded-xl border border-slate-250 bg-white overflow-hidden shadow-sm">
-                  <div className="px-5 py-3 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
-                    <span className="text-base">Scheduling Details</span>
+                <div className="rounded-2xl border-2 border-slate-200/80 bg-white/70 backdrop-blur-md overflow-hidden shadow-md">
+                  <div className="px-6 py-4 bg-slate-100/80 border-b-2 border-slate-200/80 flex items-center gap-2.5 font-black text-[#000223] text-base sm:text-lg">
+                    <span className="text-base sm:text-lg">Scheduling Details</span>
                   </div>
-                  <div className="divide-y divide-slate-100">
+                  <div className="divide-y-2 divide-slate-100">
                     {[
                       ["Event Type", eventType],
                       ["Event Date", formatEnDate(eventDate)],
@@ -1691,9 +1683,9 @@ export default function BookingForm() {
                       ["Billable Miles", `${Math.max(0, quote.distanceMiles - 10).toFixed(1)} miles`],
                       ["Travel Fee", quote.travelFee > 0 ? `$${quote.travelFee.toFixed(2)}` : "Free ($0.00)"]
                     ].map(([l, v]) => (
-                      <div key={l} className="flex justify-between px-5 py-3.5 text-sm">
-                        <span className="font-medium text-slate-500">{l}</span>
-                        <span className="font-bold text-[#000223] text-right max-w-[65%]">
+                      <div key={l} className="flex justify-between items-center px-6 py-4 text-sm sm:text-base">
+                        <span className="font-bold text-slate-600">{l}</span>
+                        <span className="font-black text-[#000223] text-right max-w-[65%]">
                           {v}
                         </span>
                       </div>
@@ -1702,19 +1694,19 @@ export default function BookingForm() {
                 </div>
 
                 {/* Customer Contact Summary Card */}
-                <div className="rounded-xl border border-slate-250 bg-white overflow-hidden shadow-sm">
-                  <div className="px-5 py-3 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
-                    <span className="text-base">Customer Contact Info</span>
+                <div className="rounded-2xl border-2 border-slate-200/80 bg-white/70 backdrop-blur-md overflow-hidden shadow-md">
+                  <div className="px-6 py-4 bg-slate-100/80 border-b-2 border-slate-200/80 flex items-center gap-2.5 font-black text-[#000223] text-base sm:text-lg">
+                    <span className="text-base sm:text-lg">Customer Contact Info</span>
                   </div>
-                  <div className="divide-y divide-slate-100">
+                  <div className="divide-y-2 divide-slate-100">
                     {[
                       ["Name", `${firstName} ${lastName}`],
                       ["Email", email],
                       ["Phone", phone]
                     ].map(([l, v]) => (
-                      <div key={l} className="flex justify-between px-5 py-3.5 text-sm">
-                        <span className="font-medium text-slate-500">{l}</span>
-                        <span className="font-bold text-[#000223]">
+                      <div key={l} className="flex justify-between items-center px-6 py-4 text-sm sm:text-base">
+                        <span className="font-bold text-slate-600">{l}</span>
+                        <span className="font-black text-[#000223]">
                           {v}
                         </span>
                       </div>
@@ -1723,21 +1715,21 @@ export default function BookingForm() {
                 </div>
 
                 {/* Pricing breakdown details */}
-                <div className="rounded-xl border border-slate-250 bg-white p-6 shadow-sm">
-                  <div className="flex items-center gap-2 mb-4">
-                    <DollarSign className="w-5 h-5 text-[#FFA000]" />
-                    <span className="text-sm font-bold text-slate-800">
+                <div className="rounded-2xl border-2 border-slate-200/80 bg-white/70 backdrop-blur-md p-6 sm:p-8 shadow-md">
+                  <div className="flex items-center gap-2.5 mb-5 border-b-2 border-slate-100 pb-3">
+                    <DollarSign className="w-6 h-6 text-[#FFA000]" />
+                    <span className="text-base sm:text-lg font-black text-slate-800">
                       Catering Fee Breakdown
                     </span>
                   </div>
-                  <div className="space-y-3 mb-4">
+                  <div className="space-y-4 mb-6">
                     {quote.breakdown.map(
                       (b, i) =>
                         (b.amount !== 0 || i === 0) && (
-                          <div key={i} className="flex justify-between text-sm py-1.5 border-b border-slate-100">
-                            <span className="font-medium text-slate-600">{b.label}</span>
+                          <div key={i} className="flex justify-between text-sm sm:text-base py-2 border-b border-dashed border-slate-200/80 last:border-0">
+                            <span className="font-bold text-slate-600">{b.label}</span>
                             <span
-                              className="font-bold text-[#000223]"
+                              className="font-black text-[#000223]"
                             >
                               {b.amount < 0
                                 ? `-$${Math.abs(b.amount).toFixed(2)}`
@@ -1747,11 +1739,11 @@ export default function BookingForm() {
                         )
                     )}
                   </div>
-                  <div className="border-t border-slate-200 pt-4 flex justify-between items-center">
-                    <span className="font-bold text-base text-[#000223]">
+                  <div className="border-t-2 border-slate-200 pt-5 flex justify-between items-center">
+                    <span className="font-black text-lg sm:text-xl text-[#000223]">
                       Estimated Total Amount
                     </span>
-                    <span className="text-2xl font-bold tracking-tight text-[#FFA000]">
+                    <span className="text-3xl sm:text-4xl font-black tracking-tight text-[#FFA000]">
                       ${quote.totalAmount.toFixed(2)}
                     </span>
                   </div>
@@ -1759,46 +1751,45 @@ export default function BookingForm() {
 
                 {/* Cash Policy Banner */}
                 <div
-                  className="flex items-start gap-4.5 p-6 rounded-[2rem] border-2"
-                  style={{ background: "rgba(16,185,129,0.04)", borderColor: "#A7F3D0" }}
+                  className="flex items-start gap-5 p-6 sm:p-8 rounded-3xl border-2 border-emerald-250 bg-emerald-50/40 shadow-sm"
                 >
-                  <div className="w-12 h-12 rounded-[1.25rem] bg-emerald-100 flex items-center justify-center shrink-0">
-                    <DollarSign className="w-6 h-6 text-emerald-600" />
+                  <div className="w-14 h-14 rounded-2xl bg-emerald-100 flex items-center justify-center shrink-0 shadow-sm border border-emerald-200">
+                    <DollarSign className="w-7 h-7 text-emerald-600" />
                   </div>
                   <div>
-                    <p className="font-extrabold text-base text-emerald-900" style={{ fontFamily: F_SERIF }}>Payment After Service</p>
-                    <p className="text-xs sm:text-sm font-semibold text-emerald-700 mt-1.5 leading-relaxed" style={{ fontFamily: FN }}>
-                      Payment is collected after the service. We accept multiple payment methods.
+                    <p className="font-black text-lg sm:text-xl text-emerald-950" style={{ fontFamily: F_SERIF }}>Payment After Service</p>
+                    <p className="text-sm sm:text-base font-bold text-emerald-805 mt-2 leading-relaxed" style={{ fontFamily: FN }}>
+                      Payment is collected after the service. We accept cash, Zelle, Venmo, and other card methods.
                     </p>
                   </div>
                 </div>
               </div>
 
-              <p className="text-center text-xs text-slate-650 font-bold mb-6">
+              <p className="text-center text-sm text-slate-700 font-extrabold mb-8">
                 📍 Pricing calculations based on travel distances from <strong>Boston Revere — 84 Fernwood Ave</strong>
               </p>
 
-              <div className="flex flex-col-reverse sm:flex-row justify-between gap-4 mt-12">
+              <div className="flex flex-col-reverse sm:flex-row justify-between gap-4 mt-14">
                 <button
                   onClick={() => setStep(3)}
-                  className="inline-flex items-center justify-center gap-2 px-8 py-5 rounded-full font-black text-base border-2 w-full sm:w-auto transition-all"
+                  className="inline-flex items-center justify-center gap-2.5 px-10 py-5.5 rounded-full font-black text-lg border-2 w-full sm:w-auto transition-all bg-white hover:bg-slate-50"
                   style={{ borderColor: NAVY, color: NAVY, fontFamily: FN }}
                 >
-                  <ArrowLeft className="w-5 h-5" /> Back
+                  <ArrowLeft className="w-5.5 h-5.5" /> Back
                 </button>
                 <button
                   onClick={submit}
                   disabled={submitting}
-                  className="inline-flex items-center justify-center gap-3 px-12 py-5 rounded-full font-black text-base sm:text-lg shadow-2xl disabled:opacity-50 hover:-translate-y-1 transition-all duration-300 w-full sm:w-auto"
+                  className="inline-flex items-center justify-center gap-3 px-12 py-5.5 rounded-full font-black text-lg sm:text-xl shadow-2xl disabled:opacity-50 hover:-translate-y-1 active:translate-y-0 transition-all duration-300 w-full sm:w-auto"
                   style={{ background: `linear-gradient(135deg, ${NAVY}, #001a4c)`, color: GOLD, fontFamily: FN }}
                 >
                   {submitting ? (
                     <>
-                      <Loader2 className="w-5 h-5 animate-spin" /> Processing…
+                      <Loader2 className="w-5.5 h-5.5 animate-spin" /> Processing Request…
                     </>
                   ) : (
                     <>
-                      <CheckCircle2 className="w-5 h-5" /> Submit Booking Request
+                      <CheckCircle2 className="w-5.5 h-5.5" /> Submit Booking Request
                     </>
                   )}
                 </button>

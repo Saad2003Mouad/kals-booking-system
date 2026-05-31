@@ -237,86 +237,86 @@ export default function LocationVerificationWidget({
   const isVerified = value.latitude !== null && value.longitude !== null && value.locationVerificationMethod !== "";
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm transition-all relative">
-      <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
-        <label className="text-base font-bold text-[#000223]">{label}</label>
+    <div className="bg-white/80 border-2 border-slate-200/80 rounded-2xl p-6 sm:p-8 shadow-md transition-all relative">
+      <div className="flex justify-between items-center mb-6 pb-3 border-b border-slate-100">
+        <label className="text-lg sm:text-xl font-black text-[#000223] tracking-wide">{label}</label>
         
         {/* Verification Status Badge */}
         {isVerified ? (
-          <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100 animate-fade-in">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+          <div className="flex items-center gap-1.5 text-xs sm:text-sm font-black text-emerald-800 bg-emerald-100/80 px-3 py-1.5 rounded-full border border-emerald-200 animate-fade-in">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
             <span>Verified</span>
           </div>
         ) : (
-          <div className="flex items-center gap-1.5 text-xs font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-100">
-            <AlertCircle className="w-3.5 h-3.5 text-amber-600 animate-pulse" />
-            <span>Needs verification</span>
+          <div className="flex items-center gap-1.5 text-xs sm:text-sm font-black text-amber-800 bg-amber-100/80 px-3 py-1.5 rounded-full border border-amber-200">
+            <AlertCircle className="w-4 h-4 text-amber-600 animate-pulse" />
+            <span>Needs Verification</span>
           </div>
         )}
       </div>
 
       {/* Widget Error Notification */}
       {(widgetError || error) && (
-        <div className="mb-4 p-3 rounded-lg bg-rose-50 border border-rose-100 text-rose-700 text-sm font-semibold flex items-start gap-2">
-          <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+        <div className="mb-6 p-4 rounded-xl bg-rose-50 border-2 border-rose-200 text-rose-800 text-sm sm:text-base font-bold flex items-start gap-2.5 shadow-sm">
+          <AlertCircle className="w-5 h-5 mt-0.5 shrink-0 text-rose-600" />
           <span>{widgetError || error}</span>
         </div>
       )}
 
       {/* Tabs */}
-      <div className="grid grid-cols-3 gap-2 mb-4">
+      <div className="grid grid-cols-3 gap-3 mb-5">
         <button
           type="button"
           onClick={() => setActiveTab("search")}
-          className={`py-2 px-3 text-xs font-bold rounded-lg border transition-all flex items-center justify-center gap-1.5 ${
+          className={`py-3.5 px-4 text-xs sm:text-sm font-black rounded-xl border-2 transition-all flex items-center justify-center gap-2 ${
             activeTab === "search"
-              ? "bg-[#000223] text-[#FFA000] border-[#000223]"
-              : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+              ? "bg-[#000223] text-[#FFA000] border-[#000223] shadow-md"
+              : "bg-white text-slate-700 border-slate-200/80 hover:bg-slate-50"
           }`}
         >
-          <Search className="w-3.5 h-3.5" />
+          <Search className="w-4 h-4" />
           Search
         </button>
         <button
           type="button"
           onClick={() => setActiveTab("manual")}
-          className={`py-2 px-3 text-xs font-bold rounded-lg border transition-all flex items-center justify-center gap-1.5 ${
+          className={`py-3.5 px-4 text-xs sm:text-sm font-black rounded-xl border-2 transition-all flex items-center justify-center gap-2 ${
             activeTab === "manual"
-              ? "bg-[#000223] text-[#FFA000] border-[#000223]"
-              : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+              ? "bg-[#000223] text-[#FFA000] border-[#000223] shadow-md"
+              : "bg-white text-slate-700 border-slate-200/80 hover:bg-slate-50"
           }`}
         >
-          <Navigation className="w-3.5 h-3.5" />
+          <Navigation className="w-4 h-4" />
           Manual
         </button>
         <button
           type="button"
           onClick={() => setActiveTab("map")}
-          className={`py-2 px-3 text-xs font-bold rounded-lg border transition-all flex items-center justify-center gap-1.5 ${
+          className={`py-3.5 px-4 text-xs sm:text-sm font-black rounded-xl border-2 transition-all flex items-center justify-center gap-2 ${
             activeTab === "map"
-              ? "bg-[#000223] text-[#FFA000] border-[#000223]"
-              : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+              ? "bg-[#000223] text-[#FFA000] border-[#000223] shadow-md"
+              : "bg-white text-slate-700 border-slate-200/80 hover:bg-slate-50"
           }`}
         >
-          <Map className="w-3.5 h-3.5" />
+          <Map className="w-4 h-4" />
           Map Pin
         </button>
       </div>
 
       {/* Geolocation shortcut */}
-      <div className="mb-4">
+      <div className="mb-5">
         <button
           type="button"
           onClick={handleUseCurrentLocation}
           disabled={currentLocLoading}
-          className="w-full py-2.5 px-4 bg-slate-50 border border-slate-200 text-slate-700 rounded-lg text-sm font-bold hover:bg-slate-100 transition-colors flex items-center justify-center gap-2"
+          className="w-full py-3.5 px-5 bg-amber-50/50 hover:bg-amber-50 border-2 border-amber-200/60 text-[#000223] rounded-xl text-sm sm:text-base font-black hover:border-amber-300 transition-all flex items-center justify-center gap-2.5 shadow-sm"
         >
           {currentLocLoading ? (
-            <Loader2 className="w-4 h-4 animate-spin text-[#FFA000]" />
+            <Loader2 className="w-5 h-5 animate-spin text-[#FFA000]" />
           ) : (
-            <Compass className="w-4 h-4 text-[#FFA000]" />
+            <Compass className="w-5 h-5 text-[#FFA000]" />
           )}
-          Use Current Location
+          Use My Current Location
         </button>
       </div>
 
@@ -328,23 +328,23 @@ export default function LocationVerificationWidget({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Start typing address..."
-              className="w-full py-3 pl-10 pr-4 rounded-xl border border-slate-250 font-semibold text-base outline-none shadow-sm focus:border-[#FFA000] focus:ring-2 focus:ring-[#FFA000]/10"
+              placeholder="Start typing your MA event address..."
+              className="w-full py-4.5 pl-12 pr-12 rounded-xl border-2 border-slate-250 font-bold text-base sm:text-lg outline-none shadow-sm focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/10 bg-white"
             />
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-4" />
+            <Search className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
             {loadingSuggestions && (
-              <Loader2 className="w-4 h-4 animate-spin text-[#FFA000] absolute right-3.5 top-4" />
+              <Loader2 className="w-5 h-5 animate-spin text-[#FFA000] absolute right-4 top-1/2 -translate-y-1/2" />
             )}
           </div>
 
           {suggestions.length > 0 && (
-            <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg z-30 max-h-60 overflow-y-auto">
+            <div className="absolute left-0 right-0 mt-2 bg-white border-2 border-slate-200 rounded-xl shadow-2xl z-30 max-h-60 overflow-y-auto divide-y divide-slate-100">
               {suggestions.map((item, idx) => (
                 <button
                   key={idx}
                   type="button"
                   onClick={() => handleSuggestionSelect(item)}
-                  className="w-full text-left px-4 py-3 text-sm hover:bg-slate-50 border-b border-slate-100 last:border-0 font-medium text-slate-800 transition-colors block"
+                  className="w-full text-left px-5 py-3.5 text-sm sm:text-base hover:bg-amber-50/40 font-bold text-slate-800 transition-colors block"
                 >
                   {item.label}
                 </button>
@@ -356,36 +356,36 @@ export default function LocationVerificationWidget({
 
       {/* Manual Tab Content */}
       {activeTab === "manual" && (
-        <div className="space-y-3">
+        <div className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-slate-500 mb-1">Street Address</label>
+            <label className="block text-sm font-black text-slate-700 mb-1.5 uppercase tracking-wide">Street Address</label>
             <input
               type="text"
               value={value.street}
               onChange={(e) => onChange({ ...value, street: e.target.value, latitude: null, longitude: null, locationVerificationMethod: "" })}
               placeholder="e.g. 139 Tremont St"
-              className="w-full py-2.5 px-3 rounded-lg border border-slate-250 text-sm font-semibold focus:border-[#FFA000] focus:ring-2 focus:ring-[#FFA000]/5"
+              className="w-full py-4 px-4.5 rounded-xl border-2 border-slate-250 font-bold text-base sm:text-lg focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/10 bg-white"
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-slate-500 mb-1">City</label>
+              <label className="block text-sm font-black text-slate-700 mb-1.5 uppercase tracking-wide">City</label>
               <input
                 type="text"
                 value={value.city}
                 onChange={(e) => onChange({ ...value, city: e.target.value, latitude: null, longitude: null, locationVerificationMethod: "" })}
                 placeholder="Boston"
-                className="w-full py-2.5 px-3 rounded-lg border border-slate-250 text-sm font-semibold focus:border-[#FFA000] focus:ring-2 focus:ring-[#FFA000]/5"
+                className="w-full py-4 px-4.5 rounded-xl border-2 border-slate-250 font-bold text-base sm:text-lg focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/10 bg-white"
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-500 mb-1">ZIP Code</label>
+              <label className="block text-sm font-black text-slate-700 mb-1.5 uppercase tracking-wide">ZIP Code</label>
               <input
                 type="text"
                 value={value.zipCode}
                 onChange={(e) => onChange({ ...value, zipCode: e.target.value, latitude: null, longitude: null, locationVerificationMethod: "" })}
                 placeholder="02111"
-                className="w-full py-2.5 px-3 rounded-lg border border-slate-250 text-sm font-semibold focus:border-[#FFA000] focus:ring-2 focus:ring-[#FFA000]/5"
+                className="w-full py-4 px-4.5 rounded-xl border-2 border-slate-250 font-bold text-base sm:text-lg focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/10 bg-white"
               />
             </div>
           </div>
@@ -393,9 +393,9 @@ export default function LocationVerificationWidget({
             type="button"
             onClick={handleManualVerify}
             disabled={verifyingManual}
-            className="w-full py-3 bg-[#FFA000] hover:bg-[#E08B00] text-[#000223] font-bold rounded-lg text-sm transition-colors flex items-center justify-center gap-2"
+            className="w-full py-4.5 bg-[#FFA000] hover:bg-[#E08B00] text-[#000223] font-black rounded-xl text-base sm:text-lg transition-all flex items-center justify-center gap-2.5 shadow-md"
           >
-            {verifyingManual && <Loader2 className="w-4 h-4 animate-spin text-[#000223]" />}
+            {verifyingManual && <Loader2 className="w-5 h-5 animate-spin text-[#000223]" />}
             Verify Address & Calculate Distance
           </button>
         </div>
@@ -403,9 +403,9 @@ export default function LocationVerificationWidget({
 
       {/* Map Tab Content */}
       {activeTab === "map" && (
-        <div className="space-y-2">
-          <p className="text-xs text-slate-500 font-medium">Click on the map to pin the exact event setup location:</p>
-          <div className="h-64 rounded-lg overflow-hidden border border-slate-200 relative">
+        <div className="space-y-3">
+          <p className="text-sm font-bold text-slate-600">Click on the map to pin the exact event setup location:</p>
+          <div className="h-72 rounded-xl overflow-hidden border-2 border-slate-200 relative shadow-inner">
             <LeafletMap lat={value.latitude} lng={value.longitude} onMapClick={handleMapPin} />
           </div>
         </div>
@@ -413,13 +413,13 @@ export default function LocationVerificationWidget({
 
       {/* Formatted address preview if verified */}
       {isVerified && value.formattedAddress && (
-        <div className="mt-4 p-3 bg-slate-50 border border-slate-100 rounded-lg flex items-start gap-2.5 text-xs font-semibold text-slate-600">
-          <MapPin className="w-4 h-4 text-[#FFA000] shrink-0 mt-0.5" />
-          <div>
-            <span className="text-slate-800 block mb-0.5">Confirmed Address:</span>
-            <span>{value.formattedAddress}</span>
-            <span className="block mt-1 text-[10px] text-slate-400">
-              Method: {value.locationVerificationMethod.replace("_", " ")} ({value.latitude?.toFixed(5)}, {value.longitude?.toFixed(5)})
+        <div className="mt-5 p-4.5 bg-emerald-50/50 border-2 border-emerald-100 rounded-xl flex items-start gap-3.5 text-sm font-bold text-emerald-950 shadow-sm animate-fade-in">
+          <MapPin className="w-5 h-5 text-[#FFA000] shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <span className="text-emerald-900 block font-black mb-1">Confirmed Delivery Address:</span>
+            <span className="leading-relaxed">{value.formattedAddress}</span>
+            <span className="block mt-2 text-xs font-semibold text-slate-400">
+              Method: {value.locationVerificationMethod.replace(/_/g, " ")} ({value.latitude?.toFixed(5)}, {value.longitude?.toFixed(5)})
             </span>
           </div>
         </div>

@@ -1,6 +1,7 @@
 "use client";
+
 import { useState, useRef, useEffect } from "react";
-import { CheckCircle2, Loader2, RotateCcw, Mail } from "lucide-react";
+import { CheckCircle2, Loader2, RotateCcw, Mail, AlertCircle } from "lucide-react";
 
 interface OtpVerificationProps {
   email: string;
@@ -28,6 +29,7 @@ export default function OtpVerification({ email, firstName, onVerified }: OtpVer
       sendCode(); 
     }
   }, []);
+
   const sendCode = async () => {
     setSending(true); setError(""); setSent(false);
     const res = await fetch("/api/otp/send", {
@@ -83,36 +85,37 @@ export default function OtpVerification({ email, firstName, onVerified }: OtpVer
   };
 
   if (verified) return (
-    <div className="text-center py-12">
-      <div className="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-4">
-        <CheckCircle2 className="w-10 h-10 text-emerald-500"/>
+    <div className="text-center py-16">
+      <div className="w-24 h-24 rounded-full bg-emerald-50 border-2 border-emerald-100 flex items-center justify-center mx-auto mb-6 shadow-sm">
+        <CheckCircle2 className="w-12 h-12 text-emerald-500"/>
       </div>
-      <h3 className="text-xl font-black mb-2" style={{color:"#000223"}}>Email Verified!</h3>
-      <p className="text-gray-400 font-semibold">Continuing to review…</p>
+      <h3 className="text-2xl font-black mb-2" style={{color:"#000223"}}>Email Verified!</h3>
+      <p className="text-slate-500 font-bold text-base">Continuing to review…</p>
     </div>
   );
 
   return (
     <div className="max-w-md mx-auto">
-      <div className="text-center mb-8">
-        <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4" style={{background:"#FFF8E1"}}>
-          <Mail className="w-8 h-8" style={{color:"#FFA000"}}/>
+      <div className="text-center mb-10">
+        <div className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm border border-amber-100" style={{background:"#FFFDF5"}}>
+          <Mail className="w-10 h-10" style={{color:"#FFA000"}}/>
         </div>
-        <h3 className="text-2xl font-black mb-2" style={{color:"#000223"}}>Verify Your Email</h3>
-        <p className="text-gray-400 font-semibold text-sm">
-          We sent a 6-digit code to<br/><span className="font-black" style={{color:"#000223"}}>{email}</span>
+        <h3 className="text-3xl font-black mb-3" style={{color:"#000223"}}>Verify Your Email</h3>
+        <p className="text-slate-600 font-bold text-base sm:text-lg leading-relaxed">
+          We sent a 6-digit confirmation code to:<br/>
+          <span className="font-black text-lg block mt-1" style={{color:"#FFA000"}}>{email}</span>
         </p>
       </div>
 
       {/* Dev mode hint */}
       {devCode && (
-        <div className="mb-6 p-4 rounded-xl bg-blue-50 border border-blue-100 text-blue-700 text-sm font-bold text-center">
-          🔧 Dev mode — your code: <span className="font-mono text-lg tracking-widest">{devCode}</span>
+        <div className="mb-6 p-4 rounded-xl bg-blue-50 border-2 border-blue-200 text-blue-800 text-sm sm:text-base font-black text-center shadow-sm">
+          🔧 Dev Mode: <span className="font-mono text-lg tracking-widest text-[#000223] ml-1 bg-white px-2 py-0.5 rounded border border-blue-300">{devCode}</span>
         </div>
       )}
 
       {/* OTP boxes */}
-      <div className="flex gap-3.5 justify-center mb-8" onPaste={handlePaste}>
+      <div className="flex gap-3 justify-center mb-8" onPaste={handlePaste}>
         {digits.map((d, i) => (
           <input key={i} ref={el => { refs.current[i] = el; }}
             type="text" inputMode="numeric" maxLength={1} value={d}
@@ -132,42 +135,45 @@ export default function OtpVerification({ email, firstName, onVerified }: OtpVer
 
       {/* Error */}
       {error && (
-        <div className="mb-4 p-4 rounded-2xl bg-red-50 border border-red-100 text-red-650 font-black text-sm text-center">{error}</div>
+        <div className="mb-6 p-4 rounded-xl bg-rose-50 border-2 border-rose-200 text-rose-800 font-bold text-base text-center shadow-sm flex items-center justify-center gap-2">
+          <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
+          <span>{error}</span>
+        </div>
       )}
 
       {/* Verifying state */}
       {verifying && (
-        <div className="flex items-center justify-center gap-2 text-slate-500 font-bold text-sm mb-4 animate-pulse">
-          <Loader2 className="w-4 h-4 animate-spin"/> Verifying…
+        <div className="flex items-center justify-center gap-2.5 text-slate-600 font-black text-base mb-6 animate-pulse">
+          <Loader2 className="w-5 h-5 animate-spin text-[#FFA000]"/> Verifying code…
         </div>
       )}
 
       {/* Manual verify button */}
       {digits.every(d=>d) && !verifying && (
-        <button onClick={()=>verify(digits.join(""))} className="w-full py-4.5 rounded-2xl font-black text-base transition-all duration-300 hover:bg-[#000445] hover:-translate-y-0.5 active:translate-y-0 shadow-md hover:shadow-lg" style={{background:"#000223",color:"#FFA000"}}>
-          Verify Code
+        <button onClick={()=>verify(digits.join(""))} className="w-full py-4.5 rounded-2xl font-black text-lg transition-all duration-300 hover:bg-[#000445] hover:-translate-y-0.5 active:translate-y-0 shadow-lg hover:shadow-xl mb-6" style={{background:"#000223",color:"#FFA000"}}>
+          Confirm Code
         </button>
       )}
 
       {/* Resend */}
-      <div className="text-center">
+      <div className="text-center mt-4">
         {sending ? (
-          <div className="flex items-center justify-center gap-2 text-gray-400 text-sm font-semibold">
-            <Loader2 className="w-4 h-4 animate-spin"/> Sending…
+          <div className="flex items-center justify-center gap-2 text-slate-500 text-base font-black">
+            <Loader2 className="w-5 h-5 animate-spin text-[#FFA000]"/> Requesting code…
           </div>
         ) : countdown > 0 ? (
-          <p className="text-gray-400 text-sm font-semibold">Resend in {countdown}s</p>
+          <p className="text-slate-500 text-base font-bold">Resend code available in {countdown}s</p>
         ) : (
-          <button onClick={sendCode} className="flex items-center gap-2 mx-auto text-sm font-black hover:opacity-80 transition-opacity" style={{color:"#FFA000"}}>
-            <RotateCcw className="w-4 h-4"/> Resend Code
+          <button onClick={sendCode} className="flex items-center gap-2.5 mx-auto text-base font-black hover:opacity-85 transition-opacity" style={{color:"#FFA000"}}>
+            <RotateCcw className="w-5 h-5"/> Resend Code
           </button>
         )}
       </div>
 
       {/* Sending indicator */}
       {sent && !sending && (
-        <div className="mt-4 flex items-center justify-center gap-2 text-emerald-600 font-semibold text-sm">
-          <CheckCircle2 className="w-4 h-4"/> Code sent!
+        <div className="mt-5 flex items-center justify-center gap-2 text-emerald-700 font-black text-base">
+          <CheckCircle2 className="w-5 h-5 text-emerald-600"/> Code sent successfully!
         </div>
       )}
     </div>
