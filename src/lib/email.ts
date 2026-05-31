@@ -94,20 +94,33 @@ function formatBookingDetailsHtml(booking: any) {
   const quote = booking.quote;
   const pkg = booking.package;
 
-  // Use package durationMins (not booking.durationMins from user input)
-  const pkgDurationMins = (pkg as any)?.durationMins ?? pkg?.includedMinutes ?? booking.durationMins;
-  const pkgServings = pkg?.servings ?? 50;
-  const extraPiecePrice = (pkg as any)?.extraGuestPrice ?? pkg?.extraPiecePrice ?? 5;
-  const extraGuestsCount = Math.max(0, booking.guests - pkgServings);
-  const extraGuestsFee = extraGuestsCount * extraPiecePrice;
+  // Try to use the unified snapshotJson first
+  let breakdown: any = {};
+  try {
+    if (quote?.snapshotJson) {
+      breakdown = JSON.parse(quote.snapshotJson);
+    }
+  } catch (e) {
+    console.error("Failed to parse quote snapshot JSON in email:", e);
+  }
 
-  // Travel Details
-  const distanceMiles = quote?.distanceMiles ?? 0;
-  const travelFee = quote?.travelFee ?? 0;
+  // Fallbacks if not present in snapshot
+  const pkgDurationMins = breakdown.includedServiceMins ?? ((pkg as any)?.durationMins ?? pkg?.includedMinutes ?? booking.durationMins);
+  const pkgServings = breakdown.includedGuests ?? (pkg?.servings ?? 50);
+  const extraPiecePrice = breakdown.extraGuestPrice ?? ((pkg as any)?.extraGuestPrice ?? pkg?.extraPiecePrice ?? 5);
+  const extraGuestsCount = breakdown.additionalGuests ?? Math.max(0, booking.guests - pkgServings);
+  const extraGuestsFee = breakdown.additionalGuestsFee ?? (extraGuestsCount * extraPiecePrice);
+
+  const distanceMiles = breakdown.distanceMiles ?? (quote?.distanceMiles ?? 0);
+  const travelFee = breakdown.travelFee ?? (quote?.travelFee ?? 0);
   const overtimeFee = quote?.overtimeFee ?? 0;
-  const extraServiceFee = quote?.additionalServiceFee ?? (booking.extraServiceFee || 0);
-  const extraServiceMins = quote?.extraServiceMins ?? (booking.extraServiceMins || 0);
-  const basePrice = quote?.basePrice ?? (booking.totalAmount - travelFee - overtimeFee - extraServiceFee - extraGuestsFee);
+  const extraServiceFee = breakdown.additionalServiceFee ?? (quote?.additionalServiceFee ?? (booking.extraServiceFee || 0));
+  const extraServiceMins = breakdown.additionalServiceMins ?? (quote?.extraServiceMins ?? (booking.extraServiceMins || 0));
+  const basePrice = breakdown.packagePrice ?? (quote?.basePrice ?? (booking.totalAmount - travelFee - overtimeFee - extraServiceFee - extraGuestsFee));
+  const billableMiles = breakdown.billableMiles ?? Math.max(0, distanceMiles - 10);
+  const additionalStopsCount = breakdown.additionalStopsCount ?? (booking.additionalStops || 0);
+  const additionalStopsFee = breakdown.additionalStopsFee ?? (booking.additionalStopsFee || 0);
+  const estimatedTotal = breakdown.estimatedTotal ?? booking.totalAmount;
 
   return `
     <!-- Event Summary -->
@@ -162,7 +175,7 @@ function formatBookingDetailsHtml(booking: any) {
       </tr>
       <tr>
         <td style="font-weight:800;color:${BRAND_NAVY};border-bottom:1px solid #F3F4F6;">Billable Distance</td>
-        <td style="border-bottom:1px solid #F3F4F6;font-weight:600;">${Math.max(0, distanceMiles - 10).toFixed(1)} miles</td>
+        <td style="border-bottom:1px solid #F3F4F6;font-weight:600;">${billableMiles.toFixed(1)} miles</td>
       </tr>
     </table>
 
@@ -182,10 +195,10 @@ function formatBookingDetailsHtml(booking: any) {
         <td style="font-weight:600;">Extra Guests Fee (${extraGuestsCount} × $${extraPiecePrice})</td>
         <td align="right" style="font-weight:800;color:${BRAND_NAVY};">+$${extraGuestsFee.toFixed(2)}</td>
       </tr>` : ''}
-      ${(booking.additionalStopsFee || 0) > 0 ? `
+      ${additionalStopsFee > 0 ? `
       <tr>
-        <td style="font-weight:600;">Additional Stops (${booking.additionalStops})</td>
-        <td align="right" style="font-weight:800;color:${BRAND_NAVY};">+$${booking.additionalStopsFee.toFixed(2)}</td>
+        <td style="font-weight:600;">Additional Stops (${additionalStopsCount})</td>
+        <td align="right" style="font-weight:800;color:${BRAND_NAVY};">+$${additionalStopsFee.toFixed(2)}</td>
       </tr>` : ''}
       ${extraServiceFee > 0 ? `
       <tr>
@@ -204,7 +217,7 @@ function formatBookingDetailsHtml(booking: any) {
       </tr>` : ''}
       <tr>
         <td style="font-weight:900;color:${BRAND_NAVY};border-top:2px solid #E5E7EB;padding-top:12px;">Total Estimated Price</td>
-        <td align="right" style="font-weight:900;color:${BRAND_GOLD};font-size:18px;border-top:2px solid #E5E7EB;padding-top:12px;">$${booking.totalAmount.toFixed(2)}</td>
+        <td align="right" style="font-weight:900;color:${BRAND_GOLD};font-size:18px;border-top:2px solid #E5E7EB;padding-top:12px;">$${estimatedTotal.toFixed(2)}</td>
       </tr>
     </table>
 

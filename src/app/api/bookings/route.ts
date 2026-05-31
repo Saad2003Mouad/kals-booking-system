@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { evaluateBooking } from "@/lib/aiEngine";
 import { sendBookingPendingEmail, sendBookingApprovedEmail, sendBookingPendingReviewEmail } from "@/lib/email";
+import { calculateQuote } from "@/lib/pricing";
 import { z } from "zod";
 
 async function withRetry<T>(fn: () => Promise<T>, retries = 2): Promise<T> {
@@ -126,10 +127,83 @@ export async function GET(req: NextRequest) {
       }));
     }
 
+    // ── 3.5. Server-side quote recalculation ──────────────────
+    let dbPackageName = "Custom Package";
+    let finalTotal = totalAmount;
+    let finalTravel = travelFee;
+    let finalOvertime = overtimeFee;
+    let finalExtraGuest = extraPieceFee;
+    let finalExtraService = result.data.extraServiceFee || 0;
+    let finalStopsFee = additionalStopsFee;
+    let quoteBreakdownStr = "{}";
+
+    if (packageId) {
+      const dbPkg = await prisma.package.findUnique({ where: { id: packageId } });
+      if (dbPkg) {
+        dbPackageName = dbPkg.name;
+        
+        const settings = await prisma.setting.findMany({
+          where: { key: { in: ['FREE_MILES', 'RATE_PER_MILE'] } }
+        });
+        const freeMiles = parseFloat(settings.find(s => s.key === 'FREE_MILES')?.value || "10");
+        const ratePerMile = parseFloat(settings.find(s => s.key === 'RATE_PER_MILE')?.value || "2.25");
+        
+        const packageDurationMins = (dbPkg as any).durationMins ?? (dbPkg as any).includedMinutes ?? 60;
+        const extraGuestPrice = (dbPkg as any).extraGuestPrice ?? (dbPkg as any).extraPiecePrice ?? 5;
+        
+        const q = calculateQuote({
+          packagePrice: dbPkg.price || 250,
+          servings: dbPkg.servings,
+          extraGuestPrice,
+          durationMins: packageDurationMins,
+          packageDurationMins,
+          distanceMiles: distanceMiles || 0,
+          guests: dbPkg.servings + (result.data.additionalGuests || 0),
+          additionalStops: bookingStops ? bookingStops.length : (additionalStops || 0),
+          extraServiceMins: result.data.extraServiceMins || 0,
+          freeMiles,
+          ratePerMile
+        });
+        
+        finalTotal = q.totalAmount;
+        finalTravel = q.travelFee;
+        finalOvertime = q.overtimeFee;
+        finalExtraGuest = q.extraPieceFee;
+        finalExtraService = q.additionalServiceFee || 0;
+        finalStopsFee = q.additionalStopsFee;
+        
+        const fullQuotePayload = {
+          packageName: dbPackageName,
+          packagePrice: q.basePrice,
+          includedGuests: dbPkg.servings,
+          includedServiceMins: packageDurationMins,
+          additionalGuests: result.data.additionalGuests || 0,
+          extraGuestPrice,
+          additionalGuestsFee: q.extraPieceFee,
+          distanceMiles: q.distanceMiles,
+          freeMiles,
+          billableMiles: Math.max(0, q.distanceMiles - freeMiles),
+          ratePerMile,
+          travelFee: q.travelFee,
+          additionalServiceMins: q.extraServiceMins || 0,
+          additionalServiceFee: q.additionalServiceFee || 0,
+          additionalStopsCount: q.additionalStops,
+          additionalStopsFee: q.additionalStopsFee,
+          estimatedTotal: q.totalAmount,
+          paymentPolicy: "Payment is collected after the service. We accept multiple payment methods."
+        };
+        quoteBreakdownStr = JSON.stringify(fullQuotePayload);
+      }
+    }
+
     // ── 4. Determine booking status ───────────────────────────
-    // APPROVED → CONFIRMED (ready for payment)
-    // PENDING_REVIEW → PENDING_REVIEW (admin must approve/reject)
-    const status = aiDecision.autoConfirm ? "CONFIRMED" : "PENDING_REVIEW";
+    // Rejection rule: manually only. PENDING_REVIEW if distance > 30 AND packagePrice < 500
+    // The prompt says "No automatic rejection for distance alone", just PENDING_REVIEW
+    let status = "CONFIRMED";
+    const parsedPkgPrice = JSON.parse(quoteBreakdownStr).packagePrice || 0;
+    if ((distanceMiles || 0) > 30 && parsedPkgPrice < 500) {
+      status = "PENDING_REVIEW";
+    }
 
     // ── 5. Create booking ─────────────────────────────────────
     const booking = await withRetry(() => prisma.booking.create({
@@ -145,26 +219,27 @@ export async function GET(req: NextRequest) {
         guests: guests,
         eventType,
         additionalStops: additionalStops ?? 0,
-        additionalStopsFee: additionalStopsFee ?? 0,
-        totalAmount,
+        additionalStopsFee: finalStopsFee,
+        totalAmount: finalTotal,
         notes: notes || null,
         items: {
           create: [
-            { lineType: "PACKAGE", description: "Package base price", quantity: 1, unitPrice: totalAmount - travelFee - overtimeFee - extraPieceFee - (additionalStopsFee ?? 0), totalPrice: totalAmount - travelFee - overtimeFee - extraPieceFee - (additionalStopsFee ?? 0) },
-            ...(travelFee > 0 ? [{ lineType: "TRAVEL", description: "Travel fee",     quantity: 1, unitPrice: travelFee,   totalPrice: travelFee }]   : []),
-            ...(overtimeFee > 0 ? [{ lineType: "OVERTIME", description: "Overtime fee",   quantity: 1, unitPrice: overtimeFee, totalPrice: overtimeFee }] : []),
-            ...(extraPieceFee > 0 ? [{ lineType: "EXTRA_GUESTS", description: "Extra guests fee",   quantity: 1, unitPrice: extraPieceFee, totalPrice: extraPieceFee }] : []),
-            ...((additionalStopsFee ?? 0) > 0 ? [{ lineType: "MULTI_STOP", description: `Additional stops (${additionalStops})`, quantity: additionalStops ?? 1, unitPrice: 50, totalPrice: additionalStopsFee ?? 0 }] : []),
+            { lineType: "PACKAGE", description: "Package base price", quantity: 1, unitPrice: finalTotal - finalTravel - finalOvertime - finalExtraGuest - finalExtraService - finalStopsFee, totalPrice: finalTotal - finalTravel - finalOvertime - finalExtraGuest - finalExtraService - finalStopsFee },
+            ...(finalTravel > 0 ? [{ lineType: "TRAVEL", description: "Travel fee",     quantity: 1, unitPrice: finalTravel,   totalPrice: finalTravel }]   : []),
+            ...(finalOvertime > 0 ? [{ lineType: "OVERTIME", description: "Overtime fee",   quantity: 1, unitPrice: finalOvertime, totalPrice: finalOvertime }] : []),
+            ...(finalExtraGuest > 0 ? [{ lineType: "EXTRA_GUESTS", description: "Extra guests fee",   quantity: 1, unitPrice: finalExtraGuest, totalPrice: finalExtraGuest }] : []),
+            ...(finalExtraService > 0 ? [{ lineType: "EXTRA_SERVICE", description: `Additional service (${result.data.extraServiceMins} min)`, quantity: 1, unitPrice: finalExtraService, totalPrice: finalExtraService }] : []),
+            ...(finalStopsFee > 0 ? [{ lineType: "MULTI_STOP", description: `Additional stops (${additionalStops})`, quantity: additionalStops ?? 1, unitPrice: 50, totalPrice: finalStopsFee }] : []),
           ],
         },
         quote: {
           create: {
-            basePrice:     totalAmount - travelFee - overtimeFee,
-            distanceMiles: distanceMiles,
-            travelFee:     travelFee,
-            overtimeFee:   overtimeFee,
-            totalAmount:   totalAmount,
-            snapshotJson:  JSON.stringify({ packageId, guests, durationMins, zip, city, additionalStops, aiFlags: aiDecision.flags }),
+            basePrice:     finalTotal - finalTravel - finalOvertime - finalExtraService - finalStopsFee - finalExtraGuest,
+            distanceMiles: distanceMiles || 0,
+            travelFee:     finalTravel,
+            overtimeFee:   finalOvertime,
+            totalAmount:   finalTotal,
+            snapshotJson:  quoteBreakdownStr,
           },
         },
         ...(bookingStops && bookingStops.length > 0 ? {
@@ -194,7 +269,7 @@ export async function GET(req: NextRequest) {
     }));
 
     // Fetch readable package name
-    let dbPackageName = "Custom Package";
+    dbPackageName = "Custom Package";
     if (packageId) {
       const dbPkg = await prisma.package.findUnique({ where: { id: packageId } });
       if (dbPkg) {

@@ -176,17 +176,42 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
   const quote = booking.quote;
   const pkg = booking.package;
 
-  // Calculate dynamic servings breakdown
-  const servingsLimit = pkg?.servings ?? 50;
-  const extraPiecePrice = pkg?.extraPiecePrice ?? 5;
-  const extraGuestsCount = Math.max(0, booking.guests - servingsLimit);
-  const extraGuestsFee = extraGuestsCount * extraPiecePrice;
+  let breakdown: any = {};
+  try {
+    if (quote?.snapshotJson) {
+      breakdown = JSON.parse(quote.snapshotJson);
+    }
+  } catch (e) {
+    console.error("Failed to parse quote snapshot:", e);
+  }
+
+  // Calculate dynamic servings breakdown (fallback to legacy fields if snapshot missing)
+  const servingsLimit = breakdown.includedGuests ?? (pkg?.servings ?? 50);
+  const extraPiecePrice = breakdown.extraGuestPrice ?? (pkg?.extraGuestPrice ?? pkg?.extraPiecePrice ?? 5);
+  const extraGuestsCount = breakdown.additionalGuests ?? Math.max(0, booking.guests - servingsLimit);
+  const extraGuestsFee = breakdown.additionalGuestsFee ?? (extraGuestsCount * extraPiecePrice);
 
   // Travel calculation
-  const totalMiles = quote?.distanceMiles ?? 0;
-  const freeMiles = 10;
-  const billableMiles = Math.max(0, totalMiles - freeMiles);
-  const travelFee = quote?.travelFee ?? 0;
+  const totalMiles = breakdown.distanceMiles ?? (quote?.distanceMiles ?? 0);
+  const freeMiles = breakdown.freeMiles ?? 10;
+  const billableMiles = breakdown.billableMiles ?? Math.max(0, totalMiles - freeMiles);
+  const travelFee = breakdown.travelFee ?? (quote?.travelFee ?? 0);
+  
+  // Service time
+  const includedServiceMins = breakdown.includedServiceMins ?? (pkg?.durationMins ?? pkg?.includedMinutes ?? booking.durationMins);
+  const extraServiceMins = breakdown.additionalServiceMins ?? (booking.extraServiceMins || 0);
+  const extraServiceFee = breakdown.additionalServiceFee ?? (booking.extraServiceFee || ((extraServiceMins / 30) * 35));
+  
+  // Package overrides
+  const packageName = breakdown.packageName ?? (pkg?.name || "Ice Cream Truck Booking");
+  const packagePrice = breakdown.packagePrice ?? (pkg?.price ?? 250);
+  
+  // Stops
+  const stopsCount = breakdown.additionalStopsCount ?? booking.additionalStops;
+  const stopsFee = breakdown.additionalStopsFee ?? (booking.additionalStopsFee ?? 0);
+  
+  // Total
+  const estimatedTotal = breakdown.estimatedTotal ?? booking.totalAmount;
 
   return (
     <div className="min-h-screen bg-[#f8fafc] pb-24" style={{ fontFamily: "'Nunito', sans-serif" }}>
@@ -222,7 +247,7 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
                 <span className="text-sm font-mono font-bold text-white/80">#{booking.bookingNumber}</span>
               </div>
               <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-2">
-                {pkg?.name || "Ice Cream Truck Booking"}
+                {packageName}
               </h1>
               <p className="text-white/60 font-semibold text-sm max-w-xl">
                 {sc.desc}
@@ -276,12 +301,12 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
             </div>
             <div className="flex justify-between border-b border-slate-50 pb-3">
               <span className="text-slate-400">Included Service Time</span>
-              <span className="font-black text-[#000223]">{pkg?.durationMins ?? pkg?.includedMinutes ?? booking.durationMins} minutes</span>
+              <span className="font-black text-[#000223]">{includedServiceMins} minutes</span>
             </div>
-            {booking.extraServiceMins > 0 && (
+            {extraServiceMins > 0 && (
               <div className="flex justify-between border-b border-slate-50 pb-3">
                 <span className="text-slate-400">Additional Service Time</span>
-                <span className="font-black text-amber-600">+{booking.extraServiceMins} minutes (+${booking.extraServiceFee?.toFixed(2) || ((booking.extraServiceMins/30)*35).toFixed(2)})</span>
+                <span className="font-black text-amber-600">+{extraServiceMins} minutes (+${extraServiceFee.toFixed(2)})</span>
               </div>
             )}
             <div className="flex justify-between">
@@ -299,7 +324,7 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
           <div className="space-y-4.5 text-sm font-semibold text-slate-700">
             <div className="flex justify-between border-b border-slate-50 pb-3">
               <span className="text-slate-400">Selected Package</span>
-              <span className="font-black text-[#000223]">{pkg?.name || "Standard Event"}</span>
+              <span className="font-black text-[#000223]">{packageName}</span>
             </div>
             <div className="flex justify-between border-b border-slate-50 pb-3">
               <span className="text-slate-400">Included Servings</span>
@@ -307,12 +332,12 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
             </div>
             <div className="flex justify-between border-b border-slate-50 pb-3">
               <span className="text-slate-400">Package Base Price</span>
-              <span className="font-black text-[#000223]">${(pkg?.price ?? 250).toFixed(2)}</span>
+              <span className="font-black text-[#000223]">${packagePrice.toFixed(2)}</span>
             </div>
-            {booking.additionalStops > 0 && (
+            {stopsCount > 0 && (
               <div className="flex justify-between border-b border-slate-50 pb-3">
-                <span className="text-slate-400">Additional Stops ({booking.additionalStops})</span>
-                <span className="font-black text-emerald-600">+${(booking.additionalStopsFee ?? 0).toFixed(2)}</span>
+                <span className="text-slate-400">Additional Stops ({stopsCount})</span>
+                <span className="font-black text-emerald-600">+${stopsFee.toFixed(2)}</span>
               </div>
             )}
             <div className="flex justify-between">
@@ -428,12 +453,12 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
           <div className="space-y-4">
             <div className="flex justify-between items-center border-b border-slate-50 pb-4">
               <span className="text-slate-400 font-bold">Estimated Total</span>
-              <span className="text-2xl font-black text-emerald-600">${booking.totalAmount.toFixed(2)}</span>
+              <span className="text-2xl font-black text-emerald-600">${estimatedTotal.toFixed(2)}</span>
             </div>
             
             <div className="p-4 bg-emerald-50/50 border border-emerald-100 rounded-2xl text-xs font-semibold text-slate-700 leading-relaxed">
               <p className="font-black text-emerald-800 uppercase tracking-wider mb-2 flex items-center gap-1">💳 Payment Policy</p>
-              <p>Payment is collected after the service. We accept multiple payment methods.</p>
+              <p>{breakdown.paymentPolicy || "Payment is collected after the service. We accept multiple payment methods."}</p>
               <p className="mt-1.5 font-bold text-slate-400">No online payment or credit card checkouts are required to reserve.</p>
             </div>
           </div>

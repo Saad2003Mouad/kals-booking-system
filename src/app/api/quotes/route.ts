@@ -53,7 +53,7 @@ export async function POST(req: Request) {
       durationMins: packageDurationMins,     // always use package duration
       packageDurationMins,
       distanceMiles: parseFloat(distanceMiles as string) || 0,
-      guests: parseInt(guests as string) || 0,  // 0 means no extra guests
+      guests: pkg.servings + (parseInt(guests as string) || 0),
       additionalStops: bookingStops ? bookingStops.length : (parseInt(additionalStops as string) || 0),
       extraServiceMins: parseInt(extraServiceMins as string) || 0,
       freeMiles,

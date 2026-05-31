@@ -97,6 +97,23 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
   if (loading) return <div className="flex items-center justify-center p-24"><Loader2 className="w-8 h-8 animate-spin text-[#FFA000]"/></div>;
   if (!booking) return <div className="p-24 text-center">Booking not found</div>;
 
+  let breakdown: any = {};
+  try {
+    if (booking.quote?.snapshotJson) {
+      breakdown = JSON.parse(booking.quote.snapshotJson);
+    }
+  } catch (e) { }
+
+  const packageName = breakdown.packageName ?? (booking.package?.name || "Custom Package");
+  const packagePrice = breakdown.packagePrice ?? (booking.quote?.basePrice ?? 250);
+  const includedGuests = breakdown.includedGuests ?? (booking.package?.servings ?? 50);
+  const includedServiceMins = breakdown.includedServiceMins ?? ((booking.package as any)?.durationMins ?? booking.package?.includedMinutes ?? booking.durationMins);
+  const extraGuestsFee = breakdown.additionalGuestsFee ?? (booking.quote?.extraPieceFee ?? 0);
+  const extraServiceFee = breakdown.additionalServiceFee ?? (booking.extraServiceFee ?? 0);
+  const travelFee = breakdown.travelFee ?? (booking.quote?.travelFee ?? 0);
+  const additionalStopsFee = breakdown.additionalStopsFee ?? (booking.additionalStopsFee ?? 0);
+  const estimatedTotal = breakdown.estimatedTotal ?? booking.totalAmount;
+
   return (
     <div className="max-w-4xl mx-auto pb-12 animate-in fade-in zoom-in duration-300">
       <Link href="/admin/bookings" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800 mb-6 font-medium bg-slate-100 px-3 py-1.5 rounded-lg transition-colors">
@@ -163,7 +180,7 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
           <div className="space-y-4 text-sm font-semibold">
             <div className="flex justify-between items-center"><span className="text-slate-400">Date:</span> <span className="text-slate-800">{new Date(booking.eventDate).toLocaleDateString()}</span></div>
             <div className="flex justify-between items-center"><span className="text-slate-400">Start Time:</span> <span className="text-slate-800">{booking.startTime}</span></div>
-            <div className="flex justify-between items-center"><span className="text-slate-400">Duration:</span> <span className="text-slate-800">{booking.durationMins} mins</span></div>
+            <div className="flex justify-between items-center"><span className="text-slate-400">Service Time:</span> <span className="text-slate-800">{includedServiceMins} mins {breakdown.additionalServiceMins ? `(+${breakdown.additionalServiceMins} mins)` : ''}</span></div>
             <div className="flex justify-between items-center"><span className="text-slate-400">Guests:</span> <span className="text-slate-800">{booking.guests}</span></div>
             <div className="flex justify-between items-center"><span className="text-slate-400">Type:</span> <span className="text-slate-800">{booking.eventType}</span></div>
           </div>
@@ -199,15 +216,23 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
         <div className="card-premium p-6">
           <h3 className="text-lg font-black mb-4 flex items-center gap-2 text-[#000223]"><DollarSign className="w-5 h-5 text-emerald-500" /> Pricing Breakdown</h3>
           <div className="space-y-3 text-sm font-bold pb-4 border-b border-slate-100 mb-4">
-            <div className="flex justify-between items-center"><span className="text-slate-400">Base Price:</span> <span className="text-slate-800">${booking.quote?.basePrice?.toFixed(2) || "0.00"}</span></div>
-            <div className="flex justify-between items-center"><span className="text-slate-400">Travel Fee:</span> <span className="text-slate-800">${booking.quote?.travelFee?.toFixed(2) || "0.00"}</span></div>
-            {(booking.additionalStopsFee || 0) > 0 && (
-              <div className="flex justify-between items-center"><span className="text-slate-400">Additional Stops Fee:</span> <span className="text-slate-800">${booking.additionalStopsFee?.toFixed(2) || "0.00"}</span></div>
+            <div className="flex justify-between items-center"><span className="text-slate-400">Package ({packageName}):</span> <span className="text-slate-800">${packagePrice.toFixed(2)}</span></div>
+            {extraGuestsFee > 0 && (
+              <div className="flex justify-between items-center"><span className="text-slate-400">Extra Guests Fee:</span> <span className="text-slate-800">${extraGuestsFee.toFixed(2)}</span></div>
+            )}
+            {extraServiceFee > 0 && (
+              <div className="flex justify-between items-center"><span className="text-slate-400">Additional Service Time:</span> <span className="text-slate-800">${extraServiceFee.toFixed(2)}</span></div>
+            )}
+            {travelFee > 0 && (
+              <div className="flex justify-between items-center"><span className="text-slate-400">Travel Fee:</span> <span className="text-slate-800">${travelFee.toFixed(2)}</span></div>
+            )}
+            {additionalStopsFee > 0 && (
+              <div className="flex justify-between items-center"><span className="text-slate-400">Additional Stops Fee:</span> <span className="text-slate-800">${additionalStopsFee.toFixed(2)}</span></div>
             )}
           </div>
           <div className="flex justify-between items-center text-xl font-black">
             <span className="text-[#000223]">Total:</span>
-            <span className="text-emerald-600">${booking.totalAmount?.toFixed(2) || "0.00"}</span>
+            <span className="text-emerald-600">${estimatedTotal.toFixed(2)}</span>
           </div>
         </div>
 
