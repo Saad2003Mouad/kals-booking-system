@@ -116,7 +116,7 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
 
   return (
     <div className="max-w-4xl mx-auto pb-12 animate-in fade-in zoom-in duration-300">
-      <Link href="/admin/bookings" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800 mb-6 font-medium bg-slate-100 px-3 py-1.5 rounded-lg transition-colors">
+      <Link href="/admin/bookings" className="inline-flex items-center gap-2 text-sm text-[#000223]/70 hover:text-[#000223] mb-6 font-bold bg-white border border-slate-100 shadow-sm px-4 py-2 rounded-xl transition-all hover:-translate-y-0.5">
         <ChevronLeft className="w-4 h-4" /> Back to Bookings
       </Link>
 
@@ -239,14 +239,14 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
         {/* Dispatch Actions */}
         <div className="card-premium p-6 flex flex-col justify-between">
           <div>
-            <h3 className="text-lg font-black mb-4 flex items-center gap-2 text-[#000223]"><Truck className="w-5 h-5 text-indigo-500" /> Dispatch Assignment</h3>
+            <h3 className="text-lg font-black mb-4 flex items-center gap-2 text-[#000223]"><Truck className="w-5 h-5 text-[#FFA000]" /> Dispatch Assignment</h3>
             <div className="space-y-4 font-semibold text-sm">
               <div>
-                <label className="block text-xs font-black uppercase text-slate-400 mb-1.5">Vehicle</label>
+                <label className="label-premium">Vehicle</label>
                 <select
                   value={selectedVehicleId}
                   onChange={e => setSelectedVehicleId(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200 font-bold text-sm bg-white outline-none focus:border-[#FFA000]"
+                  className="w-full py-3.5 px-4.5 rounded-2xl border-2 font-semibold text-base outline-none transition-all bg-white text-[#000223] border-slate-100 focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/15"
                 >
                   <option value="">Unassigned</option>
                   {vehicles.map(v => (
@@ -256,11 +256,11 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
               </div>
 
               <div>
-                <label className="block text-xs font-black uppercase text-slate-400 mb-1.5">Driver</label>
+                <label className="label-premium">Driver</label>
                 <select
                   value={selectedDriverId}
                   onChange={e => setSelectedDriverId(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200 font-bold text-sm bg-white outline-none focus:border-[#FFA000]"
+                  className="w-full py-3.5 px-4.5 rounded-2xl border-2 font-semibold text-base outline-none transition-all bg-white text-[#000223] border-slate-100 focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/15"
                 >
                   <option value="">Unassigned</option>
                   {drivers.map(d => (
@@ -274,21 +274,22 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
           <button
             onClick={saveAssignment}
             disabled={assigning || !selectedVehicleId}
-            className="w-full py-2.5 mt-6 rounded-xl font-black text-sm text-[#000223] bg-[#FFA000] hover:bg-[#FFB020] hover:shadow-lg disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+            className="w-full py-4 rounded-2xl font-black text-base text-[#000223] bg-[#FFA000] hover:bg-[#FFB020] hover:shadow-lg disabled:opacity-50 transition-all flex items-center justify-center gap-2 mt-6"
+            style={{ boxShadow: "0 8px 24px rgba(255,160,0,0.15)" }}
           >
-            {assigning ? <Loader2 className="w-4 h-4 animate-spin"/> : <CheckCircle2 className="w-4 h-4"/>}
+            {assigning ? <Loader2 className="w-5 h-5 animate-spin"/> : <CheckCircle2 className="w-5 h-5"/>}
             Save Assignment
           </button>
         </div>
       </div>
       
       {booking.status === "PENDING_REVIEW" && (
-        <div className="mt-6 card-premium p-6 border-amber-200 bg-amber-50/30">
-          <label className="block text-sm font-black text-amber-800 mb-2">Add Internal Note (visible to staff only)</label>
+        <div className="mt-6 card-premium p-8 border-amber-200 bg-amber-50/20">
+          <label className="block text-sm font-black text-amber-900 mb-2 uppercase tracking-wider">Add Internal Note (visible to staff only)</label>
           <textarea 
             value={internalNote} onChange={e=>setInternalNote(e.target.value)}
-            className="w-full p-3 rounded-xl border border-amber-200 text-sm font-semibold outline-none focus:border-amber-400 bg-white" 
-            rows={3} placeholder="E.g. Travel fee adjusted due to traffic conditions..." 
+            className="w-full p-4 rounded-2xl border-2 border-amber-200/60 text-base font-semibold outline-none focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/15 bg-white text-[#000223]" 
+            rows={4} placeholder="E.g. Travel fee adjusted due to traffic conditions..." 
           />
         </div>
       )}

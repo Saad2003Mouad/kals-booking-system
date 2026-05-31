@@ -806,8 +806,8 @@ export default function BookingForm() {
                       {i < step ? <CheckCircle2 className="w-6 h-6 text-emerald-600" /> : i + 1}
                     </div>
                     <span
-                      className="text-xs font-extrabold uppercase tracking-[0.12em] mt-3 whitespace-nowrap transition-all duration-300"
-                      style={{ color: i <= step ? NAVY : "#9CA3AF", opacity: i <= step ? 1 : 0.6, fontFamily: FN }}
+                      className="text-xs font-black uppercase tracking-[0.15em] mt-3 whitespace-nowrap transition-all duration-300"
+                      style={{ color: i <= step ? NAVY : "#6B7280", opacity: i <= step ? 0.95 : 0.7, fontFamily: FN }}
                     >
                       {s}
                     </span>
@@ -833,7 +833,7 @@ export default function BookingForm() {
                 <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight" style={{ color: NAVY, fontFamily: F_SERIF }}>
                   Choose Your Package
                 </h2>
-                <p className="text-slate-500 font-semibold text-base sm:text-lg mt-2 leading-relaxed" style={{ fontFamily: FN }}>
+                <p className="text-slate-600 font-semibold text-base sm:text-lg mt-2 leading-relaxed" style={{ fontFamily: FN }}>
                   Select the vehicle type and package that fits your event size
                 </p>
               </div>
@@ -851,7 +851,7 @@ export default function BookingForm() {
                     style={
                       pkgTab === t
                         ? { background: NAVY, color: GOLD, boxShadow: "0 8px 24px rgba(0,2,35,0.2)" }
-                        : { color: NAVY, opacity: 0.65 }
+                        : { color: NAVY, opacity: 0.85 }
                     }
                   >
                     {t === "TRUCK" ? "🚐 Americano Truck" : "🚌 Sprinter / Dodge Van"}
@@ -875,14 +875,15 @@ export default function BookingForm() {
                       onClick={() => setSel(p)}
                       className="w-full text-left p-6 sm:p-8 rounded-[2rem] border-2 transition-all duration-300 flex flex-col sm:flex-row sm:items-center gap-6 hover:shadow-2xl hover:-translate-y-1 group bg-white/95"
                       style={{
-                        borderColor: isSelected ? GOLD : "rgba(0, 2, 35, 0.06)",
+                        borderColor: isSelected ? GOLD : "rgba(0, 2, 35, 0.08)",
+                        background: isSelected ? CREAM : "rgba(255, 255, 255, 0.95)",
                         boxShadow: isSelected ? "0 15px 35px rgba(255,160,0,0.15)" : "0 4px 20px rgba(0,0,0,0.01)"
                       }}
                     >
                       {/* Vehicle Icon Badge */}
                       <div
                         className="w-16 h-16 rounded-[1.25rem] flex items-center justify-center text-4xl flex-shrink-0 transition-transform duration-300 group-hover:scale-105"
-                        style={{ background: isSelected ? "#FFF0B3" : CREAM }}
+                        style={{ background: isSelected ? "#FFF0B3" : CREAM_LIGHT }}
                       >
                         {p.type === "TRUCK" || p.serviceType === "AMERICANO_TRUCK" ? "🚐" : "🚌"}
                       </div>
@@ -899,23 +900,23 @@ export default function BookingForm() {
                             </span>
                           )}
                         </div>
-                        <div className="text-slate-500 font-semibold text-sm sm:text-base mt-2.5 flex flex-wrap items-center gap-4">
+                        <div className="text-slate-700 font-semibold text-sm sm:text-base mt-2.5 flex flex-wrap items-center gap-4">
                           <span className="flex items-center gap-1.5">
-                            <Users className="w-5 h-5 text-slate-400" /> {p.includedQty || p.servings} Servings Included
+                            <Users className="w-5 h-5 text-slate-500" /> {p.includedQty || p.servings} Servings Included
                           </span>
-                          <span className="w-1.5 h-1.5 rounded-full bg-slate-200 hidden sm:inline" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-slate-350 hidden sm:inline" />
                           <span className="flex items-center gap-1.5">
-                            <Clock className="w-5 h-5 text-slate-400" /> {p.includedMinutes || 60} Min Duration
+                            <Clock className="w-5 h-5 text-slate-500" /> {p.includedMinutes || 60} Min Duration
                           </span>
                         </div>
-                        <div className="text-xs sm:text-sm font-bold mt-2.5 flex items-center gap-1" style={{ color: GOLD }}>
+                        <div className="text-xs sm:text-sm font-extrabold mt-2.5 flex items-center gap-1" style={{ color: GOLD }}>
                           <Star className="w-4 h-4 fill-current" /> Extra guests billed at ${(p as any).extraGuestPrice || p.extraPiecePrice || 5} per person
                         </div>
                       </div>
 
                       {/* Pricing */}
-                      <div className="flex-shrink-0 text-left sm:text-right border-t sm:border-t-0 pt-4 sm:pt-0 border-dashed border-slate-100 flex sm:flex-col items-baseline sm:items-end justify-between sm:justify-center">
-                        <span className="text-xs font-bold uppercase tracking-wider text-slate-400 sm:hidden">
+                      <div className="flex-shrink-0 text-left sm:text-right border-t sm:border-t-0 pt-4 sm:pt-0 border-dashed border-slate-200 flex sm:flex-col items-baseline sm:items-end justify-between sm:justify-center">
+                        <span className="text-xs font-bold uppercase tracking-wider text-slate-500 sm:hidden">
                           Base Price:
                         </span>
                         <span className="text-3xl sm:text-4xl font-black tracking-tight" style={{ color: isSelected ? GOLD : NAVY }}>
@@ -998,7 +999,7 @@ export default function BookingForm() {
                     <p className="font-black text-[#000223] text-base">
                       Included service time: {(sel as any)?.durationMins ?? sel?.includedMinutes ?? 60} minutes
                     </p>
-                    <p className="text-sm font-semibold text-slate-500 mt-0.5">
+                    <p className="text-sm font-semibold text-slate-700 mt-0.5">
                       This package serves up to {sel?.servings ?? sel?.includedQty ?? 50} guests.
                     </p>
                   </div>
@@ -1006,10 +1007,10 @@ export default function BookingForm() {
 
                 {/* Optional Additional Guests stepper */}
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-black uppercase tracking-[0.18em] mb-1" style={{ color: NAVY, opacity: 0.7, fontFamily: FN }}>
+                  <label className="block text-sm font-black uppercase tracking-[0.18em] mb-1" style={{ color: NAVY, opacity: 0.95, fontFamily: FN }}>
                     Additional Guests (Optional)
                   </label>
-                  <p className="text-xs sm:text-sm font-semibold text-slate-400 mb-4">
+                  <p className="text-xs sm:text-sm font-semibold text-slate-600 mb-4">
                     Only enter guests <strong style={{ color: NAVY }}>beyond the included package amount</strong>. Extra guests are billed at ${(sel as any)?.extraGuestPrice ?? sel?.extraPiecePrice ?? 5}/person.
                   </p>
                   <div className="flex items-center gap-4">
@@ -1023,7 +1024,7 @@ export default function BookingForm() {
                     </button>
                     <div className="flex-1 text-center">
                       <span className="text-3xl font-black" style={{ color: NAVY, fontFamily: F_SERIF }}>{additionalGuests}</span>
-                      <span className="block text-xs font-bold text-slate-400 mt-0.5">additional guest{additionalGuests !== 1 ? "s" : ""}</span>
+                      <span className="block text-xs font-bold text-slate-500 mt-0.5">additional guest{additionalGuests !== 1 ? "s" : ""}</span>
                     </div>
                     <button
                       type="button"
@@ -1043,10 +1044,10 @@ export default function BookingForm() {
 
                 {/* Additional Service Time selector */}
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-black uppercase tracking-[0.18em] mb-1" style={{ color: NAVY, opacity: 0.7, fontFamily: FN }}>
+                  <label className="block text-sm font-black uppercase tracking-[0.18em] mb-1" style={{ color: NAVY, opacity: 0.95, fontFamily: FN }}>
                     Additional Service Time (Optional)
                   </label>
-                  <p className="text-xs sm:text-sm font-semibold text-slate-400 mb-4">
+                  <p className="text-xs sm:text-sm font-semibold text-slate-600 mb-4">
                     Every additional <strong style={{ color: NAVY }}>30 minutes</strong> beyond your package's included service time is{" "}
                     <strong style={{ color: NAVY }}>$35</strong>.
                   </p>
@@ -1074,7 +1075,7 @@ export default function BookingForm() {
                     })}
                   </div>
                   {extraServiceMins > 0 && (
-                    <div className="mt-3 flex items-center gap-2 text-sm font-bold text-amber-800 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5">
+                    <div className="mt-3 flex items-center gap-2 text-sm font-bold text-amber-850 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5">
                       <Clock className="w-4 h-4 text-amber-600" />
                       <span>+{extraServiceMins} min additional service time → <strong>+${(extraServiceMins / 30) * 35} added to total</strong></span>
                     </div>
@@ -1138,12 +1139,12 @@ export default function BookingForm() {
                   {/* Travel Distance Card */}
                   {drivingMiles > 0 && (
                     <div
-                      className="mt-8 p-6.5 rounded-[2rem] border-2 text-left transition-all bg-white/95"
-                      style={{ borderColor: "rgba(0, 2, 35, 0.08)" }}
+                      className="mt-8 p-7 rounded-[2rem] border-2 text-left transition-all bg-white shadow-md"
+                      style={{ borderColor: "rgba(0, 2, 35, 0.08)", borderLeftColor: GOLD, borderLeftWidth: "6px" }}
                     >
                       <div className="flex items-center justify-between mb-4.5">
                         <div>
-                          <span className="text-xs font-black uppercase tracking-wider text-slate-400 block" style={{ fontFamily: FN }}>
+                          <span className="text-xs font-black uppercase tracking-wider text-slate-500 block" style={{ fontFamily: FN }}>
                             Travel Calculation
                           </span>
                           <span className="text-2xl sm:text-3xl font-black tracking-tight mt-1 block" style={{ color: NAVY, fontFamily: F_SERIF }}>
@@ -1153,13 +1154,13 @@ export default function BookingForm() {
                         <span className="text-3.5xl">🎁</span>
                       </div>
 
-                      <div className="grid md:grid-cols-2 gap-5 border-t border-dashed border-slate-200 pt-5 text-sm font-extrabold text-slate-600">
+                      <div className="grid md:grid-cols-2 gap-5 border-t border-dashed border-slate-200 pt-5 text-sm font-extrabold text-slate-700">
                         <div>
-                          <span className="text-slate-400 block">First 10.0 miles:</span>
+                          <span className="text-slate-500 block">First 10.0 miles:</span>
                           <span className="text-emerald-600 font-black">FREE ZONE</span>
                         </div>
                         <div>
-                          <span className="text-slate-400 block">Billable miles:</span>
+                          <span className="text-slate-500 block">Billable miles:</span>
                           <span className="text-slate-800 font-black">
                             {Math.max(0, drivingMiles - 10).toFixed(1)} miles
                           </span>
@@ -1177,7 +1178,7 @@ export default function BookingForm() {
                         </span>
                       </div>
 
-                      <p className="text-[11px] text-slate-400 font-semibold mt-4 text-center">
+                      <p className="text-[11px] text-slate-500 font-semibold mt-4 text-center">
                         📍 Origin garage: <strong>Boston Revere — 84 Fernwood Ave</strong>
                       </p>
                     </div>
@@ -1186,10 +1187,10 @@ export default function BookingForm() {
 
                 {/* Multi-Stop Section */}
                 <div className="md:col-span-2 border-t border-dashed border-slate-200/50 pt-8 mt-4">
-                  <label className="block text-sm font-black uppercase tracking-[0.18em] mb-1" style={{ color: NAVY, opacity: 0.7, fontFamily: FN }}>
+                  <label className="block text-sm font-black uppercase tracking-[0.18em] mb-1" style={{ color: NAVY, opacity: 0.95, fontFamily: FN }}>
                     Multiple Locations
                   </label>
-                  <p className="text-xs sm:text-sm font-semibold text-slate-400 mb-5">
+                  <p className="text-xs sm:text-sm font-semibold text-slate-600 mb-5">
                     Will this event include more than one stop? Each additional stop is <strong style={{ color: NAVY }}>$50</strong>. Additional travel distance between multiple stops may be reviewed by our team if needed.
                   </p>
                   
@@ -1198,7 +1199,7 @@ export default function BookingForm() {
                       <div className="relative flex items-center justify-center w-6 h-6 rounded-full border-2 transition-all" style={{ borderColor: !hasMultipleLocations ? GOLD : "rgba(0,2,35,0.15)", background: !hasMultipleLocations ? "rgba(255,160,0,0.1)" : "transparent" }}>
                         {(!hasMultipleLocations) && <div className="w-3 h-3 rounded-full" style={{ background: GOLD }} />}
                       </div>
-                      <span className="font-semibold text-base transition-colors" style={{ color: !hasMultipleLocations ? NAVY : "rgba(0,2,35,0.6)" }}>No, one location only</span>
+                      <span className="font-bold text-base transition-colors" style={{ color: !hasMultipleLocations ? NAVY : "rgba(0,2,35,0.7)" }}>No, one location only</span>
                       <input type="radio" className="hidden" checked={!hasMultipleLocations} onChange={() => {
                         setHasMultipleLocations(false);
                         setBookingStops([]);
@@ -1209,7 +1210,7 @@ export default function BookingForm() {
                       <div className="relative flex items-center justify-center w-6 h-6 rounded-full border-2 transition-all" style={{ borderColor: hasMultipleLocations ? GOLD : "rgba(0,2,35,0.15)", background: hasMultipleLocations ? "rgba(255,160,0,0.1)" : "transparent" }}>
                         {(hasMultipleLocations) && <div className="w-3 h-3 rounded-full" style={{ background: GOLD }} />}
                       </div>
-                      <span className="font-semibold text-base transition-colors" style={{ color: hasMultipleLocations ? NAVY : "rgba(0,2,35,0.6)" }}>Yes, add additional stops</span>
+                      <span className="font-bold text-base transition-colors" style={{ color: hasMultipleLocations ? NAVY : "rgba(0,2,35,0.7)" }}>Yes, add additional stops</span>
                       <input type="radio" className="hidden" checked={hasMultipleLocations} onChange={() => {
                         setHasMultipleLocations(true);
                         if (bookingStops.length === 0) {
@@ -1222,13 +1223,13 @@ export default function BookingForm() {
                   {hasMultipleLocations && (
                     <div className="space-y-6">
                       {bookingStops.map((stop, idx) => (
-                        <div key={idx} className="bg-slate-50 p-6 rounded-2xl border border-slate-100 relative">
-                          <div className="flex justify-between items-center mb-4">
+                        <div key={idx} className="bg-white border-2 border-slate-150/80 shadow-md p-6 rounded-[2rem] relative">
+                          <div className="flex justify-between items-center mb-4 pb-2 border-b border-dashed border-slate-100">
                             <h4 className="font-black text-[#000223]">Stop #{idx + 1}</h4>
                             <button
                               type="button"
                               onClick={() => setBookingStops(bookingStops.filter((_, i) => i !== idx))}
-                              className="text-red-500 text-sm font-bold hover:text-red-600 px-3 py-1 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                              className="text-red-500 text-xs font-black uppercase tracking-wider hover:text-red-600 px-3 py-1.5 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
                             >
                               Remove
                             </button>
@@ -1251,10 +1252,10 @@ export default function BookingForm() {
                               label="City"
                               value={stop.city}
                               onChange={(val) => {
-                                const newStops = [...bookingStops];
-                                newStops[idx].city = val;
-                                setBookingStops(newStops);
-                              }}
+                                  const newStops = [...bookingStops];
+                                  newStops[idx].city = val;
+                                  setBookingStops(newStops);
+                                }}
                               placeholder="City"
                             />
                             <div className="grid grid-cols-2 gap-4">
@@ -1298,12 +1299,12 @@ export default function BookingForm() {
                         <button
                           type="button"
                           onClick={() => setBookingStops([...bookingStops, { street: "", city: "", state: "MA", zipCode: "", notes: "" }])}
-                          className="w-full py-3.5 border-2 border-dashed border-[#FFA000] rounded-xl font-black text-[#FFA000] hover:bg-[#FFA000] hover:text-[#000223] transition-all"
+                          className="w-full py-4.5 border-2 border-dashed border-[#FFA000] rounded-2xl font-black text-[#FFA000] hover:bg-[#FFA000]/5 hover:shadow-sm transition-all text-base sm:text-lg"
                         >
                           + Add Another Stop
                         </button>
                       ) : (
-                        <p className="text-center text-sm font-bold text-slate-500 py-3 bg-slate-50 rounded-xl border border-slate-100">
+                        <p className="text-center text-sm font-bold text-slate-700 py-3 bg-slate-50 rounded-xl border border-slate-100">
                           Need more than 5 stops? Add the details in the main notes below and our team will review it.
                         </p>
                       )}
@@ -1587,10 +1588,10 @@ export default function BookingForm() {
                 <div className="rounded-[2rem] border bg-white/95 overflow-hidden shadow-sm" style={{ borderColor: SOFT_BORDER }}>
                   <div
                     className="px-6 py-4.5 border-b flex items-center gap-2.5"
-                    style={{ borderColor: "rgba(0, 2, 35, 0.04)", background: CREAM_LIGHT }}
+                    style={{ borderColor: "rgba(0, 2, 35, 0.04)", background: "rgba(255,160,0,0.06)" }}
                   >
                     <span className="text-xl">🚐</span>
-                    <span className="text-xs sm:text-sm font-black uppercase tracking-[0.15em]" style={{ color: NAVY, opacity: 0.7, fontFamily: FN }}>
+                    <span className="text-xs sm:text-sm font-black uppercase tracking-[0.15em]" style={{ color: NAVY, opacity: 0.95, fontFamily: FN }}>
                       Catering Package
                     </span>
                   </div>
@@ -1599,7 +1600,7 @@ export default function BookingForm() {
                       <span className="font-extrabold text-xl block tracking-tight" style={{ color: NAVY, fontFamily: F_SERIF }}>
                         {sel?.name}
                       </span>
-                      <span className="text-sm sm:text-base text-slate-500 font-semibold mt-1.5 block" style={{ fontFamily: FN }}>
+                      <span className="text-sm sm:text-base text-slate-700 font-semibold mt-1.5 block" style={{ fontFamily: FN }}>
                         {sel?.includedQty || sel?.servings} servings included · {sel?.includedMinutes || 60} mins setup
                       </span>
                     </div>
@@ -1613,14 +1614,14 @@ export default function BookingForm() {
                 <div className="rounded-[2rem] border bg-white/95 overflow-hidden shadow-sm" style={{ borderColor: SOFT_BORDER }}>
                   <div
                     className="px-6 py-4.5 border-b flex items-center gap-2.5"
-                    style={{ borderColor: "rgba(0, 2, 35, 0.04)", background: CREAM_LIGHT }}
+                    style={{ borderColor: "rgba(0, 2, 35, 0.04)", background: "rgba(255,160,0,0.06)" }}
                   >
                     <span className="text-xl">📅</span>
-                    <span className="text-xs sm:text-sm font-black uppercase tracking-[0.15em]" style={{ color: NAVY, opacity: 0.7, fontFamily: FN }}>
+                    <span className="text-xs sm:text-sm font-black uppercase tracking-[0.15em]" style={{ color: NAVY, opacity: 0.95, fontFamily: FN }}>
                       Scheduling Details
                     </span>
                   </div>
-                  <div className="divide-y" style={{ borderColor: "rgba(0, 2, 35, 0.04)" }}>
+                  <div className="divide-y divide-slate-100" style={{ borderColor: "rgba(0, 2, 35, 0.04)" }}>
                     {[
                       ["Event Type", eventType],
                       ["Event Date", formatEnDate(eventDate)],
@@ -1637,7 +1638,7 @@ export default function BookingForm() {
                       ["Travel Fee", quote.travelFee > 0 ? `$${quote.travelFee.toFixed(2)}` : "Free ($0.00)"]
                     ].map(([l, v]) => (
                       <div key={l} className="flex justify-between px-6 py-4 text-sm sm:text-base">
-                        <span className="font-bold text-slate-400" style={{ fontFamily: FN }}>{l}</span>
+                        <span className="font-bold text-slate-650" style={{ color: "#4A4A5A", fontFamily: FN }}>{l}</span>
                         <span className="font-extrabold text-right max-w-[65%]" style={{ color: NAVY, fontFamily: FN }}>
                           {v}
                         </span>
@@ -1650,21 +1651,21 @@ export default function BookingForm() {
                 <div className="rounded-[2rem] border bg-white/95 overflow-hidden shadow-sm" style={{ borderColor: SOFT_BORDER }}>
                   <div
                     className="px-6 py-4.5 border-b flex items-center gap-2.5"
-                    style={{ borderColor: "rgba(0, 2, 35, 0.04)", background: CREAM_LIGHT }}
+                    style={{ borderColor: "rgba(0, 2, 35, 0.04)", background: "rgba(255,160,0,0.06)" }}
                   >
                     <span className="text-lg">👤</span>
-                    <span className="text-xs sm:text-sm font-black uppercase tracking-[0.15em]" style={{ color: NAVY, opacity: 0.7, fontFamily: FN }}>
+                    <span className="text-xs sm:text-sm font-black uppercase tracking-[0.15em]" style={{ color: NAVY, opacity: 0.95, fontFamily: FN }}>
                       Customer Contact Info
                     </span>
                   </div>
-                  <div className="divide-y" style={{ borderColor: "rgba(0, 2, 35, 0.04)" }}>
+                  <div className="divide-y divide-slate-100" style={{ borderColor: "rgba(0, 2, 35, 0.04)" }}>
                     {[
                       ["Name", `${firstName} ${lastName}`],
                       ["Email", email],
                       ["Phone", phone]
                     ].map(([l, v]) => (
                       <div key={l} className="flex justify-between px-6 py-4 text-sm sm:text-base">
-                        <span className="font-bold text-slate-400" style={{ fontFamily: FN }}>{l}</span>
+                        <span className="font-bold" style={{ color: "#4A4A5A", fontFamily: FN }}>{l}</span>
                         <span className="font-extrabold" style={{ color: NAVY, fontFamily: FN }}>
                           {v}
                         </span>
@@ -1680,7 +1681,7 @@ export default function BookingForm() {
                 >
                   <div className="flex items-center gap-2 mb-5">
                     <DollarSign className="w-5.5 h-5.5" style={{ color: GOLD }} />
-                    <span className="text-xs sm:text-sm font-black uppercase tracking-[0.15em]" style={{ color: NAVY, opacity: 0.7, fontFamily: FN }}>
+                    <span className="text-xs sm:text-sm font-black uppercase tracking-[0.15em]" style={{ color: NAVY, opacity: 0.95, fontFamily: FN }}>
                       Catering Fee Breakdown
                     </span>
                   </div>
@@ -1689,7 +1690,7 @@ export default function BookingForm() {
                       (b, i) =>
                         (b.amount !== 0 || i === 0) && (
                           <div key={i} className="flex justify-between text-sm sm:text-base py-1">
-                            <span className="font-semibold text-slate-500" style={{ fontFamily: FN }}>{b.label}</span>
+                            <span className="font-semibold text-slate-700" style={{ fontFamily: FN }}>{b.label}</span>
                             <span
                               className="font-black"
                               style={{ color: b.amount < 0 ? "#10B981" : NAVY, fontFamily: FN }}
@@ -1729,7 +1730,7 @@ export default function BookingForm() {
                 </div>
               </div>
 
-              <p className="text-center text-xs text-slate-400 font-semibold mb-6">
+              <p className="text-center text-xs text-slate-650 font-bold mb-6">
                 📍 Pricing calculations based on travel distances from <strong>Boston Revere — 84 Fernwood Ave</strong>
               </p>
 

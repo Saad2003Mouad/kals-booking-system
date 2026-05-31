@@ -112,19 +112,19 @@ export default function OtpVerification({ email, firstName, onVerified }: OtpVer
       )}
 
       {/* OTP boxes */}
-      <div className="flex gap-3 justify-center mb-6" onPaste={handlePaste}>
+      <div className="flex gap-3.5 justify-center mb-8" onPaste={handlePaste}>
         {digits.map((d, i) => (
           <input key={i} ref={el => { refs.current[i] = el; }}
             type="text" inputMode="numeric" maxLength={1} value={d}
             onChange={e => handleDigit(i, e.target.value)}
             onKeyDown={e => handleKeyDown(i, e)}
-            className="w-12 h-14 rounded-xl border-2 text-center text-2xl font-black outline-none transition-all"
+            className="w-14 h-16 rounded-2xl border-2 text-center text-3xl font-black outline-none transition-all focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/15"
             style={{
-              borderColor: d ? "#FFA000" : "#E5E7EB",
-              background: d ? "#FFFBEB" : "white",
+              borderColor: d ? "#FFA000" : "rgba(0, 2, 35, 0.12)",
+              background: d ? "#FFFBEB" : "rgba(255, 255, 255, 0.95)",
               color: "#000223",
               fontFamily: "monospace",
-              boxShadow: d ? "0 0 0 3px rgba(245,166,35,0.15)" : "none",
+              boxShadow: d ? "0 0 0 5px rgba(255, 160, 0, 0.15)" : "none",
             }}
           />
         ))}
@@ -132,19 +132,19 @@ export default function OtpVerification({ email, firstName, onVerified }: OtpVer
 
       {/* Error */}
       {error && (
-        <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-100 text-red-600 font-bold text-sm text-center">{error}</div>
+        <div className="mb-4 p-4 rounded-2xl bg-red-50 border border-red-100 text-red-650 font-black text-sm text-center">{error}</div>
       )}
 
       {/* Verifying state */}
       {verifying && (
-        <div className="flex items-center justify-center gap-2 text-gray-400 font-semibold text-sm mb-4">
+        <div className="flex items-center justify-center gap-2 text-slate-500 font-bold text-sm mb-4 animate-pulse">
           <Loader2 className="w-4 h-4 animate-spin"/> Verifying…
         </div>
       )}
 
       {/* Manual verify button */}
       {digits.every(d=>d) && !verifying && (
-        <button onClick={()=>verify(digits.join(""))} className="w-full py-4 rounded-xl font-black mb-4 transition-all hover:-translate-y-0.5" style={{background:"#000223",color:"#FFA000"}}>
+        <button onClick={()=>verify(digits.join(""))} className="w-full py-4.5 rounded-2xl font-black text-base transition-all duration-300 hover:bg-[#000445] hover:-translate-y-0.5 active:translate-y-0 shadow-md hover:shadow-lg" style={{background:"#000223",color:"#FFA000"}}>
           Verify Code
         </button>
       )}

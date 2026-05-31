@@ -170,32 +170,32 @@ export default function AdminPackagesPage() {
             </div>
           )}
           {packages.map(pkg => (
-            <div key={pkg.id} className={`bg-white border rounded-3xl p-5 shadow-sm transition-all ${pkg.isActive ? 'border-slate-200 hover:border-[#FFA000]/50' : 'border-slate-200 opacity-60 bg-slate-50'}`}>
+            <div key={pkg.id} className={`bg-white border rounded-[2.5rem] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.015)] transition-all duration-300 hover:shadow-[0_20px_50px_rgba(0,0,0,0.035)] hover:-translate-y-0.5 ${pkg.isActive ? 'border-slate-100/80' : 'border-slate-200/50 opacity-60 bg-slate-50/50'}`}>
               
-              <div className="relative h-32 w-full rounded-2xl overflow-hidden mb-4 bg-slate-100">
+              <div className="relative h-44 w-full rounded-3xl overflow-hidden mb-5 bg-slate-50 border border-slate-100">
                 <img src={pkg.imageUrl || pkg.image} alt={pkg.name} className="w-full h-full object-cover" />
-                <div className="absolute top-2 right-2 flex gap-1">
-                  <button onClick={() => openEdit(pkg)} className="p-2 bg-white/90 hover:bg-white rounded-lg text-slate-700 hover:text-blue-600 shadow-sm transition-colors">
+                <div className="absolute top-3 right-3 flex gap-1.5">
+                  <button onClick={() => openEdit(pkg)} className="p-2.5 bg-white/95 hover:bg-white rounded-xl text-slate-700 hover:text-blue-600 shadow-md transition-all hover:scale-105">
                     <Edit2 className="w-4 h-4" />
                   </button>
-                  <button onClick={() => deletePackage(pkg)} className="p-2 bg-white/90 hover:bg-white rounded-lg text-slate-700 hover:text-red-600 shadow-sm transition-colors">
+                  <button onClick={() => deletePackage(pkg)} className="p-2.5 bg-white/95 hover:bg-white rounded-xl text-slate-700 hover:text-red-600 shadow-md transition-all hover:scale-105">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>
 
               <div className="flex justify-between items-start mb-2">
-                <div className="font-black text-lg text-[#000223] leading-tight">{pkg.name}</div>
+                <div className="font-black text-xl text-[#000223] leading-tight">{pkg.name}</div>
               </div>
               
               <div className="flex items-center gap-2 mb-4">
-                <span className="text-2xl font-black text-[#FFA000]">${pkg.price || pkg.basePrice}</span>
-                <span className="text-xs font-black bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md tracking-wider">
+                <span className="text-2xl font-black text-[#FFA000]">${(pkg.price || pkg.basePrice || 0).toFixed(2)}</span>
+                <span className="text-xs font-black bg-slate-100 text-slate-600 px-3 py-1 rounded-md tracking-wider">
                   {pkg.serviceType === 'AMERICANO_TRUCK' ? 'TRUCK' : 'VAN'}
                 </span>
               </div>
 
-              <div className="space-y-2 text-sm text-slate-600 font-semibold mb-5 bg-slate-50 p-3 rounded-xl border border-slate-100">
+              <div className="space-y-2.5 text-sm text-[#000223]/70 font-bold mb-5 bg-[#FAF6EF] p-4.5 rounded-2xl border border-[#FAF6EF]/80">
                 <div className="flex justify-between"><span>Servings:</span> <span className="font-black text-[#000223]">{pkg.servings || pkg.includedQty}</span></div>
                 <div className="flex justify-between"><span>Extra Guest:</span> <span className="font-black text-[#000223]">${pkg.extraGuestPrice ?? pkg.extraPiecePrice}/person</span></div>
                 <div className="flex justify-between"><span>Duration:</span> <span className="font-black text-[#000223]">{pkg.durationMins ?? 60} min</span></div>
@@ -205,12 +205,12 @@ export default function AdminPackagesPage() {
               <div className="flex items-center justify-between pt-4 border-t border-slate-100">
                 <div className="flex items-center gap-2">
                   {pkg.isActive ? (
-                    <><CheckCircle2 className="w-4 h-4 text-emerald-500" /><span className="text-xs font-black tracking-wide text-emerald-600">ACTIVE</span></>
+                    <><CheckCircle2 className="w-4.5 h-4.5 text-emerald-500" /><span className="text-xs font-black tracking-wide text-emerald-600">ACTIVE</span></>
                   ) : (
-                    <><XCircle className="w-4 h-4 text-slate-400" /><span className="text-xs font-black tracking-wide text-slate-500">DISABLED</span></>
+                    <><XCircle className="w-4.5 h-4.5 text-slate-400" /><span className="text-xs font-black tracking-wide text-slate-500">DISABLED</span></>
                   )}
                 </div>
-                <button onClick={() => toggleStatus(pkg)} className="text-xs font-bold text-slate-500 hover:text-blue-600 underline">
+                <button onClick={() => toggleStatus(pkg)} className="text-xs font-black text-[#000223]/60 hover:text-blue-600 transition-colors uppercase tracking-wider">
                   Toggle Status
                 </button>
               </div>
@@ -221,67 +221,67 @@ export default function AdminPackagesPage() {
 
       {/* Add/Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-200">
-            <div className="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#000223]/40 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-200 border border-slate-100">
+            <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
               <h2 className="font-black text-xl text-[#000223] flex items-center gap-2">
                 <PackageIcon className="w-5 h-5 text-[#FFA000]"/> {editingId ? "Edit Package" : "New Package"}
               </h2>
               <button type="button" onClick={() => setShowModal(false)} className="text-slate-400 hover:text-red-500 transition-colors"><XCircle className="w-6 h-6"/></button>
             </div>
             
-            <form onSubmit={handleSave} className="overflow-y-auto p-6 flex-1 bg-white">
+            <form onSubmit={handleSave} className="overflow-y-auto p-8 flex-1 bg-white space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
                 
                 {/* Image & Basic Info */}
                 <div className="space-y-4">
                   <div>
                     <label className="label-premium">Package Name</label>
-                    <input required value={formData.name} onChange={e=>setFormData({...formData, name:e.target.value})} className="input-premium py-2.5 w-full text-sm font-bold" placeholder="E.g. The Legend Classic" />
+                    <input required value={formData.name} onChange={e=>setFormData({...formData, name:e.target.value})} className="w-full py-3.5 px-5 rounded-2xl border-2 font-semibold text-base outline-none transition-all bg-white text-[#000223] border-slate-100 placeholder:text-slate-400 focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/15" placeholder="E.g. The Legend Classic" />
                   </div>
                   <div>
                     <label className="label-premium">Description</label>
-                    <textarea required value={formData.description} onChange={e=>setFormData({...formData, description:e.target.value})} className="input-premium py-2 w-full text-sm h-24" placeholder="Brief description for customers..." />
+                    <textarea required value={formData.description} onChange={e=>setFormData({...formData, description:e.target.value})} className="w-full py-3.5 px-5 rounded-2xl border-2 font-semibold text-base outline-none transition-all bg-white text-[#000223] border-slate-100 placeholder:text-slate-400 focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/15 h-28" placeholder="Brief description for customers..." />
                   </div>
                   <div>
-                    <label className="label-premium flex items-center gap-2"><ImageIcon className="w-4 h-4"/> Image URL</label>
-                    <input required value={formData.image} onChange={e=>setFormData({...formData, image:e.target.value})} className="input-premium py-2 w-full text-xs font-mono" placeholder="https://..." />
+                    <label className="label-premium flex items-center gap-2"><ImageIcon className="w-4 h-4 text-[#FFA000]"/> Image URL</label>
+                    <input required value={formData.image} onChange={e=>setFormData({...formData, image:e.target.value})} className="w-full py-3.5 px-5 rounded-2xl border-2 font-mono text-base outline-none transition-all bg-white text-[#000223] border-slate-100 placeholder:text-slate-400 focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/15" placeholder="https://..." />
                   </div>
                 </div>
 
                 {/* Pricing & Logistics */}
-                <div className="space-y-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                <div className="space-y-4 bg-[#FAF6EF] p-6 rounded-3xl border border-slate-100/50">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="label-premium">Base Price ($)</label>
-                      <input required type="number" step="0.01" value={formData.price} onChange={e=>setFormData({...formData, price:e.target.value})} className="input-premium py-2 w-full font-black text-[#FFA000]" />
+                      <input required type="number" step="0.01" value={formData.price} onChange={e=>setFormData({...formData, price:e.target.value})} className="w-full py-3.5 px-5 rounded-2xl border-2 font-black text-base outline-none transition-all bg-white text-[#FFA000] border-slate-100 focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/15" />
                     </div>
                     <div>
                       <label className="label-premium">Included Servings</label>
-                      <input required type="number" value={formData.servings} onChange={e=>setFormData({...formData, servings:e.target.value})} className="input-premium py-2 w-full font-bold" />
+                      <input required type="number" value={formData.servings} onChange={e=>setFormData({...formData, servings:e.target.value})} className="w-full py-3.5 px-5 rounded-2xl border-2 font-semibold text-base outline-none transition-all bg-white text-[#000223] border-slate-100 focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/15" />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="label-premium">Extra Guest Price ($)</label>
-                      <input required type="number" step="0.01" value={formData.extraGuestPrice ?? formData.extraPiecePrice} onChange={e=>setFormData({...formData, extraGuestPrice:e.target.value, extraPiecePrice:e.target.value})} className="input-premium py-2 w-full font-bold" />
+                      <input required type="number" step="0.01" value={formData.extraGuestPrice ?? formData.extraPiecePrice} onChange={e=>setFormData({...formData, extraGuestPrice:e.target.value, extraPiecePrice:e.target.value})} className="w-full py-3.5 px-5 rounded-2xl border-2 font-semibold text-base outline-none transition-all bg-white text-[#000223] border-slate-100 focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/15" />
                     </div>
                     <div>
                       <label className="label-premium">Duration (mins)</label>
-                      <input required type="number" value={formData.durationMins ?? 60} onChange={e=>setFormData({...formData, durationMins:e.target.value})} className="input-premium py-2 w-full font-bold" />
+                      <input required type="number" value={formData.durationMins ?? 60} onChange={e=>setFormData({...formData, durationMins:e.target.value})} className="w-full py-3.5 px-5 rounded-2xl border-2 font-semibold text-base outline-none transition-all bg-white text-[#000223] border-slate-100 focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/15" />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="label-premium">Service Type</label>
-                      <select value={formData.serviceType} onChange={e=>setFormData({...formData, serviceType:e.target.value})} className="input-premium py-2 w-full text-sm font-bold">
+                      <select value={formData.serviceType} onChange={e=>setFormData({...formData, serviceType:e.target.value})} className="w-full py-3.5 px-5 rounded-2xl border-2 font-semibold text-base outline-none transition-all bg-white text-[#000223] border-slate-100 focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/15">
                         <option value="AMERICANO_TRUCK">Ice Cream Truck</option>
                         <option value="VAN">Delivery Van</option>
                       </select>
                     </div>
                     <div>
                       <label className="label-premium">Sort Order</label>
-                      <input required type="number" value={formData.sortOrder} onChange={e=>setFormData({...formData, sortOrder:e.target.value})} className="input-premium py-2 w-full font-bold" />
+                      <input required type="number" value={formData.sortOrder} onChange={e=>setFormData({...formData, sortOrder:e.target.value})} className="w-full py-3.5 px-5 rounded-2xl border-2 font-semibold text-base outline-none transition-all bg-white text-[#000223] border-slate-100 focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/15" />
                     </div>
                   </div>
                 </div>
@@ -292,18 +292,18 @@ export default function AdminPackagesPage() {
                   <textarea 
                     value={featuresText} 
                     onChange={e=>setFeaturesText(e.target.value)} 
-                    className="input-premium py-2 w-full text-sm h-32 leading-relaxed" 
-                    placeholder={"Premium Ice Cream\\nMusic Included\\nCustom Menu"} 
+                    className="w-full py-3.5 px-5 rounded-2xl border-2 font-semibold text-base outline-none transition-all bg-white text-[#000223] border-slate-100 placeholder:text-slate-400 focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/15 h-32 leading-relaxed" 
+                    placeholder={"Premium Ice Cream\nMusic Included\nCustom Menu"} 
                   />
-                  <p className="text-xs font-semibold text-slate-400 mt-1">These will appear as bullet points under the package.</p>
+                  <p className="text-xs font-semibold text-slate-400 mt-1.5">These will appear as bullet points under the package.</p>
                 </div>
 
               </div>
             </form>
             
-            <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
-              <button type="button" onClick={() => setShowModal(false)} className="btn-secondary py-2.5 px-6">Cancel</button>
-              <button onClick={handleSave} disabled={saving} className="btn-primary py-2.5 px-8 flex items-center gap-2 text-sm">
+            <div className="px-8 py-5 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+              <button type="button" onClick={() => setShowModal(false)} className="btn-secondary py-3 px-6 rounded-2xl font-extrabold text-sm border-2 border-slate-200/80 bg-white text-[#000223] transition-all hover:bg-slate-50">Cancel</button>
+              <button onClick={handleSave} disabled={saving} className="btn-primary py-3 px-8 rounded-2xl font-black text-sm text-[#000223] bg-[#FFA000] hover:bg-[#FFB020] hover:shadow-lg disabled:opacity-50 transition-all flex items-center gap-2">
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} 
                 {editingId ? "Save Changes" : "Create Package"}
               </button>

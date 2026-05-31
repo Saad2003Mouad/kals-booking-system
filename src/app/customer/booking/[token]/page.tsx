@@ -214,7 +214,7 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
   const estimatedTotal = breakdown.estimatedTotal ?? booking.totalAmount;
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] pb-24" style={{ fontFamily: "'Nunito', sans-serif" }}>
+    <div className="min-h-screen bg-[#FAF6EF] pb-24" style={{ fontFamily: "'Nunito', sans-serif" }}>
       {/* Top Banner Header */}
       <header className="sticky top-0 z-40 bg-[#000223] border-b border-white/10 shadow-md print:hidden">
         <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
@@ -286,71 +286,71 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
       <div className="max-w-4xl mx-auto px-6 mt-12 grid md:grid-cols-2 gap-8">
         
         {/* Card 1: Event Details */}
-        <div className="bg-white rounded-[24px] p-7 border border-slate-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_10px_45px_rgba(0,0,0,0.04)]">
-          <h2 className="font-black text-xs uppercase tracking-widest text-[#FFA000] mb-6 flex items-center gap-2">
+        <div className="bg-white rounded-[2.5rem] p-8 border border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.015)] transition-all hover:shadow-[0_15px_45px_rgba(0,0,0,0.035)]">
+          <h2 className="font-black text-xs uppercase tracking-[0.18em] text-[#000223] mb-6 flex items-center gap-2">
             <span>📅</span> Event Details
           </h2>
           <div className="space-y-4.5 text-sm font-semibold text-slate-700">
-            <div className="flex justify-between border-b border-slate-50 pb-3">
-              <span className="text-slate-400">Date</span>
-              <span className="font-black text-[#000223]">{eventDate}</span>
+            <div className="flex justify-between border-b border-slate-100 pb-3">
+              <span className="text-slate-500">Date</span>
+              <span className="font-black" style={{ color: "#000223" }}>{eventDate}</span>
             </div>
-            <div className="flex justify-between border-b border-slate-50 pb-3">
-              <span className="text-slate-400">Serving Time</span>
-              <span className="font-black text-[#000223]">{booking.startTime}</span>
+            <div className="flex justify-between border-b border-slate-100 pb-3">
+              <span className="text-slate-500">Serving Time</span>
+              <span className="font-black" style={{ color: "#000223" }}>{booking.startTime}</span>
             </div>
-            <div className="flex justify-between border-b border-slate-50 pb-3">
-              <span className="text-slate-400">Included Service Time</span>
-              <span className="font-black text-[#000223]">{includedServiceMins} minutes</span>
+            <div className="flex justify-between border-b border-slate-100 pb-3">
+              <span className="text-slate-500">Included Service Time</span>
+              <span className="font-black" style={{ color: "#000223" }}>{includedServiceMins} minutes</span>
             </div>
             {extraServiceMins > 0 && (
-              <div className="flex justify-between border-b border-slate-50 pb-3">
-                <span className="text-slate-400">Additional Service Time</span>
+              <div className="flex justify-between border-b border-slate-100 pb-3">
+                <span className="text-slate-500">Additional Service Time</span>
                 <span className="font-black text-amber-600">+{extraServiceMins} minutes (+${extraServiceFee.toFixed(2)})</span>
               </div>
             )}
             <div className="flex justify-between">
-              <span className="text-slate-400">Expected Guests</span>
-              <span className="font-black text-[#000223]">{booking.guests} servings</span>
+              <span className="text-slate-500">Expected Guests</span>
+              <span className="font-black" style={{ color: "#000223" }}>{booking.guests} servings</span>
             </div>
           </div>
         </div>
 
         {/* Card 2: Package Details */}
-        <div className="bg-white rounded-[24px] p-7 border border-slate-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_10px_45px_rgba(0,0,0,0.04)]">
-          <h2 className="font-black text-xs uppercase tracking-widest text-[#FFA000] mb-6 flex items-center gap-2">
+        <div className="bg-white rounded-[2.5rem] p-8 border border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.015)] transition-all hover:shadow-[0_15px_45px_rgba(0,0,0,0.035)]">
+          <h2 className="font-black text-xs uppercase tracking-[0.18em] text-[#000223] mb-6 flex items-center gap-2">
             <span>🍦</span> Package Details
           </h2>
           <div className="space-y-4.5 text-sm font-semibold text-slate-700">
-            <div className="flex justify-between border-b border-slate-50 pb-3">
-              <span className="text-slate-400">Selected Package</span>
+            <div className="flex justify-between border-b border-slate-100 pb-3">
+              <span className="text-slate-500">Selected Package</span>
               <span className="font-black text-[#000223]">{packageName}</span>
             </div>
-            <div className="flex justify-between border-b border-slate-50 pb-3">
-              <span className="text-slate-400">Included Servings</span>
+            <div className="flex justify-between border-b border-slate-100 pb-3">
+              <span className="text-slate-500">Included Servings</span>
               <span className="font-black text-[#000223]">{servingsLimit} Servings</span>
             </div>
-            <div className="flex justify-between border-b border-slate-50 pb-3">
-              <span className="text-slate-400">Package Base Price</span>
+            <div className="flex justify-between border-b border-slate-100 pb-3">
+              <span className="text-slate-500">Package Base Price</span>
               <span className="font-black text-[#000223]">${packagePrice.toFixed(2)}</span>
             </div>
             {stopsCount > 0 && (
-              <div className="flex justify-between border-b border-slate-50 pb-3">
-                <span className="text-slate-400">Additional Stops ({stopsCount})</span>
+              <div className="flex justify-between border-b border-slate-100 pb-3">
+                <span className="text-slate-500">Additional Stops ({stopsCount})</span>
                 <span className="font-black text-emerald-600">+${stopsFee.toFixed(2)}</span>
               </div>
             )}
             <div className="flex justify-between">
-              <span className="text-slate-400">Extra Guests Rate</span>
+              <span className="text-slate-500">Extra Guests Rate</span>
               <span className="font-black text-emerald-600">${extraPiecePrice}/person</span>
             </div>
           </div>
         </div>
 
         {/* Card 3: Customer Contact */}
-        <div className="bg-white rounded-[24px] p-7 border border-slate-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_10px_45px_rgba(0,0,0,0.04)]">
+        <div className="bg-white rounded-[2.5rem] p-8 border border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.015)] transition-all hover:shadow-[0_15px_45px_rgba(0,0,0,0.035)]">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="font-black text-xs uppercase tracking-widest text-[#FFA000] flex items-center gap-2">
+            <h2 className="font-black text-xs uppercase tracking-[0.18em] text-[#000223] flex items-center gap-2">
               <span>👤</span> Contact Contact
             </h2>
             <button onClick={() => setShowEditModal(true)} className="text-xs font-black text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1">
@@ -358,24 +358,24 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
             </button>
           </div>
           <div className="space-y-4.5 text-sm font-semibold text-slate-700">
-            <div className="flex justify-between border-b border-slate-50 pb-3">
-              <span className="text-slate-400">Customer Name</span>
+            <div className="flex justify-between border-b border-slate-100 pb-3">
+              <span className="text-slate-500">Customer Name</span>
               <span className="font-black text-[#000223]">{booking.customer.firstName} {booking.customer.lastName}</span>
             </div>
-            <div className="flex justify-between border-b border-slate-50 pb-3">
-              <span className="text-slate-400">Email</span>
+            <div className="flex justify-between border-b border-slate-100 pb-3">
+              <span className="text-slate-500">Email</span>
               <span className="font-black text-[#000223]">{booking.customer.email}</span>
             </div>
-            <div className="flex justify-between border-b border-slate-50 pb-3">
-              <span className="text-slate-400">Phone</span>
+            <div className="flex justify-between border-b border-slate-100 pb-3">
+              <span className="text-slate-500">Phone</span>
               <span className="font-black text-[#000223]">{booking.customer.phone}</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-slate-400 mb-1">Event Location</span>
+              <span className="text-slate-500 mb-1">Event Location</span>
               <span className="font-black text-[#000223] text-left">{booking.address}, {booking.city}, MA {booking.zip}</span>
             </div>
             {booking.notes && (
-              <div className="border-t border-slate-100 pt-4 text-slate-500 font-semibold italic text-xs">
+              <div className="border-t border-slate-100 pt-4 text-slate-650 font-bold italic text-xs">
                 📝 Notes: {booking.notes}
               </div>
             )}
@@ -384,8 +384,8 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
 
         {/* Card 4: Route & Stops */}
         {booking.stops && booking.stops.length > 0 && (
-          <div className="bg-white rounded-[24px] p-7 border border-slate-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_10px_45px_rgba(0,0,0,0.04)]">
-            <h2 className="font-black text-xs uppercase tracking-widest text-[#FFA000] mb-6 flex items-center gap-2">
+          <div className="bg-white rounded-[2.5rem] p-8 border border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.015)] transition-all hover:shadow-[0_15px_45px_rgba(0,0,0,0.035)]">
+            <h2 className="font-black text-xs uppercase tracking-[0.18em] text-[#000223] mb-6 flex items-center gap-2">
               <span>🗺️</span> Route & Stops
             </h2>
             <div className="space-y-4">
@@ -393,7 +393,7 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
                 <div className="absolute w-3 h-3 bg-emerald-500 rounded-full -left-[7px] top-2 border-2 border-white"></div>
                 <span className="text-xs font-black uppercase text-emerald-600 mb-1">Primary Location</span>
                 <span className="font-bold text-[#000223] text-sm">{booking.address}</span>
-                <span className="font-semibold text-slate-500 text-xs">{booking.city}, {booking.zip}</span>
+                <span className="font-semibold text-slate-655 text-xs">{booking.city}, {booking.zip}</span>
               </div>
               
               {booking.stops.map((stop: any, idx: number) => (
@@ -401,9 +401,9 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
                   <div className="absolute w-3 h-3 bg-blue-500 rounded-full -left-[7px] top-2 border-2 border-white"></div>
                   <span className="text-xs font-black uppercase text-blue-600 mb-1">Additional Stop {idx + 1}</span>
                   <span className="font-bold text-[#000223] text-sm">{stop.street}</span>
-                  <span className="font-semibold text-slate-500 text-xs">{stop.city}, {stop.state} {stop.zipCode}</span>
+                  <span className="font-semibold text-slate-655 text-xs">{stop.city}, {stop.state} {stop.zipCode}</span>
                   {stop.notes && (
-                    <span className="font-semibold text-slate-400 text-xs mt-1.5 italic">📝 {stop.notes}</span>
+                    <span className="font-bold text-slate-500 text-xs mt-1.5 italic">📝 {stop.notes}</span>
                   )}
                 </div>
               ))}
@@ -412,47 +412,47 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
         )}
 
         {/* Card 5: Travel & Mileage */}
-        <div className="bg-white rounded-[24px] p-7 border border-slate-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_10px_45px_rgba(0,0,0,0.04)]">
-          <h2 className="font-black text-xs uppercase tracking-widest text-[#FFA000] mb-6 flex items-center gap-2">
+        <div className="bg-white rounded-[2.5rem] p-8 border border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.015)] transition-all hover:shadow-[0_15px_45px_rgba(0,0,0,0.035)]">
+          <h2 className="font-black text-xs uppercase tracking-[0.18em] text-[#000223] mb-6 flex items-center gap-2">
             <span>📍</span> Travel & Mileage
           </h2>
           <div className="space-y-4.5 text-sm font-semibold text-slate-700">
-            <div className="flex justify-between border-b border-slate-50 pb-3">
-              <span className="text-slate-400">Origin</span>
+            <div className="flex justify-between border-b border-slate-100 pb-3">
+              <span className="text-slate-500">Origin</span>
               <span className="font-black text-[#000223]">Boston Revere — 84 Fernwood Ave</span>
             </div>
-            <div className="flex justify-between border-b border-slate-50 pb-3">
-              <span className="text-slate-400">Total Miles</span>
+            <div className="flex justify-between border-b border-slate-100 pb-3">
+              <span className="text-slate-500">Total Miles</span>
               <span className="font-black text-[#000223]">{totalMiles.toFixed(1)} miles</span>
             </div>
-            <div className="flex justify-between border-b border-slate-50 pb-3">
-              <span className="text-slate-400">Free Miles</span>
+            <div className="flex justify-between border-b border-slate-100 pb-3">
+              <span className="text-slate-500">Free Miles</span>
               <span className="font-black text-[#000223]">{freeMiles} miles</span>
             </div>
-            <div className="flex justify-between border-b border-slate-50 pb-3">
-              <span className="text-slate-400">Billable Miles</span>
+            <div className="flex justify-between border-b border-slate-100 pb-3">
+              <span className="text-slate-500">Billable Miles</span>
               <span className="font-black text-[#000223]">{billableMiles.toFixed(1)} miles</span>
             </div>
-            <div className="flex justify-between border-b border-slate-50 pb-3">
-              <span className="text-slate-400">Travel Fee</span>
+            <div className="flex justify-between border-b border-slate-100 pb-3">
+              <span className="text-slate-500">Travel Fee</span>
               <span className="font-black text-amber-600">${travelFee.toFixed(2)}</span>
             </div>
             
-            <div className="bg-amber-50/70 border border-amber-100 rounded-xl p-3 text-xs text-amber-800 font-semibold flex items-center justify-between">
+            <div className="bg-amber-50/70 border border-amber-100 rounded-xl p-3 text-xs text-amber-900 font-bold flex items-center justify-between">
               <span>🎁 Your first 10 miles are FREE.</span>
               <span className="font-black uppercase tracking-wider text-[10px] bg-amber-600 text-white py-0.5 px-2 rounded-full">Included</span>
             </div>
           </div>
         </div>
 
-        {/* Card 5: Payment Policy */}
-        <div className="bg-white rounded-[24px] p-7 border border-slate-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_10px_45px_rgba(0,0,0,0.04)]">
-          <h2 className="font-black text-xs uppercase tracking-widest text-[#FFA000] mb-6 flex items-center gap-2">
+        {/* Card 6: Payment Policy */}
+        <div className="bg-white rounded-[2.5rem] p-8 border border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.015)] transition-all hover:shadow-[0_15px_45px_rgba(0,0,0,0.035)]">
+          <h2 className="font-black text-xs uppercase tracking-[0.18em] text-[#000223] mb-6 flex items-center gap-2">
             <span>💵</span> Payment Policy
           </h2>
           <div className="space-y-4">
-            <div className="flex justify-between items-center border-b border-slate-50 pb-4">
-              <span className="text-slate-400 font-bold">Estimated Total</span>
+            <div className="flex justify-between items-center border-b border-slate-100 pb-4">
+              <span className="text-slate-500 font-bold">Estimated Total</span>
               <span className="text-2xl font-black text-emerald-600">${estimatedTotal.toFixed(2)}</span>
             </div>
             
@@ -464,12 +464,12 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
           </div>
         </div>
 
-        {/* Card 6: Change / Cancellation Policy */}
-        <div className="bg-white rounded-[24px] p-7 border border-slate-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_10px_45px_rgba(0,0,0,0.04)]">
-          <h2 className="font-black text-xs uppercase tracking-widest text-[#FFA000] mb-6 flex items-center gap-2">
+        {/* Card 7: Change / Cancellation Policy */}
+        <div className="bg-white rounded-[2.5rem] p-8 border border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.015)] transition-all hover:shadow-[0_15px_45px_rgba(0,0,0,0.035)]">
+          <h2 className="font-black text-xs uppercase tracking-[0.18em] text-[#000223] mb-6 flex items-center gap-2">
             <span>📋</span> Change & Cancellation Policy
           </h2>
-          <div className="space-y-4 text-xs font-semibold text-slate-500 leading-relaxed">
+          <div className="space-y-4 text-xs font-semibold text-slate-655 leading-relaxed">
             <div className="p-3 bg-slate-50 rounded-xl border border-slate-150">
               <p className="font-black text-[#000223] mb-1">⏱ Change Deadline</p>
               <p>Please submit any guest counts, date, or time changes at least <strong>48 hours</strong> prior to your event. We will do our best to accommodate schedule shifts.</p>
@@ -498,21 +498,21 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
             <h2 className="text-xl font-black text-[#000223] mb-6">Update Contact Details</h2>
             <form onSubmit={handleUpdateContact} className="space-y-4">
               <div>
-                <label className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1.5">Email Address</label>
-                <input required type="email" value={editForm.email} onChange={e=>setEditForm({...editForm, email:e.target.value})} className="w-full px-4 py-3 rounded-2xl border border-slate-200 font-bold outline-none focus:border-[#FFA000]" />
+                <label className="label-premium">Email Address</label>
+                <input required type="email" value={editForm.email} onChange={e=>setEditForm({...editForm, email:e.target.value})} className="w-full py-3.5 px-5 rounded-2xl border-2 font-semibold text-base outline-none transition-all bg-white text-[#000223] border-slate-100 placeholder:text-slate-400 focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/15" />
               </div>
               <div>
-                <label className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1.5">Phone Number</label>
-                <input required type="tel" value={editForm.phone} onChange={e=>setEditForm({...editForm, phone:e.target.value})} className="w-full px-4 py-3 rounded-2xl border border-slate-200 font-bold outline-none focus:border-[#FFA000]" />
+                <label className="label-premium">Phone Number</label>
+                <input required type="tel" value={editForm.phone} onChange={e=>setEditForm({...editForm, phone:e.target.value})} className="w-full py-3.5 px-5 rounded-2xl border-2 font-semibold text-base outline-none transition-all bg-white text-[#000223] border-slate-100 placeholder:text-slate-400 focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/15" />
               </div>
               <div>
-                <label className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1.5">Booking Notes</label>
-                <textarea value={editForm.notes} onChange={e=>setEditForm({...editForm, notes:e.target.value})} className="w-full px-4 py-3 rounded-2xl border border-slate-200 font-bold outline-none focus:border-[#FFA000]" rows={3} placeholder="Add gate details or special requests..." />
+                <label className="label-premium">Booking Notes</label>
+                <textarea value={editForm.notes} onChange={e=>setEditForm({...editForm, notes:e.target.value})} className="w-full py-3.5 px-5 rounded-2xl border-2 font-semibold text-base outline-none transition-all bg-white text-[#000223] border-slate-100 placeholder:text-slate-400 focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/15" rows={3} placeholder="Add gate details or special requests..." />
               </div>
               
               <div className="flex gap-3 pt-4">
                 <button type="button" disabled={submitting} onClick={()=>setShowEditModal(false)} className="flex-1 py-3 rounded-full font-black text-sm bg-slate-100 hover:bg-slate-200">Cancel</button>
-                <button type="submit" disabled={submitting} className="flex-1 py-3 rounded-full font-black text-sm text-[#000223] bg-[#FFA000] hover:bg-[#FFB020] flex items-center justify-center gap-1.5">
+                <button type="submit" disabled={submitting} className="flex-1 py-3.5 rounded-full font-black text-sm text-[#000223] bg-[#FFA000] hover:bg-[#FFB020] flex items-center justify-center gap-1.5">
                   {submitting && <Loader2 className="w-4 h-4 animate-spin"/>} Save Details
                 </button>
               </div>
@@ -543,13 +543,13 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
 
             <form onSubmit={handleRequestAction} className="space-y-4">
               <div>
-                <label className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1.5">Reason & Details</label>
-                <textarea required value={requestReason} onChange={e=>setRequestReason(e.target.value)} className="w-full px-4 py-3 rounded-2xl border border-slate-200 font-bold outline-none focus:border-[#FFA000]" rows={4} placeholder={showRequestModal === "CANCEL" ? "E.g. Weather conditions..." : "E.g. Change time from 2:00 PM to 4:00 PM..."} />
+                <label className="label-premium">Reason & Details</label>
+                <textarea required value={requestReason} onChange={e=>setRequestReason(e.target.value)} className="w-full py-3.5 px-5 rounded-2xl border-2 font-semibold text-base outline-none transition-all bg-white text-[#000223] border-slate-100 placeholder:text-slate-400 focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/15" rows={4} placeholder={showRequestModal === "CANCEL" ? "E.g. Weather conditions..." : "E.g. Change time from 2:00 PM to 4:00 PM..."} />
               </div>
               
               <div className="flex gap-3 pt-4">
                 <button type="button" disabled={submitting} onClick={()=>setShowRequestModal(null)} className="flex-1 py-3 rounded-full font-black text-sm bg-slate-100 hover:bg-slate-200">Cancel</button>
-                <button type="submit" disabled={submitting || !requestReason.trim()} className="flex-1 py-3 rounded-full font-black text-sm text-white bg-[#000223] hover:bg-[#FFA000] hover:text-[#000223] flex items-center justify-center gap-1.5">
+                <button type="submit" disabled={submitting || !requestReason.trim()} className="flex-1 py-3.5 rounded-full font-black text-sm text-white bg-[#000223] hover:bg-[#FFA000] hover:text-[#000223] flex items-center justify-center gap-1.5">
                   {submitting && <Loader2 className="w-4 h-4 animate-spin"/>} Submit Request
                 </button>
               </div>
