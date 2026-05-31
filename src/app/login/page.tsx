@@ -55,7 +55,7 @@ export default function LoginPage() {
         </div>
 
         {/* Login Card */}
-        <div className="bg-white rounded-[2.5rem] shadow-[0_24px_80px_rgba(44,30,20,0.06)] p-8 sm:p-10 border border-slate-100 relative overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-lg p-8 border border-slate-200 relative overflow-hidden">
           {/* Top golden accent bar */}
           <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#FFA000] via-[#FFD000] to-[#FFA000]" />
 

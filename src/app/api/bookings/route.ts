@@ -75,19 +75,21 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ bookings, total, page, pages: Math.ceil(total/limit) });
 }
 
-  export async function POST(req: NextRequest) {
-    try {
-      const json = await req.json();
-      console.log("Booking API body:", json);
-      const result = BookingSchema.safeParse(json);
-  
-      if (!result.success) {
-        return NextResponse.json({ 
-          error: "Validation failed", 
-          missingFields: Object.keys(result.error.flatten().fieldErrors),
-          details: result.error.flatten().fieldErrors 
-        }, { status: 400 });
-      }
+import { verifyAndCalculateRoute } from "@/lib/locationVerification";
+
+export async function POST(req: NextRequest) {
+  try {
+    const json = await req.json();
+    console.log("Booking API body:", json);
+    const result = BookingSchema.safeParse(json);
+
+    if (!result.success) {
+      return NextResponse.json({ 
+        error: "Validation failed", 
+        missingFields: Object.keys(result.error.flatten().fieldErrors),
+        details: result.error.flatten().fieldErrors 
+      }, { status: 400 });
+    }
 
     const {
       firstName, lastName, email, phone,
@@ -99,13 +101,45 @@ export async function GET(req: NextRequest) {
       latitude, longitude
     } = result.data;
 
+    // ── 0.5. Verify locations & calculate accurate distance ──
+    const locationMode = json.locationMode || "SINGLE_LOCATION";
+    let primaryLocation = json.primaryLocation;
+    if (!primaryLocation) {
+      primaryLocation = {
+        street: address,
+        city: city,
+        state: json.state || "MA",
+        zipCode: zip,
+        latitude: latitude || null,
+        longitude: longitude || null,
+        formattedAddress: address,
+        placeId: "",
+        locationVerificationMethod: latitude ? "MAP_SELECTED" : "",
+        locationVerifiedAt: latitude ? new Date().toISOString() : null
+      };
+    }
+
+    const routeResult = await verifyAndCalculateRoute(locationMode, primaryLocation, bookingStops || []);
+    if ("error" in routeResult) {
+      return NextResponse.json({
+        success: false,
+        error: routeResult.error,
+        message: routeResult.message
+      }, { status: 400 });
+    }
+
+    const resolvedDistance = routeResult.distanceMiles;
+    const resolvedPrimaryLocation = routeResult.primaryLoc;
+    const resolvedStops = routeResult.verifiedStops;
+
     // ── 1. Run AI Engine ──────────────────────────────────────
     const aiDecision = await evaluateBooking({
       eventDate, startTime,
       durationMins,
-      zip, city,
+      zip: resolvedPrimaryLocation.zipCode,
+      city: resolvedPrimaryLocation.city,
       totalAmount,
-      distanceMiles,
+      distanceMiles: resolvedDistance,
       packageId: packageId || undefined, 
       guests,
       eventType,
@@ -123,7 +157,7 @@ export async function GET(req: NextRequest) {
     let customer = await withRetry(() => prisma.customer.findFirst({ where: { phone } }));
     if (!customer) {
       customer = await withRetry(() => prisma.customer.create({
-        data: { firstName, lastName, email, phone, address, city, zip },
+        data: { firstName, lastName, email, phone, address: resolvedPrimaryLocation.street, city: resolvedPrimaryLocation.city, zip: resolvedPrimaryLocation.zipCode },
       }));
     }
 
@@ -157,9 +191,9 @@ export async function GET(req: NextRequest) {
           extraGuestPrice,
           durationMins: packageDurationMins,
           packageDurationMins,
-          distanceMiles: distanceMiles || 0,
+          distanceMiles: resolvedDistance,
           guests: dbPkg.servings + (result.data.additionalGuests || 0),
-          additionalStops: bookingStops ? bookingStops.length : (additionalStops || 0),
+          additionalStops: resolvedStops ? resolvedStops.length : (additionalStops || 0),
           extraServiceMins: result.data.extraServiceMins || 0,
           freeMiles,
           ratePerMile
@@ -190,18 +224,19 @@ export async function GET(req: NextRequest) {
           additionalStopsCount: q.additionalStops,
           additionalStopsFee: q.additionalStopsFee,
           estimatedTotal: q.totalAmount,
-          paymentPolicy: "Payment is collected after the service. We accept multiple payment methods."
+          paymentPolicy: "Payment is collected after the service. We accept multiple payment methods.",
+          locationMode,
+          primaryLocation: resolvedPrimaryLocation,
+          bookingStops: resolvedStops,
         };
         quoteBreakdownStr = JSON.stringify(fullQuotePayload);
       }
     }
 
     // ── 4. Determine booking status ───────────────────────────
-    // Rejection rule: manually only. PENDING_REVIEW if distance > 30 AND packagePrice < 500
-    // The prompt says "No automatic rejection for distance alone", just PENDING_REVIEW
     let status = "CONFIRMED";
     const parsedPkgPrice = JSON.parse(quoteBreakdownStr).packagePrice || 0;
-    if ((distanceMiles || 0) > 30 && parsedPkgPrice < 500) {
+    if (resolvedDistance > 30 && parsedPkgPrice < 500) {
       status = "PENDING_REVIEW";
     }
 
@@ -215,10 +250,12 @@ export async function GET(req: NextRequest) {
         eventDate: new Date(eventDate),
         startTime,
         durationMins: durationMins,
-        address, city, zip,
+        address: resolvedPrimaryLocation.street,
+        city: resolvedPrimaryLocation.city,
+        zip: resolvedPrimaryLocation.zipCode,
         guests: guests,
         eventType,
-        additionalStops: additionalStops ?? 0,
+        additionalStops: resolvedStops.length,
         additionalStopsFee: finalStopsFee,
         totalAmount: finalTotal,
         notes: notes || null,
@@ -229,27 +266,29 @@ export async function GET(req: NextRequest) {
             ...(finalOvertime > 0 ? [{ lineType: "OVERTIME", description: "Overtime fee",   quantity: 1, unitPrice: finalOvertime, totalPrice: finalOvertime }] : []),
             ...(finalExtraGuest > 0 ? [{ lineType: "EXTRA_GUESTS", description: "Extra guests fee",   quantity: 1, unitPrice: finalExtraGuest, totalPrice: finalExtraGuest }] : []),
             ...(finalExtraService > 0 ? [{ lineType: "EXTRA_SERVICE", description: `Additional service (${result.data.extraServiceMins} min)`, quantity: 1, unitPrice: finalExtraService, totalPrice: finalExtraService }] : []),
-            ...(finalStopsFee > 0 ? [{ lineType: "MULTI_STOP", description: `Additional stops (${additionalStops})`, quantity: additionalStops ?? 1, unitPrice: 50, totalPrice: finalStopsFee }] : []),
+            ...(finalStopsFee > 0 ? [{ lineType: "MULTI_STOP", description: `Additional stops (${resolvedStops.length})`, quantity: resolvedStops.length, unitPrice: 50, totalPrice: finalStopsFee }] : []),
           ],
         },
         quote: {
           create: {
             basePrice:     finalTotal - finalTravel - finalOvertime - finalExtraService - finalStopsFee - finalExtraGuest,
-            distanceMiles: distanceMiles || 0,
+            distanceMiles: resolvedDistance,
             travelFee:     finalTravel,
             overtimeFee:   finalOvertime,
             totalAmount:   finalTotal,
             snapshotJson:  quoteBreakdownStr,
           },
         },
-        ...(bookingStops && bookingStops.length > 0 ? {
+        ...(resolvedStops && resolvedStops.length > 0 ? {
           stops: {
-            create: bookingStops.map((stop: any, idx: number) => ({
+            create: resolvedStops.map((stop: any, idx: number) => ({
               stopOrder: idx + 1,
               street: stop.street,
               city: stop.city,
               state: stop.state || "MA",
               zipCode: stop.zipCode,
+              latitude: stop.latitude,
+              longitude: stop.longitude,
               notes: stop.notes || null,
             }))
           }

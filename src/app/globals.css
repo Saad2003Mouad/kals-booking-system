@@ -22,42 +22,42 @@
 @layer components {
   /* Premium buttons */
   .btn-premium-primary {
-    @apply px-8 py-4 bg-[#000223] text-[#FFA000] rounded-2xl font-black text-base sm:text-lg transition-all duration-300 hover:bg-[#000445] hover:shadow-2xl hover:shadow-[#000223]/15 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-40 disabled:pointer-events-none;
+    @apply px-6 py-3.5 bg-[#000223] text-[#FFA000] rounded-xl font-bold text-base transition-all duration-205 hover:bg-[#000445] disabled:opacity-40 disabled:pointer-events-none;
   }
   
   .btn-premium-secondary {
-    @apply px-8 py-4 bg-white text-[#000223] border-2 border-slate-100 rounded-2xl font-extrabold text-base transition-all duration-300 hover:bg-slate-50 hover:border-slate-200 hover:-translate-y-0.5 active:translate-y-0;
+    @apply px-6 py-3.5 bg-white text-[#000223] border border-slate-200 rounded-xl font-bold text-base transition-all duration-205 hover:bg-slate-50;
   }
 
   /* Premium inputs & selects */
   .input-premium {
-    @apply w-full py-4 px-6 rounded-2xl border-2 font-semibold text-base sm:text-lg outline-none transition-all shadow-sm bg-white/95 text-[#000223] border-slate-100 placeholder:text-slate-400 focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/15;
+    @apply w-full py-3 px-4 rounded-xl border font-semibold text-base outline-none transition-all shadow-sm bg-white text-[#000223] border-slate-200 placeholder:text-slate-400 focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/10;
   }
 
   .label-premium {
-    @apply block text-xs sm:text-sm font-black uppercase tracking-[0.2em] text-[#000223]/70 mb-2;
+    @apply block text-sm font-semibold text-[#000223] mb-1.5;
   }
 
   .helper-premium {
-    @apply text-xs sm:text-sm font-semibold leading-relaxed text-[#000223]/50 mt-1;
+    @apply text-xs font-semibold leading-relaxed text-slate-500 mt-1;
   }
 
   .error-premium {
-    @apply text-red-600 text-sm font-black flex items-center gap-1.5 mt-1;
+    @apply text-red-600 text-sm font-bold flex items-center gap-1.5 mt-1;
   }
 
   /* Premium card styling */
   .card-premium {
-    @apply bg-white/95 rounded-[2.5rem] border border-slate-100/80 shadow-[0_8px_30px_rgb(0,0,0,0.015)] transition-all duration-500 hover:shadow-[0_20px_50px_rgba(0,0,0,0.035)] hover:-translate-y-0.5;
+    @apply bg-white rounded-2xl border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.01)] transition-all duration-300 hover:shadow-[0_6px_20px_rgba(0,0,0,0.03)];
   }
 
   .card-premium-selected {
-    @apply bg-white rounded-[2.5rem] border-2 border-[#FFA000] shadow-[0_15px_35px_rgba(255,160,0,0.12)] transition-all duration-500 hover:-translate-y-0.5;
+    @apply bg-white rounded-2xl border-2 border-[#FFA000] shadow-[0_4px_18px_rgba(255,160,0,0.06)] transition-all duration-300;
   }
 
   /* Stepper steps */
   .step-circle {
-    @apply w-14 h-14 rounded-2xl flex items-center justify-center font-black text-lg transition-all duration-300 border-2;
+    @apply w-10 h-10 rounded-xl flex items-center justify-center font-bold text-base transition-all duration-200 border;
   }
 }
 

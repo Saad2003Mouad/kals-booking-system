@@ -25,6 +25,8 @@ import {
 } from "lucide-react";
 import { SERVICE_AREAS } from "@/lib/serviceAreas";
 import OtpVerification from "./OtpVerification";
+import LocationVerificationWidget from "./LocationVerificationWidget";
+import { calcDistance, haversineDistanceMiles } from "@/lib/maps";
 
 const MapPicker = dynamic(() => import("./MapPicker"), {
   ssr: false,
@@ -453,9 +455,86 @@ export default function BookingForm() {
   const [serviceZones, setServiceZones] = useState<{ zip: string; city: string }[]>([]);
   const [phoneFocused, setPhoneFocused] = useState(false);
   const [hasMultipleLocations, setHasMultipleLocations] = useState(false);
-  const [bookingStops, setBookingStops] = useState<{ street: string; city: string; state: string; zipCode: string; notes: string }[]>([]);
   const [extraServiceMins, setExtraServiceMins] = useState(0);
 
+  const [primaryLoc, setPrimaryLoc] = useState<any>({
+    street: "",
+    city: "",
+    state: "MA",
+    zipCode: "",
+    latitude: null,
+    longitude: null,
+    formattedAddress: "",
+    placeId: "",
+    locationVerificationMethod: "",
+    locationVerifiedAt: null
+  });
+  const [locationMode, setLocationMode] = useState<"SINGLE_LOCATION" | "SEQUENTIAL_STOPS" | "SIMULTANEOUS_MULTI_VEHICLE" | "NEEDS_REVIEW">("SINGLE_LOCATION");
+  const [bookingStops, setBookingStops] = useState<any[]>([]);
+
+  useEffect(() => {
+    setAddress(primaryLoc.street || "");
+    setCity(primaryLoc.city || "");
+    setZip(primaryLoc.zipCode || "");
+    setLat(primaryLoc.latitude);
+    setLng(primaryLoc.longitude);
+  }, [primaryLoc]);
+
+  useEffect(() => {
+    if (zip && zip !== primaryLoc.zipCode) {
+      setPrimaryLoc((prev: any) => ({
+        ...prev,
+        zipCode: zip,
+        city: city || prev.city
+      }));
+    }
+  }, [zip, city]);
+
+  useEffect(() => {
+    if (primaryLoc.latitude === null || primaryLoc.longitude === null) {
+      setDMiles(0);
+      setMapFee(0);
+      return;
+    }
+
+    const freeMiles = 10;
+    const ratePerMile = 2.25;
+    let totalDist = 0;
+
+    if (locationMode === "SINGLE_LOCATION") {
+      const d = calcDistance(primaryLoc.latitude, primaryLoc.longitude, freeMiles, ratePerMile);
+      totalDist = d.drivingMiles;
+    } else if (locationMode === "SEQUENTIAL_STOPS" || locationMode === "NEEDS_REVIEW") {
+      const initial = calcDistance(primaryLoc.latitude, primaryLoc.longitude, freeMiles, ratePerMile);
+      totalDist = initial.drivingMiles;
+      let lastLat = primaryLoc.latitude;
+      let lastLng = primaryLoc.longitude;
+      for (const stop of bookingStops) {
+        if (stop.latitude !== null && stop.longitude !== null) {
+          const straight = haversineDistanceMiles(lastLat, lastLng, stop.latitude, stop.longitude);
+          const driving = Math.round(straight * 1.35 * 10) / 10;
+          totalDist += driving;
+          lastLat = stop.latitude;
+          lastLng = stop.longitude;
+        }
+      }
+    } else if (locationMode === "SIMULTANEOUS_MULTI_VEHICLE") {
+      const initial = calcDistance(primaryLoc.latitude, primaryLoc.longitude, freeMiles, ratePerMile);
+      totalDist = initial.drivingMiles;
+      for (const stop of bookingStops) {
+        if (stop.latitude !== null && stop.longitude !== null) {
+          const d = calcDistance(stop.latitude, stop.longitude, freeMiles, ratePerMile);
+          totalDist += d.drivingMiles;
+        }
+      }
+    }
+
+    const billable = Math.max(0, totalDist - freeMiles);
+    const fee = Math.round(billable * ratePerMile * 100) / 100;
+    setDMiles(totalDist);
+    setMapFee(fee);
+  }, [primaryLoc, bookingStops, locationMode]);
+ 
   useEffect(() => {
     fetch("/api/packages")
       .then((r) => r.json())
@@ -530,13 +609,17 @@ export default function BookingForm() {
     const pkgDuration = (sel as any)?.durationMins ?? sel?.includedMinutes ?? 60;
     const payload = {
       packageId: sel?.id,
-      zip,
+      zip: primaryLoc.zipCode || zip,
+      address: primaryLoc.street || address,
+      city: primaryLoc.city || city,
       guests: additionalGuests,           // only extra guests beyond included
       durationMins: pkgDuration,
       distanceMiles: drivingMiles,
       additionalStops: bookingStops.length,
       bookingStops,
       extraServiceMins,
+      locationMode,
+      primaryLocation: primaryLoc,
     };
     const r = await fetch("/api/quotes", {
       method: "POST",
@@ -570,7 +653,7 @@ export default function BookingForm() {
       return;
     }
     
-    if (hasMultipleLocations && bookingStops.length > 0) {
+    if (locationMode !== "SINGLE_LOCATION" && bookingStops.length > 0) {
       for (let i = 0; i < bookingStops.length; i++) {
         const stop = bookingStops[i];
         if (!stop.street || !stop.city || !stop.state || !stop.zipCode) {
@@ -580,6 +663,11 @@ export default function BookingForm() {
         }
         if (stop.zipCode.length !== 5) {
           setSubmitErr(`Please enter a valid 5-digit ZIP code for Stop #${i + 1}`);
+          setSubmitting(false);
+          return;
+        }
+        if (stop.latitude === null || stop.longitude === null) {
+          setSubmitErr(`Please verify the address for Stop #${i + 1}`);
           setSubmitting(false);
           return;
         }
@@ -599,9 +687,9 @@ export default function BookingForm() {
       guests: (sel?.servings ?? sel?.includedQty ?? 50) + additionalGuests,
       additionalGuests,
       eventType,
-      address,
-      city,
-      zip,
+      address: primaryLoc.street || address,
+      city: primaryLoc.city || city,
+      zip: primaryLoc.zipCode || zip,
       notes,
       extraServings: 0,
       firstName,
@@ -618,8 +706,10 @@ export default function BookingForm() {
       extraServiceMins,
       extraServiceFee: quote?.additionalServiceFee ?? 0,
       bookingStops,
-      latitude: lat,
-      longitude: lng
+      latitude: primaryLoc.latitude || lat,
+      longitude: primaryLoc.longitude || lng,
+      locationMode,
+      primaryLocation: primaryLoc,
     };
     const r = await fetch("/api/bookings", {
       method: "POST",
@@ -767,6 +857,10 @@ export default function BookingForm() {
       </div>
     );
   }
+
+  const isPrimaryVerified = primaryLoc.latitude !== null && primaryLoc.longitude !== null && primaryLoc.locationVerificationMethod !== "";
+  const isAllStopsVerified = bookingStops.every((stop: any) => stop.latitude !== null && stop.longitude !== null && stop.locationVerificationMethod !== "");
+  const canContinueStep1 = isPrimaryVerified && (locationMode === "SINGLE_LOCATION" || (bookingStops.length > 0 && isAllStopsVerified));
 
   const listPkgs = pkgList[pkgTab];
 
@@ -1095,79 +1189,47 @@ export default function BookingForm() {
                 </div>
 
                 <div className="md:col-span-2">
-                  <PremiumInput
-                    label="Street Address"
-                    value={address}
-                    onChange={setAddress}
-                    placeholder="e.g. 123 Main Street"
-                    icon={Navigation}
-                    helper="Event setup location address"
+                  <LocationVerificationWidget
+                    label="Primary Event Setup Location"
+                    value={primaryLoc}
+                    onChange={setPrimaryLoc}
+                    error={submitErr && !primaryLoc.latitude ? "Please verify your setup location." : undefined}
                   />
                 </div>
 
-                <ZipSelector
-                  zip={zip}
-                  city={city}
-                  onZipChange={handleZipChange}
-                  serviceZones={serviceZones}
-                />
-
-                {/* Map Selection */}
-                <div className="md:col-span-2 border-t border-dashed border-slate-200/50 pt-8 mt-4">
-                  <label className="block text-sm font-black uppercase tracking-[0.18em] mb-2" style={{ color: NAVY, opacity: 0.7, fontFamily: FN }}>
-                    📍 Set Setup Location on Map
-                  </label>
-                  <p className="text-xs sm:text-sm font-semibold text-slate-400 mb-5">
-                    Drag the pin or click on the map to set setup spot. Coordinates calculate travel distances from our garage.
-                  </p>
-
-                  <MapPicker
-                    lat={lat}
-                    lng={lng}
-                    address={address}
-                    onLocationChange={(la, lo, addr, c, z, dm, tf) => {
-                      setLat(la);
-                      setLng(lo);
-                      if (addr) setAddress(addr);
-                      if (c) setCity(c);
-                      if (z) setZip(z);
-                      setDMiles(dm);
-                      setMapFee(tf);
-                    }}
-                  />
-
-                  {/* Travel Distance Card */}
-                  {drivingMiles > 0 && (
+                {/* Travel Distance Card / Notice */}
+                <div className="md:col-span-2 mt-2">
+                  {primaryLoc.latitude !== null && primaryLoc.longitude !== null ? (
                     <div
-                      className="mt-8 p-7 rounded-[2rem] border-2 text-left transition-all bg-white shadow-md"
-                      style={{ borderColor: "rgba(0, 2, 35, 0.08)", borderLeftColor: GOLD, borderLeftWidth: "6px" }}
+                      className="p-5 rounded-xl border text-left bg-white shadow-sm"
+                      style={{ borderColor: "rgba(0, 2, 35, 0.08)", borderLeftColor: GOLD, borderLeftWidth: "4px" }}
                     >
-                      <div className="flex items-center justify-between mb-4.5">
+                      <div className="flex items-center justify-between mb-3">
                         <div>
-                          <span className="text-xs font-black uppercase tracking-wider text-slate-500 block" style={{ fontFamily: FN }}>
-                            Travel Calculation
+                          <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block">
+                            Travel Distance & Routing
                           </span>
-                          <span className="text-2xl sm:text-3xl font-black tracking-tight mt-1 block" style={{ color: NAVY, fontFamily: F_SERIF }}>
-                            {drivingMiles.toFixed(1)} miles
+                          <span className="text-xl font-bold tracking-tight mt-0.5 block" style={{ color: NAVY }}>
+                            {drivingMiles.toFixed(1)} miles total
                           </span>
                         </div>
-                        <span className="text-3.5xl">🎁</span>
+                        <span className="text-2xl">📍</span>
                       </div>
 
-                      <div className="grid md:grid-cols-2 gap-5 border-t border-dashed border-slate-200 pt-5 text-sm font-extrabold text-slate-700">
+                      <div className="grid grid-cols-2 gap-4 border-t border-dashed border-slate-200 pt-4 text-xs font-semibold text-slate-700">
                         <div>
                           <span className="text-slate-500 block">First 10.0 miles:</span>
-                          <span className="text-emerald-600 font-black">FREE ZONE</span>
+                          <span className="text-emerald-600 font-bold">FREE (Included)</span>
                         </div>
                         <div>
                           <span className="text-slate-500 block">Billable miles:</span>
-                          <span className="text-slate-800 font-black">
+                          <span className="text-slate-800 font-bold">
                             {Math.max(0, drivingMiles - 10).toFixed(1)} miles
                           </span>
                         </div>
                       </div>
 
-                      <div className="mt-5 p-4.5 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-between text-sm sm:text-base font-black text-amber-800">
+                      <div className="mt-4 p-3 rounded-lg bg-amber-50 border border-amber-100 flex items-center justify-between text-sm font-bold text-amber-800">
                         <span>Travel Fee:</span>
                         <span>
                           {drivingMiles <= 10 ? (
@@ -1178,133 +1240,135 @@ export default function BookingForm() {
                         </span>
                       </div>
 
-                      <p className="text-[11px] text-slate-500 font-semibold mt-4 text-center">
-                        📍 Origin garage: <strong>Boston Revere — 84 Fernwood Ave</strong>
+                      <p className="text-[10px] text-slate-400 font-medium mt-3 text-center">
+                        Garage: <strong>Boston Revere — 84 Fernwood Ave</strong>
                       </p>
+                    </div>
+                  ) : (
+                    <div className="p-4 rounded-xl border border-dashed border-slate-300 text-center bg-slate-50 text-sm font-semibold text-slate-500">
+                      Confirm your event location to calculate accurate travel distance.
                     </div>
                   )}
                 </div>
 
                 {/* Multi-Stop Section */}
-                <div className="md:col-span-2 border-t border-dashed border-slate-200/50 pt-8 mt-4">
-                  <label className="block text-sm font-black uppercase tracking-[0.18em] mb-1" style={{ color: NAVY, opacity: 0.95, fontFamily: FN }}>
-                    Multiple Locations
+                <div className="md:col-span-2 border-t border-slate-100 pt-6 mt-4">
+                  <label className="block text-sm font-bold text-[#000223] mb-1.5">
+                    Will this event include more than one location?
                   </label>
-                  <p className="text-xs sm:text-sm font-semibold text-slate-600 mb-5">
-                    Will this event include more than one stop? Each additional stop is <strong style={{ color: NAVY }}>$50</strong>. Additional travel distance between multiple stops may be reviewed by our team if needed.
+                  <p className="text-xs text-slate-500 mb-4">
+                    Select a multi-location routing mode if you need catering services across multiple spots. Each additional stop is <strong>$50</strong>.
                   </p>
                   
-                  <div className="flex flex-col gap-3 mb-6">
-                    <label className="flex items-center gap-3 cursor-pointer group">
-                      <div className="relative flex items-center justify-center w-6 h-6 rounded-full border-2 transition-all" style={{ borderColor: !hasMultipleLocations ? GOLD : "rgba(0,2,35,0.15)", background: !hasMultipleLocations ? "rgba(255,160,0,0.1)" : "transparent" }}>
-                        {(!hasMultipleLocations) && <div className="w-3 h-3 rounded-full" style={{ background: GOLD }} />}
-                      </div>
-                      <span className="font-bold text-base transition-colors" style={{ color: !hasMultipleLocations ? NAVY : "rgba(0,2,35,0.7)" }}>No, one location only</span>
-                      <input type="radio" className="hidden" checked={!hasMultipleLocations} onChange={() => {
-                        setHasMultipleLocations(false);
-                        setBookingStops([]);
-                      }} />
-                    </label>
-
-                    <label className="flex items-center gap-3 cursor-pointer group">
-                      <div className="relative flex items-center justify-center w-6 h-6 rounded-full border-2 transition-all" style={{ borderColor: hasMultipleLocations ? GOLD : "rgba(0,2,35,0.15)", background: hasMultipleLocations ? "rgba(255,160,0,0.1)" : "transparent" }}>
-                        {(hasMultipleLocations) && <div className="w-3 h-3 rounded-full" style={{ background: GOLD }} />}
-                      </div>
-                      <span className="font-bold text-base transition-colors" style={{ color: hasMultipleLocations ? NAVY : "rgba(0,2,35,0.7)" }}>Yes, add additional stops</span>
-                      <input type="radio" className="hidden" checked={hasMultipleLocations} onChange={() => {
-                        setHasMultipleLocations(true);
-                        if (bookingStops.length === 0) {
-                          setBookingStops([{ street: "", city: "", state: "MA", zipCode: "", notes: "" }]);
-                        }
-                      }} />
-                    </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                    {[
+                      { mode: "SINGLE_LOCATION", title: "Single Location", desc: "No, one location only" },
+                      { mode: "SEQUENTIAL_STOPS", title: "Sequential Stops", desc: "Multiple stops in order (single vehicle)" },
+                      { mode: "SIMULTANEOUS_MULTI_VEHICLE", title: "Simultaneous Multi-Vehicle", desc: "Multiple locations at the same time" },
+                      { mode: "NEEDS_REVIEW", title: "Needs Custom Review", desc: "Custom route / complex schedule needs" }
+                    ].map((opt) => {
+                      const isSel = locationMode === opt.mode;
+                      return (
+                        <button
+                          key={opt.mode}
+                          type="button"
+                          onClick={() => {
+                            setLocationMode(opt.mode as any);
+                            if (opt.mode === "SINGLE_LOCATION") {
+                              setBookingStops([]);
+                            } else if (bookingStops.length === 0) {
+                              setBookingStops([{
+                                street: "",
+                                city: "",
+                                state: "MA",
+                                zipCode: "",
+                                latitude: null,
+                                longitude: null,
+                                formattedAddress: "",
+                                placeId: "",
+                                locationVerificationMethod: "",
+                                locationVerifiedAt: null,
+                                notes: ""
+                              }]);
+                            }
+                          }}
+                          className={`p-3.5 rounded-xl border text-left transition-all ${
+                            isSel
+                              ? "bg-amber-50/40 border-[#FFA000] shadow-sm"
+                              : "bg-white border-slate-200 hover:bg-slate-50"
+                          }`}
+                        >
+                          <div className="font-bold text-sm text-[#000223] mb-0.5">{opt.title}</div>
+                          <div className="text-xs text-slate-500 font-medium">{opt.desc}</div>
+                        </button>
+                      );
+                    })}
                   </div>
 
-                  {hasMultipleLocations && (
+                  {locationMode !== "SINGLE_LOCATION" && (
                     <div className="space-y-6">
                       {bookingStops.map((stop, idx) => (
-                        <div key={idx} className="bg-white border-2 border-slate-150/80 shadow-md p-6 rounded-[2rem] relative">
-                          <div className="flex justify-between items-center mb-4 pb-2 border-b border-dashed border-slate-100">
-                            <h4 className="font-black text-[#000223]">Stop #{idx + 1}</h4>
+                        <div key={idx} className="bg-[#FAF8F5] border border-slate-200 p-5 rounded-xl relative shadow-sm space-y-4">
+                          <div className="flex justify-between items-center pb-2 border-b border-slate-200">
+                            <h4 className="font-bold text-sm text-[#000223]">Stop #{idx + 1}</h4>
                             <button
                               type="button"
                               onClick={() => setBookingStops(bookingStops.filter((_, i) => i !== idx))}
-                              className="text-red-500 text-xs font-black uppercase tracking-wider hover:text-red-600 px-3 py-1.5 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                              className="text-red-500 text-xs font-bold hover:text-red-650 px-2.5 py-1 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
                             >
-                              Remove
+                              Remove Stop
                             </button>
                           </div>
                           
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                            <div className="sm:col-span-2">
-                              <PremiumInput
-                                label="Street Address"
-                                value={stop.street}
-                                onChange={(val) => {
-                                  const newStops = [...bookingStops];
-                                  newStops[idx].street = val;
-                                  setBookingStops(newStops);
-                                }}
-                                placeholder="123 Additional St"
-                              />
-                            </div>
-                            <PremiumInput
-                              label="City"
-                              value={stop.city}
-                              onChange={(val) => {
-                                  const newStops = [...bookingStops];
-                                  newStops[idx].city = val;
-                                  setBookingStops(newStops);
-                                }}
-                              placeholder="City"
-                            />
-                            <div className="grid grid-cols-2 gap-4">
-                              <PremiumInput
-                                label="State"
-                                value={stop.state}
-                                onChange={(val) => {
-                                  const newStops = [...bookingStops];
-                                  newStops[idx].state = val;
-                                  setBookingStops(newStops);
-                                }}
-                                placeholder="MA"
-                              />
-                              <PremiumInput
-                                label="ZIP Code"
-                                value={stop.zipCode}
-                                onChange={(val) => {
-                                  const newStops = [...bookingStops];
-                                  newStops[idx].zipCode = val;
-                                  setBookingStops(newStops);
-                                }}
-                                placeholder="02108"
-                              />
-                            </div>
-                          </div>
-                          <PremiumInput
-                            label="Stop Notes (Optional)"
-                            value={stop.notes}
-                            onChange={(val) => {
+                          <LocationVerificationWidget
+                            label={`Stop #${idx + 1} Address Details`}
+                            value={stop}
+                            onChange={(updatedStop) => {
                               const newStops = [...bookingStops];
-                              newStops[idx].notes = val;
+                              newStops[idx] = { ...newStops[idx], ...updatedStop };
                               setBookingStops(newStops);
                             }}
-                            placeholder="Parking instructions, arrival time, etc."
-                            helper="Any specific details for this stop"
                           />
+                          
+                          <div>
+                            <label className="block text-xs font-bold text-slate-500 mb-1">Stop Notes (Optional)</label>
+                            <input
+                              type="text"
+                              value={stop.notes || ""}
+                              onChange={(e) => {
+                                const newStops = [...bookingStops];
+                                newStops[idx].notes = e.target.value;
+                                setBookingStops(newStops);
+                              }}
+                              placeholder="e.g. Set up by the garden gate"
+                              className="w-full py-2 px-3 rounded-lg border border-slate-250 text-sm font-semibold focus:border-[#FFA000] focus:ring-2 focus:ring-[#FFA000]/5"
+                            />
+                          </div>
                         </div>
                       ))}
 
                       {bookingStops.length < 5 ? (
                         <button
                           type="button"
-                          onClick={() => setBookingStops([...bookingStops, { street: "", city: "", state: "MA", zipCode: "", notes: "" }])}
-                          className="w-full py-4.5 border-2 border-dashed border-[#FFA000] rounded-2xl font-black text-[#FFA000] hover:bg-[#FFA000]/5 hover:shadow-sm transition-all text-base sm:text-lg"
+                          onClick={() => setBookingStops([...bookingStops, {
+                            street: "",
+                            city: "",
+                            state: "MA",
+                            zipCode: "",
+                            latitude: null,
+                            longitude: null,
+                            formattedAddress: "",
+                            placeId: "",
+                            locationVerificationMethod: "",
+                            locationVerifiedAt: null,
+                            notes: ""
+                          }])}
+                          className="w-full py-3 border border-dashed border-[#FFA000] rounded-xl font-bold text-[#FFA000] hover:bg-[#FFA000]/5 transition-colors text-sm"
                         >
                           + Add Another Stop
                         </button>
                       ) : (
-                        <p className="text-center text-sm font-bold text-slate-700 py-3 bg-slate-50 rounded-xl border border-slate-100">
+                        <p className="text-center text-xs font-bold text-slate-500 py-3 bg-slate-50 rounded-xl border border-slate-100">
                           Need more than 5 stops? Add the details in the main notes below and our team will review it.
                         </p>
                       )}
@@ -1341,7 +1405,7 @@ export default function BookingForm() {
                 </button>
                 <button
                   onClick={fetchQuote}
-                  disabled={quoting || !eventDate || !startTime || !zip || !eventType || !address}
+                  disabled={quoting || !eventDate || !startTime || !eventType || !canContinueStep1}
                   className="inline-flex items-center justify-center gap-2 px-10 py-5 rounded-full font-black text-base sm:text-lg shadow-2xl disabled:opacity-40 hover:-translate-y-1 transition-all duration-300 w-full sm:w-auto justify-center"
                   style={{ background: NAVY, color: GOLD, fontFamily: FN }}
                 >
@@ -1585,43 +1649,32 @@ export default function BookingForm() {
 
               <div className="space-y-6 sm:space-y-8 mb-10">
                 {/* Package Summary Card */}
-                <div className="rounded-[2rem] border bg-white/95 overflow-hidden shadow-sm" style={{ borderColor: SOFT_BORDER }}>
-                  <div
-                    className="px-6 py-4.5 border-b flex items-center gap-2.5"
-                    style={{ borderColor: "rgba(0, 2, 35, 0.04)", background: "rgba(255,160,0,0.06)" }}
-                  >
-                    <span className="text-xl">🚐</span>
-                    <span className="text-xs sm:text-sm font-black uppercase tracking-[0.15em]" style={{ color: NAVY, opacity: 0.95, fontFamily: FN }}>
-                      Catering Package
-                    </span>
+                {/* Package Summary Card */}
+                <div className="rounded-xl border border-slate-250 bg-white overflow-hidden shadow-sm">
+                  <div className="px-5 py-3 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
+                    <span className="text-base">Catering Package</span>
                   </div>
-                  <div className="px-6 py-6 flex items-center justify-between">
+                  <div className="px-5 py-5 flex items-center justify-between">
                     <div>
-                      <span className="font-extrabold text-xl block tracking-tight" style={{ color: NAVY, fontFamily: F_SERIF }}>
+                      <span className="font-bold text-lg block text-[#000223]">
                         {sel?.name}
                       </span>
-                      <span className="text-sm sm:text-base text-slate-700 font-semibold mt-1.5 block" style={{ fontFamily: FN }}>
+                      <span className="text-sm text-slate-600 mt-1 block">
                         {sel?.includedQty || sel?.servings} servings included · {sel?.includedMinutes || 60} mins setup
                       </span>
                     </div>
-                    <span className="font-black text-2xl sm:text-3xl" style={{ color: GOLD, fontFamily: FN }}>
+                    <span className="font-bold text-xl text-[#FFA000]">
                       ${sel?.basePrice || sel?.price}
                     </span>
                   </div>
                 </div>
 
                 {/* Event Details Summary Card */}
-                <div className="rounded-[2rem] border bg-white/95 overflow-hidden shadow-sm" style={{ borderColor: SOFT_BORDER }}>
-                  <div
-                    className="px-6 py-4.5 border-b flex items-center gap-2.5"
-                    style={{ borderColor: "rgba(0, 2, 35, 0.04)", background: "rgba(255,160,0,0.06)" }}
-                  >
-                    <span className="text-xl">📅</span>
-                    <span className="text-xs sm:text-sm font-black uppercase tracking-[0.15em]" style={{ color: NAVY, opacity: 0.95, fontFamily: FN }}>
-                      Scheduling Details
-                    </span>
+                <div className="rounded-xl border border-slate-250 bg-white overflow-hidden shadow-sm">
+                  <div className="px-5 py-3 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
+                    <span className="text-base">Scheduling Details</span>
                   </div>
-                  <div className="divide-y divide-slate-100" style={{ borderColor: "rgba(0, 2, 35, 0.04)" }}>
+                  <div className="divide-y divide-slate-100">
                     {[
                       ["Event Type", eventType],
                       ["Event Date", formatEnDate(eventDate)],
@@ -1630,16 +1683,17 @@ export default function BookingForm() {
                       ["Included Guests", `${sel?.servings ?? sel?.includedQty ?? 50} guests`],
                       ...(additionalGuests > 0 ? [["Additional Guests", `+${additionalGuests} guests`]] as [string, string][] : []),
                       ...(extraServiceMins > 0 ? [["Additional Service Time", `+${extraServiceMins} mins`]] as [string, string][] : []),
-                      ["Location", `${address}, ${city} ${zip}`],
+                      ["Location", `${primaryLoc.formattedAddress || `${address}, ${city} ${zip}`}`],
+                      ...(bookingStops.length > 0 ? [["Stops", `${bookingStops.length} additional stop(s)`]] as [string, string][] : []),
                       ["Garage Origin", "Boston Revere — 84 Fernwood Ave"],
                       ["Distance", `${quote.distanceMiles.toFixed(1)} miles total`],
                       ["Free Travel Zone", "First 10.0 miles FREE"],
                       ["Billable Miles", `${Math.max(0, quote.distanceMiles - 10).toFixed(1)} miles`],
                       ["Travel Fee", quote.travelFee > 0 ? `$${quote.travelFee.toFixed(2)}` : "Free ($0.00)"]
                     ].map(([l, v]) => (
-                      <div key={l} className="flex justify-between px-6 py-4 text-sm sm:text-base">
-                        <span className="font-bold text-slate-650" style={{ color: "#4A4A5A", fontFamily: FN }}>{l}</span>
-                        <span className="font-extrabold text-right max-w-[65%]" style={{ color: NAVY, fontFamily: FN }}>
+                      <div key={l} className="flex justify-between px-5 py-3.5 text-sm">
+                        <span className="font-medium text-slate-500">{l}</span>
+                        <span className="font-bold text-[#000223] text-right max-w-[65%]">
                           {v}
                         </span>
                       </div>
@@ -1648,25 +1702,19 @@ export default function BookingForm() {
                 </div>
 
                 {/* Customer Contact Summary Card */}
-                <div className="rounded-[2rem] border bg-white/95 overflow-hidden shadow-sm" style={{ borderColor: SOFT_BORDER }}>
-                  <div
-                    className="px-6 py-4.5 border-b flex items-center gap-2.5"
-                    style={{ borderColor: "rgba(0, 2, 35, 0.04)", background: "rgba(255,160,0,0.06)" }}
-                  >
-                    <span className="text-lg">👤</span>
-                    <span className="text-xs sm:text-sm font-black uppercase tracking-[0.15em]" style={{ color: NAVY, opacity: 0.95, fontFamily: FN }}>
-                      Customer Contact Info
-                    </span>
+                <div className="rounded-xl border border-slate-250 bg-white overflow-hidden shadow-sm">
+                  <div className="px-5 py-3 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
+                    <span className="text-base">Customer Contact Info</span>
                   </div>
-                  <div className="divide-y divide-slate-100" style={{ borderColor: "rgba(0, 2, 35, 0.04)" }}>
+                  <div className="divide-y divide-slate-100">
                     {[
                       ["Name", `${firstName} ${lastName}`],
                       ["Email", email],
                       ["Phone", phone]
                     ].map(([l, v]) => (
-                      <div key={l} className="flex justify-between px-6 py-4 text-sm sm:text-base">
-                        <span className="font-bold" style={{ color: "#4A4A5A", fontFamily: FN }}>{l}</span>
-                        <span className="font-extrabold" style={{ color: NAVY, fontFamily: FN }}>
+                      <div key={l} className="flex justify-between px-5 py-3.5 text-sm">
+                        <span className="font-medium text-slate-500">{l}</span>
+                        <span className="font-bold text-[#000223]">
                           {v}
                         </span>
                       </div>
@@ -1675,25 +1723,21 @@ export default function BookingForm() {
                 </div>
 
                 {/* Pricing breakdown details */}
-                <div
-                  className="rounded-[2rem] border-2 p-6.5 sm:p-8"
-                  style={{ background: "linear-gradient(135deg, #FFFDF9, #FFFBEB)", borderColor: "#FDE68A" }}
-                >
-                  <div className="flex items-center gap-2 mb-5">
-                    <DollarSign className="w-5.5 h-5.5" style={{ color: GOLD }} />
-                    <span className="text-xs sm:text-sm font-black uppercase tracking-[0.15em]" style={{ color: NAVY, opacity: 0.95, fontFamily: FN }}>
+                <div className="rounded-xl border border-slate-250 bg-white p-6 shadow-sm">
+                  <div className="flex items-center gap-2 mb-4">
+                    <DollarSign className="w-5 h-5 text-[#FFA000]" />
+                    <span className="text-sm font-bold text-slate-800">
                       Catering Fee Breakdown
                     </span>
                   </div>
-                  <div className="space-y-3 mb-5">
+                  <div className="space-y-3 mb-4">
                     {quote.breakdown.map(
                       (b, i) =>
                         (b.amount !== 0 || i === 0) && (
-                          <div key={i} className="flex justify-between text-sm sm:text-base py-1">
-                            <span className="font-semibold text-slate-700" style={{ fontFamily: FN }}>{b.label}</span>
+                          <div key={i} className="flex justify-between text-sm py-1.5 border-b border-slate-100">
+                            <span className="font-medium text-slate-600">{b.label}</span>
                             <span
-                              className="font-black"
-                              style={{ color: b.amount < 0 ? "#10B981" : NAVY, fontFamily: FN }}
+                              className="font-bold text-[#000223]"
                             >
                               {b.amount < 0
                                 ? `-$${Math.abs(b.amount).toFixed(2)}`
@@ -1703,11 +1747,11 @@ export default function BookingForm() {
                         )
                     )}
                   </div>
-                  <div className="border-t border-amber-200/80 pt-5 flex justify-between items-center">
-                    <span className="font-extrabold text-base sm:text-lg" style={{ color: NAVY, fontFamily: FN }}>
+                  <div className="border-t border-slate-200 pt-4 flex justify-between items-center">
+                    <span className="font-bold text-base text-[#000223]">
                       Estimated Total Amount
                     </span>
-                    <span className="text-3xl sm:text-4xl font-black tracking-tight" style={{ color: GOLD, fontFamily: FN }}>
+                    <span className="text-2xl font-bold tracking-tight text-[#FFA000]">
                       ${quote.totalAmount.toFixed(2)}
                     </span>
                   </div>

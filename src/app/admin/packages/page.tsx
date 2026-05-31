@@ -170,7 +170,7 @@ export default function AdminPackagesPage() {
             </div>
           )}
           {packages.map(pkg => (
-            <div key={pkg.id} className={`bg-white border rounded-[2.5rem] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.015)] transition-all duration-300 hover:shadow-[0_20px_50px_rgba(0,0,0,0.035)] hover:-translate-y-0.5 ${pkg.isActive ? 'border-slate-100/80' : 'border-slate-200/50 opacity-60 bg-slate-50/50'}`}>
+            <div key={pkg.id} className={`bg-white border rounded-2xl p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 ${pkg.isActive ? 'border-slate-200' : 'border-slate-200 opacity-60 bg-slate-50/50'}`}>
               
               <div className="relative h-44 w-full rounded-3xl overflow-hidden mb-5 bg-slate-50 border border-slate-100">
                 <img src={pkg.imageUrl || pkg.image} alt={pkg.name} className="w-full h-full object-cover" />
@@ -222,7 +222,7 @@ export default function AdminPackagesPage() {
       {/* Add/Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#000223]/40 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-200 border border-slate-100">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-200 border border-slate-200">
             <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
               <h2 className="font-black text-xl text-[#000223] flex items-center gap-2">
                 <PackageIcon className="w-5 h-5 text-[#FFA000]"/> {editingId ? "Edit Package" : "New Package"}

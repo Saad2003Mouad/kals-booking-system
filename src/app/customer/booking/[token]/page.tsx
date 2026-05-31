@@ -286,7 +286,7 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
       <div className="max-w-4xl mx-auto px-6 mt-12 grid md:grid-cols-2 gap-8">
         
         {/* Card 1: Event Details */}
-        <div className="bg-white rounded-[2.5rem] p-8 border border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.015)] transition-all hover:shadow-[0_15px_45px_rgba(0,0,0,0.035)]">
+        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm transition-all hover:shadow-md">
           <h2 className="font-black text-xs uppercase tracking-[0.18em] text-[#000223] mb-6 flex items-center gap-2">
             <span>📅</span> Event Details
           </h2>
@@ -317,7 +317,7 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
         </div>
 
         {/* Card 2: Package Details */}
-        <div className="bg-white rounded-[2.5rem] p-8 border border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.015)] transition-all hover:shadow-[0_15px_45px_rgba(0,0,0,0.035)]">
+        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm transition-all hover:shadow-md">
           <h2 className="font-black text-xs uppercase tracking-[0.18em] text-[#000223] mb-6 flex items-center gap-2">
             <span>🍦</span> Package Details
           </h2>
@@ -348,7 +348,7 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
         </div>
 
         {/* Card 3: Customer Contact */}
-        <div className="bg-white rounded-[2.5rem] p-8 border border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.015)] transition-all hover:shadow-[0_15px_45px_rgba(0,0,0,0.035)]">
+        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm transition-all hover:shadow-md">
           <div className="flex justify-between items-center mb-6">
             <h2 className="font-black text-xs uppercase tracking-[0.18em] text-[#000223] flex items-center gap-2">
               <span>👤</span> Contact Contact
@@ -384,7 +384,7 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
 
         {/* Card 4: Route & Stops */}
         {booking.stops && booking.stops.length > 0 && (
-          <div className="bg-white rounded-[2.5rem] p-8 border border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.015)] transition-all hover:shadow-[0_15px_45px_rgba(0,0,0,0.035)]">
+          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm transition-all hover:shadow-md">
             <h2 className="font-black text-xs uppercase tracking-[0.18em] text-[#000223] mb-6 flex items-center gap-2">
               <span>🗺️</span> Route & Stops
             </h2>
@@ -412,7 +412,7 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
         )}
 
         {/* Card 5: Travel & Mileage */}
-        <div className="bg-white rounded-[2.5rem] p-8 border border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.015)] transition-all hover:shadow-[0_15px_45px_rgba(0,0,0,0.035)]">
+        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm transition-all hover:shadow-md">
           <h2 className="font-black text-xs uppercase tracking-[0.18em] text-[#000223] mb-6 flex items-center gap-2">
             <span>📍</span> Travel & Mileage
           </h2>
@@ -446,7 +446,7 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
         </div>
 
         {/* Card 6: Payment Policy */}
-        <div className="bg-white rounded-[2.5rem] p-8 border border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.015)] transition-all hover:shadow-[0_15px_45px_rgba(0,0,0,0.035)]">
+        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm transition-all hover:shadow-md">
           <h2 className="font-black text-xs uppercase tracking-[0.18em] text-[#000223] mb-6 flex items-center gap-2">
             <span>💵</span> Payment Policy
           </h2>
@@ -465,7 +465,7 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
         </div>
 
         {/* Card 7: Change / Cancellation Policy */}
-        <div className="bg-white rounded-[2.5rem] p-8 border border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.015)] transition-all hover:shadow-[0_15px_45px_rgba(0,0,0,0.035)]">
+        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm transition-all hover:shadow-md">
           <h2 className="font-black text-xs uppercase tracking-[0.18em] text-[#000223] mb-6 flex items-center gap-2">
             <span>📋</span> Change & Cancellation Policy
           </h2>

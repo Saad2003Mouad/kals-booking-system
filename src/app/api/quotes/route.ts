@@ -15,11 +15,13 @@ async function withRetry<T>(fn: () => Promise<T>, retries = 2): Promise<T> {
   throw lastError;
 }
 
+import { verifyAndCalculateRoute } from '@/lib/locationVerification';
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     console.log("Quotes API body:", body);
-    const { packageId, durationMins, distanceMiles, guests, additionalStops, bookingStops, extraServiceMins } = body;
+    const { packageId, durationMins, distanceMiles, guests, additionalStops, bookingStops, extraServiceMins, locationMode, primaryLocation } = body;
 
     const missingFields = [];
     if (!packageId) missingFields.push("packageId");
@@ -27,6 +29,39 @@ export async function POST(req: Request) {
     if (missingFields.length > 0) {
       return NextResponse.json({ success: false, error: 'Missing required parameters', missingFields }, { status: 400 });
     }
+
+    // Resolve coordinates & calculate mileage
+    let resolvedPrimaryLocation = primaryLocation;
+    if (!resolvedPrimaryLocation && (body.zip || body.latitude)) {
+      resolvedPrimaryLocation = {
+        street: body.address || "",
+        city: body.city || "",
+        state: body.state || "MA",
+        zipCode: body.zip || "",
+        latitude: body.latitude || null,
+        longitude: body.longitude || null,
+        formattedAddress: body.address || "",
+        placeId: "",
+        locationVerificationMethod: body.latitude ? "MAP_SELECTED" : "",
+        locationVerifiedAt: body.latitude ? new Date().toISOString() : null
+      };
+    }
+
+    const routeResult = await verifyAndCalculateRoute(
+      locationMode || "SINGLE_LOCATION",
+      resolvedPrimaryLocation,
+      bookingStops || []
+    );
+
+    if ("error" in routeResult) {
+      return NextResponse.json({
+        success: false,
+        error: routeResult.error,
+        message: routeResult.message
+      }, { status: 400 });
+    }
+
+    const resolvedDistance = routeResult.distanceMiles;
 
     const [pkg, settings] = await withRetry(() => Promise.all([
       prisma.package.findUnique({ where: { id: packageId } }),
@@ -52,7 +87,7 @@ export async function POST(req: Request) {
       extraGuestPrice,
       durationMins: packageDurationMins,     // always use package duration
       packageDurationMins,
-      distanceMiles: parseFloat(distanceMiles as string) || 0,
+      distanceMiles: resolvedDistance,
       guests: pkg.servings + (parseInt(guests as string) || 0),
       additionalStops: bookingStops ? bookingStops.length : (parseInt(additionalStops as string) || 0),
       extraServiceMins: parseInt(extraServiceMins as string) || 0,

@@ -50,7 +50,7 @@ function AddZipModal({ onAdd, onClose }: { onAdd: (zip: string, city: string, co
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#000223]/40 backdrop-blur-sm">
-      <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md mx-4 overflow-hidden border border-slate-100" style={{ fontFamily: FN }}>
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 overflow-hidden border border-slate-200" style={{ fontFamily: FN }}>
         <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div>
             <h2 className="text-xl font-black" style={{ color: "#000223" }}>Add ZIP Code</h2>
@@ -107,7 +107,7 @@ function EditModal({ record, onSave, onClose }: { record: ZipRecord; onSave: (id
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#000223]/40 backdrop-blur-sm">
-      <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md mx-4 overflow-hidden border border-slate-100" style={{ fontFamily: FN }}>
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 overflow-hidden border border-slate-200" style={{ fontFamily: FN }}>
         <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div>
             <h2 className="text-xl font-black" style={{ color: "#000223" }}>Edit ZIP {record.zip}</h2>
@@ -428,7 +428,7 @@ export default function ServiceAreasPage() {
       )}
 
       {/* Table */}
-      <div className="bg-white rounded-[2.5rem] border border-slate-100/80 shadow-[0_8px_30px_rgba(0,0,0,0.015)] overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
