@@ -871,7 +871,7 @@ export default function BookingForm() {
       <div className="absolute bottom-[-5%] right-[-5%] w-[450px] sm:w-[600px] h-[450px] sm:h-[600px] bg-blue-200/10 rounded-full blur-[100px] sm:blur-[150px] pointer-events-none" />
       
       <div className="w-full max-w-4xl mx-auto px-4 sm:px-8 relative z-10">
-        <div className="backdrop-blur-xl bg-white/70 border border-white/60 shadow-2xl rounded-[3rem] p-6 sm:p-12 transition-all duration-500">
+        <div className="backdrop-blur-2xl bg-white/40 border border-white/30 shadow-xl rounded-2xl p-6 sm:p-12 transition-all duration-300">
           
           {/* Stepper Header */}
           <div className="mb-10 sm:mb-14">
