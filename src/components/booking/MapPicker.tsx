@@ -93,13 +93,13 @@ export default function MapPicker({ lat, lng, address, onLocationChange }: MapPi
       {/* Action buttons wrapper */}
       <div className="absolute bottom-4 left-4 z-10 flex gap-2">
         <button type="button" onClick={goToCurrentLocation}
-          className="glass-card-light px-4 py-3 flex items-center gap-2 text-sm font-bold hover:bg-white hover:scale-105 transition-all"
+          className="glass-card-light px-3 py-2.5 sm:px-4 sm:py-3 flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-bold hover:bg-white hover:scale-105 transition-all animate-fade-in"
           style={{ color: "#000223", background: "rgba(255,255,255,0.9)" }}>
-          <MapPin className="w-4 h-4 text-[#FFA000]"/> Pin My Event Location
+          <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#FFA000]"/> Pin My Event Location
         </button>
       </div>
       {/* Origin note */}
-      <div className="absolute bottom-4 right-4 z-10 bg-white/90 px-3 py-2 rounded-xl text-xs font-bold text-gray-500 shadow">
+      <div className="absolute bottom-4 right-4 z-10 bg-white/90 px-3 py-2 rounded-xl text-xs font-bold text-gray-500 shadow hidden sm:block">
         📍 Distance from: Boston Revere — 84 Fernwood Ave
       </div>
 

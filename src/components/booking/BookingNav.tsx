@@ -81,7 +81,7 @@ export default function BookingNav() {
           </a>
           <a 
             href="/login" 
-            className="px-6 py-2.5 rounded-full text-sm font-black transition-all hover:scale-105 active:scale-95 shadow-lg shadow-amber-500/20"
+            className="hidden sm:inline-block px-6 py-2.5 rounded-full text-sm font-black transition-all hover:scale-105 active:scale-95 shadow-lg shadow-amber-500/20"
             style={{ background: BRAND_GOLD, color: BRAND_NAVY }}
           >
             Sign In or Sign Up
@@ -104,9 +104,17 @@ export default function BookingNav() {
               </a>
             ))}
             <div className="h-px bg-white/10 my-2" />
-            <a href="tel:6179993803" className="flex items-center gap-3 text-white font-black">
+            <a href="tel:6179993803" className="flex items-center gap-3 text-white font-black mb-2">
               <Phone className="w-5 h-5 text-[#FFA000]" />
               617-999-3803
+            </a>
+            <a 
+              href="/login" 
+              className="w-full text-center py-3 rounded-full text-sm font-black transition-all hover:scale-105 shadow-lg shadow-amber-500/20"
+              style={{ background: BRAND_GOLD, color: BRAND_NAVY }}
+              onClick={() => setMobileOpen(false)}
+            >
+              Sign In or Sign Up
             </a>
           </div>
         </div>

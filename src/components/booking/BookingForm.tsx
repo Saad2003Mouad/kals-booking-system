@@ -860,7 +860,7 @@ export default function BookingForm() {
       return (
         <div className="min-h-[60vh] flex items-center justify-center py-16 px-6" style={{ fontFamily: FN }}>
           <div className="max-w-lg w-full">
-            <div className="rounded-3xl border-2 border-rose-200/80 p-10 sm:p-14 text-center" style={{ background: "rgba(255,255,255,0.88)", backdropFilter: "blur(24px)" }}>
+            <div className="rounded-3xl border-2 border-rose-200/80 p-5 sm:p-14 text-center" style={{ background: "rgba(255,255,255,0.88)", backdropFilter: "blur(24px)" }}>
               <div className="w-20 h-20 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center mx-auto mb-7">
                 <XCircle className="w-10 h-10 text-rose-500" />
               </div>
@@ -896,7 +896,7 @@ export default function BookingForm() {
           <div className="max-w-lg w-full">
             <div className="rounded-3xl border-2 border-amber-300/60 overflow-hidden" style={{ background: "rgba(255,255,255,0.90)", backdropFilter: "blur(24px)" }}>
               {/* Top Banner */}
-              <div className="px-8 py-7" style={{ background: "linear-gradient(135deg, #FF8C00 0%, #FFA500 100%)" }}>
+              <div className="px-5 py-6 sm:px-8 sm:py-7" style={{ background: "linear-gradient(135deg, #FF8C00 0%, #FFA500 100%)" }}>
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-white/80 font-black text-xs uppercase tracking-[0.2em] mb-1">Booking Reference</p>
@@ -907,7 +907,7 @@ export default function BookingForm() {
                   </div>
                 </div>
               </div>
-              <div className="p-8 sm:p-10">
+              <div className="p-5 sm:p-10">
                 <h2 className="text-2xl sm:text-3xl font-black mb-3" style={{ color: NAVY, fontFamily: F_SERIF }}>Under Review</h2>
                 <p className="text-slate-600 font-semibold text-sm sm:text-base leading-relaxed mb-8">
                   {decision?.customerMessage || "Our team will review your request and contact you shortly with confirmation."}
@@ -961,15 +961,15 @@ export default function BookingForm() {
             </div>
 
             {/* —— Card Body —— */}
-            <div className="p-6 sm:p-8" style={{ background: "rgba(255,255,255,0.97)" }}>
+            <div className="p-4 sm:p-8" style={{ background: "rgba(255,255,255,0.97)" }}>
 
               {/* Amount Row */}
-              <div className="flex items-center justify-between p-5 rounded-2xl mb-5" style={{ background: "rgba(0,2,35,0.03)", border: "2px solid rgba(0,2,35,0.07)" }}>
+              <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between p-4 sm:p-5 rounded-2xl mb-5" style={{ background: "rgba(0,2,35,0.03)", border: "2px solid rgba(0,2,35,0.07)" }}>
                 <div>
                   <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-400 mb-1">Estimated Total</p>
-                  <p className="text-4xl font-black tracking-tight" style={{ color: NAVY, fontFamily: F_SERIF }}>${quote?.totalAmount?.toFixed(2) ?? "—"}</p>
+                  <p className="text-3xl sm:text-4xl font-black tracking-tight" style={{ color: NAVY, fontFamily: F_SERIF }}>${quote?.totalAmount?.toFixed(2) ?? "—"}</p>
                 </div>
-                <div className="text-right">
+                <div className="text-left sm:text-right">
                   <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-400 mb-1">Payment</p>
                   <p className="font-black text-base" style={{ color: NAVY }}>After Service</p>
                   <p className="text-xs font-bold text-slate-500 mt-0.5">Cash · Zelle · Venmo</p>
@@ -1037,7 +1037,7 @@ export default function BookingForm() {
   return (
     <div className="booking-wrapper w-full relative" style={{ fontFamily: FN }}>
       <div className="w-full relative z-10">
-        <div className="backdrop-blur-2xl bg-white/75 border-2 border-white/60 shadow-2xl rounded-3xl p-6 sm:p-12 transition-all duration-300">
+        <div className="backdrop-blur-2xl bg-white/75 border-2 border-white/60 shadow-2xl rounded-3xl p-4 sm:p-12 transition-all duration-300">
           
           {/* Stepper Header */}
           <div className="mb-10 sm:mb-14">
@@ -1099,7 +1099,7 @@ export default function BookingForm() {
               </div>
 
               {/* Vehicle Tabs */}
-              <div className="flex gap-4 mb-10 p-2 rounded-[2rem] border-2 bg-white/60 border-slate-100 shadow-sm">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-10 p-1.5 sm:p-2 rounded-[1.5rem] sm:rounded-[2rem] border-2 bg-white/60 border-slate-100 shadow-sm">
                 {(["TRUCK", "VAN"] as const).map((t) => (
                   <button
                     key={t}
@@ -1107,7 +1107,7 @@ export default function BookingForm() {
                       setPkgTab(t);
                       setSel(null);
                     }}
-                    className="flex-1 py-4.5 rounded-2xl font-black text-base sm:text-lg transition-all duration-300 flex items-center justify-center gap-2.5"
+                    className="flex-1 py-3 sm:py-4.5 rounded-xl sm:rounded-2xl font-black text-sm sm:text-lg transition-all duration-300 flex items-center justify-center gap-1.5 sm:gap-2.5"
                     style={
                       pkgTab === t
                         ? { background: NAVY, color: GOLD, boxShadow: "0 8px 24px rgba(0,2,35,0.2)" }
@@ -1133,7 +1133,7 @@ export default function BookingForm() {
                     <button
                       key={p.id}
                       onClick={() => setSel(p)}
-                      className="w-full text-left p-6 sm:p-8 rounded-3xl border-2 transition-all duration-300 flex flex-col sm:flex-row sm:items-center gap-6 hover:shadow-2xl hover:-translate-y-1 group backdrop-blur-md"
+                      className="w-full text-left p-5 sm:p-8 rounded-3xl border-2 transition-all duration-300 flex flex-col sm:flex-row sm:items-center gap-6 hover:shadow-2xl hover:-translate-y-1 group backdrop-blur-md"
                       style={{
                         borderColor: isSelected ? GOLD : "rgba(0, 2, 35, 0.12)",
                         background: isSelected ? "rgba(255, 253, 245, 0.85)" : "rgba(255, 255, 255, 0.65)",
@@ -1175,7 +1175,7 @@ export default function BookingForm() {
                       </div>
 
                       {/* Pricing */}
-                      <div className="flex-shrink-0 text-left sm:text-right border-t sm:border-t-0 pt-4 sm:pt-0 border-dashed border-slate-350 flex sm:flex-col items-baseline sm:items-end justify-between sm:justify-center">
+                      <div className="flex-shrink-0 text-left sm:text-right border-t sm:border-t-0 pt-4 sm:pt-0 border-dashed border-slate-300 flex sm:flex-col items-baseline sm:items-end justify-between sm:justify-center">
                         <span className="text-sm font-black uppercase tracking-wider text-slate-600 sm:hidden">
                           Base Price:
                         </span>
@@ -1479,13 +1479,13 @@ export default function BookingForm() {
                   {locationMode !== "SINGLE_LOCATION" && (
                     <div className="space-y-6">
                       {bookingStops.map((stop, idx) => (
-                        <div key={idx} className="bg-white/70 backdrop-blur-sm border-2 border-slate-200 p-6 rounded-2xl relative shadow-md space-y-4">
+                        <div key={idx} className="bg-white/70 backdrop-blur-sm border-2 border-slate-200 p-4 sm:p-6 rounded-2xl relative shadow-md space-y-4">
                           <div className="flex justify-between items-center pb-3 border-b border-slate-200/80">
                             <h4 className="font-black text-base text-[#000223]">Stop #{idx + 1}</h4>
                             <button
                               type="button"
                               onClick={() => setBookingStops(bookingStops.filter((_, i) => i !== idx))}
-                              className="text-red-650 text-sm font-black hover:text-red-800 px-4 py-2 bg-red-50 rounded-xl hover:bg-red-100 transition-all shadow-sm border border-red-200/50"
+                              className="text-red-650 text-xs sm:text-sm font-black hover:text-red-800 px-3 py-1.5 sm:px-4 sm:py-2 bg-red-50 rounded-xl hover:bg-red-100 transition-all shadow-sm border border-red-200/50"
                             >
                               Remove Stop
                             </button>
@@ -1607,7 +1607,7 @@ export default function BookingForm() {
 
               {quote && (
                 <div
-                  className="p-6 sm:p-8 rounded-3xl border-2 mb-10 flex items-center justify-between shadow-md"
+                  className="p-5 sm:p-8 rounded-3xl border-2 mb-10 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between shadow-md"
                   style={{ background: "rgba(255, 251, 235, 0.8)", borderColor: "#FDE68A" }}
                 >
                   <div>
@@ -1618,7 +1618,7 @@ export default function BookingForm() {
                       ${quote.totalAmount.toFixed(2)}
                     </span>
                   </div>
-                  <div className="text-right">
+                  <div className="text-left sm:text-right">
                     <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-500 block" style={{ fontFamily: FN }}>
                       Payment Method
                     </span>
@@ -1923,7 +1923,7 @@ export default function BookingForm() {
                 </div>
 
                 {/* Pricing breakdown details */}
-                <div className="rounded-2xl border-2 border-slate-200/80 bg-white/70 backdrop-blur-md p-6 sm:p-8 shadow-md">
+                <div className="rounded-2xl border-2 border-slate-200/80 bg-white/70 backdrop-blur-md p-4 sm:p-8 shadow-md">
                   <div className="flex items-center gap-2.5 mb-5 border-b-2 border-slate-100 pb-3">
                     <DollarSign className="w-6 h-6 text-[#FFA000]" />
                     <span className="text-base sm:text-lg font-black text-slate-800">
@@ -1934,10 +1934,10 @@ export default function BookingForm() {
                     {quote.breakdown.map(
                       (b, i) =>
                         (b.amount !== 0 || i === 0) && (
-                          <div key={i} className="flex justify-between text-sm sm:text-base py-2 border-b border-dashed border-slate-200/80 last:border-0">
-                            <span className="font-bold text-slate-600">{b.label}</span>
+                          <div key={i} className="flex justify-between items-start gap-2 text-sm sm:text-base py-2 border-b border-dashed border-slate-200/80 last:border-0">
+                            <span className="font-bold text-slate-600 break-words min-w-0 pr-2">{b.label}</span>
                             <span
-                              className="font-black text-[#000223]"
+                              className="font-black text-[#000223] shrink-0"
                             >
                               {b.amount < 0
                                 ? `-$${Math.abs(b.amount).toFixed(2)}`
@@ -1947,11 +1947,11 @@ export default function BookingForm() {
                         )
                     )}
                   </div>
-                  <div className="border-t-2 border-slate-200 pt-5 flex justify-between items-center">
-                    <span className="font-black text-lg sm:text-xl text-[#000223]">
+                  <div className="border-t-2 border-slate-200 pt-5 flex justify-between items-center gap-2">
+                    <span className="font-black text-sm sm:text-xl text-[#000223]">
                       Estimated Total Amount
                     </span>
-                    <span className="text-3xl sm:text-4xl font-black tracking-tight text-[#FFA000]">
+                    <span className="text-2xl sm:text-4xl font-black tracking-tight text-[#FFA000] shrink-0">
                       ${quote.totalAmount.toFixed(2)}
                     </span>
                   </div>

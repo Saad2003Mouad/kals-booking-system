@@ -115,13 +115,13 @@ export default function OtpVerification({ email, firstName, onVerified }: OtpVer
       )}
 
       {/* OTP boxes */}
-      <div className="flex gap-3 justify-center mb-8" onPaste={handlePaste}>
+      <div className="flex gap-2 sm:gap-3 justify-center mb-8" onPaste={handlePaste}>
         {digits.map((d, i) => (
           <input key={i} ref={el => { refs.current[i] = el; }}
             type="text" inputMode="numeric" maxLength={1} value={d}
             onChange={e => handleDigit(i, e.target.value)}
             onKeyDown={e => handleKeyDown(i, e)}
-            className="w-14 h-16 rounded-2xl border-2 text-center text-3xl font-black outline-none transition-all focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/15"
+            className="w-10 h-12 sm:w-14 sm:h-16 rounded-2xl border-2 text-center text-xl sm:text-3xl font-black outline-none transition-all focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/15"
             style={{
               borderColor: d ? "#FFA000" : "rgba(0, 2, 35, 0.12)",
               background: d ? "#FFFBEB" : "rgba(255, 255, 255, 0.95)",

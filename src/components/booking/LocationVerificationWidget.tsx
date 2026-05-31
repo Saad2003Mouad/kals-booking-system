@@ -237,7 +237,7 @@ export default function LocationVerificationWidget({
   const isVerified = value.latitude !== null && value.longitude !== null && value.locationVerificationMethod !== "";
 
   return (
-    <div className="bg-white/80 border-2 border-slate-200/80 rounded-2xl p-6 sm:p-8 shadow-md transition-all relative">
+    <div className="bg-white/80 border-2 border-slate-200/80 rounded-2xl p-4 sm:p-8 shadow-md transition-all relative">
       <div className="flex justify-between items-center mb-6 pb-3 border-b border-slate-100">
         <label className="text-lg sm:text-xl font-black text-[#000223] tracking-wide">{label}</label>
         
@@ -264,42 +264,42 @@ export default function LocationVerificationWidget({
       )}
 
       {/* Tabs */}
-      <div className="grid grid-cols-3 gap-3 mb-5">
+      <div className="grid grid-cols-3 gap-1.5 sm:gap-3 mb-5">
         <button
           type="button"
           onClick={() => setActiveTab("search")}
-          className={`py-3.5 px-4 text-xs sm:text-sm font-black rounded-xl border-2 transition-all flex items-center justify-center gap-2 ${
+          className={`py-2.5 sm:py-3.5 px-1 sm:px-4 text-[11px] min-[350px]:text-xs sm:text-sm font-black rounded-xl border-2 transition-all flex items-center justify-center gap-1 sm:gap-2 ${
             activeTab === "search"
               ? "bg-[#000223] text-[#FFA000] border-[#000223] shadow-md"
               : "bg-white text-slate-700 border-slate-200/80 hover:bg-slate-50"
           }`}
         >
-          <Search className="w-4 h-4" />
-          Search
+          <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+          <span className="truncate">Search</span>
         </button>
         <button
           type="button"
           onClick={() => setActiveTab("manual")}
-          className={`py-3.5 px-4 text-xs sm:text-sm font-black rounded-xl border-2 transition-all flex items-center justify-center gap-2 ${
+          className={`py-2.5 sm:py-3.5 px-1 sm:px-4 text-[11px] min-[350px]:text-xs sm:text-sm font-black rounded-xl border-2 transition-all flex items-center justify-center gap-1 sm:gap-2 ${
             activeTab === "manual"
               ? "bg-[#000223] text-[#FFA000] border-[#000223] shadow-md"
               : "bg-white text-slate-700 border-slate-200/80 hover:bg-slate-50"
           }`}
         >
-          <Navigation className="w-4 h-4" />
-          Manual
+          <Navigation className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+          <span className="truncate">Manual</span>
         </button>
         <button
           type="button"
           onClick={() => setActiveTab("map")}
-          className={`py-3.5 px-4 text-xs sm:text-sm font-black rounded-xl border-2 transition-all flex items-center justify-center gap-2 ${
+          className={`py-2.5 sm:py-3.5 px-1 sm:px-4 text-[11px] min-[350px]:text-xs sm:text-sm font-black rounded-xl border-2 transition-all flex items-center justify-center gap-1 sm:gap-2 ${
             activeTab === "map"
               ? "bg-[#000223] text-[#FFA000] border-[#000223] shadow-md"
               : "bg-white text-slate-700 border-slate-200/80 hover:bg-slate-50"
           }`}
         >
-          <Map className="w-4 h-4" />
-          Map Pin
+          <Map className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+          <span className="truncate">Map Pin</span>
         </button>
       </div>
 
@@ -400,7 +400,7 @@ export default function LocationVerificationWidget({
             type="button"
             onClick={handleManualVerify}
             disabled={verifyingManual || !value.street || !value.zipCode}
-            className="w-full py-4 bg-[#FFA000] hover:bg-[#E08B00] disabled:opacity-50 text-[#000223] font-black rounded-xl text-base sm:text-lg transition-all flex items-center justify-center gap-2.5 shadow-md"
+            className="w-full py-4 bg-[#FFA000] hover:bg-[#E08B00] disabled:opacity-50 text-[#000223] font-black rounded-xl text-sm sm:text-base transition-all flex items-center justify-center gap-2.5 shadow-md"
           >
             {verifyingManual && <Loader2 className="w-5 h-5 animate-spin text-[#000223]" />}
             {verifyingManual ? "Locating on map…" : "✓ Verify Address & Calculate Distance"}
