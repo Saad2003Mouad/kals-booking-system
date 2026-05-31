@@ -37,36 +37,26 @@ export default function BookingPage() {
       </div>
 
       <div className="relative w-full z-10 flex flex-col flex-grow">
-        {/* Header accent: yellow left → pink right */}
-        <div className="absolute top-0 left-0 right-0 h-[80px] z-0 pointer-events-none overflow-hidden">
-          {/* Yellow glow — logo area (left) — deeper amber */}
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "280px",
-              height: "100%",
-              background: "linear-gradient(135deg, #B8860B 0%, #D4A000 40%, #E8B800 75%, transparent 100%)",
-              opacity: 1,
-              borderBottomRightRadius: "60px",
-            }}
-          />
-          {/* Pink/rose glow — right side */}
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              right: 0,
-              width: "260px",
-              height: "100%",
-              background: "linear-gradient(225deg, #FF3CAC 0%, #FF85C2 60%, transparent 100%)",
-              opacity: 0.85,
-              borderBottomLeftRadius: "60px",
-            }}
-          />
+        {/* Header accent bars — sit ABOVE Webflow nav background */}
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 80, zIndex: 20, pointerEvents: "none", overflow: "hidden" }}>
+          {/* Orange-amber — left (behind logo) */}
+          <div style={{
+            position: "absolute", top: 0, left: 0,
+            width: 300, height: "100%",
+            background: "linear-gradient(105deg, #FF6B00 0%, #FF8C00 45%, #FFA500 70%, transparent 100%)",
+            opacity: 1,
+            borderBottomRightRadius: 72,
+          }} />
+          {/* Deep rose — right */}
+          <div style={{
+            position: "absolute", top: 0, right: 0,
+            width: 300, height: "100%",
+            background: "linear-gradient(255deg, #C2185B 0%, #E91E8C 45%, #FF4DB2 70%, transparent 100%)",
+            opacity: 1,
+            borderBottomLeftRadius: 72,
+          }} />
         </div>
-        <div className="relative z-10">
+        <div style={{ position: "relative", zIndex: 25 }}>
           <SiteHeader />
         </div>
 

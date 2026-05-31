@@ -377,16 +377,18 @@ function ZipSelector({
             ZIP Code
           </label>
           <input
-            value={zip || search}
+            value={focused ? search : (zip ? `${zip}${city ? ` — ${city}` : ""}` : search)}
             onChange={(e) => {
+              // Clear parent selection first so input is fully writable
+              if (zip) onZipChange("", "");
               setSearch(e.target.value);
               setOpen(true);
               if (e.target.value.length === 5) {
                 const found = zones.find((a) => a.zip === e.target.value);
-                if (found) onZipChange(found.zip, found.city);
+                if (found) { onZipChange(found.zip, found.city); setSearch(""); }
               }
             }}
-            onFocus={() => { setOpen(true); setFocused(true); }}
+            onFocus={() => { setSearch(""); setOpen(true); setFocused(true); }}
             onBlur={() => { setFocused(false); setTimeout(() => setOpen(false), 250); }}
             placeholder=""
             className="w-full outline-none bg-transparent font-bold"
@@ -839,138 +841,189 @@ export default function BookingForm() {
         setPhoneErr("Please enter your phone number before completing the booking.");
         setStep(2);
       } else {
-        setSubmitErr(d.error || "Something went wrong. Please try again.");
+        setSubmitErr(d.error || "An unexpected error occurred. Please try again.");
       }
       setSubmitting(false);
       return;
     }
+
     setResult(d);
     setSubmitting(false);
   };
 
-  // ─── Result Screens ─────────────────────────────────────────────────────────
+  // ─── Result Screens ──────────────────────────────────────────────────
   if (result) {
     const { decision, booking } = result;
+
+    /* ── REJECTED ── */
     if (decision?.verdict === "REJECTED") {
       return (
-        <div className="max-w-2xl mx-auto px-6 py-24 text-center" style={{ fontFamily: FN }}>
-          <div className="w-24 h-24 rounded-[2rem] bg-rose-50 border border-rose-100 flex items-center justify-center mx-auto mb-8 shadow-md">
-            <XCircle className="w-12 h-12 text-rose-500 animate-pulse" />
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold mb-4 tracking-tight" style={{ color: NAVY, fontFamily: F_SERIF }}>
-            Request Not Available
-          </h2>
-          <p className="text-slate-600 font-semibold text-base sm:text-lg leading-relaxed mb-10 max-w-lg mx-auto">
-            {decision.customerMessage}
-          </p>
-          {decision.alternativeTimes && decision.alternativeTimes.length > 0 && (
-            <div className="bg-amber-50/50 border border-amber-200/80 rounded-3xl p-8 mb-10 text-left max-w-lg mx-auto">
-              <h3 className="font-extrabold text-lg mb-4 flex items-center gap-2" style={{ color: NAVY, fontFamily: F_SERIF }}>
-                <Clock className="w-5 h-5 text-amber-500" /> Alternative Available Times
-              </h3>
-              <div className="flex flex-wrap gap-3">
-                {decision.alternativeTimes.map((t) => (
-                  <button
-                    key={t}
-                    onClick={() => {
-                      setStartTime(t);
-                      setResult(null);
-                      setStep(1);
-                    }}
-                    className="px-6 py-3.5 rounded-full font-black text-sm border-2 bg-white hover:-translate-y-0.5 hover:shadow-md transition-all duration-300"
-                    style={{ borderColor: NAVY, color: NAVY }}
-                  >
-                    {t}
-                  </button>
-                ))}
+        <div className="min-h-[60vh] flex items-center justify-center py-16 px-6" style={{ fontFamily: FN }}>
+          <div className="max-w-lg w-full">
+            <div className="rounded-3xl border-2 border-rose-200/80 p-10 sm:p-14 text-center" style={{ background: "rgba(255,255,255,0.88)", backdropFilter: "blur(24px)" }}>
+              <div className="w-20 h-20 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center mx-auto mb-7">
+                <XCircle className="w-10 h-10 text-rose-500" />
               </div>
+              <h2 className="text-3xl sm:text-4xl font-black mb-3 tracking-tight" style={{ color: NAVY, fontFamily: F_SERIF }}>Request Not Available</h2>
+              <p className="text-slate-600 font-semibold text-base sm:text-lg leading-relaxed mb-8">{decision.customerMessage}</p>
+              {decision.alternativeTimes && decision.alternativeTimes.length > 0 && (
+                <div className="rounded-2xl p-6 mb-8 text-left" style={{ background: "rgba(255,160,0,0.07)", border: "2px solid rgba(255,160,0,0.25)" }}>
+                  <h3 className="font-black text-base mb-4 flex items-center gap-2" style={{ color: NAVY }}>
+                    <Clock className="w-5 h-5 text-amber-500" /> Available Alternative Times
+                  </h3>
+                  <div className="flex flex-wrap gap-3">
+                    {decision.alternativeTimes.map((t) => (
+                      <button key={t} onClick={() => { setStartTime(t); setResult(null); setStep(1); }}
+                        className="px-5 py-2.5 rounded-full font-black text-sm border-2 bg-white hover:-translate-y-0.5 hover:shadow-md transition-all"
+                        style={{ borderColor: NAVY, color: NAVY }}>{t}</button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <button onClick={() => setResult(null)}
+                className="w-full py-4.5 rounded-2xl font-black text-base text-white shadow-xl hover:-translate-y-0.5 transition-all"
+                style={{ background: NAVY }}>Try Different Details</button>
             </div>
-          )}
-          <button
-            onClick={() => setResult(null)}
-            className="px-10 py-5 rounded-full font-black text-white hover:-translate-y-0.5 transition-all shadow-xl bg-slate-900 hover:bg-slate-800"
-            style={{ fontFamily: FN }}
-          >
-            Modify Request Details
-          </button>
+          </div>
         </div>
       );
     }
 
+    /* ── PENDING REVIEW ── */
     if (decision?.verdict === "PENDING_REVIEW") {
       return (
-        <div className="max-w-2xl mx-auto px-6 py-24 text-center" style={{ fontFamily: FN }}>
-          <div className="w-24 h-24 rounded-[2rem] bg-amber-50 border border-amber-100 flex items-center justify-center mx-auto mb-8 shadow-md">
-            <Clock className="w-12 h-12 text-amber-500 animate-pulse" />
+        <div className="min-h-[60vh] flex items-center justify-center py-16 px-6" style={{ fontFamily: FN }}>
+          <div className="max-w-lg w-full">
+            <div className="rounded-3xl border-2 border-amber-300/60 overflow-hidden" style={{ background: "rgba(255,255,255,0.90)", backdropFilter: "blur(24px)" }}>
+              {/* Top Banner */}
+              <div className="px-8 py-7" style={{ background: "linear-gradient(135deg, #FF8C00 0%, #FFA500 100%)" }}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-white/80 font-black text-xs uppercase tracking-[0.2em] mb-1">Booking Reference</p>
+                    <p className="font-mono font-black text-2xl text-white">#{booking?.bookingNumber}</p>
+                  </div>
+                  <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center">
+                    <Clock className="w-7 h-7 text-white" />
+                  </div>
+                </div>
+              </div>
+              <div className="p-8 sm:p-10">
+                <h2 className="text-2xl sm:text-3xl font-black mb-3" style={{ color: NAVY, fontFamily: F_SERIF }}>Under Review</h2>
+                <p className="text-slate-600 font-semibold text-sm sm:text-base leading-relaxed mb-8">
+                  {decision?.customerMessage || "Our team will review your request and contact you shortly with confirmation."}
+                </p>
+                <div className="space-y-4 mb-8">
+                  {[
+                    { icon: "✅", text: "Team reviews scheduling & routing" },
+                    { icon: "📧", text: `Confirmation sent to: ${email}` },
+                    { icon: "💳", text: "Payment collected after service — cash, Zelle, Venmo accepted" },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-start gap-3 p-4 rounded-2xl" style={{ background: "rgba(0,2,35,0.03)", border: "1px solid rgba(0,2,35,0.06)" }}>
+                      <span className="text-xl shrink-0">{item.icon}</span>
+                      <span className="font-bold text-sm sm:text-base text-slate-700 leading-relaxed">{item.text}</span>
+                    </div>
+                  ))}
+                </div>
+                <a href={result?.customerPortalUrl ?? `/customer/booking/${booking?.id}`}
+                  className="flex items-center justify-center gap-2.5 w-full py-4.5 rounded-2xl font-black text-base text-white shadow-xl hover:-translate-y-0.5 transition-all"
+                  style={{ background: NAVY }}>View Booking Status <ArrowRight className="w-5 h-5" /></a>
+              </div>
+            </div>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold mb-2 tracking-tight" style={{ color: NAVY, fontFamily: F_SERIF }}>
-            Request Under Review
-          </h2>
-          <p className="font-mono font-black text-xl mb-6 px-5 py-2 rounded-full border bg-slate-50 inline-block" style={{ color: GOLD, borderColor: SOFT_BORDER }}>
-            #{booking?.bookingNumber}
-          </p>
-          <p className="text-slate-600 font-semibold text-base sm:text-lg leading-relaxed mb-10 max-w-lg mx-auto">
-            {decision?.customerMessage || "Your event is outside our standard 30-mile travel range and the selected package is below the automatic approval threshold. Our team will review it and follow up shortly."}
-          </p>
-          <div className="bg-emerald-50/60 border border-emerald-100 rounded-3xl p-6 text-left text-sm sm:text-base text-emerald-800 font-semibold space-y-3.5 max-w-md mx-auto mb-10">
-            <div className="flex items-center gap-2.5">
-              <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-              <span>Team reviews scheduling & routing</span>
-            </div>
-            <div className="flex items-center gap-2.5">
-              <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-              <span>Confirmation details sent to: {email}</span>
-            </div>
-            <div className="flex items-start gap-2.5">
-              <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-              <span>Payment is collected after the service. We accept multiple payment methods.</span>
-            </div>
-          </div>
-          <a
-            href={result?.customerPortalUrl ?? `/customer/booking/${booking?.id}`}
-            className="inline-flex items-center gap-2.5 px-12 py-5 rounded-full font-black text-white shadow-xl hover:-translate-y-0.5 transition-all text-base sm:text-lg"
-            style={{ background: NAVY, fontFamily: FN }}
-          >
-            View or Manage Your Booking
-          </a>
         </div>
       );
     }
 
+    /* ── CONFIRMED ── */
     return (
-      <div className="max-w-2xl mx-auto px-6 py-24 text-center" style={{ fontFamily: FN }}>
-        <div className="w-24 h-24 rounded-[2rem] bg-emerald-50 border border-emerald-100 flex items-center justify-center mx-auto mb-8 shadow-md">
-          <CheckCircle2 className="w-12 h-12 text-emerald-500 animate-bounce" />
-        </div>
-        <h2 className="text-3xl sm:text-4xl font-extrabold mb-2 tracking-tight" style={{ color: NAVY, fontFamily: F_SERIF }}>
-          Booking Confirmed
-        </h2>
-        <p className="font-mono font-black text-xl mb-6 px-5 py-2 rounded-full border bg-slate-50 inline-block" style={{ color: GOLD, borderColor: SOFT_BORDER }}>
-          #{booking?.bookingNumber}
-        </p>
+      <div className="min-h-[60vh] flex items-center justify-center py-16 px-4 sm:px-6" style={{ fontFamily: FN }}>
+        <div className="max-w-lg w-full">
+          <div className="rounded-3xl overflow-hidden" style={{ boxShadow: "0 32px 80px rgba(0,0,0,0.12), 0 4px 20px rgba(0,0,0,0.06)" }}>
 
-        <p className="text-slate-600 font-semibold text-base sm:text-lg leading-relaxed mb-10 max-w-lg mx-auto">
-          Your ice cream event has been confirmed. Payment is collected after the service — we accept multiple payment methods.
-        </p>
+            {/* —— Top Ticket Header —— */}
+            <div style={{ background: `linear-gradient(135deg, ${NAVY} 0%, #001060 100%)`, padding: "2.5rem 2rem 2rem" }}>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <CheckCircle2 className="w-5 h-5" style={{ color: GOLD }} />
+                    <span className="font-black text-xs uppercase tracking-[0.22em]" style={{ color: GOLD }}>Booking Confirmed</span>
+                  </div>
+                  <h2 className="text-3xl sm:text-4xl font-black text-white leading-tight" style={{ fontFamily: F_SERIF }}>Your Experience<br/>is Reserved 🍦</h2>
+                </div>
+                <div className="text-5xl sm:text-6xl">🎉</div>
+              </div>
+            </div>
 
-        <div className="bg-amber-50/40 border border-amber-200 rounded-3xl p-6.5 mb-10 max-w-md mx-auto text-left text-sm sm:text-base font-semibold text-slate-700">
-          <p className="text-center font-black text-emerald-600 text-base sm:text-lg mb-3">Payment Policy</p>
-          <div className="flex justify-between py-2 border-b border-dashed border-amber-200">
-            <span>Estimated Total:</span>
-            <span className="font-black text-slate-800">${quote?.totalAmount.toFixed(2)}</span>
+            {/* —— Booking Number Strip —— */}
+            <div className="flex items-center justify-between px-6 py-4" style={{ background: GOLD }}>
+              <span className="font-black text-xs uppercase tracking-[0.2em]" style={{ color: NAVY }}>Booking Reference</span>
+              <span className="font-mono font-black text-lg" style={{ color: NAVY }}>#{booking?.bookingNumber}</span>
+            </div>
+
+            {/* —— Card Body —— */}
+            <div className="p-6 sm:p-8" style={{ background: "rgba(255,255,255,0.97)" }}>
+
+              {/* Amount Row */}
+              <div className="flex items-center justify-between p-5 rounded-2xl mb-5" style={{ background: "rgba(0,2,35,0.03)", border: "2px solid rgba(0,2,35,0.07)" }}>
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-400 mb-1">Estimated Total</p>
+                  <p className="text-4xl font-black tracking-tight" style={{ color: NAVY, fontFamily: F_SERIF }}>${quote?.totalAmount?.toFixed(2) ?? "—"}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-400 mb-1">Payment</p>
+                  <p className="font-black text-base" style={{ color: NAVY }}>After Service</p>
+                  <p className="text-xs font-bold text-slate-500 mt-0.5">Cash · Zelle · Venmo</p>
+                </div>
+              </div>
+
+              {/* Details Grid */}
+              <div className="grid grid-cols-2 gap-3 mb-5">
+                {[
+                  { label: "Event Date", value: eventDate ? formatEnDate(eventDate) : "—" },
+                  { label: "Start Time", value: startTime ? formatEnTime(startTime) : "—" },
+                  { label: "Package", value: sel?.name ?? "—" },
+                  { label: "Event Type", value: eventType || "—" },
+                ].map((item) => (
+                  <div key={item.label} className="p-4 rounded-xl" style={{ background: "rgba(0,2,35,0.025)", border: "1px solid rgba(0,2,35,0.06)" }}>
+                    <p className="text-xs font-black uppercase tracking-[0.15em] text-slate-400 mb-1">{item.label}</p>
+                    <p className="font-black text-sm sm:text-base" style={{ color: NAVY }}>{item.value}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Steps */}
+              <div className="space-y-3 mb-6">
+                {[
+                  { emoji: "📧", title: "Confirmation Email Sent", sub: email },
+                  { emoji: "📞", title: "Team Will Confirm Details", sub: "Within 24 hours" },
+                  { emoji: "🍦", title: "Day of Event", sub: "We arrive 15 min early" },
+                  { emoji: "💳", title: "Payment After Service", sub: "Cash, Zelle, Venmo, & more" },
+                ].map((s, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0" style={{ background: "rgba(255,160,0,0.1)" }}>{s.emoji}</div>
+                    <div className="pt-0.5">
+                      <p className="font-black text-sm" style={{ color: NAVY }}>{s.title}</p>
+                      <p className="text-xs font-semibold text-slate-500">{s.sub}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* CTA */}
+              <a
+                href={result?.customerPortalUrl ?? `/customer/booking/${booking?.id}`}
+                className="flex items-center justify-center gap-2.5 w-full py-5 rounded-2xl font-black text-lg shadow-2xl hover:-translate-y-1 transition-all duration-300"
+                style={{ background: `linear-gradient(135deg, ${NAVY} 0%, #001060 100%)`, color: GOLD }}
+              >
+                View & Manage Booking <ArrowRight className="w-5 h-5" />
+              </a>
+
+              <p className="text-center text-xs font-semibold text-slate-400 mt-4">
+                Questions? Contact us anytime — we're here to make your event perfect.
+              </p>
+            </div>
           </div>
-          <p className="text-xs sm:text-sm text-slate-500 mt-3.5 text-center leading-relaxed">
-            Payment is collected after the service. We accept cash, Zelle, Venmo, and other methods.
-          </p>
         </div>
-
-        <a
-          href={result?.customerPortalUrl ?? `/customer/booking/${booking?.id}`}
-          className="inline-flex items-center gap-2.5 px-12 py-5 rounded-full font-black text-white shadow-xl hover:-translate-y-0.5 transition-all text-base sm:text-lg"
-          style={{ background: NAVY, fontFamily: FN }}
-        >
-          View or Manage Your Booking
-        </a>
       </div>
     );
   }
