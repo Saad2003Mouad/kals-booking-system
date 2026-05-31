@@ -357,6 +357,9 @@ export default function LocationVerificationWidget({
       {/* Manual Tab Content */}
       {activeTab === "manual" && (
         <div className="space-y-4">
+          <div className="p-3 rounded-xl bg-blue-50/70 border border-blue-200/60 text-xs sm:text-sm font-bold text-blue-800 flex items-center gap-2">
+            <span>💡</span> Fill in your address below then click <strong>Verify & Calculate Distance</strong> — we'll locate it on the map automatically.
+          </div>
           <div>
             <label className="block text-sm font-black text-slate-700 mb-1.5 uppercase tracking-wide">Street Address</label>
             <input
@@ -364,7 +367,7 @@ export default function LocationVerificationWidget({
               value={value.street}
               onChange={(e) => onChange({ ...value, street: e.target.value, latitude: null, longitude: null, locationVerificationMethod: "" })}
               placeholder="e.g. 139 Tremont St"
-              className="w-full py-4 px-4.5 rounded-xl border-2 border-slate-250 font-bold text-base sm:text-lg focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/10 bg-white"
+              className="w-full py-4 px-4 rounded-xl border-2 border-slate-200 font-bold text-base sm:text-lg focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/10 bg-white outline-none"
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -375,28 +378,32 @@ export default function LocationVerificationWidget({
                 value={value.city}
                 onChange={(e) => onChange({ ...value, city: e.target.value, latitude: null, longitude: null, locationVerificationMethod: "" })}
                 placeholder="Boston"
-                className="w-full py-4 px-4.5 rounded-xl border-2 border-slate-250 font-bold text-base sm:text-lg focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/10 bg-white"
+                className="w-full py-4 px-4 rounded-xl border-2 border-slate-200 font-bold text-base sm:text-lg focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/10 bg-white outline-none"
               />
             </div>
-            <div>
+            <div className="relative">
               <label className="block text-sm font-black text-slate-700 mb-1.5 uppercase tracking-wide">ZIP Code</label>
               <input
                 type="text"
                 value={value.zipCode}
-                onChange={(e) => onChange({ ...value, zipCode: e.target.value, latitude: null, longitude: null, locationVerificationMethod: "" })}
+                onChange={(e) => {
+                  const z = e.target.value;
+                  onChange({ ...value, zipCode: z, latitude: null, longitude: null, locationVerificationMethod: "" });
+                }}
                 placeholder="02111"
-                className="w-full py-4 px-4.5 rounded-xl border-2 border-slate-250 font-bold text-base sm:text-lg focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/10 bg-white"
+                maxLength={5}
+                className="w-full py-4 px-4 rounded-xl border-2 border-slate-200 font-bold text-base sm:text-lg focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/10 bg-white outline-none"
               />
             </div>
           </div>
           <button
             type="button"
             onClick={handleManualVerify}
-            disabled={verifyingManual}
-            className="w-full py-4.5 bg-[#FFA000] hover:bg-[#E08B00] text-[#000223] font-black rounded-xl text-base sm:text-lg transition-all flex items-center justify-center gap-2.5 shadow-md"
+            disabled={verifyingManual || !value.street || !value.zipCode}
+            className="w-full py-4 bg-[#FFA000] hover:bg-[#E08B00] disabled:opacity-50 text-[#000223] font-black rounded-xl text-base sm:text-lg transition-all flex items-center justify-center gap-2.5 shadow-md"
           >
             {verifyingManual && <Loader2 className="w-5 h-5 animate-spin text-[#000223]" />}
-            Verify Address & Calculate Distance
+            {verifyingManual ? "Locating on map…" : "✓ Verify Address & Calculate Distance"}
           </button>
         </div>
       )}

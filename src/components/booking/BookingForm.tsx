@@ -325,15 +325,16 @@ function ZipSelector({
   const [focused, setFocused] = useState(false);
 
   const zones = serviceZones.length > 0 ? serviceZones : SERVICE_AREAS;
+  // Show results from 1 char — up to 20 matches
   const filtered =
-    search.length >= 2
+    search.length >= 1
       ? zones
           .filter(
             (a) =>
               a.zip.startsWith(search) ||
-              a.city.toLowerCase().includes(search.toLowerCase())
+              a.city.toLowerCase().startsWith(search.toLowerCase())
           )
-          .slice(0, 12)
+          .slice(0, 20)
       : [];
 
   return (
@@ -419,7 +420,7 @@ function ZipSelector({
             ))}
           </div>
         )}
-        {open && search.length >= 2 && filtered.length === 0 && (
+        {open && search.length >= 3 && filtered.length === 0 && (
           <div className="absolute left-0 right-0 top-full mt-2 rounded-2xl border-2 border-red-200/80 p-5 text-center z-50 shadow-xl" style={{ background: "rgba(254,242,242,0.97)" }}>
             <p className="text-red-700 font-black text-base">Outside service area</p>
             <p className="text-red-500 text-sm font-bold mt-1">We serve Massachusetts only</p>
@@ -1360,13 +1361,21 @@ export default function BookingForm() {
                   )}
                 </div>
 
-                {/* Multi-Stop Section */}
+              {/* ─── Multi-Stop Section ─── */}
                 <div className="md:col-span-2 border-t-2 border-slate-200/50 pt-8 mt-6">
                   <label className="block text-base font-black text-[#000223] mb-2">
                     Will this event include more than one location?
                   </label>
+                  {/* $50/stop fee notice */}
+                  <div className="flex items-start gap-3 p-4 rounded-2xl mb-5 border-2" style={{ background: "rgba(255,160,0,0.07)", borderColor: "rgba(255,160,0,0.35)" }}>
+                    <span className="text-2xl shrink-0">💰</span>
+                    <div>
+                      <p className="font-black text-[#000223] text-sm sm:text-base">Additional Stop Fee: <span style={{ color: "#FFA000" }}>$50 per stop</span></p>
+                      <p className="text-slate-600 text-xs sm:text-sm font-bold mt-0.5">Each extra location added to your booking will add $50 to the total. This covers routing and setup time between stops.</p>
+                    </div>
+                  </div>
                   <p className="text-sm sm:text-base font-bold text-slate-600 mb-5">
-                    Select a multi-location routing mode if you need catering services across multiple spots. Each additional stop is <strong>$50</strong>.
+                    Select a multi-location routing mode if you need catering services across multiple spots.
                   </p>
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">

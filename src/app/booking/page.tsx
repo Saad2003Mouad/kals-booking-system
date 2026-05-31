@@ -39,16 +39,16 @@ export default function BookingPage() {
       <div className="relative w-full z-10 flex flex-col flex-grow">
         {/* Header accent: yellow left → pink right */}
         <div className="absolute top-0 left-0 right-0 h-[80px] z-0 pointer-events-none overflow-hidden">
-          {/* Yellow glow — logo area (left) */}
+          {/* Yellow glow — logo area (left) — deeper amber */}
           <div
             style={{
               position: "absolute",
               top: 0,
               left: 0,
-              width: "260px",
+              width: "280px",
               height: "100%",
-              background: "linear-gradient(135deg, #FFD600 0%, #FFEC5C 60%, transparent 100%)",
-              opacity: 0.92,
+              background: "linear-gradient(135deg, #B8860B 0%, #D4A000 40%, #E8B800 75%, transparent 100%)",
+              opacity: 1,
               borderBottomRightRadius: "60px",
             }}
           />
