@@ -54,49 +54,14 @@ const FN = "var(--font-sans), 'Plus Jakarta Sans', 'Inter', sans-serif";
 const F_SERIF = "var(--font-playfair), 'Playfair Display', serif";
 
 // ─── Shared Premium UI Components ─────────────────────────────────────────────
-function Field({
-  label,
-  helper,
-  error,
-  children
-}: {
-  label: string;
-  helper?: string;
-  error?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex flex-col gap-2.5 w-full">
-      <label
-        className="block text-sm sm:text-base font-black uppercase tracking-[0.18em]"
-        style={{ color: NAVY, opacity: 0.95, fontFamily: FN }}
-      >
-        {label}
-      </label>
-      {children}
-      {error && (
-        <p className="text-red-700 text-sm sm:text-base font-black flex items-center gap-2 mt-1">
-          <AlertCircle className="w-5 h-5" /> {error}
-        </p>
-      )}
-      {!error && helper && (
-        <p
-          className="text-sm sm:text-base font-bold leading-relaxed text-slate-700 mt-1"
-          style={{ fontFamily: FN }}
-        >
-          {helper}
-        </p>
-      )}
-    </div>
-  );
-}
 
+/** Floating label input field — modern underline style */
 function PremiumInput({
   label,
   value,
   onChange,
   type = "text",
-  placeholder = "",
+  placeholder = " ",
   min = "",
   helper = "",
   error = "",
@@ -113,44 +78,100 @@ function PremiumInput({
   icon?: any;
 }) {
   const [focused, setFocused] = useState(false);
+  const floated = focused || value.length > 0;
 
   return (
-    <Field label={label} helper={helper} error={error}>
-      <div className="relative w-full">
+    <div className="relative w-full group">
+      {/* Floating container */}
+      <div
+        className="relative w-full transition-all duration-300"
+        style={{
+          background: focused
+            ? "rgba(255,255,255,0.97)"
+            : error
+            ? "rgba(255,240,240,0.90)"
+            : "rgba(255,255,255,0.82)",
+          borderRadius: 18,
+          border: focused
+            ? `2px solid ${GOLD}`
+            : error
+            ? "2px solid rgba(220,38,38,0.5)"
+            : "2px solid rgba(0,2,35,0.10)",
+          boxShadow: focused
+            ? `0 0 0 5px rgba(255,160,0,0.13), 0 8px 32px rgba(0,0,0,0.05)`
+            : error
+            ? "0 0 0 4px rgba(220,38,38,0.07)"
+            : "0 2px 10px rgba(0,0,0,0.04)",
+          backdropFilter: "blur(16px)",
+          transition: "all 0.25s cubic-bezier(.4,0,.2,1)"
+        }}
+      >
+        {/* Icon */}
         {Icon && (
-          <Icon
-            className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 pointer-events-none transition-colors"
-            style={{ color: focused ? GOLD : error ? "#EF4444" : "#6B7280" }}
-          />
+          <div
+            className="absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none transition-all duration-300"
+            style={{ color: focused ? GOLD : error ? "#EF4444" : "#94A3B8" }}
+          >
+            <Icon className="w-5 h-5" />
+          </div>
         )}
+        {/* Floating Label */}
+        <label
+          className="absolute pointer-events-none font-black tracking-wide transition-all duration-200 select-none"
+          style={{
+            left: Icon ? "3.0rem" : "1.1rem",
+            top: floated ? "0.5rem" : "50%",
+            transform: floated ? "none" : "translateY(-50%)",
+            fontSize: floated ? "10px" : "16px",
+            letterSpacing: floated ? "0.16em" : "0.01em",
+            textTransform: floated ? "uppercase" : "none",
+            color: focused ? GOLD : error ? "#DC2626" : "#94A3B8",
+            fontFamily: FN,
+            zIndex: 1
+          }}
+        >
+          {label}
+        </label>
+        {/* Actual Input */}
         <input
           type={type}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
+          placeholder=""
           min={min}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          className="w-full py-5 pr-6 rounded-2xl border-2 font-bold text-lg sm:text-xl outline-none transition-all shadow-md"
+          className="w-full outline-none bg-transparent font-bold"
           style={{
             fontFamily: FN,
-            paddingLeft: Icon ? "3.75rem" : "1.75rem",
-            borderColor: error ? "rgba(239, 68, 68, 0.5)" : focused ? GOLD : "rgba(0, 2, 35, 0.12)",
-            background: error ? "rgba(254, 242, 242, 0.95)" : "rgba(255, 255, 255, 0.85)",
+            fontSize: "1.2rem",
+            lineHeight: 1.4,
+            paddingTop: "1.65rem",
+            paddingBottom: "0.75rem",
+            paddingLeft: Icon ? "3.0rem" : "1.1rem",
+            paddingRight: "1.1rem",
             color: NAVY,
-            boxShadow: focused
-              ? `0 0 0 6px rgba(255, 160, 0, 0.2), 0 8px 24px rgba(0,0,0,0.04)`
-              : error
-              ? "0 0 0 6px rgba(239, 68, 68, 0.08)"
-              : "none"
+            letterSpacing: "0.01em",
+            caretColor: GOLD
           }}
           autoComplete="off"
         />
       </div>
-    </Field>
+      {/* Helper / Error */}
+      {error ? (
+        <p className="flex items-center gap-1.5 mt-2 ml-1 text-red-700 font-bold text-sm" style={{ fontFamily: FN }}>
+          <AlertCircle className="w-4 h-4 shrink-0" /> {error}
+        </p>
+      ) : helper ? (
+        <p className="mt-2 ml-1 text-slate-500 font-semibold text-sm" style={{ fontFamily: FN }}>
+          {helper}
+        </p>
+      ) : null}
+    </div>
   );
 }
 
+/** Floating label select — matching style */
 function PremiumSelect({
   label,
   value,
@@ -169,51 +190,122 @@ function PremiumSelect({
   icon?: any;
 }) {
   const [focused, setFocused] = useState(false);
+  const floated = focused || value.length > 0;
 
   return (
-    <Field label={label} helper={helper}>
-      <div className="relative w-full">
+    <div className="relative w-full">
+      <div
+        className="relative w-full transition-all duration-300"
+        style={{
+          background: focused ? "rgba(255,255,255,0.97)" : "rgba(255,255,255,0.82)",
+          borderRadius: 18,
+          border: `2px solid ${focused ? GOLD : "rgba(0,2,35,0.10)"}`,
+          boxShadow: focused
+            ? `0 0 0 5px rgba(255,160,0,0.13), 0 8px 32px rgba(0,0,0,0.05)`
+            : "0 2px 10px rgba(0,0,0,0.04)",
+          backdropFilter: "blur(16px)",
+          transition: "all 0.25s cubic-bezier(.4,0,.2,1)"
+        }}
+      >
         {Icon && (
-          <Icon
-            className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 pointer-events-none transition-colors"
-            style={{ color: focused ? GOLD : "#6B7280" }}
-          />
+          <div
+            className="absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors duration-300"
+            style={{ color: focused ? GOLD : "#94A3B8" }}
+          >
+            <Icon className="w-5 h-5" />
+          </div>
         )}
+        {/* Floating Label */}
+        <label
+          className="absolute pointer-events-none font-black tracking-wide transition-all duration-200 select-none"
+          style={{
+            left: Icon ? "3.0rem" : "1.1rem",
+            top: floated ? "0.5rem" : "50%",
+            transform: floated ? "none" : "translateY(-50%)",
+            fontSize: floated ? "10px" : "16px",
+            letterSpacing: floated ? "0.16em" : "0.01em",
+            textTransform: floated ? "uppercase" : "none",
+            color: focused ? GOLD : "#94A3B8",
+            fontFamily: FN,
+            zIndex: 1
+          }}
+        >
+          {label}
+        </label>
         <select
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          className="w-full py-5 pr-12 rounded-2xl border-2 font-bold text-lg sm:text-xl outline-none transition-all appearance-none shadow-md cursor-pointer"
+          className="w-full outline-none bg-transparent font-bold appearance-none cursor-pointer"
           style={{
             fontFamily: FN,
-            paddingLeft: Icon ? "3.75rem" : "1.75rem",
-            borderColor: focused ? GOLD : "rgba(0, 2, 35, 0.12)",
-            background: "rgba(255, 255, 255, 0.85)",
-            color: NAVY,
-            boxShadow: focused ? `0 0 0 6px rgba(255, 160, 0, 0.2)` : "none"
+            fontSize: "1.2rem",
+            lineHeight: 1.4,
+            paddingTop: "1.65rem",
+            paddingBottom: "0.75rem",
+            paddingLeft: Icon ? "3.0rem" : "1.1rem",
+            paddingRight: "2.8rem",
+            color: value ? NAVY : "transparent",
+            letterSpacing: "0.01em"
           }}
         >
           <option value="">{placeholder}</option>
           {options.map((o) => (
-            <option key={o} value={o}>
+            <option key={o} value={o} style={{ color: NAVY }}>
               {o}
             </option>
           ))}
         </select>
+        {/* Custom chevron */}
         <div
-          className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none border-solid border-t-6 border-l-6 border-r-6 border-transparent transition-transform duration-300"
-          style={{
-            borderTopColor: NAVY,
-            opacity: 0.8,
-            transform: focused ? "rotate(180deg)" : "none",
-            borderLeftColor: "transparent",
-            borderRightColor: "transparent",
-            borderBottomWidth: 0
-          }}
-        />
+          className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none transition-transform duration-300"
+          style={{ transform: focused ? "translateY(-50%) rotate(180deg)" : "translateY(-50%)" }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={focused ? GOLD : "#94A3B8"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </div>
       </div>
-    </Field>
+      {helper && (
+        <p className="mt-2 ml-1 text-slate-500 font-semibold text-sm" style={{ fontFamily: FN }}>{helper}</p>
+      )}
+    </div>
+  );
+}
+
+/** Legacy wrapper — kept to avoid refactoring all call sites */
+function Field({
+  label,
+  helper,
+  error,
+  children
+}: {
+  label: string;
+  helper?: string;
+  error?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-2 w-full">
+      <label
+        className="block text-xs font-black uppercase tracking-[0.18em]"
+        style={{ color: NAVY, opacity: 0.7, fontFamily: FN }}
+      >
+        {label}
+      </label>
+      {children}
+      {error && (
+        <p className="text-red-700 text-sm font-bold flex items-center gap-1.5 mt-1">
+          <AlertCircle className="w-4 h-4" /> {error}
+        </p>
+      )}
+      {!error && helper && (
+        <p className="text-sm font-semibold leading-relaxed text-slate-500 mt-1" style={{ fontFamily: FN }}>
+          {helper}
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -246,18 +338,43 @@ function ZipSelector({
 
   return (
     <div className="md:col-span-2 grid md:grid-cols-2 gap-6">
-      <div className="relative flex flex-col gap-2.5 w-full">
-        <label
-          className="block text-sm sm:text-base font-black uppercase tracking-[0.18em]"
-          style={{ color: NAVY, opacity: 0.95, fontFamily: FN }}
+      {/* ZIP Input — floating label style */}
+      <div className="relative flex flex-col gap-2 w-full">
+        <div
+          className="relative w-full transition-all duration-300"
+          style={{
+            background: focused ? "rgba(255,255,255,0.97)" : "rgba(255,255,255,0.82)",
+            borderRadius: 18,
+            border: `2px solid ${focused ? GOLD : "rgba(0,2,35,0.10)"}`,
+            boxShadow: focused
+              ? `0 0 0 5px rgba(255,160,0,0.13), 0 8px 32px rgba(0,0,0,0.05)`
+              : "0 2px 10px rgba(0,0,0,0.04)",
+            backdropFilter: "blur(16px)",
+            transition: "all 0.25s cubic-bezier(.4,0,.2,1)"
+          }}
         >
-          ZIP Code
-        </label>
-        <div className="relative">
-          <MapPin
-            className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 pointer-events-none transition-colors"
-            style={{ color: focused ? GOLD : "#8E8EA8" }}
-          />
+          <div
+            className="absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors duration-300"
+            style={{ color: focused ? GOLD : "#94A3B8" }}
+          >
+            <MapPin className="w-5 h-5" />
+          </div>
+          <label
+            className="absolute pointer-events-none font-black tracking-wide transition-all duration-200 select-none"
+            style={{
+              left: "3.0rem",
+              top: (focused || zip || search) ? "0.5rem" : "50%",
+              transform: (focused || zip || search) ? "none" : "translateY(-50%)",
+              fontSize: (focused || zip || search) ? "10px" : "16px",
+              letterSpacing: (focused || zip || search) ? "0.16em" : "0.01em",
+              textTransform: (focused || zip || search) ? "uppercase" : "none",
+              color: focused ? GOLD : "#94A3B8",
+              fontFamily: FN,
+              zIndex: 1
+            }}
+          >
+            ZIP Code
+          </label>
           <input
             value={zip || search}
             onChange={(e) => {
@@ -268,93 +385,92 @@ function ZipSelector({
                 if (found) onZipChange(found.zip, found.city);
               }
             }}
-            onFocus={() => {
-              setOpen(true);
-              setFocused(true);
-            }}
-            onBlur={() => {
-              setFocused(false);
-              setTimeout(() => setOpen(false), 250);
-            }}
-            placeholder="02115 or Boston…"
-            className="w-full py-5 pl-14 pr-6 rounded-2xl border-2 font-bold text-lg sm:text-xl outline-none transition-all shadow-md"
+            onFocus={() => { setOpen(true); setFocused(true); }}
+            onBlur={() => { setFocused(false); setTimeout(() => setOpen(false), 250); }}
+            placeholder=""
+            className="w-full outline-none bg-transparent font-bold"
             style={{
               fontFamily: FN,
-              borderColor: focused ? GOLD : "rgba(0, 2, 35, 0.12)",
-              background: "rgba(255, 255, 255, 0.85)",
+              fontSize: "1.2rem",
+              lineHeight: 1.4,
+              paddingTop: "1.65rem",
+              paddingBottom: "0.75rem",
+              paddingLeft: "3.0rem",
+              paddingRight: "1.1rem",
               color: NAVY,
-              boxShadow: focused ? `0 0 0 6px rgba(255, 160, 0, 0.2)` : "none"
+              caretColor: GOLD
             }}
             autoComplete="off"
           />
         </div>
+        {/* Dropdown */}
         {open && filtered.length > 0 && (
-          <div className="absolute left-0 right-0 top-full mt-2 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/80 shadow-2xl z-50 max-h-60 overflow-y-auto divide-y divide-slate-100/50">
+          <div className="absolute left-0 right-0 top-full mt-2 bg-white/97 backdrop-blur-xl rounded-2xl border border-slate-200/80 shadow-2xl z-50 max-h-60 overflow-y-auto divide-y divide-slate-100/50">
             {filtered.map((a) => (
               <button
                 key={a.zip}
                 type="button"
-                onMouseDown={() => {
-                  onZipChange(a.zip, a.city);
-                  setSearch("");
-                  setOpen(false);
-                }}
-                className="w-full text-left px-6 py-4.5 hover:bg-amber-50/60 transition-colors flex items-center justify-between"
+                onMouseDown={() => { onZipChange(a.zip, a.city); setSearch(""); setOpen(false); }}
+                className="w-full text-left px-5 py-4 hover:bg-amber-50/60 transition-colors flex items-center justify-between"
               >
-                <span className="font-extrabold text-base sm:text-lg" style={{ color: NAVY, fontFamily: FN }}>
-                  {a.city}
-                </span>
-                <span
-                  className="font-mono text-sm font-black px-3 py-1.5 rounded-lg border-2"
-                  style={{
-                    background: CREAM,
-                    borderColor: "rgba(0, 2, 35, 0.12)",
-                    color: GOLD
-                  }}
-                >
-                  {a.zip}
-                </span>
+                <span className="font-extrabold text-base" style={{ color: NAVY, fontFamily: FN }}>{a.city}</span>
+                <span className="font-mono text-sm font-black px-3 py-1 rounded-lg" style={{ background: "rgba(255,160,0,0.12)", color: GOLD }}>{a.zip}</span>
               </button>
             ))}
           </div>
         )}
         {open && search.length >= 2 && filtered.length === 0 && (
-          <div
-            className="absolute left-0 right-0 top-full mt-2 rounded-2xl border-2 border-red-200/80 p-5 text-center z-50 shadow-xl backdrop-blur-md"
-            style={{ background: "rgba(254, 242, 242, 0.95)" }}
-          >
-            <p className="text-red-755 font-black text-base sm:text-lg">Outside service area</p>
-            <p className="text-red-500 text-sm font-bold mt-1.5">We serve Massachusetts only</p>
+          <div className="absolute left-0 right-0 top-full mt-2 rounded-2xl border-2 border-red-200/80 p-5 text-center z-50 shadow-xl" style={{ background: "rgba(254,242,242,0.97)" }}>
+            <p className="text-red-700 font-black text-base">Outside service area</p>
+            <p className="text-red-500 text-sm font-bold mt-1">We serve Massachusetts only</p>
           </div>
         )}
-        <p
-          className="text-sm sm:text-base font-bold text-slate-700 mt-1"
-          style={{ fontFamily: FN }}
-        >
-          Massachusetts service area
-        </p>
+        <p className="mt-2 ml-1 text-slate-500 font-semibold text-sm" style={{ fontFamily: FN }}>Massachusetts service area</p>
       </div>
 
-      <div className="flex flex-col gap-2.5 w-full">
-        <label
-          className="block text-sm sm:text-base font-black uppercase tracking-[0.18em]"
-          style={{ color: NAVY, opacity: 0.95, fontFamily: FN }}
-        >
-          City (auto-filled)
-        </label>
-        <input
-          readOnly
-          value={city}
-          placeholder="Select ZIP above"
-          className="w-full py-5 px-6 rounded-2xl border-2 font-bold text-lg sm:text-xl outline-none cursor-default shadow-inner"
+      {/* City — read-only floating label */}
+      <div className="relative flex flex-col gap-2 w-full">
+        <div
+          className="relative w-full"
           style={{
-            fontFamily: FN,
-            borderColor: "rgba(0, 2, 35, 0.08)",
-            background: "rgba(0, 2, 35, 0.04)",
-            color: NAVY,
-            opacity: 0.9
+            background: "rgba(0,2,35,0.04)",
+            borderRadius: 18,
+            border: "2px solid rgba(0,2,35,0.07)",
+            boxShadow: "0 2px 10px rgba(0,0,0,0.03)"
           }}
-        />
+        >
+          <label
+            className="absolute pointer-events-none font-black tracking-wide select-none"
+            style={{
+              left: "1.1rem",
+              top: city ? "0.5rem" : "50%",
+              transform: city ? "none" : "translateY(-50%)",
+              fontSize: city ? "10px" : "16px",
+              letterSpacing: city ? "0.16em" : "0.01em",
+              textTransform: city ? "uppercase" : "none",
+              color: "#94A3B8",
+              fontFamily: FN,
+              transition: "all 0.2s"
+            }}
+          >
+            City (auto-filled)
+          </label>
+          <input
+            readOnly
+            value={city}
+            placeholder=""
+            className="w-full outline-none bg-transparent font-bold cursor-default"
+            style={{
+              fontFamily: FN,
+              fontSize: "1.2rem",
+              paddingTop: "1.65rem",
+              paddingBottom: "0.75rem",
+              paddingLeft: "1.1rem",
+              paddingRight: "1.1rem",
+              color: NAVY
+            }}
+          />
+        </div>
       </div>
     </div>
   );
@@ -1477,61 +1593,91 @@ export default function BookingForm() {
                   helper="OTP verification code will be sent here"
                 />
 
-                <div className="flex flex-col gap-2.5 w-full">
+              <div className="relative w-full">
+                <div
+                  className="relative w-full transition-all duration-300"
+                  style={{
+                    background: phoneFocused
+                      ? "rgba(255,255,255,0.97)"
+                      : phoneErr
+                      ? "rgba(255,240,240,0.90)"
+                      : "rgba(255,255,255,0.82)",
+                    borderRadius: 18,
+                    border: phoneFocused
+                      ? `2px solid ${GOLD}`
+                      : phoneErr
+                      ? "2px solid rgba(220,38,38,0.5)"
+                      : "2px solid rgba(0,2,35,0.10)",
+                    boxShadow: phoneFocused
+                      ? `0 0 0 5px rgba(255,160,0,0.13), 0 8px 32px rgba(0,0,0,0.05)`
+                      : phoneErr
+                      ? "0 0 0 4px rgba(220,38,38,0.07)"
+                      : "0 2px 10px rgba(0,0,0,0.04)",
+                    backdropFilter: "blur(16px)",
+                    transition: "all 0.25s cubic-bezier(.4,0,.2,1)"
+                  }}
+                >
+                  <div
+                    className="absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors duration-300"
+                    style={{ color: phoneFocused ? GOLD : phoneErr ? "#EF4444" : "#94A3B8" }}
+                  >
+                    <Phone className="w-5 h-5" />
+                  </div>
                   <label
-                    className="block text-sm sm:text-base font-black uppercase tracking-[0.18em]"
-                    style={{ color: NAVY, opacity: 0.95, fontFamily: FN }}
+                    className="absolute pointer-events-none font-black tracking-wide transition-all duration-200 select-none"
+                    style={{
+                      left: "3.0rem",
+                      top: (phoneFocused || phone) ? "0.5rem" : "50%",
+                      transform: (phoneFocused || phone) ? "none" : "translateY(-50%)",
+                      fontSize: (phoneFocused || phone) ? "10px" : "16px",
+                      letterSpacing: (phoneFocused || phone) ? "0.16em" : "0.01em",
+                      textTransform: (phoneFocused || phone) ? "uppercase" : "none",
+                      color: phoneFocused ? GOLD : phoneErr ? "#DC2626" : "#94A3B8",
+                      fontFamily: FN,
+                      zIndex: 1
+                    }}
                   >
                     Phone Number
                   </label>
-                  <div className="relative">
-                    <Phone
-                      className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 pointer-events-none transition-colors"
-                      style={{ color: phoneErr ? "#EF4444" : phoneFocused ? GOLD : "#8E8EA8" }}
-                    />
-                    <input
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => {
-                        setPhone(toEnNum(e.target.value));
-                        if (phoneErr) setPhoneErr("");
-                      }}
-                      onFocus={() => setPhoneFocused(true)}
-                      onBlur={(e) => {
-                        setPhoneFocused(false);
-                        const err = validatePhone(phone);
-                        setPhoneErr(err);
-                      }}
-                      placeholder="(617) 555-0000"
-                      className="w-full py-5 pr-6 rounded-2xl border-2 font-bold text-lg sm:text-xl outline-none transition-all shadow-md bg-white"
-                      style={{
-                        fontFamily: FN,
-                        paddingLeft: "3.75rem",
-                        borderColor: phoneErr ? "rgba(239, 68, 68, 0.5)" : phoneFocused ? GOLD : "rgba(0, 2, 35, 0.12)",
-                        background: phoneErr ? "rgba(254, 242, 242, 0.95)" : "rgba(255, 255, 255, 0.85)",
-                        color: NAVY,
-                        boxShadow: phoneFocused
-                          ? `0 0 0 6px rgba(255, 160, 0, 0.2)`
-                          : phoneErr
-                          ? "0 0 0 6px rgba(239, 68, 68, 0.08)"
-                          : "none"
-                      }}
-                      autoComplete="tel"
-                    />
-                  </div>
-                  {phoneErr ? (
-                    <p className="text-red-700 text-sm sm:text-base font-black flex items-center gap-2 mt-1">
-                      <AlertCircle className="w-5 h-5" /> {phoneErr}
-                    </p>
-                  ) : (
-                    <p
-                      className="text-sm sm:text-base font-bold text-slate-700 mt-1"
-                      style={{ fontFamily: FN }}
-                    >
-                      US phone number preferred for catering dispatch
-                    </p>
-                  )}
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => {
+                      setPhone(toEnNum(e.target.value));
+                      if (phoneErr) setPhoneErr("");
+                    }}
+                    onFocus={() => setPhoneFocused(true)}
+                    onBlur={() => {
+                      setPhoneFocused(false);
+                      const err = validatePhone(phone);
+                      setPhoneErr(err);
+                    }}
+                    placeholder=""
+                    className="w-full outline-none bg-transparent font-bold"
+                    style={{
+                      fontFamily: FN,
+                      fontSize: "1.2rem",
+                      lineHeight: 1.4,
+                      paddingTop: "1.65rem",
+                      paddingBottom: "0.75rem",
+                      paddingLeft: "3.0rem",
+                      paddingRight: "1.1rem",
+                      color: NAVY,
+                      caretColor: GOLD
+                    }}
+                    autoComplete="tel"
+                  />
                 </div>
+                {phoneErr ? (
+                  <p className="flex items-center gap-1.5 mt-2 ml-1 text-red-700 font-bold text-sm" style={{ fontFamily: FN }}>
+                    <AlertCircle className="w-4 h-4 shrink-0" /> {phoneErr}
+                  </p>
+                ) : (
+                  <p className="mt-2 ml-1 text-slate-500 font-semibold text-sm" style={{ fontFamily: FN }}>
+                    US phone number preferred for catering dispatch
+                  </p>
+                )}
+              </div>
               </div>
 
               {/* Trust Note Card */}
