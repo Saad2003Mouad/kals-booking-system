@@ -1166,11 +1166,11 @@ export default function BookingForm() {
                           </span>
                           <span className="w-2 h-2 rounded-full bg-slate-400 hidden sm:inline" />
                           <span className="flex items-center gap-1.5">
-                            <Clock className="w-5.5 h-5.5 text-slate-650" /> {p.includedMinutes || 60} Min Duration
+                            <Clock className="w-5.5 h-5.5 text-slate-655" /> {p.durationMins || p.includedMinutes || 60} Min Duration
                           </span>
                         </div>
                         <div className="text-sm sm:text-base font-black mt-3 flex items-center gap-1.5" style={{ color: GOLD }}>
-                          <Star className="w-5 h-5 fill-current" /> Extra guests billed at ${(p as any).extraGuestPrice || p.extraPiecePrice || 5} per person
+                          <Star className="w-5 h-5 fill-current" /> Extra guests billed at ${p.extraGuestPrice ?? p.extraPiecePrice ?? 5} per person
                         </div>
                       </div>
 
@@ -1860,7 +1860,7 @@ export default function BookingForm() {
                         {sel?.name}
                       </span>
                       <span className="text-base font-bold text-slate-655 mt-1.5 block">
-                        {sel?.includedQty || sel?.servings} servings included · {sel?.includedMinutes || 60} mins setup
+                        {sel?.includedQty || sel?.servings} servings included · {sel?.durationMins || sel?.includedMinutes || 60} mins duration
                       </span>
                     </div>
                     <span className="font-black text-2xl text-[#FFA000]">
