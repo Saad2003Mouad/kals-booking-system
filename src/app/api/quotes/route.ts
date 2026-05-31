@@ -23,8 +23,6 @@ export async function POST(req: Request) {
 
     const missingFields = [];
     if (!packageId) missingFields.push("packageId");
-    if (!durationMins) missingFields.push("durationMins");
-    if (!guests) missingFields.push("guests");
 
     if (missingFields.length > 0) {
       return NextResponse.json({ success: false, error: 'Missing required parameters', missingFields }, { status: 400 });
@@ -44,18 +42,18 @@ export async function POST(req: Request) {
     const freeMiles = freeMilesSetting ? parseFloat(freeMilesSetting) : 10;
     const ratePerMile = ratePerMileSetting ? parseFloat(ratePerMileSetting) : 2.25;
 
-    // Use package's own durationMins and extraGuestPrice
-    const packageDurationMins = (pkg as any).durationMins ?? 60;
+    // Use package's own durationMins and extraGuestPrice — NOT from user input
+    const packageDurationMins = (pkg as any).durationMins ?? (pkg as any).includedMinutes ?? 60;
     const extraGuestPrice = (pkg as any).extraGuestPrice ?? pkg.extraPiecePrice ?? 5;
 
     const q = calculateQuote({
       packagePrice: pkg.price,
       servings: pkg.servings,
       extraGuestPrice,
-      durationMins: parseInt(durationMins as string) || 60,
+      durationMins: packageDurationMins,     // always use package duration
       packageDurationMins,
       distanceMiles: parseFloat(distanceMiles as string) || 0,
-      guests: parseInt(guests as string) || 0,
+      guests: parseInt(guests as string) || 0,  // 0 means no extra guests
       additionalStops: bookingStops ? bookingStops.length : (parseInt(additionalStops as string) || 0),
       freeMiles,
       ratePerMile

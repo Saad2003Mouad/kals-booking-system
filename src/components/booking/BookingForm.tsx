@@ -364,11 +364,13 @@ type Pkg = {
   type?: string;
   serviceType?: string;
   includedMinutes?: number;
+  durationMins?: number;
   includedQty?: number;
   servings?: number;
   basePrice?: number;
   price?: number;
   extraPiecePrice?: number;
+  extraGuestPrice?: number;
   description?: string;
   slug?: string;
 };
@@ -422,8 +424,7 @@ export default function BookingForm() {
   const [sel, setSel] = useState<Pkg | null>(null);
   const [eventDate, setEventDate] = useState("");
   const [startTime, setStartTime] = useState("");
-  const [durationMins, setDuration] = useState("60");
-  const [guests, setGuests] = useState("50");
+  const [additionalGuests, setAdditionalGuests] = useState(0);
   const [eventType, setEventType] = useState("");
   const [address, setAddress] = useState("");
   const [zip, setZip] = useState("");
@@ -448,7 +449,6 @@ export default function BookingForm() {
   const [submitErr, setSubmitErr] = useState("");
   const [serviceZones, setServiceZones] = useState<{ zip: string; city: string }[]>([]);
   const [phoneFocused, setPhoneFocused] = useState(false);
-  const [additionalStops, setAdditionalStops] = useState(0);
   const [hasMultipleLocations, setHasMultipleLocations] = useState(false);
   const [bookingStops, setBookingStops] = useState<{ street: string; city: string; state: string; zipCode: string; notes: string }[]>([]);
 
@@ -522,13 +522,16 @@ export default function BookingForm() {
   const fetchQuote = async () => {
     setQuoting(true);
     setQuoteErr("");
+    // Duration comes from the package, NOT from user input
+    const pkgDuration = (sel as any)?.durationMins ?? sel?.includedMinutes ?? 60;
     const payload = {
       packageId: sel?.id,
       zip,
-      guests: parseInt(toEnNum(guests) || "0"),
-      durationMins: parseInt(toEnNum(durationMins) || "60"),
+      guests: additionalGuests,           // only extra guests beyond included
+      durationMins: pkgDuration,
       distanceMiles: drivingMiles,
-      additionalStops,
+      additionalStops: bookingStops.length,
+      bookingStops,
     };
     const r = await fetch("/api/quotes", {
       method: "POST",
@@ -582,12 +585,14 @@ export default function BookingForm() {
     setSubmitErr("");
     setSubmitting(true);
     const cleanPhone = toEnNum(phone).replace(/[^\d+\-\s()]/g, "");
+    const pkgDuration = (sel as any)?.durationMins ?? sel?.includedMinutes ?? 60;
     const payload = {
       packageId: sel?.id,
       eventDate: toEnNum(eventDate),
       startTime: toEnNum(startTime),
-      durationMins: parseInt(toEnNum(durationMins) || "60"),
-      guests: parseInt(toEnNum(guests) || "0"),
+      durationMins: pkgDuration,          // always from package
+      guests: (sel?.servings ?? sel?.includedQty ?? 50) + additionalGuests,
+      additionalGuests,
       eventType,
       address,
       city,
@@ -976,47 +981,58 @@ export default function BookingForm() {
                   helper="Select start time in 24h format (e.g. 14:00)"
                 />
 
-                <Field
-                  label="Duration"
-                  helper={`Included in package: ${sel?.includedMinutes || 60} mins. Overtime billed per 30 min.`}
-                >
-                  <div className="relative w-full">
-                    <select
-                      value={durationMins}
-                      onChange={(e) => setDuration(e.target.value)}
-                      className="w-full py-4.5 pl-6 pr-12 rounded-2xl border-2 font-semibold text-base sm:text-lg outline-none appearance-none shadow-sm cursor-pointer"
-                      style={{
-                        fontFamily: FN,
-                        borderColor: "rgba(0, 2, 35, 0.08)",
-                        background: "rgba(255, 255, 255, 0.95)",
-                        color: NAVY
-                      }}
-                    >
-                      {[45, 60, 90, 120, 150, 180, 240].map((m) => (
-                        <option key={m} value={m}>
-                          {m} min
-                          {sel && m > (sel.includedMinutes || 60)
-                            ? ` (+${Math.ceil((m - (sel.includedMinutes || 60)) / 30)} overtime blocks)`
-                            : " (included)"}
-                        </option>
-                      ))}
-                    </select>
-                    <div
-                      className="absolute right-4.5 top-1/2 -translate-y-1/2 pointer-events-none border-solid border-t-6 border-l-6 border-r-6 border-transparent"
-                      style={{ borderTopColor: NAVY, opacity: 0.6, borderLeftColor: "transparent", borderRightColor: "transparent", borderBottomWidth: 0 }}
-                    />
-                  </div>
-                </Field>
+                {/* Duration field REMOVED — duration comes from package */}
+                {/* Estimated Guests field REMOVED — replaced with additionalGuests below */}
 
-                <PremiumInput
-                  label="Estimated Guests"
-                  value={guests}
-                  onChange={(v) => setGuests(toEnNum(v))}
-                  type="number"
-                  min="1"
-                  icon={Users}
-                  helper="Approximate guest attendance count"
-                />
+                {/* Package duration info banner */}
+                <div className="md:col-span-2 bg-amber-50/60 border border-amber-100 rounded-2xl p-5 flex items-center gap-4">
+                  <span className="text-2xl">⏱️</span>
+                  <div>
+                    <p className="font-black text-[#000223] text-base">
+                      Included service time: {(sel as any)?.durationMins ?? sel?.includedMinutes ?? 60} minutes
+                    </p>
+                    <p className="text-sm font-semibold text-slate-500 mt-0.5">
+                      This package serves up to {sel?.servings ?? sel?.includedQty ?? 50} guests.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Optional Additional Guests stepper */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-black uppercase tracking-[0.18em] mb-1" style={{ color: NAVY, opacity: 0.7, fontFamily: FN }}>
+                    Additional Guests (Optional)
+                  </label>
+                  <p className="text-xs sm:text-sm font-semibold text-slate-400 mb-4">
+                    Only enter guests <strong style={{ color: NAVY }}>beyond the included package amount</strong>. Extra guests are billed at ${(sel as any)?.extraGuestPrice ?? sel?.extraPiecePrice ?? 5}/person.
+                  </p>
+                  <div className="flex items-center gap-4">
+                    <button
+                      type="button"
+                      onClick={() => setAdditionalGuests(Math.max(0, additionalGuests - 1))}
+                      className="w-12 h-12 rounded-full border-2 font-black text-xl flex items-center justify-center transition-all hover:bg-slate-100"
+                      style={{ borderColor: additionalGuests === 0 ? "rgba(0,2,35,0.12)" : NAVY, color: NAVY }}
+                    >
+                      −
+                    </button>
+                    <div className="flex-1 text-center">
+                      <span className="text-3xl font-black" style={{ color: NAVY, fontFamily: F_SERIF }}>{additionalGuests}</span>
+                      <span className="block text-xs font-bold text-slate-400 mt-0.5">additional guest{additionalGuests !== 1 ? "s" : ""}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setAdditionalGuests(Math.min(200, additionalGuests + 1))}
+                      className="w-12 h-12 rounded-full border-2 font-black text-xl flex items-center justify-center transition-all hover:bg-amber-50"
+                      style={{ borderColor: NAVY, color: NAVY }}
+                    >
+                      +
+                    </button>
+                    {additionalGuests > 0 && (
+                      <div className="ml-4 px-5 py-2.5 rounded-full font-black text-sm" style={{ background: "rgba(255,160,0,0.15)", color: NAVY }}>
+                        +${(additionalGuests * ((sel as any)?.extraGuestPrice ?? sel?.extraPiecePrice ?? 5)).toFixed(2)}
+                      </div>
+                    )}
+                  </div>
+                </div>
 
                 <div className="md:col-span-2">
                   <PremiumSelect
@@ -1562,13 +1578,14 @@ export default function BookingForm() {
                       ["Event Type", eventType],
                       ["Event Date", formatEnDate(eventDate)],
                       ["Start Time", formatEnTime(startTime)],
-                      ["Duration", `${durationMins} min`],
-                      ["Guests", toEnNum(guests)],
+                      ["Included Service Time", `${(sel as any)?.durationMins ?? sel?.includedMinutes ?? 60} minutes`],
+                      ["Included Guests", `${sel?.servings ?? sel?.includedQty ?? 50} guests`],
+                      ...(additionalGuests > 0 ? [["Additional Guests", `+${additionalGuests} guests`]] as [string, string][] : []),
                       ["Location", `${address}, ${city} ${zip}`],
-                      ["Garage", "Boston Revere — 84 Fernwood Ave"],
+                      ["Garage Origin", "Boston Revere — 84 Fernwood Ave"],
                       ["Distance", `${quote.distanceMiles.toFixed(1)} miles total`],
-                      ["Free zone", "First 10.0 miles FREE"],
-                      ["Billable", `${Math.max(0, quote.distanceMiles - 10).toFixed(1)} miles`],
+                      ["Free Travel Zone", "First 10.0 miles FREE"],
+                      ["Billable Miles", `${Math.max(0, quote.distanceMiles - 10).toFixed(1)} miles`],
                       ["Travel Fee", quote.travelFee > 0 ? `$${quote.travelFee.toFixed(2)}` : "Free ($0.00)"]
                     ].map(([l, v]) => (
                       <div key={l} className="flex justify-between px-6 py-4 text-sm sm:text-base">

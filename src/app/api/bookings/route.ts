@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { evaluateBooking } from "@/lib/aiEngine";
-import { sendBookingPendingEmail, sendBookingApprovedEmail } from "@/lib/email";
+import { sendBookingPendingEmail, sendBookingApprovedEmail, sendBookingPendingReviewEmail } from "@/lib/email";
 import { z } from "zod";
 
 async function withRetry<T>(fn: () => Promise<T>, retries = 2): Promise<T> {
@@ -39,6 +39,7 @@ const BookingSchema = z.object({
   distanceMiles: z.coerce.number().default(0),
   additionalStops: z.coerce.number().default(0),
   additionalStopsFee: z.coerce.number().default(0),
+  additionalGuests: z.coerce.number().default(0),
   latitude: z.coerce.number().optional().nullable(),
   longitude: z.coerce.number().optional().nullable(),
   bookingStops: z.array(z.any()).optional(),
@@ -200,27 +201,23 @@ export async function GET(req: NextRequest) {
     }
 
     // ── 7. Send Emails ────────────────────────────────────────
-    if (aiDecision.autoConfirm) {
-      // Block response for emails so they finish on serverless environments like Vercel
-      await sendBookingApprovedEmail(email, firstName, booking.bookingNumber, `/customer/booking/${booking.id}`, totalAmount.toFixed(2), booking.id);
-    } else {
-      await sendBookingPendingEmail(email, firstName, booking.bookingNumber, {
-        eventDate,
-        startTime,
-        durationMins,
-        guests,
-        eventType,
-        address,
-        city,
-        zip,
-        packageName: dbPackageName,
-        basePrice: totalAmount - travelFee - overtimeFee - extraPieceFee,
-        extraServingsFee: extraPieceFee,
-        travelFee,
-        overtimeFee,
-        totalAmount,
-        distanceMiles: distanceMiles
-      }, booking.id);
+    try {
+      if (status === "CONFIRMED") {
+        await sendBookingApprovedEmail(
+          email, firstName, booking.bookingNumber,
+          `/customer/booking/${booking.id}`, totalAmount.toFixed(2), booking.id
+        );
+        console.log(`[Email] Confirmed email sent to ${email}`);
+      } else {
+        await sendBookingPendingReviewEmail(
+          email, firstName, booking.bookingNumber,
+          aiDecision.reason || "Your booking requires a manual review by our team.",
+          booking.id
+        );
+        console.log(`[Email] Pending review email sent to ${email}`);
+      }
+    } catch (emailErr) {
+      console.error("[Email Send Error]", emailErr);
     }
 
     return NextResponse.json({

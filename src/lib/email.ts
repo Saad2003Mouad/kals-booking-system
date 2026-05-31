@@ -94,10 +94,11 @@ function formatBookingDetailsHtml(booking: any) {
   const quote = booking.quote;
   const pkg = booking.package;
 
-  // Calculate Extra Guests Fee
-  const servings = pkg?.servings ?? 50;
-  const extraPiecePrice = pkg?.extraPiecePrice ?? 5;
-  const extraGuestsCount = Math.max(0, booking.guests - servings);
+  // Use package durationMins (not booking.durationMins from user input)
+  const pkgDurationMins = (pkg as any)?.durationMins ?? pkg?.includedMinutes ?? booking.durationMins;
+  const pkgServings = pkg?.servings ?? 50;
+  const extraPiecePrice = (pkg as any)?.extraGuestPrice ?? pkg?.extraPiecePrice ?? 5;
+  const extraGuestsCount = Math.max(0, booking.guests - pkgServings);
   const extraGuestsFee = extraGuestsCount * extraPiecePrice;
 
   // Travel Details
@@ -123,12 +124,12 @@ function formatBookingDetailsHtml(booking: any) {
         <td style="border-bottom:1px solid #F3F4F6;font-weight:600;">${formatEnDate(booking.eventDate)} at ${booking.startTime}</td>
       </tr>
       <tr>
-        <td style="font-weight:800;color:${BRAND_NAVY};border-bottom:1px solid #F3F4F6;">Duration</td>
-        <td style="border-bottom:1px solid #F3F4F6;font-weight:600;">${booking.durationMins} minutes</td>
+        <td style="font-weight:800;color:${BRAND_NAVY};border-bottom:1px solid #F3F4F6;">Included Service Time</td>
+        <td style="border-bottom:1px solid #F3F4F6;font-weight:600;">${pkgDurationMins} minutes</td>
       </tr>
       <tr>
-        <td style="font-weight:800;color:${BRAND_NAVY};border-bottom:1px solid #F3F4F6;">Guests</td>
-        <td style="border-bottom:1px solid #F3F4F6;font-weight:600;">${booking.guests} servings included</td>
+        <td style="font-weight:800;color:${BRAND_NAVY};border-bottom:1px solid #F3F4F6;">Included Guests</td>
+        <td style="border-bottom:1px solid #F3F4F6;font-weight:600;">${pkgServings} guests</td>
       </tr>
       <tr>
         <td style="font-weight:800;color:${BRAND_NAVY};border-bottom:1px solid #F3F4F6;">Location</td>
@@ -162,8 +163,12 @@ function formatBookingDetailsHtml(booking: any) {
     <h3 style="margin:0 0 12px;color:${BRAND_NAVY};font-size:18px;font-weight:800;border-bottom:2px solid #F3F4F6;padding-bottom:8px;">Pricing & Travel Fee</h3>
     <table width="100%" cellpadding="8" cellspacing="0" style="margin-bottom:24px;font-size:14px;color:#4B5563;background:#F8F9FC;border-radius:12px;">
       <tr>
-        <td width="70%" style="font-weight:600;">Base Package</td>
+        <td width="70%" style="font-weight:600;">Base Package Price</td>
         <td width="30%" align="right" style="font-weight:800;color:${BRAND_NAVY};">$${basePrice.toFixed(2)}</td>
+      </tr>
+      <tr>
+        <td style="font-weight:600;color:#6B7280;font-size:13px;">Included: ${pkgServings} guests, ${pkgDurationMins} min</td>
+        <td align="right" style="font-weight:700;color:#6B7280;font-size:13px;"></td>
       </tr>
       ${extraGuestsFee > 0 ? `
       <tr>
@@ -190,6 +195,11 @@ function formatBookingDetailsHtml(booking: any) {
         <td align="right" style="font-weight:900;color:${BRAND_GOLD};font-size:18px;border-top:2px solid #E5E7EB;padding-top:12px;">$${booking.totalAmount.toFixed(2)}</td>
       </tr>
     </table>
+
+    <!-- Payment Policy -->
+    <div style="background:#F0FDF4;border:1px solid #86EFAC;border-radius:12px;padding:16px 20px;margin-bottom:20px;">
+      <p style="margin:0;color:#166534;font-size:14px;font-weight:700;">💳 Payment Policy: Payment is collected after the service. We accept multiple payment methods.</p>
+    </div>
   `;
 }
 
@@ -200,7 +210,7 @@ export async function sendBookingApprovedEmail(to: string, firstName: string, bo
   try {
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
-      include: { customer: true, package: true, quote: true }
+      include: { customer: true, package: true, quote: true, stops: { orderBy: { stopOrder: 'asc' } } }
     });
     bookingDetailsHtml = formatBookingDetailsHtml(booking);
   } catch (e) {
@@ -242,7 +252,7 @@ export async function sendBookingPendingEmail(
   try {
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
-      include: { customer: true, package: true, quote: true }
+      include: { customer: true, package: true, quote: true, stops: { orderBy: { stopOrder: 'asc' } } }
     });
     bookingDetailsHtml = formatBookingDetailsHtml(booking);
   } catch (e) {
@@ -305,7 +315,7 @@ export async function sendBookingRejectedEmail(
   try {
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
-      include: { customer: true, package: true, quote: true }
+      include: { customer: true, package: true, quote: true, stops: { orderBy: { stopOrder: 'asc' } } }
     });
     bookingDetailsHtml = formatBookingDetailsHtml(booking);
   } catch (e) {
@@ -356,7 +366,7 @@ export async function sendBookingPendingReviewEmail(
   try {
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
-      include: { customer: true, package: true, quote: true }
+      include: { customer: true, package: true, quote: true, stops: { orderBy: { stopOrder: 'asc' } } }
     });
     bookingDetailsHtml = formatBookingDetailsHtml(booking);
   } catch (e) {
