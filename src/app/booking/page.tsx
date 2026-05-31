@@ -37,7 +37,38 @@ export default function BookingPage() {
       </div>
 
       <div className="relative w-full z-10 flex flex-col flex-grow">
-        <SiteHeader />
+        {/* Header accent: yellow left → pink right */}
+        <div className="absolute top-0 left-0 right-0 h-[80px] z-0 pointer-events-none overflow-hidden">
+          {/* Yellow glow — logo area (left) */}
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "260px",
+              height: "100%",
+              background: "linear-gradient(135deg, #FFD600 0%, #FFEC5C 60%, transparent 100%)",
+              opacity: 0.92,
+              borderBottomRightRadius: "60px",
+            }}
+          />
+          {/* Pink/rose glow — right side */}
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              right: 0,
+              width: "260px",
+              height: "100%",
+              background: "linear-gradient(225deg, #FF3CAC 0%, #FF85C2 60%, transparent 100%)",
+              opacity: 0.85,
+              borderBottomLeftRadius: "60px",
+            }}
+          />
+        </div>
+        <div className="relative z-10">
+          <SiteHeader />
+        </div>
 
         {/* Hero strip without blue background */}
         <div className="py-12 px-6 sm:px-8">
