@@ -105,7 +105,9 @@ function formatBookingDetailsHtml(booking: any) {
   const distanceMiles = quote?.distanceMiles ?? 0;
   const travelFee = quote?.travelFee ?? 0;
   const overtimeFee = quote?.overtimeFee ?? 0;
-  const basePrice = quote?.basePrice ?? (booking.totalAmount - travelFee - overtimeFee - extraGuestsFee);
+  const extraServiceFee = quote?.additionalServiceFee ?? (booking.extraServiceFee || 0);
+  const extraServiceMins = quote?.extraServiceMins ?? (booking.extraServiceMins || 0);
+  const basePrice = quote?.basePrice ?? (booking.totalAmount - travelFee - overtimeFee - extraServiceFee - extraGuestsFee);
 
   return `
     <!-- Event Summary -->
@@ -127,6 +129,11 @@ function formatBookingDetailsHtml(booking: any) {
         <td style="font-weight:800;color:${BRAND_NAVY};border-bottom:1px solid #F3F4F6;">Included Service Time</td>
         <td style="border-bottom:1px solid #F3F4F6;font-weight:600;">${pkgDurationMins} minutes</td>
       </tr>
+      ${extraServiceMins > 0 ? `
+      <tr>
+        <td style="font-weight:800;color:${BRAND_NAVY};border-bottom:1px solid #F3F4F6;">Additional Service Time</td>
+        <td style="border-bottom:1px solid #F3F4F6;font-weight:600;">+${extraServiceMins} minutes</td>
+      </tr>` : ''}
       <tr>
         <td style="font-weight:800;color:${BRAND_NAVY};border-bottom:1px solid #F3F4F6;">Included Guests</td>
         <td style="border-bottom:1px solid #F3F4F6;font-weight:600;">${pkgServings} guests</td>
@@ -179,6 +186,11 @@ function formatBookingDetailsHtml(booking: any) {
       <tr>
         <td style="font-weight:600;">Additional Stops (${booking.additionalStops})</td>
         <td align="right" style="font-weight:800;color:${BRAND_NAVY};">+$${booking.additionalStopsFee.toFixed(2)}</td>
+      </tr>` : ''}
+      ${extraServiceFee > 0 ? `
+      <tr>
+        <td style="font-weight:600;">Additional Service Time (${extraServiceMins} min)</td>
+        <td align="right" style="font-weight:800;color:${BRAND_NAVY};">+$${extraServiceFee.toFixed(2)}</td>
       </tr>` : ''}
       ${overtimeFee > 0 ? `
       <tr>

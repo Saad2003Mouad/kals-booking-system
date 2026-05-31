@@ -40,6 +40,8 @@ const BookingSchema = z.object({
   additionalStops: z.coerce.number().default(0),
   additionalStopsFee: z.coerce.number().default(0),
   additionalGuests: z.coerce.number().default(0),
+  extraServiceMins: z.coerce.number().default(0),
+  extraServiceFee: z.coerce.number().default(0),
   latitude: z.coerce.number().optional().nullable(),
   longitude: z.coerce.number().optional().nullable(),
   bookingStops: z.array(z.any()).optional(),

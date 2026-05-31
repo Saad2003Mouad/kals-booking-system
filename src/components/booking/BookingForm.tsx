@@ -380,6 +380,9 @@ type Quote = {
   travelFee: number;
   overtimeFee: number;
   extraPieceFee: number;
+  additionalServiceFee: number;
+  extraServiceMins: number;
+  additionalStopsFee: number;
   totalAmount: number;
   distanceMiles: number;
   extraPiecePrice: number;
@@ -451,6 +454,7 @@ export default function BookingForm() {
   const [phoneFocused, setPhoneFocused] = useState(false);
   const [hasMultipleLocations, setHasMultipleLocations] = useState(false);
   const [bookingStops, setBookingStops] = useState<{ street: string; city: string; state: string; zipCode: string; notes: string }[]>([]);
+  const [extraServiceMins, setExtraServiceMins] = useState(0);
 
   useEffect(() => {
     fetch("/api/packages")
@@ -532,6 +536,7 @@ export default function BookingForm() {
       distanceMiles: drivingMiles,
       additionalStops: bookingStops.length,
       bookingStops,
+      extraServiceMins,
     };
     const r = await fetch("/api/quotes", {
       method: "POST",
@@ -610,6 +615,8 @@ export default function BookingForm() {
       distanceMiles: quote?.distanceMiles,
       additionalStops: bookingStops.length,
       additionalStopsFee: bookingStops.length * 50,
+      extraServiceMins,
+      extraServiceFee: quote?.additionalServiceFee ?? 0,
       bookingStops,
       latitude: lat,
       longitude: lng
@@ -1032,6 +1039,46 @@ export default function BookingForm() {
                       </div>
                     )}
                   </div>
+                </div>
+
+                {/* Additional Service Time selector */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-black uppercase tracking-[0.18em] mb-1" style={{ color: NAVY, opacity: 0.7, fontFamily: FN }}>
+                    Additional Service Time (Optional)
+                  </label>
+                  <p className="text-xs sm:text-sm font-semibold text-slate-400 mb-4">
+                    Every additional <strong style={{ color: NAVY }}>30 minutes</strong> beyond your package's included service time is{" "}
+                    <strong style={{ color: NAVY }}>$35</strong>.
+                  </p>
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                    {[0, 30, 60, 90, 120].map((mins) => {
+                      const fee = (mins / 30) * 35;
+                      const isSelected = extraServiceMins === mins;
+                      return (
+                        <button
+                          key={mins}
+                          type="button"
+                          onClick={() => setExtraServiceMins(mins)}
+                          className="py-4 rounded-2xl border-2 font-black text-sm text-center transition-all hover:-translate-y-0.5"
+                          style={{
+                            borderColor: isSelected ? NAVY : "rgba(0,2,35,0.1)",
+                            background: isSelected ? NAVY : "rgba(255,255,255,0.9)",
+                            color: isSelected ? GOLD : NAVY,
+                            boxShadow: isSelected ? "0 4px 12px rgba(0,2,35,0.2)" : "none"
+                          }}
+                        >
+                          <span className="block text-lg">{mins === 0 ? "None" : `+${mins} min`}</span>
+                          <span className="block text-xs mt-0.5 font-bold opacity-70">{mins === 0 ? "$0" : `$${fee}`}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {extraServiceMins > 0 && (
+                    <div className="mt-3 flex items-center gap-2 text-sm font-bold text-amber-800 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5">
+                      <Clock className="w-4 h-4 text-amber-600" />
+                      <span>+{extraServiceMins} min additional service time → <strong>+${(extraServiceMins / 30) * 35} added to total</strong></span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="md:col-span-2">
@@ -1581,6 +1628,7 @@ export default function BookingForm() {
                       ["Included Service Time", `${(sel as any)?.durationMins ?? sel?.includedMinutes ?? 60} minutes`],
                       ["Included Guests", `${sel?.servings ?? sel?.includedQty ?? 50} guests`],
                       ...(additionalGuests > 0 ? [["Additional Guests", `+${additionalGuests} guests`]] as [string, string][] : []),
+                      ...(extraServiceMins > 0 ? [["Additional Service Time", `+${extraServiceMins} mins`]] as [string, string][] : []),
                       ["Location", `${address}, ${city} ${zip}`],
                       ["Garage Origin", "Boston Revere — 84 Fernwood Ave"],
                       ["Distance", `${quote.distanceMiles.toFixed(1)} miles total`],

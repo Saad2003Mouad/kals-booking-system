@@ -275,9 +275,15 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
               <span className="font-black text-[#000223]">{booking.startTime}</span>
             </div>
             <div className="flex justify-between border-b border-slate-50 pb-3">
-              <span className="text-slate-400">Duration</span>
-              <span className="font-black text-[#000223]">{booking.durationMins} minutes</span>
+              <span className="text-slate-400">Included Service Time</span>
+              <span className="font-black text-[#000223]">{pkg?.durationMins ?? pkg?.includedMinutes ?? booking.durationMins} minutes</span>
             </div>
+            {booking.extraServiceMins > 0 && (
+              <div className="flex justify-between border-b border-slate-50 pb-3">
+                <span className="text-slate-400">Additional Service Time</span>
+                <span className="font-black text-amber-600">+{booking.extraServiceMins} minutes (+${booking.extraServiceFee?.toFixed(2) || ((booking.extraServiceMins/30)*35).toFixed(2)})</span>
+              </div>
+            )}
             <div className="flex justify-between">
               <span className="text-slate-400">Expected Guests</span>
               <span className="font-black text-[#000223]">{booking.guests} servings</span>

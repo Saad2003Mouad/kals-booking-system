@@ -19,7 +19,7 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     console.log("Quotes API body:", body);
-    const { packageId, durationMins, distanceMiles, guests, additionalStops, bookingStops } = body;
+    const { packageId, durationMins, distanceMiles, guests, additionalStops, bookingStops, extraServiceMins } = body;
 
     const missingFields = [];
     if (!packageId) missingFields.push("packageId");
@@ -55,6 +55,7 @@ export async function POST(req: Request) {
       distanceMiles: parseFloat(distanceMiles as string) || 0,
       guests: parseInt(guests as string) || 0,  // 0 means no extra guests
       additionalStops: bookingStops ? bookingStops.length : (parseInt(additionalStops as string) || 0),
+      extraServiceMins: parseInt(extraServiceMins as string) || 0,
       freeMiles,
       ratePerMile
     });
@@ -62,6 +63,7 @@ export async function POST(req: Request) {
     const breakdown = [
       { label: "Base Package", amount: q.basePrice },
       { label: q.extraServingsCount > 0 ? `Extra Guests (${q.extraServingsCount} × $${q.extraGuestPrice})` : "Extra Guests Fee", amount: q.extraPieceFee },
+      ...(q.additionalServiceFee > 0 ? [{ label: `Additional Service Time (${q.extraServiceMins} min × $35/30min)`, amount: q.additionalServiceFee }] : []),
       { label: "Travel Fee", amount: q.travelFee },
       { label: "Overtime Fee", amount: q.overtimeFee },
       ...(q.additionalStopsFee > 0 ? [{ label: `Additional Stops (${q.additionalStops} × $50)`, amount: q.additionalStopsFee }] : []),
