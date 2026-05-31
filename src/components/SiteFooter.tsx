@@ -211,6 +211,14 @@ export default function SiteFooter() {
                 </div>
               </a>
             </div>
+            <div>
+              <a href="tel:6178662727" className="footer-link w-inline-block">
+                <div className="footer-link-move">
+                  <div className="footer-link-w">617-866-2727</div>
+                  <div className="footer-link-o">617-866-2727</div>
+                </div>
+              </a>
+            </div>
 
             <div className="footer-titel-s mt-4">Work Hours</div>
             <div>Open 24 Hours for Scheduled Events</div>

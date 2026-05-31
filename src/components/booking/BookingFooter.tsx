@@ -60,8 +60,12 @@ export default function BookingFooter() {
             <h4 className="text-lg font-black mb-6 text-white">Contact Us</h4>
             <div className="space-y-4">
               <div>
-                <div className="text-[10px] font-black uppercase tracking-widest text-white/30 mb-1">Direct Line</div>
-                <a href="tel:6179993803" className="text-xl font-black text-[#FFA000] hover:underline">617-999-3803</a>
+                <div className="text-[10px] font-black uppercase tracking-widest text-white/30 mb-1">Direct Lines</div>
+                <div className="flex flex-col gap-1.5">
+                  <a href="tel:6179993803" className="text-xl font-black text-[#FFA000] hover:underline block">617-999-3803</a>
+                  <a href="tel:7819213233" className="text-xl font-black text-[#FFA000] hover:underline block">781-921-3233</a>
+                  <a href="tel:6178662727" className="text-xl font-black text-[#FFA000] hover:underline block">617-866-2727</a>
+                </div>
               </div>
               <div>
                 <div className="text-[10px] font-black uppercase tracking-widest text-white/30 mb-1">Office Hours</div>
