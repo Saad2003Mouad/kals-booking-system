@@ -51,27 +51,10 @@ export default function SiteHeader() {
                 </nav>
               </div>
               <Link href="/packages" className="nav-link w-nav-link">Packages</Link>
+              <Link href="/manage-booking" className="nav-link w-nav-link">Manage Booking</Link>
               <Link href="/contact-us" className="nav-link w-nav-link">Contact</Link>
             </nav>
             <div className="right-menu-links">
-              <Link
-                href="/manage-booking"
-                className="link-bt menu-bt"
-                style={{
-                  background: "#FFA000",
-                  color: "#000000",
-                  border: "2px solid #FFA000",
-                  fontWeight: 900,
-                  borderRadius: 32,
-                  padding: "10px 22px",
-                  fontSize: 14,
-                  letterSpacing: "0.02em",
-                  transition: "all 0.2s",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                Manage Booking
-              </Link>
               <Link href="/login" className="link-bt menu-bt">Sign In or Sign Up</Link>
             </div>
             <div className="menu-button w-nav-button"><div className="icon w-icon-nav-menu"></div></div>
