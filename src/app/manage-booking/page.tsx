@@ -167,7 +167,7 @@ export default function ManageBookingPage() {
       <div className="absolute top-0 left-0 right-0 h-20 z-20 pointer-events-none overflow-hidden print:hidden">
         {/* Orange-amber — left (behind logo) */}
         <div 
-          className="absolute top-0 left-0 h-full w-[280px]"
+          className="absolute top-0 left-0 h-full w-[520px]"
           style={{
             background: "linear-gradient(105deg, #FF6B00 0%, #FF8C00 45%, #FFA500 70%, transparent 100%)",
             opacity: 0.75,
