@@ -52,7 +52,6 @@ export default function SiteHeader() {
               </div>
               <Link href="/packages" className="nav-link w-nav-link">Packages</Link>
               <Link href="/contact-us" className="nav-link w-nav-link">Contact</Link>
-              <Link href="/manage-booking" className="nav-link w-nav-link" style={{ fontWeight: 900, color: "#FFA000" }}>Manage Booking</Link>
             </nav>
             <div className="right-menu-links">
               <Link
