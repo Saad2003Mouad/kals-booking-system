@@ -1089,10 +1089,14 @@ export default function BookingForm() {
     );
   }
 
-  const isPrimaryVerified = primaryLoc.latitude !== null && primaryLoc.longitude !== null && primaryLoc.locationVerificationMethod !== "";
-  const isAllStopsVerified = bookingStops.every((stop: any) => stop.latitude !== null && stop.longitude !== null && stop.locationVerificationMethod !== "");
-  const canContinueStep1 = isPrimaryVerified && (locationMode === "SINGLE_LOCATION" || (bookingStops.length > 0 && isAllStopsVerified));
   const isCustom = sel?.slug === "custom-event-package" || (sel as any)?.serviceType === "CUSTOM";
+  const isPrimaryVerified = isCustom
+    ? (address.trim() !== "" && city.trim() !== "" && zip.trim().length === 5)
+    : (primaryLoc.latitude !== null && primaryLoc.longitude !== null && primaryLoc.locationVerificationMethod !== "");
+  const isAllStopsVerified = isCustom
+    ? true
+    : bookingStops.every((stop: any) => stop.latitude !== null && stop.longitude !== null && stop.locationVerificationMethod !== "");
+  const canContinueStep1 = isPrimaryVerified && (isCustom || locationMode === "SINGLE_LOCATION" || (bookingStops.length > 0 && isAllStopsVerified));
   const isGuestCountInvalid = isCustom && (customGuestCount === "" || customGuestCount <= 200);
 
   const listPkgs = pkgList[pkgTab];
@@ -1483,104 +1487,215 @@ export default function BookingForm() {
                   />
                 </div>
 
-                <div className="md:col-span-2">
-                  <LocationVerificationWidget
-                    label="Primary Event Setup Location"
-                    value={primaryLoc}
-                    onChange={setPrimaryLoc}
-                    error={submitErr && !primaryLoc.latitude ? "Please verify your setup location." : undefined}
-                  />
-                </div>
-
-                {/* Travel Distance Card / Notice */}
-                <div className="md:col-span-2 mt-2">
-                  {primaryLoc.latitude !== null && primaryLoc.longitude !== null ? (
-                    <div
-                      className="p-6 rounded-3xl border-2 text-left bg-white/70 backdrop-blur-md shadow-md"
-                      style={{ borderColor: "rgba(0, 2, 35, 0.12)", borderLeftColor: GOLD, borderLeftWidth: "6px" }}
-                    >
-                      <div className="flex items-center justify-between mb-4">
-                        <div>
-                          <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-650 block">
-                            Travel Distance & Routing
-                          </span>
-                          <span className="text-2xl font-black tracking-tight mt-1 block" style={{ color: NAVY }}>
-                            {drivingMiles.toFixed(1)} Miles Total
-                          </span>
-                        </div>
-                        <span className="text-3xl">📍</span>
+                {isCustom ? (
+                  <div className="md:col-span-2 bg-white/40 backdrop-blur-md border-2 border-slate-200/80 rounded-3xl p-6 shadow-sm">
+                    <label className="block text-base font-black uppercase tracking-[0.18em] mb-1.5" style={{ color: NAVY, opacity: 0.95, fontFamily: FN }}>
+                      Event Location Address
+                    </label>
+                    <p className="text-sm sm:text-base font-bold text-slate-700 mb-5 leading-relaxed">
+                      Please enter the setup address details for your event. Since this is a custom request, no map or location verification is required.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                      <div className="md:col-span-3">
+                        <PremiumInput
+                          label="Street Address"
+                          value={address}
+                          onChange={setAddress}
+                          placeholder="e.g. 123 Main St"
+                        />
                       </div>
-
-                      <div className="grid grid-cols-2 gap-6 border-t-2 border-dashed border-slate-200/80 pt-5 text-sm font-bold text-slate-700">
-                        <div>
-                          <span className="text-slate-500 block">First 10.0 miles:</span>
-                          <span className="text-emerald-700 font-extrabold text-base">FREE (Included)</span>
-                        </div>
-                        <div>
-                          <span className="text-slate-500 block">Billable miles:</span>
-                          <span className="text-slate-800 font-extrabold text-base">
-                            {Math.max(0, drivingMiles - 10).toFixed(1)} miles
-                          </span>
-                        </div>
+                      <div className="md:col-span-2">
+                        <PremiumInput
+                          label="City"
+                          value={city}
+                          onChange={setCity}
+                          placeholder="e.g. Boston"
+                        />
                       </div>
-
-                      <div className="mt-5 p-4 rounded-xl bg-amber-50 border-2 border-amber-200/60 flex items-center justify-between text-base sm:text-lg font-black text-amber-900 shadow-inner">
-                        <span>Travel Fee:</span>
-                        <span>
-                          {drivingMiles <= 10 ? (
-                            <span className="text-emerald-755 font-black">Free ($0.00)</span>
-                          ) : (
-                            <span>${mapTravelFee.toFixed(2)}</span>
-                          )}
-                        </span>
+                      <div>
+                        <PremiumInput
+                          label="ZIP Code"
+                          value={zip}
+                          onChange={(val) => setZip(val.replace(/\D/g, "").slice(0, 5))}
+                          placeholder="e.g. 02110"
+                          helper="5-digit ZIP code"
+                        />
                       </div>
-
-                      <p className="text-xs text-slate-550 font-bold mt-4 text-center">
-                        Garage: <strong>Boston Revere — 84 Fernwood Ave</strong>
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="p-6 rounded-2xl border-2 border-dashed border-slate-300 text-center bg-slate-50/50 text-base font-bold text-slate-500 shadow-inner">
-                      Confirm your event location to calculate accurate travel distance.
-                    </div>
-                  )}
-                </div>
-
-              {/* ─── Multi-Stop Section ─── */}
-                <div className="md:col-span-2 border-t-2 border-slate-200/50 pt-8 mt-6">
-                  <label className="block text-base font-black text-[#000223] mb-2">
-                    Will this event include more than one location?
-                  </label>
-                  {/* $50/stop fee notice */}
-                  <div className="flex items-start gap-3 p-4 rounded-2xl mb-5 border-2" style={{ background: "rgba(255,160,0,0.07)", borderColor: "rgba(255,160,0,0.35)" }}>
-                    <span className="text-2xl shrink-0">💰</span>
-                    <div>
-                      <p className="font-black text-[#000223] text-sm sm:text-base">Additional Stop Fee: <span style={{ color: "#FFA000" }}>$50 per stop</span></p>
-                      <p className="text-slate-600 text-xs sm:text-sm font-bold mt-0.5">Each extra location added to your booking will add $50 to the total. This covers routing and setup time between stops.</p>
                     </div>
                   </div>
-                  <p className="text-sm sm:text-base font-bold text-slate-600 mb-5">
-                    Select a multi-location routing mode if you need catering services across multiple spots.
-                  </p>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                    {[
-                      { mode: "SINGLE_LOCATION", title: "Single Location", desc: "No, one location only" },
-                      { mode: "SEQUENTIAL_STOPS", title: "Sequential Stops", desc: "Multiple stops in order (single vehicle)" },
-                      { mode: "SIMULTANEOUS_MULTI_VEHICLE", title: "Simultaneous Multi-Vehicle", desc: "Multiple locations at the same time" },
-                      { mode: "NEEDS_REVIEW", title: "Needs Custom Review", desc: "Custom route / complex schedule needs" }
-                    ].map((opt) => {
-                      const isSel = locationMode === opt.mode;
-                      return (
-                        <button
-                          key={opt.mode}
-                          type="button"
-                          onClick={() => {
-                            setLocationMode(opt.mode as any);
-                            if (opt.mode === "SINGLE_LOCATION") {
-                              setBookingStops([]);
-                            } else if (bookingStops.length === 0) {
-                              setBookingStops([{
+                ) : (
+                  <>
+                    <div className="md:col-span-2">
+                      <LocationVerificationWidget
+                        label="Primary Event Setup Location"
+                        value={primaryLoc}
+                        onChange={setPrimaryLoc}
+                        error={submitErr && !primaryLoc.latitude ? "Please verify your setup location." : undefined}
+                      />
+                    </div>
+
+                    {/* Travel Distance Card / Notice */}
+                    <div className="md:col-span-2 mt-2">
+                      {primaryLoc.latitude !== null && primaryLoc.longitude !== null ? (
+                        <div
+                          className="p-6 rounded-3xl border-2 text-left bg-white/70 backdrop-blur-md shadow-md"
+                          style={{ borderColor: "rgba(0, 2, 35, 0.12)", borderLeftColor: GOLD, borderLeftWidth: "6px" }}
+                        >
+                          <div className="flex items-center justify-between mb-4">
+                            <div>
+                              <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-650 block">
+                                Travel Distance & Routing
+                              </span>
+                              <span className="text-2xl font-black tracking-tight mt-1 block" style={{ color: NAVY }}>
+                                {drivingMiles.toFixed(1)} Miles Total
+                              </span>
+                            </div>
+                            <span className="text-3xl">📍</span>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-6 border-t-2 border-dashed border-slate-200/80 pt-5 text-sm font-bold text-slate-700">
+                            <div>
+                              <span className="text-slate-500 block">First 10.0 miles:</span>
+                              <span className="text-emerald-700 font-extrabold text-base">FREE (Included)</span>
+                            </div>
+                            <div>
+                              <span className="text-slate-500 block">Billable miles:</span>
+                              <span className="text-slate-800 font-extrabold text-base">
+                                {Math.max(0, drivingMiles - 10).toFixed(1)} miles
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="mt-5 p-4 rounded-xl bg-amber-50 border-2 border-amber-200/60 flex items-center justify-between text-base sm:text-lg font-black text-amber-900 shadow-inner">
+                            <span>Travel Fee:</span>
+                            <span>
+                              {drivingMiles <= 10 ? (
+                                <span className="text-emerald-755 font-black">Free ($0.00)</span>
+                              ) : (
+                                <span>${mapTravelFee.toFixed(2)}</span>
+                              )}
+                            </span>
+                          </div>
+
+                          <p className="text-xs text-slate-550 font-bold mt-4 text-center">
+                            Garage: <strong>Boston Revere — 84 Fernwood Ave</strong>
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="p-6 rounded-2xl border-2 border-dashed border-slate-300 text-center bg-slate-50/50 text-base font-bold text-slate-500 shadow-inner">
+                          Confirm your event location to calculate accurate travel distance.
+                        </div>
+                      )}
+                    </div>
+
+                    {/* ─── Multi-Stop Section ─── */}
+                    <div className="md:col-span-2 border-t-2 border-slate-200/50 pt-8 mt-6">
+                      <label className="block text-base font-black text-[#000223] mb-2">
+                        Will this event include more than one location?
+                      </label>
+                      {/* $50/stop fee notice */}
+                      <div className="flex items-start gap-3 p-4 rounded-2xl mb-5 border-2" style={{ background: "rgba(255,160,0,0.07)", borderColor: "rgba(255,160,0,0.35)" }}>
+                        <span className="text-2xl shrink-0">💰</span>
+                        <div>
+                          <p className="font-black text-[#000223] text-sm sm:text-base">Additional Stop Fee: <span style={{ color: "#FFA000" }}>$50 per stop</span></p>
+                          <p className="text-slate-600 text-xs sm:text-sm font-bold mt-0.5">Each extra location added to your booking will add $50 to the total. This covers routing and setup time between stops.</p>
+                        </div>
+                      </div>
+                      <p className="text-sm sm:text-base font-bold text-slate-600 mb-5">
+                        Select a multi-location routing mode if you need catering services across multiple spots.
+                      </p>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                        {[
+                          { mode: "SINGLE_LOCATION", title: "Single Location", desc: "No, one location only" },
+                          { mode: "SEQUENTIAL_STOPS", title: "Sequential Stops", desc: "Multiple stops in order (single vehicle)" },
+                          { mode: "SIMULTANEOUS_MULTI_VEHICLE", title: "Simultaneous Multi-Vehicle", desc: "Multiple locations at the same time" },
+                          { mode: "NEEDS_REVIEW", title: "Needs Custom Review", desc: "Custom route / complex schedule needs" }
+                        ].map((opt) => {
+                          const isSel = locationMode === opt.mode;
+                          return (
+                            <button
+                              key={opt.mode}
+                              type="button"
+                              onClick={() => {
+                                setLocationMode(opt.mode as any);
+                                if (opt.mode === "SINGLE_LOCATION") {
+                                  setBookingStops([]);
+                                } else if (bookingStops.length === 0) {
+                                  setBookingStops([{
+                                    street: "",
+                                    city: "",
+                                    state: "MA",
+                                    zipCode: "",
+                                    latitude: null,
+                                    longitude: null,
+                                    formattedAddress: "",
+                                    placeId: "",
+                                    locationVerificationMethod: "",
+                                    locationVerifiedAt: null,
+                                    notes: ""
+                                  }]);
+                                }
+                              }}
+                              className={`p-5 rounded-2xl border-2 text-left transition-all backdrop-blur-sm ${
+                                isSel
+                                  ? "bg-amber-50/60 border-[#FFA000] shadow-md ring-2 ring-amber-100"
+                                  : "bg-white/60 border-slate-200 hover:bg-slate-50/60"
+                              }`}
+                            >
+                              <div className="font-black text-base text-[#000223] mb-1">{opt.title}</div>
+                              <div className="text-xs sm:text-sm text-slate-600 font-bold">{opt.desc}</div>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {locationMode !== "SINGLE_LOCATION" && (
+                        <div className="space-y-6">
+                          {bookingStops.map((stop, idx) => (
+                            <div key={idx} className="bg-white/70 backdrop-blur-sm border-2 border-slate-200 p-4 sm:p-6 rounded-2xl relative shadow-md space-y-4">
+                              <div className="flex justify-between items-center pb-3 border-b border-slate-200/80">
+                                <h4 className="font-black text-base text-[#000223]">Stop #{idx + 1}</h4>
+                                <button
+                                  type="button"
+                                  onClick={() => setBookingStops(bookingStops.filter((_, i) => i !== idx))}
+                                  className="text-red-650 text-xs sm:text-sm font-black hover:text-red-800 px-3 py-1.5 sm:px-4 sm:py-2 bg-red-50 rounded-xl hover:bg-red-100 transition-all shadow-sm border border-red-200/50"
+                                >
+                                  Remove Stop
+                                </button>
+                              </div>
+                              
+                              <LocationVerificationWidget
+                                label={`Stop #${idx + 1} Address Details`}
+                                value={stop}
+                                onChange={(updatedStop) => {
+                                  const newStops = [...bookingStops];
+                                  newStops[idx] = { ...newStops[idx], ...updatedStop };
+                                  setBookingStops(newStops);
+                                }}
+                              />
+                              
+                              <div>
+                                <label className="block text-sm font-black text-slate-700 mb-1.5 uppercase tracking-wide">Stop Notes (Optional)</label>
+                                <input
+                                  type="text"
+                                  value={stop.notes || ""}
+                                  onChange={(e) => {
+                                    const newStops = [...bookingStops];
+                                    newStops[idx].notes = e.target.value;
+                                    setBookingStops(newStops);
+                                  }}
+                                  placeholder="e.g. Set up by the garden gate"
+                                  className="w-full py-4.5 px-4.5 rounded-xl border-2 border-slate-250 font-bold text-base focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/10 bg-white"
+                                />
+                              </div>
+                            </div>
+                          ))}
+
+                          {bookingStops.length < 5 ? (
+                            <button
+                              type="button"
+                              onClick={() => setBookingStops([...bookingStops, {
                                 street: "",
                                 city: "",
                                 state: "MA",
@@ -1592,92 +1707,21 @@ export default function BookingForm() {
                                 locationVerificationMethod: "",
                                 locationVerifiedAt: null,
                                 notes: ""
-                              }]);
-                            }
-                          }}
-                          className={`p-5 rounded-2xl border-2 text-left transition-all backdrop-blur-sm ${
-                            isSel
-                              ? "bg-amber-50/60 border-[#FFA000] shadow-md ring-2 ring-amber-100"
-                              : "bg-white/60 border-slate-200 hover:bg-slate-50/60"
-                          }`}
-                        >
-                          <div className="font-black text-base text-[#000223] mb-1">{opt.title}</div>
-                          <div className="text-xs sm:text-sm text-slate-600 font-bold">{opt.desc}</div>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {locationMode !== "SINGLE_LOCATION" && (
-                    <div className="space-y-6">
-                      {bookingStops.map((stop, idx) => (
-                        <div key={idx} className="bg-white/70 backdrop-blur-sm border-2 border-slate-200 p-4 sm:p-6 rounded-2xl relative shadow-md space-y-4">
-                          <div className="flex justify-between items-center pb-3 border-b border-slate-200/80">
-                            <h4 className="font-black text-base text-[#000223]">Stop #{idx + 1}</h4>
-                            <button
-                              type="button"
-                              onClick={() => setBookingStops(bookingStops.filter((_, i) => i !== idx))}
-                              className="text-red-650 text-xs sm:text-sm font-black hover:text-red-800 px-3 py-1.5 sm:px-4 sm:py-2 bg-red-50 rounded-xl hover:bg-red-100 transition-all shadow-sm border border-red-200/50"
+                              }])}
+                              className="w-full py-4 border-2 border-dashed border-[#FFA000] rounded-2xl font-black text-[#FFA000] hover:bg-[#FFA000]/10 transition-all text-base shadow-sm"
                             >
-                              Remove Stop
+                              + Add Another Stop
                             </button>
-                          </div>
-                          
-                          <LocationVerificationWidget
-                            label={`Stop #${idx + 1} Address Details`}
-                            value={stop}
-                            onChange={(updatedStop) => {
-                              const newStops = [...bookingStops];
-                              newStops[idx] = { ...newStops[idx], ...updatedStop };
-                              setBookingStops(newStops);
-                            }}
-                          />
-                          
-                          <div>
-                            <label className="block text-sm font-black text-slate-700 mb-1.5 uppercase tracking-wide">Stop Notes (Optional)</label>
-                            <input
-                              type="text"
-                              value={stop.notes || ""}
-                              onChange={(e) => {
-                                const newStops = [...bookingStops];
-                                newStops[idx].notes = e.target.value;
-                                setBookingStops(newStops);
-                              }}
-                              placeholder="e.g. Set up by the garden gate"
-                              className="w-full py-4.5 px-4.5 rounded-xl border-2 border-slate-250 font-bold text-base focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/10 bg-white"
-                            />
-                          </div>
+                          ) : (
+                            <p className="text-center text-sm font-bold text-slate-650 py-4 bg-slate-50 border-2 rounded-2xl">
+                              Need more than 5 stops? Add the details in the main notes below and our team will review it.
+                            </p>
+                          )}
                         </div>
-                      ))}
-
-                      {bookingStops.length < 5 ? (
-                        <button
-                          type="button"
-                          onClick={() => setBookingStops([...bookingStops, {
-                            street: "",
-                            city: "",
-                            state: "MA",
-                            zipCode: "",
-                            latitude: null,
-                            longitude: null,
-                            formattedAddress: "",
-                            placeId: "",
-                            locationVerificationMethod: "",
-                            locationVerifiedAt: null,
-                            notes: ""
-                          }])}
-                          className="w-full py-4 border-2 border-dashed border-[#FFA000] rounded-2xl font-black text-[#FFA000] hover:bg-[#FFA000]/10 transition-all text-base shadow-sm"
-                        >
-                          + Add Another Stop
-                        </button>
-                      ) : (
-                        <p className="text-center text-sm font-bold text-slate-600 py-4 bg-slate-50 border-2 rounded-2xl">
-                          Need more than 5 stops? Add the details in the main notes below and our team will review it.
-                        </p>
                       )}
                     </div>
-                  )}
-                </div>
+                  </>
+                )}
 
                 <div className="md:col-span-2">
                   <PremiumInput
