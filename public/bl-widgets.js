@@ -68,6 +68,40 @@
   }
 
   /* ─────────────────────────────────────────────
+     1.5 INJECT MANAGE BOOKING LINK
+  ───────────────────────────────────────────── */
+  function injectManageBookingLink() {
+    const navMenu = document.querySelector('.nav-menu');
+    if (!navMenu || document.getElementById('bl-manage-booking-link')) return;
+
+    // Guard: if Manage Booking already exists in the nav, do nothing
+    const existingManageBooking = Array.from(navMenu.querySelectorAll('a')).some(a => 
+      a.textContent.trim() === 'Manage Booking' || a.href.includes('manage-booking')
+    );
+    if (existingManageBooking) return;
+
+    const manageBookingLink = document.createElement('a');
+    manageBookingLink.id = 'bl-manage-booking-link';
+    manageBookingLink.href = '/manage-booking';
+    manageBookingLink.className = 'nav-link w-nav-link';
+    manageBookingLink.textContent = 'Manage Booking';
+    
+    // Add some inline style just in case it needs to look like the others but match our styling
+    manageBookingLink.style.fontWeight = '900';
+
+    // Find the Contact link so we can insert Manage Booking right before it
+    const contactLink = Array.from(navMenu.querySelectorAll('a')).find(a => 
+      a.textContent.trim().toLowerCase() === 'contact' || a.href.includes('contact-us')
+    );
+    
+    if (contactLink) {
+      navMenu.insertBefore(manageBookingLink, contactLink);
+    } else {
+      navMenu.appendChild(manageBookingLink);
+    }
+  }
+
+  /* ─────────────────────────────────────────────
      2. AI CHAT WIDGET
   ───────────────────────────────────────────── */
   function buildChatWidget() {
@@ -388,6 +422,7 @@
   ───────────────────────────────────────────── */
   function init() {
     injectNavButtons();
+    injectManageBookingLink();
     buildChatWidget();
   }
 
