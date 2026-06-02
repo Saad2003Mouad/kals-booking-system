@@ -60,7 +60,7 @@ export default function SiteHeader() {
                 className="link-bt menu-bt"
                 style={{
                   background: "#FFA000",
-                  color: "#000223",
+                  color: "#000000",
                   border: "2px solid #FFA000",
                   fontWeight: 900,
                   borderRadius: 32,
