@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { evaluateBooking } from "@/lib/aiEngine";
-import { sendBookingPendingEmail, sendBookingApprovedEmail, sendBookingPendingReviewEmail } from "@/lib/email";
+import { sendBookingPendingEmail, sendBookingApprovedEmail, sendBookingPendingReviewEmail, sendCustomQuoteEmail } from "@/lib/email";
 import { calculateQuote } from "@/lib/pricing";
 import { z } from "zod";
 
@@ -33,7 +33,7 @@ const BookingSchema = z.object({
   eventType: z.string().min(1, "Event type is required"),
   packageId: z.string().optional().nullable(),
   notes: z.string().optional().nullable(),
-  totalAmount: z.coerce.number().min(1),
+  totalAmount: z.coerce.number().min(0),
   travelFee: z.coerce.number().default(0),
   overtimeFee: z.coerce.number().default(0),
   extraPieceFee: z.coerce.number().default(0),
@@ -132,25 +132,55 @@ export async function POST(req: NextRequest) {
     const resolvedPrimaryLocation = routeResult.primaryLoc;
     const resolvedStops = routeResult.verifiedStops;
 
-    // ── 1. Run AI Engine ──────────────────────────────────────
-    const aiDecision = await evaluateBooking({
-      eventDate, startTime,
-      durationMins,
-      zip: resolvedPrimaryLocation.zipCode,
-      city: resolvedPrimaryLocation.city,
-      totalAmount,
-      distanceMiles: resolvedDistance,
-      packageId: packageId || undefined, 
-      guests,
-      eventType,
-    });
+    // Resolve packageId to actual database package and check if it's the Custom Event Package
+    let resolvedPackageId: string | null = null;
+    let isCustomPackage = false;
+    let dbPkg = null;
+    if (packageId) {
+      dbPkg = await prisma.package.findFirst({
+        where: {
+          OR: [
+            { id: packageId },
+            { slug: packageId }
+          ]
+        }
+      });
+      if (dbPkg) {
+        resolvedPackageId = dbPkg.id;
+        if (dbPkg.slug === "custom-event-package") {
+          isCustomPackage = true;
+        }
+      }
+    }
 
-    // ── 2. If hard rejected, return immediately (no booking created) ──
-    if (aiDecision.verdict === "REJECTED") {
-      return NextResponse.json({
-        rejected: true,
-        decision: aiDecision,
-      }, { status: 200 });
+    // ── 1. Run AI Engine ──────────────────────────────────────
+    let aiDecision = { verdict: "CONFIRMED", flags: [] as string[], reason: "Standard check" };
+    if (!isCustomPackage) {
+      aiDecision = await evaluateBooking({
+        eventDate, startTime,
+        durationMins,
+        zip: resolvedPrimaryLocation.zipCode,
+        city: resolvedPrimaryLocation.city,
+        totalAmount,
+        distanceMiles: resolvedDistance,
+        packageId: resolvedPackageId || undefined, 
+        guests,
+        eventType,
+      });
+
+      // ── 2. If hard rejected, return immediately (no booking created) ──
+      if (aiDecision.verdict === "REJECTED") {
+        return NextResponse.json({
+          rejected: true,
+          decision: aiDecision,
+        }, { status: 200 });
+      }
+    } else {
+      aiDecision = {
+        verdict: "PENDING_REVIEW",
+        flags: ["CUSTOM_QUOTE"],
+        reason: "Custom package request for 200+ guests requires team review."
+      };
     }
 
     // ── 3. Upsert customer ────────────────────────────────────
@@ -171,11 +201,44 @@ export async function POST(req: NextRequest) {
     let finalStopsFee = additionalStopsFee;
     let quoteBreakdownStr = "{}";
 
-    if (packageId) {
-      const dbPkg = await prisma.package.findUnique({ where: { id: packageId } });
-      if (dbPkg) {
-        dbPackageName = dbPkg.name;
-        
+    if (dbPkg) {
+      dbPackageName = dbPkg.name;
+      
+      if (isCustomPackage) {
+        finalTotal = 0;
+        finalTravel = 0;
+        finalOvertime = 0;
+        finalExtraGuest = 0;
+        finalExtraService = 0;
+        finalStopsFee = 0;
+
+        const fullQuotePayload = {
+          packageName: dbPkg.name,
+          packagePrice: 0,
+          includedGuests: dbPkg.servings,
+          includedServiceMins: 0,
+          additionalGuests: 0,
+          extraGuestPrice: 0,
+          additionalGuestsFee: 0,
+          distanceMiles: resolvedDistance,
+          freeMiles: 10,
+          billableMiles: 0,
+          ratePerMile: 0,
+          travelFee: 0,
+          additionalServiceMins: 0,
+          additionalServiceFee: 0,
+          additionalStopsCount: resolvedStops ? resolvedStops.length : 0,
+          additionalStopsFee: 0,
+          estimatedTotal: 0,
+          paymentPolicy: "Payment is collected after the service. We accept multiple payment methods.",
+          locationMode,
+          primaryLocation: resolvedPrimaryLocation,
+          bookingStops: resolvedStops,
+          aiFlags: ["CUSTOM_QUOTE"],
+          reviewReason: "Custom package request for 200+ guests requires team review."
+        };
+        quoteBreakdownStr = JSON.stringify(fullQuotePayload);
+      } else {
         const settings = await prisma.setting.findMany({
           where: { key: { in: ['FREE_MILES', 'RATE_PER_MILE'] } }
         });
@@ -235,9 +298,13 @@ export async function POST(req: NextRequest) {
 
     // ── 4. Determine booking status ───────────────────────────
     let status = "CONFIRMED";
-    const parsedPkgPrice = JSON.parse(quoteBreakdownStr).packagePrice || 0;
-    if (resolvedDistance > 30 && parsedPkgPrice < 500) {
+    if (isCustomPackage) {
       status = "PENDING_REVIEW";
+    } else {
+      const parsedPkgPrice = JSON.parse(quoteBreakdownStr).packagePrice || 0;
+      if (resolvedDistance > 30 && parsedPkgPrice < 500) {
+        status = "PENDING_REVIEW";
+      }
     }
 
     // ── 5. Create booking ─────────────────────────────────────
@@ -245,7 +312,7 @@ export async function POST(req: NextRequest) {
       data: {
         bookingNumber: genBookingNumber(),
         customerId: customer.id,
-        packageId: packageId as string,
+        packageId: resolvedPackageId,
         status: status as any,
         eventDate: new Date(eventDate),
         startTime,
@@ -260,7 +327,9 @@ export async function POST(req: NextRequest) {
         totalAmount: finalTotal,
         notes: notes || null,
         items: {
-          create: [
+          create: isCustomPackage ? [
+            { lineType: "PACKAGE", description: "Custom Quote", quantity: 1, unitPrice: 0, totalPrice: 0 }
+          ] : [
             { lineType: "PACKAGE", description: "Package base price", quantity: 1, unitPrice: finalTotal - finalTravel - finalOvertime - finalExtraGuest - finalExtraService - finalStopsFee, totalPrice: finalTotal - finalTravel - finalOvertime - finalExtraGuest - finalExtraService - finalStopsFee },
             ...(finalTravel > 0 ? [{ lineType: "TRAVEL", description: "Travel fee",     quantity: 1, unitPrice: finalTravel,   totalPrice: finalTravel }]   : []),
             ...(finalOvertime > 0 ? [{ lineType: "OVERTIME", description: "Overtime fee",   quantity: 1, unitPrice: finalOvertime, totalPrice: finalOvertime }] : []),
@@ -271,7 +340,7 @@ export async function POST(req: NextRequest) {
         },
         quote: {
           create: {
-            basePrice:     finalTotal - finalTravel - finalOvertime - finalExtraService - finalStopsFee - finalExtraGuest,
+            basePrice:     isCustomPackage ? 0 : finalTotal - finalTravel - finalOvertime - finalExtraService - finalStopsFee - finalExtraGuest,
             distanceMiles: resolvedDistance,
             travelFee:     finalTravel,
             overtimeFee:   finalOvertime,
@@ -302,23 +371,31 @@ export async function POST(req: NextRequest) {
       data: {
         entityType: "BOOKING",
         entityId: booking.id,
-        action: `AI_${aiDecision.verdict}`,
-        metadataJson: JSON.stringify({ flags: aiDecision.flags, reason: aiDecision.reason }),
+        action: isCustomPackage ? "CUSTOM_QUOTE_REQUEST" : `AI_${aiDecision.verdict}`,
+        metadataJson: JSON.stringify({
+          flags: isCustomPackage ? ["CUSTOM_QUOTE"] : aiDecision.flags,
+          reason: isCustomPackage ? "Custom package request for 200+ guests requires team review." : aiDecision.reason
+        }),
       },
     }));
 
     // Fetch readable package name
     dbPackageName = "Custom Package";
-    if (packageId) {
-      const dbPkg = await prisma.package.findUnique({ where: { id: packageId } });
-      if (dbPkg) {
-        dbPackageName = dbPkg.name;
+    if (resolvedPackageId) {
+      const dbPkgFetch = await prisma.package.findUnique({ where: { id: resolvedPackageId } });
+      if (dbPkgFetch) {
+        dbPackageName = dbPkgFetch.name;
       }
     }
 
     // ── 7. Send Emails ────────────────────────────────────────
     try {
-      if (status === "CONFIRMED") {
+      if (isCustomPackage) {
+        await sendCustomQuoteEmail(
+          email, firstName, booking.bookingNumber, booking.id
+        );
+        console.log(`[Email] Custom quote email sent to ${email}`);
+      } else if (status === "CONFIRMED") {
         await sendBookingApprovedEmail(
           email, firstName, booking.bookingNumber,
           `/customer/booking/${booking.id}`, totalAmount.toFixed(2), booking.id

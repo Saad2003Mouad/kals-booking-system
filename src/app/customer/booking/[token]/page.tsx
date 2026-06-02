@@ -9,7 +9,7 @@ import {
 const LOGO = "https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/67e3936366827af4bed1d0d0_logo-boston-legend-ice-cream-truck.avif";
 
 const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string; icon: any; desc: string }> = {
-  PENDING_REVIEW:  { label: "Under Review",    bg: "bg-amber-50 border-amber-200 text-amber-700",   text: "text-amber-700",  icon: Clock, desc: "Our team is reviewing your event details. We'll update you shortly!" },
+  PENDING_REVIEW:  { label: "Under Review",    bg: "bg-amber-50 border-amber-200 text-amber-700",   text: "text-amber-700",  icon: Clock, desc: "Our team is reviewing your event details and will prepare your custom quote. We'll reach out via WhatsApp!" },
   PENDING_PAYMENT: { label: "Awaiting Payment", bg: "bg-blue-50 border-blue-200 text-blue-700",    text: "text-blue-700",   icon: DollarSign, desc: "Your booking is approved! We are finalizing the details." },
   CONFIRMED:       { label: "Confirmed",       bg: "bg-emerald-50 border-emerald-200 text-emerald-700", text: "text-emerald-700",icon: CheckCircle2, desc: "Awesome! Your legendary ice cream event is fully confirmed." },
   COMPLETED:       { label: "Completed",       bg: "bg-slate-100 border-slate-200 text-slate-700",   text: "text-slate-600",  icon: CheckCircle2, desc: "This event has been completed. Thank you for choosing Boston Legend!" },
@@ -212,6 +212,9 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
   
   // Total
   const estimatedTotal = breakdown.estimatedTotal ?? booking.totalAmount;
+
+  // Detect custom event package
+  const isCustomPkg = pkg?.slug === "custom-event-package" || (pkg as any)?.serviceType === "CUSTOM";
 
   return (
     <div className="min-h-screen bg-[#FAF6EF] pb-24" style={{ fontFamily: "'Nunito', sans-serif" }}>
@@ -453,14 +456,40 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
           <div className="space-y-4">
             <div className="flex justify-between items-center border-b border-slate-100 pb-4">
               <span className="text-slate-500 font-bold">Estimated Total</span>
-              <span className="text-2xl font-black text-emerald-600">${estimatedTotal.toFixed(2)}</span>
+              {isCustomPkg ? (
+                <span className="text-xl font-black text-blue-700">Custom Quote</span>
+              ) : (
+                <span className="text-2xl font-black text-emerald-600">${estimatedTotal.toFixed(2)}</span>
+              )}
             </div>
             
+          {isCustomPkg ? (
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl">
+              <p className="font-black text-blue-900 text-xs uppercase tracking-wider mb-3">📲 We'll Contact You via WhatsApp</p>
+              <p className="text-blue-800 font-semibold text-xs mb-4 leading-relaxed">
+                Our team will reach out to prepare your custom event quote via WhatsApp:
+              </p>
+              <div className="space-y-2">
+                {[
+                  { num: "617-999-3803", wa: "16179993803" },
+                  { num: "781-921-3233", wa: "17819213233" },
+                  { num: "617-866-2727", wa: "16178662727" },
+                ].map(({ num, wa }) => (
+                  <a key={wa} href={`https://wa.me/${wa}`} target="_blank" rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-full py-3 rounded-xl font-black text-sm text-white transition-all hover:opacity-90"
+                    style={{ background: "#25D366" }}>
+                    💬 WhatsApp {num}
+                  </a>
+                ))}
+              </div>
+            </div>
+          ) : (
             <div className="p-4 bg-emerald-50/50 border border-emerald-100 rounded-2xl text-xs font-semibold text-slate-700 leading-relaxed">
               <p className="font-black text-emerald-800 uppercase tracking-wider mb-2 flex items-center gap-1">💳 Payment Policy</p>
               <p>{breakdown.paymentPolicy || "Payment is collected after the service. We accept multiple payment methods."}</p>
               <p className="mt-1.5 font-bold text-slate-400">No online payment or credit card checkouts are required to reserve.</p>
             </div>
+          )}
           </div>
         </div>
 

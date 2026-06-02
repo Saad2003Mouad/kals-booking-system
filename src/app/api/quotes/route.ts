@@ -64,12 +64,39 @@ export async function POST(req: Request) {
     const resolvedDistance = routeResult.distanceMiles;
 
     const [pkg, settings] = await withRetry(() => Promise.all([
-      prisma.package.findUnique({ where: { id: packageId } }),
+      prisma.package.findFirst({
+        where: {
+          OR: [
+            { id: packageId },
+            { slug: packageId }
+          ]
+        }
+      }),
       prisma.setting.findMany({ where: { key: { in: ['FREE_MILES', 'RATE_PER_MILE'] } } })
     ]));
     
     if (!pkg) {
       return NextResponse.json({ success: false, error: 'Package not found' }, { status: 404 });
+    }
+
+    if (pkg.slug === "custom-event-package") {
+      const breakdown = [
+        { label: "Custom Event Package", amount: 0 },
+        { label: "Custom Quote Pending Review", amount: 0 }
+      ];
+      return NextResponse.json({
+        basePrice: 0,
+        distanceMiles: resolvedDistance,
+        travelFee: 0,
+        overtimeFee: 0,
+        extraPieceFee: 0,
+        additionalStopsFee: 0,
+        additionalServiceFee: 0,
+        totalAmount: 0,
+        breakdown,
+        isCustomQuote: true,
+        requiresManualQuote: true
+      });
     }
 
     const freeMilesSetting = settings.find(s => s.key === 'FREE_MILES')?.value;

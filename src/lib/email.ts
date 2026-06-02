@@ -181,6 +181,11 @@ function formatBookingDetailsHtml(booking: any) {
 
     <!-- Pricing Breakdown -->
     <h3 style="margin:0 0 12px;color:${BRAND_NAVY};font-size:18px;font-weight:800;border-bottom:2px solid #F3F4F6;padding-bottom:8px;">Pricing & Travel Fee</h3>
+    ${(booking.package?.slug === "custom-event-package" || booking.packageId === "custom-event-package" || booking.package?.name === "Custom Event Package") ? `
+    <div style="background:#FFF9F0;border:1px dashed #FFA000;border-radius:12px;padding:16px 20px;margin-bottom:24px;font-size:15px;color:#92400E;font-weight:700;">
+      Custom Quote Pending — our team will review your guest count, vehicle needs, route, timing, and event details before preparing your final quote.
+    </div>
+    ` : `
     <table width="100%" cellpadding="8" cellspacing="0" style="margin-bottom:24px;font-size:14px;color:#4B5563;background:#F8F9FC;border-radius:12px;">
       <tr>
         <td width="70%" style="font-weight:600;">Base Package Price</td>
@@ -220,6 +225,7 @@ function formatBookingDetailsHtml(booking: any) {
         <td align="right" style="font-weight:900;color:${BRAND_GOLD};font-size:18px;border-top:2px solid #E5E7EB;padding-top:12px;">$${estimatedTotal.toFixed(2)}</td>
       </tr>
     </table>
+    `}
 
     <!-- Payment Policy -->
     <div style="background:#F0FDF4;border:1px solid #86EFAC;border-radius:12px;padding:16px 20px;margin-bottom:20px;">
@@ -427,6 +433,77 @@ export async function sendBookingPendingReviewEmail(
     </div>
   `;
   return sendEmail({ to, subject: `Booking Under Review: Your Boston Legend Request #${bookingNumber}`, html });
+}
+
+export async function sendCustomQuoteEmail(
+  to: string,
+  firstName: string,
+  bookingNumber: string,
+  bookingId: string
+) {
+  const portalUrl = `${process.env.NEXTAUTH_URL || 'https://bostonlegendwebflowio.vercel.app'}/customer/booking/${bookingId}`;
+  
+  let bookingDetailsHtml = "";
+  try {
+    const booking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      include: { customer: true, package: true, quote: true, stops: { orderBy: { stopOrder: 'asc' } } }
+    });
+    bookingDetailsHtml = formatBookingDetailsHtml(booking);
+  } catch (e) {
+    console.error("Error formatting booking details for custom quote email:", e);
+  }
+
+  const html = `
+    <div style="text-align:center;padding:32px 0 24px;">
+      <div style="width:72px;height:72px;border-radius:50%;background:#FFFBEB;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+        <span style="font-size:32px;">🍦</span>
+      </div>
+      <h2 style="margin:0 0 8px;color:${BRAND_NAVY};font-size:26px;font-weight:900;">Custom Quote Request Received</h2>
+      <p style="margin:0;color:#6B7280;font-size:16px;font-weight:600;line-height:1.5;">Hi ${firstName},</p>
+      <p style="margin:8px 0 0;color:#4B5563;font-size:16px;font-weight:600;line-height:1.5;">
+        Thank you for requesting a custom Boston Legend event package.
+      </p>
+      <p style="margin:8px 0 0;color:#4B5563;font-size:16px;font-weight:600;line-height:1.5;">
+        Because your event is for more than 200 guests, our team will personally review your guest count, location, route, timing, vehicle needs, and any special notes before preparing your final quote.
+      </p>
+    </div>
+
+    <div style="background:#F3F4F6;border-radius:16px;padding:20px 24px;margin-bottom:24px;">
+      <p style="margin:0 0 6px;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:#9CA3AF;">Booking Reference</p>
+      <p style="margin:0;font-family:monospace;font-size:20px;font-weight:900;color:${BRAND_NAVY};">#${bookingNumber}</p>
+    </div>
+
+    <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:16px;padding:20px 24px;margin-bottom:24px;">
+      <p style="margin:0 0 8px;font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:#2563EB;">WhatsApp Contact</p>
+      <p style="margin:0 0 12px;color:#1E3A8A;font-size:15px;font-weight:600;line-height:1.4;">
+        We will contact you through WhatsApp using one of our official numbers:
+      </p>
+      <p style="margin:0 0 16px;color:#1E3A8A;font-size:15px;font-weight:700;line-height:1.4;">
+        📞 617-999-3803<br/>
+        📞 781-921-3233<br/>
+        📞 617-866-2727
+      </p>
+      <p style="margin:0 0 12px;color:#1E3A8A;font-size:15px;font-weight:600;line-height:1.4;">
+        You can also message us anytime using the WhatsApp buttons below:
+      </p>
+      <div style="text-align:center;">
+        <a href="https://wa.me/16179993803" style="display:block;background:#25D366;color:#ffffff;padding:12px 20px;border-radius:12px;text-decoration:none;font-weight:950;font-size:15px;margin-bottom:10px;text-align:center;">WhatsApp 617-999-3803</a>
+        <a href="https://wa.me/17819213233" style="display:block;background:#25D366;color:#ffffff;padding:12px 20px;border-radius:12px;text-decoration:none;font-weight:950;font-size:15px;margin-bottom:10px;text-align:center;">WhatsApp 781-921-3233</a>
+        <a href="https://wa.me/16178662727" style="display:block;background:#25D366;color:#ffffff;padding:12px 20px;border-radius:12px;text-decoration:none;font-weight:950;font-size:15px;margin-bottom:10px;text-align:center;">WhatsApp 617-866-2727</a>
+      </div>
+    </div>
+
+    ${bookingDetailsHtml}
+
+    <div style="text-align:center;margin:32px 0 24px;">
+      <p style="margin:0 0 16px;color:#4B5563;font-size:14px;font-weight:600;">
+        You can check the current status, update details, or message our team using the link below.
+      </p>
+      <a href="${portalUrl}" style="display:inline-block;background:${BRAND_NAVY};color:${BRAND_GOLD};padding:16px 32px;border-radius:32px;text-decoration:none;font-weight:900;font-size:15px;box-shadow:0 10px 20px rgba(0,2,35,0.15);">View or Manage Your Request →</a>
+    </div>
+  `;
+  return sendEmail({ to, subject: `Custom Quote Request Received — Boston Legend`, html });
 }
 
 

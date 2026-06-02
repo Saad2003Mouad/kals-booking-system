@@ -575,6 +575,9 @@ export default function BookingForm() {
   const [phoneFocused, setPhoneFocused] = useState(false);
   const [hasMultipleLocations, setHasMultipleLocations] = useState(false);
   const [extraServiceMins, setExtraServiceMins] = useState(0);
+  const [customPkg, setCustomPkg] = useState<Pkg | null>(null);
+  const [customGuestCount, setCustomGuestCount] = useState(250);
+  const [vehiclePreference, setVehiclePreference] = useState("Not sure");
 
   const [primaryLoc, setPrimaryLoc] = useState<any>({
     street: "",
@@ -659,6 +662,9 @@ export default function BookingForm() {
       .then((r) => r.json())
       .then((pRes: any) => {
         const p = Array.isArray(pRes) ? pRes : pRes.data || [];
+        const custom = p.find((x: any) => x.slug === "custom-event-package" || x.serviceType === "CUSTOM");
+        if (custom) setCustomPkg(custom);
+
         setPkgList({
           TRUCK: p.filter((x: any) => x.type === "TRUCK" || x.serviceType === "AMERICANO_TRUCK"),
           VAN: p.filter((x: any) => x.type === "VAN" || x.serviceType === "SPRINTER_VAN")
@@ -666,7 +672,11 @@ export default function BookingForm() {
         if (packageParamId) {
           const found = p.find((x: any) => x.id === packageParamId || x.slug === packageParamId);
           if (found) {
-            setPkgTab((found.type === "TRUCK" || found.serviceType === "AMERICANO_TRUCK") ? "TRUCK" : "VAN");
+            if (found.slug === "custom-event-package" || found.serviceType === "CUSTOM") {
+              setPkgTab("TRUCK");
+            } else {
+              setPkgTab((found.type === "TRUCK" || found.serviceType === "AMERICANO_TRUCK") ? "TRUCK" : "VAN");
+            }
             setSel(found);
             setStep(1);
           }
@@ -724,6 +734,16 @@ export default function BookingForm() {
   const fetchQuote = async () => {
     setQuoting(true);
     setQuoteErr("");
+
+    // Custom Event Package: skip quote API, go straight to contact step
+    const isCustom = sel?.slug === "custom-event-package" || (sel as any)?.serviceType === "CUSTOM";
+    if (isCustom) {
+      setQuote(null);
+      setStep(2);
+      setQuoting(false);
+      return;
+    }
+
     // Duration comes from the package, NOT from user input
     const pkgDuration = (sel as any)?.durationMins ?? sel?.includedMinutes ?? 60;
     const payload = {
@@ -797,14 +817,15 @@ export default function BookingForm() {
     setSubmitErr("");
     setSubmitting(true);
     const cleanPhone = toEnNum(phone).replace(/[^\d+\-\s()]/g, "");
-    const pkgDuration = (sel as any)?.durationMins ?? sel?.includedMinutes ?? 60;
+    const isCustomQuotePkg = sel?.slug === "custom-event-package" || (sel as any)?.serviceType === "CUSTOM";
+    const pkgDuration = isCustomQuotePkg ? 30 : ((sel as any)?.durationMins ?? sel?.includedMinutes ?? 60);
     const payload = {
-      packageId: sel?.id,
+      packageId: sel?.slug ?? sel?.id,   // send slug to allow server OR lookup by id/slug
       eventDate: toEnNum(eventDate),
       startTime: toEnNum(startTime),
-      durationMins: pkgDuration,          // always from package
-      guests: (sel?.servings ?? sel?.includedQty ?? 50) + additionalGuests,
-      additionalGuests,
+      durationMins: pkgDuration,
+      guests: isCustomQuotePkg ? (customGuestCount || 201) : (sel?.servings ?? sel?.includedQty ?? 50) + additionalGuests,
+      additionalGuests: isCustomQuotePkg ? 0 : additionalGuests,
       eventType,
       address: primaryLoc.street || address,
       city: primaryLoc.city || city,
@@ -815,15 +836,15 @@ export default function BookingForm() {
       lastName,
       email,
       phone: cleanPhone,
-      totalAmount: quote?.totalAmount,
-      travelFee: quote?.travelFee,
-      overtimeFee: quote?.overtimeFee,
-      extraPieceFee: quote?.extraPieceFee,
-      distanceMiles: quote?.distanceMiles,
+      totalAmount: isCustomQuotePkg ? 0 : (quote?.totalAmount ?? 0),
+      travelFee: isCustomQuotePkg ? 0 : (quote?.travelFee ?? 0),
+      overtimeFee: isCustomQuotePkg ? 0 : (quote?.overtimeFee ?? 0),
+      extraPieceFee: isCustomQuotePkg ? 0 : (quote?.extraPieceFee ?? 0),
+      distanceMiles: isCustomQuotePkg ? 0 : (quote?.distanceMiles ?? 0),
       additionalStops: bookingStops.length,
-      additionalStopsFee: bookingStops.length * 50,
-      extraServiceMins,
-      extraServiceFee: quote?.additionalServiceFee ?? 0,
+      additionalStopsFee: isCustomQuotePkg ? 0 : bookingStops.length * 50,
+      extraServiceMins: isCustomQuotePkg ? 0 : extraServiceMins,
+      extraServiceFee: isCustomQuotePkg ? 0 : (quote?.additionalServiceFee ?? 0),
       bookingStops,
       latitude: primaryLoc.latitude || lat,
       longitude: primaryLoc.longitude || lng,
@@ -891,42 +912,71 @@ export default function BookingForm() {
 
     /* ── PENDING REVIEW ── */
     if (decision?.verdict === "PENDING_REVIEW") {
+      const isCustomQuoteResult = (decision as any)?.flags?.includes("CUSTOM_QUOTE") || sel?.slug === "custom-event-package" || (sel as any)?.serviceType === "CUSTOM";
       return (
         <div className="min-h-[60vh] flex items-center justify-center py-16 px-6" style={{ fontFamily: FN }}>
           <div className="max-w-lg w-full">
             <div className="rounded-3xl border-2 border-amber-300/60 overflow-hidden" style={{ background: "rgba(255,255,255,0.90)", backdropFilter: "blur(24px)" }}>
               {/* Top Banner */}
-              <div className="px-5 py-6 sm:px-8 sm:py-7" style={{ background: "linear-gradient(135deg, #FF8C00 0%, #FFA500 100%)" }}>
+              <div className="px-5 py-6 sm:px-8 sm:py-7" style={{ background: isCustomQuoteResult ? "linear-gradient(135deg, #000223 0%, #001a4c 100%)" : "linear-gradient(135deg, #FF8C00 0%, #FFA500 100%)" }}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-white/80 font-black text-xs uppercase tracking-[0.2em] mb-1">Booking Reference</p>
+                    <p className="font-black text-xs uppercase tracking-[0.2em] mb-1" style={{ color: isCustomQuoteResult ? "#FFA000" : "rgba(255,255,255,0.8)" }}>
+                      {isCustomQuoteResult ? "Custom Quote Request" : "Booking Reference"}
+                    </p>
                     <p className="font-mono font-black text-2xl text-white">#{booking?.bookingNumber}</p>
                   </div>
-                  <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center">
-                    <Clock className="w-7 h-7 text-white" />
+                  <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center text-3xl">
+                    {isCustomQuoteResult ? "🍦" : <Clock className="w-7 h-7 text-white" />}
                   </div>
                 </div>
               </div>
               <div className="p-5 sm:p-10">
-                <h2 className="text-2xl sm:text-3xl font-black mb-3" style={{ color: NAVY, fontFamily: F_SERIF }}>Under Review</h2>
-                <p className="text-slate-600 font-semibold text-sm sm:text-base leading-relaxed mb-8">
-                  {decision?.customerMessage || "Our team will review your request and contact you shortly with confirmation."}
+                <h2 className="text-2xl sm:text-3xl font-black mb-3" style={{ color: NAVY, fontFamily: F_SERIF }}>
+                  {isCustomQuoteResult ? "Custom Quote Request Received" : "Under Review"}
+                </h2>
+                <p className="text-slate-600 font-semibold text-sm sm:text-base leading-relaxed mb-6">
+                  {isCustomQuoteResult
+                    ? "Thank you! Because your event is for more than 200 guests, our team will personally review your request and prepare a custom quote."
+                    : (decision?.customerMessage || "Our team will review your request and contact you shortly with confirmation.")}
                 </p>
-                <div className="space-y-4 mb-8">
-                  {[
-                    { icon: "✅", text: "Team reviews scheduling & routing" },
-                    { icon: "📧", text: `Confirmation sent to: ${email}` },
-                    { icon: "💳", text: "Payment collected after service — cash, Zelle, Venmo accepted" },
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-start gap-3 p-4 rounded-2xl" style={{ background: "rgba(0,2,35,0.03)", border: "1px solid rgba(0,2,35,0.06)" }}>
-                      <span className="text-xl shrink-0">{item.icon}</span>
-                      <span className="font-bold text-sm sm:text-base text-slate-700 leading-relaxed">{item.text}</span>
+                {isCustomQuoteResult ? (
+                  <div className="mb-6 rounded-2xl p-5 border-2 border-blue-200 bg-blue-50">
+                    <p className="font-black text-blue-900 text-sm uppercase tracking-wider mb-3">📲 We Will Contact You via WhatsApp</p>
+                    <p className="text-blue-800 font-semibold text-sm mb-4 leading-relaxed">
+                      Our team will reach out using one of our official WhatsApp numbers:
+                    </p>
+                    <div className="space-y-2">
+                      {[
+                        { num: "617-999-3803", wa: "16179993803" },
+                        { num: "781-921-3233", wa: "17819213233" },
+                        { num: "617-866-2727", wa: "16178662727" },
+                      ].map(({ num, wa }) => (
+                        <a key={wa} href={`https://wa.me/${wa}`} target="_blank" rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-2 w-full py-3 rounded-xl font-black text-sm text-white transition-all hover:-translate-y-0.5"
+                          style={{ background: "#25D366" }}>
+                          <span>💬</span> WhatsApp {num}
+                        </a>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4 mb-6">
+                    {[
+                      { icon: "✅", text: "Team reviews scheduling & routing" },
+                      { icon: "📧", text: `Confirmation sent to: ${email}` },
+                      { icon: "💳", text: "Payment collected after service — cash, Zelle, Venmo accepted" },
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-start gap-3 p-4 rounded-2xl" style={{ background: "rgba(0,2,35,0.03)", border: "1px solid rgba(0,2,35,0.06)" }}>
+                        <span className="text-xl shrink-0">{item.icon}</span>
+                        <span className="font-bold text-sm sm:text-base text-slate-700 leading-relaxed">{item.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
                 <a href={result?.customerPortalUrl ?? `/customer/booking/${booking?.id}`}
-                  className="flex items-center justify-center gap-2.5 w-full py-4.5 rounded-2xl font-black text-base text-white shadow-xl hover:-translate-y-0.5 transition-all"
-                  style={{ background: NAVY }}>View Booking Status <ArrowRight className="w-5 h-5" /></a>
+                  className="flex items-center justify-center gap-2.5 w-full py-4.5 rounded-2xl font-black text-base shadow-xl hover:-translate-y-0.5 transition-all"
+                  style={{ background: NAVY, color: GOLD }}>View Your Request Status <ArrowRight className="w-5 h-5" /></a>
               </div>
             </div>
           </div>
@@ -1198,6 +1248,40 @@ export default function BookingForm() {
                   </p>
                 </div>
               </div>
+
+              {/* Custom Event Package special card */}
+              {customPkg && (
+                <div className="mt-2 mb-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="h-px flex-1 bg-slate-200"></div>
+                    <span className="text-xs font-black uppercase tracking-wider text-slate-400">Large Events</span>
+                    <div className="h-px flex-1 bg-slate-200"></div>
+                  </div>
+                  <button
+                    onClick={() => setSel(customPkg)}
+                    className="w-full text-left p-5 sm:p-8 rounded-3xl border-2 transition-all duration-300 flex flex-col sm:flex-row sm:items-center gap-6 hover:shadow-2xl hover:-translate-y-1 backdrop-blur-md"
+                    style={{
+                      borderColor: sel?.id === customPkg.id ? "#000223" : "rgba(0, 2, 35, 0.18)",
+                      background: sel?.id === customPkg.id ? "rgba(255,253,235,0.9)" : "rgba(255,255,255,0.65)",
+                      boxShadow: sel?.id === customPkg.id ? "0 12px 35px rgba(0,2,35,0.15)" : "0 4px 20px rgba(0,0,0,0.02)"
+                    }}
+                  >
+                    <div className="w-18 h-18 rounded-2xl flex items-center justify-center text-4xl flex-shrink-0 shadow-sm" style={{ background: "rgba(255,160,0,0.12)" }}>🎪</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2.5">
+                        <span className="font-black text-2xl sm:text-3xl tracking-tight" style={{ color: NAVY, fontFamily: F_SERIF }}>{customPkg.name}</span>
+                        <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-200">{(customPkg as any).badge || "200+ Guests"}</span>
+                        {sel?.id === customPkg.id && <span className="px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-emerald-100/90 text-emerald-800 border border-emerald-250">Selected</span>}
+                      </div>
+                      <p className="text-slate-600 font-semibold text-sm sm:text-base mt-3 leading-relaxed">{(customPkg as any).description || "Planning a larger celebration? Tell us about your event and our team will prepare a custom package and final quote for you."}</p>
+                    </div>
+                    <div className="flex-shrink-0 text-center border-t sm:border-t-0 pt-4 sm:pt-0 border-dashed border-slate-300">
+                      <span className="text-3xl sm:text-4xl font-black block" style={{ color: NAVY }}>Custom</span>
+                      <span className="text-sm font-bold text-slate-500 mt-1 block">Quote</span>
+                    </div>
+                  </button>
+                </div>
+              )}
 
               {/* Action */}
               <div className="flex justify-end">
@@ -1583,6 +1667,10 @@ export default function BookingForm() {
                     <>
                       <Loader2 className="w-5.5 h-5.5 animate-spin" /> Calculating…
                     </>
+                  ) : (sel?.slug === "custom-event-package" || (sel as any)?.serviceType === "CUSTOM") ? (
+                    <>
+                      Continue to Contact <ArrowRight className="w-5.5 h-5.5" />
+                    </>
                   ) : (
                     <>
                       Request Quote <ArrowRight className="w-5.5 h-5.5" />
@@ -1605,7 +1693,29 @@ export default function BookingForm() {
                 </p>
               </div>
 
-              {quote && (
+              {(sel?.slug === "custom-event-package" || (sel as any)?.serviceType === "CUSTOM") ? (
+                <div
+                  className="p-5 sm:p-8 rounded-3xl border-2 mb-10 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between shadow-md"
+                  style={{ background: "rgba(219,234,254,0.7)", borderColor: "#93C5FD" }}
+                >
+                  <div>
+                    <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-blue-800 block" style={{ fontFamily: FN }}>
+                      Custom Event Package
+                    </span>
+                    <span className="text-2xl sm:text-3xl font-black tracking-tight mt-1.5 block" style={{ color: "#1E40AF", fontFamily: F_SERIF }}>
+                      Custom Quote
+                    </span>
+                  </div>
+                  <div className="text-left sm:text-right">
+                    <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-500 block" style={{ fontFamily: FN }}>
+                      Next Step
+                    </span>
+                    <span className="text-base sm:text-lg font-black mt-1.5 block" style={{ color: "#1E40AF" }}>
+                      📲 Team contacts you via WhatsApp
+                    </span>
+                  </div>
+                </div>
+              ) : quote ? (
                 <div
                   className="p-5 sm:p-8 rounded-3xl border-2 mb-10 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between shadow-md"
                   style={{ background: "rgba(255, 251, 235, 0.8)", borderColor: "#FDE68A" }}
@@ -1627,7 +1737,7 @@ export default function BookingForm() {
                     </span>
                   </div>
                 </div>
-              )}
+              ) : null}
 
               <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
                 <PremiumInput
@@ -1830,7 +1940,7 @@ export default function BookingForm() {
           )}
 
           {/* ── STEP 4: Review & Confirm ── */}
-          {step === 4 && quote && (
+          {step === 4 && (quote || sel?.slug === "custom-event-package" || (sel as any)?.serviceType === "CUSTOM") && (
             <div>
               <div className="mb-10 text-center sm:text-left">
                 <h2 className="text-4xl sm:text-5xl font-black tracking-tight" style={{ color: NAVY, fontFamily: F_SERIF }}>
@@ -1854,18 +1964,22 @@ export default function BookingForm() {
                   <div className="px-6 py-4 bg-slate-100/80 border-b-2 border-slate-200/80 flex items-center gap-2.5 font-black text-[#000223] text-base sm:text-lg">
                     <span className="text-base sm:text-lg">Catering Package</span>
                   </div>
-                  <div className="px-6 py-6 flex items-center justify-between">
-                    <div>
-                      <span className="font-black text-xl block text-[#000223]">
-                        {sel?.name}
-                      </span>
-                      <span className="text-base font-bold text-slate-655 mt-1.5 block">
-                        {sel?.includedQty || sel?.servings} servings included · {sel?.durationMins || sel?.includedMinutes || 60} mins duration
-                      </span>
+                  <div className="px-6 py-6 flex items-center justify-between gap-4">
+                    <div className="min-w-0">
+                      <span className="font-black text-xl block text-[#000223]">{sel?.name}</span>
+                      {(sel?.slug === "custom-event-package" || (sel as any)?.serviceType === "CUSTOM") ? (
+                        <span className="text-base font-bold text-blue-700 mt-1.5 block">200+ guests · Custom pricing</span>
+                      ) : (
+                        <span className="text-base font-bold text-slate-655 mt-1.5 block">
+                          {sel?.includedQty || sel?.servings} servings included · {sel?.durationMins || sel?.includedMinutes || 60} mins duration
+                        </span>
+                      )}
                     </div>
-                    <span className="font-black text-2xl text-[#FFA000]">
-                      ${sel?.basePrice || sel?.price}
-                    </span>
+                    {(sel?.slug === "custom-event-package" || (sel as any)?.serviceType === "CUSTOM") ? (
+                      <span className="font-black text-xl text-blue-700 shrink-0">Custom Quote</span>
+                    ) : (
+                      <span className="font-black text-2xl text-[#FFA000] shrink-0">${sel?.basePrice || sel?.price}</span>
+                    )}
                   </div>
                 </div>
 
@@ -1879,17 +1993,23 @@ export default function BookingForm() {
                       ["Event Type", eventType],
                       ["Event Date", formatEnDate(eventDate)],
                       ["Start Time", formatEnTime(startTime)],
-                      ["Included Service Time", `${(sel as any)?.durationMins ?? sel?.includedMinutes ?? 60} minutes`],
-                      ["Included Guests", `${sel?.servings ?? sel?.includedQty ?? 50} guests`],
-                      ...(additionalGuests > 0 ? [["Additional Guests", `+${additionalGuests} guests`]] as [string, string][] : []),
-                      ...(extraServiceMins > 0 ? [["Additional Service Time", `+${extraServiceMins} mins`]] as [string, string][] : []),
+                      ...((sel?.slug === "custom-event-package" || (sel as any)?.serviceType === "CUSTOM")
+                        ? [["Guest Count", `${customGuestCount}+ guests (custom event)`]] as [string, string][]
+                        : [
+                            ["Included Service Time", `${(sel as any)?.durationMins ?? sel?.includedMinutes ?? 60} minutes`],
+                            ["Included Guests", `${sel?.servings ?? sel?.includedQty ?? 50} guests`],
+                            ...(additionalGuests > 0 ? [["Additional Guests", `+${additionalGuests} guests`]] as [string, string][] : []),
+                            ...(extraServiceMins > 0 ? [["Additional Service Time", `+${extraServiceMins} mins`]] as [string, string][] : []),
+                          ]),
                       ["Location", `${primaryLoc.formattedAddress || `${address}, ${city} ${zip}`}`],
                       ...(bookingStops.length > 0 ? [["Stops", `${bookingStops.length} additional stop(s)`]] as [string, string][] : []),
                       ["Garage Origin", "Boston Revere — 84 Fernwood Ave"],
-                      ["Distance", `${quote.distanceMiles.toFixed(1)} miles total`],
-                      ["Free Travel Zone", "First 10.0 miles FREE"],
-                      ["Billable Miles", `${Math.max(0, quote.distanceMiles - 10).toFixed(1)} miles`],
-                      ["Travel Fee", quote.travelFee > 0 ? `$${quote.travelFee.toFixed(2)}` : "Free ($0.00)"]
+                      ...(quote ? [
+                        ["Distance", `${quote.distanceMiles.toFixed(1)} miles total`],
+                        ["Free Travel Zone", "First 10.0 miles FREE"],
+                        ["Billable Miles", `${Math.max(0, quote.distanceMiles - 10).toFixed(1)} miles`],
+                        ["Travel Fee", quote.travelFee > 0 ? `$${quote.travelFee.toFixed(2)}` : "Free ($0.00)"]
+                      ] as [string, string][] : [])
                     ].map(([l, v]) => (
                       <div key={l} className="flex justify-between items-center px-6 py-4 text-sm sm:text-base">
                         <span className="font-bold text-slate-600">{l}</span>
@@ -1923,39 +2043,64 @@ export default function BookingForm() {
                 </div>
 
                 {/* Pricing breakdown details */}
-                <div className="rounded-2xl border-2 border-slate-200/80 bg-white/70 backdrop-blur-md p-4 sm:p-8 shadow-md">
-                  <div className="flex items-center gap-2.5 mb-5 border-b-2 border-slate-100 pb-3">
-                    <DollarSign className="w-6 h-6 text-[#FFA000]" />
-                    <span className="text-base sm:text-lg font-black text-slate-800">
-                      Catering Fee Breakdown
-                    </span>
+                {(sel?.slug === "custom-event-package" || (sel as any)?.serviceType === "CUSTOM") ? (
+                  <div className="rounded-2xl border-2 border-blue-200 bg-blue-50/70 p-4 sm:p-8 shadow-md">
+                    <div className="flex items-center gap-2.5 mb-5 border-b-2 border-blue-100 pb-3">
+                      <span className="text-xl">📋</span>
+                      <span className="text-base sm:text-lg font-black text-blue-900">Custom Quote Request</span>
+                    </div>
+                    <div className="rounded-xl bg-white/80 border border-blue-200 p-5 mb-5">
+                      <p className="font-black text-blue-900 text-sm mb-2">No fixed price for this package.</p>
+                      <p className="text-blue-800 font-semibold text-sm leading-relaxed">
+                        Our team will review your guest count, location, route, timing, and vehicle needs before preparing your final custom quote. You'll be contacted via WhatsApp.
+                      </p>
+                    </div>
+                    <p className="font-black text-blue-900 text-xs uppercase tracking-wider mb-3">📲 We'll contact you via WhatsApp</p>
+                    <div className="space-y-2">
+                      {[
+                        { num: "617-999-3803", wa: "16179993803" },
+                        { num: "781-921-3233", wa: "17819213233" },
+                        { num: "617-866-2727", wa: "16178662727" },
+                      ].map(({ num, wa }) => (
+                        <a key={wa} href={`https://wa.me/${wa}`} target="_blank" rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-2 w-full py-3 rounded-xl font-black text-sm text-white transition-all hover:-translate-y-0.5 hover:opacity-90"
+                          style={{ background: "#25D366" }}>
+                          <span>💬</span> WhatsApp {num}
+                        </a>
+                      ))}
+                    </div>
                   </div>
-                  <div className="space-y-4 mb-6">
-                    {quote.breakdown.map(
-                      (b, i) =>
-                        (b.amount !== 0 || i === 0) && (
-                          <div key={i} className="flex justify-between items-start gap-2 text-sm sm:text-base py-2 border-b border-dashed border-slate-200/80 last:border-0">
-                            <span className="font-bold text-slate-600 break-words min-w-0 pr-2">{b.label}</span>
-                            <span
-                              className="font-black text-[#000223] shrink-0"
-                            >
-                              {b.amount < 0
-                                ? `-$${Math.abs(b.amount).toFixed(2)}`
-                                : `$${b.amount.toFixed(2)}`}
-                            </span>
-                          </div>
-                        )
-                    )}
+                ) : (
+                  <div className="rounded-2xl border-2 border-slate-200/80 bg-white/70 backdrop-blur-md p-4 sm:p-8 shadow-md">
+                    <div className="flex items-center gap-2.5 mb-5 border-b-2 border-slate-100 pb-3">
+                      <DollarSign className="w-6 h-6 text-[#FFA000]" />
+                      <span className="text-base sm:text-lg font-black text-slate-800">
+                        Catering Fee Breakdown
+                      </span>
+                    </div>
+                    <div className="space-y-4 mb-6">
+                      {(quote?.breakdown ?? []).map(
+                        (b, i) =>
+                          (b.amount !== 0 || i === 0) && (
+                            <div key={i} className="flex justify-between items-start gap-2 text-sm sm:text-base py-2 border-b border-dashed border-slate-200/80 last:border-0">
+                              <span className="font-bold text-slate-600 break-words min-w-0 pr-2">{b.label}</span>
+                              <span className="font-black text-[#000223] shrink-0">
+                                {b.amount < 0
+                                  ? `-$${Math.abs(b.amount).toFixed(2)}`
+                                  : `$${b.amount.toFixed(2)}`}
+                              </span>
+                            </div>
+                          )
+                      )}
+                    </div>
+                    <div className="border-t-2 border-slate-200 pt-5 flex justify-between items-center gap-2">
+                      <span className="font-black text-sm sm:text-xl text-[#000223]">Estimated Total Amount</span>
+                      <span className="text-2xl sm:text-4xl font-black tracking-tight text-[#FFA000] shrink-0">
+                        ${(quote?.totalAmount ?? 0).toFixed(2)}
+                      </span>
+                    </div>
                   </div>
-                  <div className="border-t-2 border-slate-200 pt-5 flex justify-between items-center gap-2">
-                    <span className="font-black text-sm sm:text-xl text-[#000223]">
-                      Estimated Total Amount
-                    </span>
-                    <span className="text-2xl sm:text-4xl font-black tracking-tight text-[#FFA000] shrink-0">
-                      ${quote.totalAmount.toFixed(2)}
-                    </span>
-                  </div>
-                </div>
+                )}
 
                 {/* Cash Policy Banner */}
                 <div

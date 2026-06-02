@@ -51,7 +51,8 @@ export default function PackagesPage() {
         { id: "3", name: "Celebration Pack", slug: "celebration-pack-truck", serviceType: "AMERICANO_TRUCK", description: "", servings: 75, price: 425, extraPiecePrice: 5, imageUrl: "/pkg_truck_legend.jpg", badge: "Most Popular", features: "" },
         { id: "4", name: "Starter Party", slug: "starter-party-van", serviceType: "SPRINTER_VAN", description: "", servings: 30, price: 190, extraPiecePrice: 4, imageUrl: "/pkg_van_starter.jpg", badge: "", features: "" },
         { id: "5", name: "Celebration Pack", slug: "celebration-pack-van", serviceType: "SPRINTER_VAN", description: "", servings: 75, price: 365, extraPiecePrice: 4, imageUrl: "/pkg_van_gold.jpg", badge: "Most Popular", features: "" },
-        { id: "6", name: "School Festival Special", slug: "school-festival-van", serviceType: "SPRINTER_VAN", description: "", servings: 200, price: 825, extraPiecePrice: 4, imageUrl: "/pkg_van_school.jpg", badge: "Great for Schools", features: "" }
+        { id: "6", name: "School Festival Special", slug: "school-festival-van", serviceType: "SPRINTER_VAN", description: "", servings: 200, price: 825, extraPiecePrice: 4, imageUrl: "/pkg_van_school.jpg", badge: "Great for Schools", features: "" },
+        { id: "custom", name: "Custom Event Package", slug: "custom-event-package", serviceType: "CUSTOM", description: "Planning a larger celebration? Tell us about your event and our team will prepare a custom package and final quote for you.", servings: 201, price: 0, extraPiecePrice: 0, imageUrl: "/images/packages/custom-event.jpg", badge: "For 200+ guests", features: "" }
       ]);
     }
 
@@ -60,6 +61,7 @@ export default function PackagesPage() {
 
   const trucks = packages.filter(p => p.serviceType === "AMERICANO_TRUCK");
   const vans = packages.filter(p => p.serviceType === "SPRINTER_VAN");
+  const customs = packages.filter(p => p.serviceType === "CUSTOM" || p.slug === "custom-event-package");
 
   return (
     <div className="min-h-screen bg-amber-50 relative overflow-hidden">
@@ -118,7 +120,7 @@ export default function PackagesPage() {
                 </div>
 
                 {/* Sprinter Van Packages */}
-                <div>
+                <div className="mb-20">
                   <div className="flex items-center gap-4 mb-8">
                     <h2 className="text-3xl font-black text-[#000223]">Sprinter / Dodge Van</h2>
                     <div className="h-1 flex-1 bg-gray-200 rounded-full"></div>
@@ -128,6 +130,20 @@ export default function PackagesPage() {
                     {vans.map(pkg => <PackageCard key={pkg.id} pkg={pkg} />)}
                   </div>
                 </div>
+
+                {/* Large Events & Custom Quotes */}
+                {customs.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-4 mb-8">
+                      <h2 className="text-3xl font-black text-[#000223]">Large Events & Custom Quote</h2>
+                      <div className="h-1 flex-1 bg-gray-200 rounded-full"></div>
+                    </div>
+                    
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                      {customs.map(pkg => <PackageCard key={pkg.id} pkg={pkg} />)}
+                    </div>
+                  </div>
+                )}
               </>
             )}
 
@@ -141,6 +157,7 @@ export default function PackagesPage() {
 }
 
 function PackageCard({ pkg }: { pkg: Package }) {
+  const isCustom = pkg.slug === "custom-event-package";
   return (
     <div className="bg-white rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] transition-all duration-300 flex flex-col hover:-translate-y-1 relative group">
       {pkg.badge && (
@@ -163,31 +180,49 @@ function PackageCard({ pkg }: { pkg: Package }) {
         <h3 className="text-2xl font-black text-[#000223] mb-2">{pkg.name}</h3>
         
         <div className="flex items-end gap-2 mb-6">
-          <span className="text-4xl font-black text-[#FFA000] leading-none">${pkg.price}</span>
-          <span className="text-gray-500 font-medium mb-1">base price</span>
+          <span className="text-4xl font-black text-[#FFA000] leading-none">
+            {isCustom ? "Custom Quote" : `$${pkg.price}`}
+          </span>
+          {!isCustom && <span className="text-gray-500 font-medium mb-1">base price</span>}
         </div>
 
-        <ul className="space-y-3 mb-8 flex-1">
-          <li className="flex items-center gap-3 text-gray-700 font-medium">
-            <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
-            <span>Up to <strong>{pkg.servings} Servings</strong> included</span>
-          </li>
-          <li className="flex items-center gap-3 text-gray-700 font-medium">
-            <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
-            <span>Premium Ice Cream Selection</span>
-          </li>
-          <li className="flex items-center gap-3 text-gray-700 font-medium">
-            <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
-            <span>Extra guests at <strong>${pkg.extraGuestPrice ?? pkg.extraPiecePrice} each</strong></span>
-          </li>
-        </ul>
+        {isCustom ? (
+          <div className="flex-1 flex flex-col justify-between">
+            <p className="text-gray-600 font-semibold mb-8 text-base leading-relaxed">
+              {pkg.description || "Planning a larger celebration? Tell us about your event and our team will prepare a custom package and final quote for you."}
+            </p>
+            <Link 
+              href={`/booking?packageId=${pkg.slug}`}
+              className="w-full py-4 rounded-2xl bg-[#000223] text-[#FFA000] font-black text-lg text-center hover:bg-[#FFA000] hover:text-[#000223] active:scale-[0.98] transition-all shadow-md mt-auto"
+            >
+              Request Custom Quote
+            </Link>
+          </div>
+        ) : (
+          <>
+            <ul className="space-y-3 mb-8 flex-1">
+              <li className="flex items-center gap-3 text-gray-700 font-medium">
+                <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
+                <span>Up to <strong>{pkg.servings} Servings</strong> included</span>
+              </li>
+              <li className="flex items-center gap-3 text-gray-700 font-medium">
+                <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
+                <span>Premium Ice Cream Selection</span>
+              </li>
+              <li className="flex items-center gap-3 text-gray-700 font-medium">
+                <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
+                <span>Extra guests at <strong>${pkg.extraGuestPrice ?? pkg.extraPiecePrice} each</strong></span>
+              </li>
+            </ul>
 
-        <Link 
-          href={`/booking?packageId=${pkg.slug}`}
-          className="w-full py-4 rounded-2xl bg-[#FFA000] text-[#000223] font-black text-lg text-center hover:bg-[#ffaa1a] active:scale-[0.98] transition-all shadow-md"
-        >
-          Book This Package
-        </Link>
+            <Link 
+              href={`/booking?packageId=${pkg.slug}`}
+              className="w-full py-4 rounded-2xl bg-[#FFA000] text-[#000223] font-black text-lg text-center hover:bg-[#ffaa1a] active:scale-[0.98] transition-all shadow-md"
+            >
+              Book This Package
+            </Link>
+          </>
+        )}
       </div>
     </div>
   );
