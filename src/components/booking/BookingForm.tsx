@@ -576,7 +576,7 @@ export default function BookingForm() {
   const [hasMultipleLocations, setHasMultipleLocations] = useState(false);
   const [extraServiceMins, setExtraServiceMins] = useState(0);
   const [customPkg, setCustomPkg] = useState<Pkg | null>(null);
-  const [customGuestCount, setCustomGuestCount] = useState(250);
+  const [customGuestCount, setCustomGuestCount] = useState<number | "">(250);
   const [vehiclePreference, setVehiclePreference] = useState("Not sure");
 
   const [primaryLoc, setPrimaryLoc] = useState<any>({
@@ -735,9 +735,14 @@ export default function BookingForm() {
     setQuoting(true);
     setQuoteErr("");
 
-    // Custom Event Package: skip quote API, go straight to contact step
+    // Custom Event Package: validate and skip quote API, go straight to contact step
     const isCustom = sel?.slug === "custom-event-package" || (sel as any)?.serviceType === "CUSTOM";
     if (isCustom) {
+      if (customGuestCount === "" || customGuestCount <= 200) {
+        setQuoteErr("Custom Event Package is exclusively for events with more than 200 guests. Please enter 201 or more.");
+        setQuoting(false);
+        return;
+      }
       setQuote(null);
       setStep(2);
       setQuoting(false);
@@ -784,6 +789,13 @@ export default function BookingForm() {
   };
 
   const submit = async () => {
+    if (isCustom && (customGuestCount === "" || customGuestCount <= 200)) {
+      setSubmitErr("Custom Event Package is exclusively for events with more than 200 guests. Please enter 201 or more.");
+      setStep(1);
+      setSubmitting(false);
+      return;
+    }
+
     const pErr = validatePhone(phone);
     if (pErr) {
       setPhoneErr(pErr);
@@ -817,15 +829,14 @@ export default function BookingForm() {
     setSubmitErr("");
     setSubmitting(true);
     const cleanPhone = toEnNum(phone).replace(/[^\d+\-\s()]/g, "");
-    const isCustomQuotePkg = sel?.slug === "custom-event-package" || (sel as any)?.serviceType === "CUSTOM";
-    const pkgDuration = isCustomQuotePkg ? 30 : ((sel as any)?.durationMins ?? sel?.includedMinutes ?? 60);
+    const pkgDuration = isCustom ? 30 : ((sel as any)?.durationMins ?? sel?.includedMinutes ?? 60);
     const payload = {
       packageId: sel?.slug ?? sel?.id,   // send slug to allow server OR lookup by id/slug
       eventDate: toEnNum(eventDate),
       startTime: toEnNum(startTime),
       durationMins: pkgDuration,
-      guests: isCustomQuotePkg ? (customGuestCount || 201) : (sel?.servings ?? sel?.includedQty ?? 50) + additionalGuests,
-      additionalGuests: isCustomQuotePkg ? 0 : additionalGuests,
+      guests: isCustom ? (customGuestCount || 201) : (sel?.servings ?? sel?.includedQty ?? 50) + additionalGuests,
+      additionalGuests: isCustom ? 0 : additionalGuests,
       eventType,
       address: primaryLoc.street || address,
       city: primaryLoc.city || city,
@@ -836,15 +847,15 @@ export default function BookingForm() {
       lastName,
       email,
       phone: cleanPhone,
-      totalAmount: isCustomQuotePkg ? 0 : (quote?.totalAmount ?? 0),
-      travelFee: isCustomQuotePkg ? 0 : (quote?.travelFee ?? 0),
-      overtimeFee: isCustomQuotePkg ? 0 : (quote?.overtimeFee ?? 0),
-      extraPieceFee: isCustomQuotePkg ? 0 : (quote?.extraPieceFee ?? 0),
-      distanceMiles: isCustomQuotePkg ? 0 : (quote?.distanceMiles ?? 0),
+      totalAmount: isCustom ? 0 : (quote?.totalAmount ?? 0),
+      travelFee: isCustom ? 0 : (quote?.travelFee ?? 0),
+      overtimeFee: isCustom ? 0 : (quote?.overtimeFee ?? 0),
+      extraPieceFee: isCustom ? 0 : (quote?.extraPieceFee ?? 0),
+      distanceMiles: isCustom ? 0 : (quote?.distanceMiles ?? 0),
       additionalStops: bookingStops.length,
-      additionalStopsFee: isCustomQuotePkg ? 0 : bookingStops.length * 50,
-      extraServiceMins: isCustomQuotePkg ? 0 : extraServiceMins,
-      extraServiceFee: isCustomQuotePkg ? 0 : (quote?.additionalServiceFee ?? 0),
+      additionalStopsFee: isCustom ? 0 : bookingStops.length * 50,
+      extraServiceMins: isCustom ? 0 : extraServiceMins,
+      extraServiceFee: isCustom ? 0 : (quote?.additionalServiceFee ?? 0),
       bookingStops,
       latitude: primaryLoc.latitude || lat,
       longitude: primaryLoc.longitude || lng,
@@ -1081,6 +1092,8 @@ export default function BookingForm() {
   const isPrimaryVerified = primaryLoc.latitude !== null && primaryLoc.longitude !== null && primaryLoc.locationVerificationMethod !== "";
   const isAllStopsVerified = bookingStops.every((stop: any) => stop.latitude !== null && stop.longitude !== null && stop.locationVerificationMethod !== "");
   const canContinueStep1 = isPrimaryVerified && (locationMode === "SINGLE_LOCATION" || (bookingStops.length > 0 && isAllStopsVerified));
+  const isCustom = sel?.slug === "custom-event-package" || (sel as any)?.serviceType === "CUSTOM";
+  const isGuestCountInvalid = isCustom && (customGuestCount === "" || customGuestCount <= 200);
 
   const listPkgs = pkgList[pkgTab];
 
@@ -1338,49 +1351,84 @@ export default function BookingForm() {
                   <span className="text-3xl">⏱️</span>
                   <div>
                     <p className="font-black text-[#000223] text-lg sm:text-xl">
-                      Included Service Time: {(sel as any)?.durationMins ?? sel?.includedMinutes ?? 60} minutes
+                      {isCustom ? "Included Service Time: Flexible / Tailored" : `Included Service Time: ${(sel as any)?.durationMins ?? sel?.includedMinutes ?? 60} minutes`}
                     </p>
                     <p className="text-base font-bold text-slate-700 mt-1">
-                      This package serves up to {sel?.servings ?? sel?.includedQty ?? 50} guests.
+                      {isCustom ? "This package is tailored for large celebrations with over 200 guests." : `This package serves up to ${sel?.servings ?? sel?.includedQty ?? 50} guests.`}
                     </p>
                   </div>
                 </div>
 
-                {/* Optional Additional Guests stepper */}
+                {/* Optional Additional Guests stepper OR Custom Guest Count Input */}
                 <div className="md:col-span-2">
-                  <label className="block text-base font-black uppercase tracking-[0.18em] mb-1.5" style={{ color: NAVY, opacity: 0.95, fontFamily: FN }}>
-                    Additional Guests (Optional)
-                  </label>
-                  <p className="text-sm sm:text-base font-bold text-slate-700 mb-5 leading-relaxed">
-                    Only enter guests <strong style={{ color: NAVY }}>beyond the included package amount</strong>. Extra guests are billed at ${(sel as any)?.extraGuestPrice ?? sel?.extraPiecePrice ?? 5}/person.
-                  </p>
-                  <div className="flex items-center gap-6 bg-white/40 backdrop-blur-md border-2 border-slate-200/80 rounded-3xl p-5 shadow-sm">
-                    <button
-                      type="button"
-                      onClick={() => setAdditionalGuests(Math.max(0, additionalGuests - 1))}
-                      className="w-14 h-14 rounded-full border-2 font-black text-2xl flex items-center justify-center transition-all hover:bg-slate-100 bg-white"
-                      style={{ borderColor: additionalGuests === 0 ? "rgba(0,2,35,0.12)" : NAVY, color: NAVY }}
-                    >
-                      −
-                    </button>
-                    <div className="flex-grow text-center">
-                      <span className="text-4xl font-black block" style={{ color: NAVY, fontFamily: F_SERIF }}>{additionalGuests}</span>
-                      <span className="block text-xs sm:text-sm font-bold text-slate-600 mt-1">additional guest{additionalGuests !== 1 ? "s" : ""}</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setAdditionalGuests(Math.min(200, additionalGuests + 1))}
-                      className="w-14 h-14 rounded-full border-2 font-black text-2xl flex items-center justify-center transition-all hover:bg-amber-50 bg-white"
-                      style={{ borderColor: NAVY, color: NAVY }}
-                    >
-                      +
-                    </button>
-                    {additionalGuests > 0 && (
-                      <div className="px-6 py-3 rounded-2xl font-black text-base sm:text-lg shadow-sm" style={{ background: "rgba(255,160,0,0.18)", color: NAVY }}>
-                        +${(additionalGuests * ((sel as any)?.extraGuestPrice ?? sel?.extraPiecePrice ?? 5)).toFixed(2)}
+                  {isCustom ? (
+                    <div>
+                      <label className="block text-base font-black uppercase tracking-[0.18em] mb-1.5" style={{ color: NAVY, opacity: 0.95, fontFamily: FN }}>
+                        Total Expected Guests
+                      </label>
+                      <p className="text-sm sm:text-base font-bold text-slate-700 mb-4 leading-relaxed">
+                        Please specify the total guest count for your custom request. This package is dedicated to large gatherings and requires a <strong style={{ color: NAVY }}>minimum of 201 guests</strong>.
+                      </p>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          min="201"
+                          value={customGuestCount}
+                          onChange={(e) => {
+                            const val = e.target.value === "" ? "" : parseInt(e.target.value);
+                            setCustomGuestCount(val);
+                          }}
+                          placeholder="e.g. 250"
+                          className="w-full bg-white/40 backdrop-blur-md border-2 rounded-3xl p-5 shadow-sm focus:outline-none transition-all font-black text-2xl text-slate-800 focus:bg-white"
+                          style={{
+                            borderColor: customGuestCount !== "" && customGuestCount <= 200 ? "rgb(239, 68, 68)" : "rgba(0,2,35,0.12)",
+                            fontFamily: F_SERIF
+                          }}
+                        />
+                        {customGuestCount !== "" && customGuestCount <= 200 && (
+                          <p className="text-rose-600 text-base font-black mt-3 flex items-center gap-2 animate-pulse">
+                            ⚠️ This package is exclusively for large requests of more than 200 guests. Please enter 201 or more.
+                          </p>
+                        )}
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <label className="block text-base font-black uppercase tracking-[0.18em] mb-1.5" style={{ color: NAVY, opacity: 0.95, fontFamily: FN }}>
+                        Additional Guests (Optional)
+                      </label>
+                      <p className="text-sm sm:text-base font-bold text-slate-700 mb-5 leading-relaxed">
+                        Only enter guests <strong style={{ color: NAVY }}>beyond the included package amount</strong>. Extra guests are billed at ${(sel as any)?.extraGuestPrice ?? sel?.extraPiecePrice ?? 5}/person.
+                      </p>
+                      <div className="flex items-center gap-6 bg-white/40 backdrop-blur-md border-2 border-slate-200/80 rounded-3xl p-5 shadow-sm">
+                        <button
+                          type="button"
+                          onClick={() => setAdditionalGuests(Math.max(0, additionalGuests - 1))}
+                          className="w-14 h-14 rounded-full border-2 font-black text-2xl flex items-center justify-center transition-all hover:bg-slate-100 bg-white"
+                          style={{ borderColor: additionalGuests === 0 ? "rgba(0,2,35,0.12)" : NAVY, color: NAVY }}
+                        >
+                          −
+                        </button>
+                        <div className="flex-grow text-center">
+                          <span className="text-4xl font-black block" style={{ color: NAVY, fontFamily: F_SERIF }}>{additionalGuests}</span>
+                          <span className="block text-xs sm:text-sm font-bold text-slate-600 mt-1">additional guest{additionalGuests !== 1 ? "s" : ""}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setAdditionalGuests(Math.min(200, additionalGuests + 1))}
+                          className="w-14 h-14 rounded-full border-2 font-black text-2xl flex items-center justify-center transition-all hover:bg-amber-50 bg-white"
+                          style={{ borderColor: NAVY, color: NAVY }}
+                        >
+                          +
+                        </button>
+                        {additionalGuests > 0 && (
+                          <div className="px-6 py-3 rounded-2xl font-black text-base sm:text-lg shadow-sm" style={{ background: "rgba(255,160,0,0.18)", color: NAVY }}>
+                            +${(additionalGuests * ((sel as any)?.extraGuestPrice ?? sel?.extraPiecePrice ?? 5)).toFixed(2)}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Additional Service Time selector */}
@@ -1659,7 +1707,7 @@ export default function BookingForm() {
                 </button>
                 <button
                   onClick={fetchQuote}
-                  disabled={quoting || !eventDate || !startTime || !eventType || !canContinueStep1}
+                  disabled={quoting || !eventDate || !startTime || !eventType || !canContinueStep1 || isGuestCountInvalid}
                   className="inline-flex items-center justify-center gap-3 px-12 py-5.5 rounded-full font-black text-lg sm:text-xl shadow-2xl disabled:opacity-40 hover:-translate-y-1 active:translate-y-0 transition-all duration-300 w-full sm:w-auto justify-center"
                   style={{ background: NAVY, color: GOLD, fontFamily: FN }}
                 >
