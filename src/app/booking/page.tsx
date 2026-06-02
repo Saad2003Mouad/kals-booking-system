@@ -78,6 +78,12 @@ export default function BookingPage() {
             <p className="text-slate-700 text-lg sm:text-xl font-bold max-w-2xl mx-auto">
               Get an instant quote · Check real-time availability · Confirm in minutes
             </p>
+            <p className="mt-4 text-sm text-slate-500 font-semibold">
+              Already booked?{" "}
+              <a href="/manage-booking" className="text-[#FFA000] font-black hover:underline">
+                Manage your booking here →
+              </a>
+            </p>
           </div>
         </div>
 

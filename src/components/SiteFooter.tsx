@@ -193,6 +193,14 @@ export default function SiteFooter() {
                 </div>
               </Link>
             </div>
+            <div>
+              <Link href="/manage-booking" className="footer-link w-inline-block">
+                <div className="footer-link-move">
+                  <div className="footer-link-w">Manage Booking</div>
+                  <div className="footer-link-o">Manage Booking</div>
+                </div>
+              </Link>
+            </div>
 
             <div className="footer-titel-s mt-6">Call Us</div>
             <div>

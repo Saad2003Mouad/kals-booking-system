@@ -52,12 +52,27 @@ export default function SiteHeader() {
               </div>
               <Link href="/packages" className="nav-link w-nav-link">Packages</Link>
               <Link href="/contact-us" className="nav-link w-nav-link">Contact</Link>
+              <Link href="/manage-booking" className="nav-link w-nav-link" style={{ fontWeight: 900, color: "#FFA000" }}>Manage Booking</Link>
             </nav>
             <div className="right-menu-links">
-              <a href="tel:6179993803" className="header-call-link w-inline-block">
-                <img src="https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/67e39363a441f7dbfd2d79f8_87138d38a55ab32d7fd16103cc7b4b29_phone-boston-legend-ice-cream-truck.png" loading="lazy" width="23" height="23" alt="Phone" className="mr-5"/>
-                <div className="text-block">617-999-3803<br/></div>
-              </a>
+              <Link
+                href="/manage-booking"
+                className="link-bt menu-bt"
+                style={{
+                  background: "#FFA000",
+                  color: "#000223",
+                  border: "2px solid #FFA000",
+                  fontWeight: 900,
+                  borderRadius: 32,
+                  padding: "10px 22px",
+                  fontSize: 14,
+                  letterSpacing: "0.02em",
+                  transition: "all 0.2s",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Manage Booking
+              </Link>
               <Link href="/login" className="link-bt menu-bt">Sign In or Sign Up</Link>
             </div>
             <div className="menu-button w-nav-button"><div className="icon w-icon-nav-menu"></div></div>
