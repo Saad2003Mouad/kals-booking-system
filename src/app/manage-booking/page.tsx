@@ -162,9 +162,31 @@ export default function ManageBookingPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col font-['Nunito',sans-serif] bg-[#FAF6EF]">
+    <div className="min-h-screen flex flex-col font-['Nunito',sans-serif] bg-[#FAF6EF] relative overflow-x-hidden">
+      {/* Header accent bars — sit behind Webflow nav */}
+      <div className="absolute top-0 left-0 right-0 h-20 z-20 pointer-events-none overflow-hidden print:hidden">
+        {/* Orange-amber — left (behind logo) */}
+        <div 
+          className="absolute top-0 left-0 h-full w-[280px]"
+          style={{
+            background: "linear-gradient(105deg, #FF6B00 0%, #FF8C00 45%, #FFA500 70%, transparent 100%)",
+            opacity: 0.75,
+            borderBottomRightRadius: "72px",
+          }}
+        />
+        {/* Deep rose/pink — right */}
+        <div 
+          className="absolute top-0 right-0 h-full w-[280px]"
+          style={{
+            background: "linear-gradient(255deg, #C2185B 0%, #E91E8C 45%, #FF4DB2 70%, transparent 100%)",
+            opacity: 0.75,
+            borderBottomLeftRadius: "72px",
+          }}
+        />
+      </div>
+
       {/* Header */}
-      <div className="relative z-10 bg-[#000223] shadow-md">
+      <div className="relative z-30">
         <SiteHeader />
       </div>
 

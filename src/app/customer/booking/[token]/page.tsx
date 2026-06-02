@@ -203,18 +203,40 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
   const isCustomPkg = pkg?.slug === "custom-event-package" || (pkg as any)?.serviceType === "CUSTOM";
 
   return (
-    <div className="min-h-screen bg-[#FAF6EF] pb-24 font-['Nunito',sans-serif] selection:bg-[#FFA000] selection:text-[#000223]">
+    <div className="min-h-screen bg-[#FAF6EF] pb-24 font-['Nunito',sans-serif] selection:bg-[#FFA000] selection:text-[#000223] relative overflow-x-hidden">
       
+      {/* Header accent bars — sit behind Webflow nav */}
+      <div className="absolute top-0 left-0 right-0 h-20 z-20 pointer-events-none overflow-hidden print:hidden">
+        {/* Orange-amber — left (behind logo) */}
+        <div 
+          className="absolute top-0 left-0 h-full w-[280px]"
+          style={{
+            background: "linear-gradient(105deg, #FF6B00 0%, #FF8C00 45%, #FFA500 70%, transparent 100%)",
+            opacity: 0.75,
+            borderBottomRightRadius: "72px",
+          }}
+        />
+        {/* Deep rose/pink — right */}
+        <div 
+          className="absolute top-0 right-0 h-full w-[280px]"
+          style={{
+            background: "linear-gradient(255deg, #C2185B 0%, #E91E8C 45%, #FF4DB2 70%, transparent 100%)",
+            opacity: 0.75,
+            borderBottomLeftRadius: "72px",
+          }}
+        />
+      </div>
+
       {/* Navbar */}
-      <header className="sticky top-0 z-40 bg-[#000223]/95 backdrop-blur-md border-b border-white/10 shadow-md print:hidden">
-        <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+      <header className="relative z-30 print:hidden h-20 flex items-center">
+        <div className="w-full max-w-6xl mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <a href="/"><img src={LOGO} alt="Boston Legend" className="h-10 w-auto" /></a>
-            <div className="hidden sm:block h-6 w-px bg-white/20"></div>
-            <span className="hidden sm:block text-xs font-black text-[#FFA000] uppercase tracking-widest">Portal</span>
+            <div className="hidden sm:block h-6 w-px bg-[#000223]/20"></div>
+            <span className="hidden sm:block text-xs font-black text-[#000223] uppercase tracking-widest">Portal</span>
           </div>
           <div className="flex items-center gap-3">
-            <a href="/packages" className="px-5 py-2.5 rounded-full font-black text-xs bg-[#FFA000] text-[#000223] hover:bg-white hover:text-[#000223] transition-all shadow-[0_0_15px_rgba(255,160,0,0.4)]">
+            <a href="/packages" className="px-5 py-2.5 rounded-full font-black text-xs bg-[#000223] text-white hover:bg-[#FFA000] hover:text-[#000223] transition-all">
               Book Another Event
             </a>
           </div>
