@@ -219,66 +219,58 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
             </a>
           </div>
         </div>
-      </header>
-
-      {/* Hero Section (VIP Ticket Style) */}
-      <div className="bg-[#000223] text-white pt-10 pb-20 px-6 relative overflow-hidden shadow-[0_10px_30px_rgba(0,2,35,0.15)] rounded-b-[40px]">
-        {/* Animated Background Mesh */}
-        <div className="absolute inset-0 opacity-40">
-          <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[150%] rounded-full bg-[#FFA000]/20 blur-[100px] animate-pulse"></div>
-          <div className="absolute bottom-[-20%] right-[-10%] w-[40%] h-[120%] rounded-full bg-blue-500/20 blur-[120px] animate-pulse" style={{ animationDelay: '2s' }}></div>
-        </div>
-
-        <div className="max-w-4xl mx-auto relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-8 mt-4">
+      </header>      {/* Light Header Section */}
+      <div className="bg-white border-b border-slate-200 py-10 px-6">
+        <div className="max-w-4xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex-1">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm mb-6">
-              <Ticket className="w-4 h-4 text-[#FFA000] rotate-45" />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#FFA000]">Booking Reference:</span>
-              <span className="text-xs font-mono font-black text-white">{booking.bookingNumber}</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 mb-4">
+              <Ticket className="w-4 h-4 text-[#000223]" />
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">Booking Reference:</span>
+              <span className="text-xs font-mono font-black text-[#000223]">{booking.bookingNumber}</span>
             </div>
             
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1] mb-4 text-transparent bg-clip-text bg-gradient-to-r from-white to-white/70">
+            <h1 className="text-3xl sm:text-4xl font-black text-[#000223] tracking-tight mb-3">
               {packageName}
             </h1>
             
-            <p className="text-white/70 font-bold text-sm md:text-base max-w-xl leading-relaxed border-l-2 border-[#FFA000] pl-4">
+            <p className="text-slate-600 font-bold text-sm leading-relaxed max-w-xl">
               {sc.desc}
             </p>
           </div>
 
-          <div className="flex flex-col items-start md:items-end gap-4 shrink-0">
-            <div className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl border-2 ${sc.bg} ${sc.border} shadow-lg`}>
+          <div className="flex flex-col items-start md:items-end gap-3 shrink-0">
+            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border ${sc.bg} ${sc.border} shadow-sm`}>
               {booking.status === "PENDING_REVIEW" && (
-                <span className="relative flex h-3 w-3 mr-1">
+                <span className="relative flex h-2 w-2 mr-1">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
                 </span>
               )}
-              <StatusIcon className={`w-5 h-5 ${sc.text}`} />
-              <span className={`text-sm font-black uppercase tracking-wider ${sc.text}`}>{sc.label}</span>
+              <StatusIcon className={`w-4.5 h-4.5 ${sc.text}`} />
+              <span className={`text-xs font-black uppercase tracking-wider ${sc.text}`}>{sc.label}</span>
             </div>
-            <p className="text-[11px] font-bold text-white/40 uppercase tracking-widest">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
               Last Updated: {new Date(booking.updatedAt).toLocaleDateString()}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Floating Action Bar */}
-      <div className="max-w-4xl mx-auto px-6 -mt-8 relative z-20 print:hidden mb-12">
-        <div className="bg-white/80 backdrop-blur-xl border border-white rounded-2xl p-2 shadow-[0_8px_30px_rgba(0,2,35,0.08)] flex flex-wrap gap-2 justify-center md:justify-end">
+      {/* Action Bar */}
+      <div className="max-w-4xl mx-auto px-6 mt-8 print:hidden mb-8">
+        <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex flex-wrap gap-3 justify-start md:justify-end">
           {["PENDING_REVIEW", "PENDING_PAYMENT", "CONFIRMED"].includes(booking.status) && (
             <>
-              <button onClick={() => setShowRequestModal("CHANGE")} className="flex-1 sm:flex-initial py-2.5 px-5 bg-slate-50 hover:bg-slate-100 text-[#000223] rounded-xl font-black text-xs transition-all flex items-center justify-center gap-2 border border-slate-200">
-                <Edit className="w-4 h-4 text-blue-500" /> Request Change
+              <button onClick={() => setShowRequestModal("CHANGE")} className="flex-1 sm:flex-initial py-2.5 px-4 bg-slate-50 hover:bg-slate-100 text-[#000223] rounded-lg font-bold text-xs transition-all flex items-center justify-center gap-2 border border-slate-200">
+                <Edit className="w-3.5 h-3.5 text-[#000223]" /> Request Change
               </button>
-              <button onClick={() => setShowRequestModal("CANCEL")} className="flex-1 sm:flex-initial py-2.5 px-5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl font-black text-xs transition-all flex items-center justify-center gap-2 border border-rose-200">
-                <XCircle className="w-4 h-4" /> Cancel Booking
+              <button onClick={() => setShowRequestModal("CANCEL")} className="flex-1 sm:flex-initial py-2.5 px-4 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg font-bold text-xs transition-all flex items-center justify-center gap-2 border border-rose-200">
+                <XCircle className="w-3.5 h-3.5" /> Cancel Booking
               </button>
             </>
           )}
-          <button onClick={() => window.print()} className="flex-1 sm:flex-initial py-2.5 px-5 bg-[#000223] hover:bg-slate-800 text-white rounded-xl font-black text-xs transition-all flex items-center justify-center gap-2 shadow-md">
-            <Printer className="w-4 h-4 text-[#FFA000]" /> Print Receipt
+          <button onClick={() => window.print()} className="flex-1 sm:flex-initial py-2.5 px-4 bg-[#000223] hover:bg-slate-800 text-white rounded-lg font-bold text-xs transition-all flex items-center justify-center gap-2 shadow-sm">
+            <Printer className="w-3.5 h-3.5 text-[#FFA000]" /> Print Receipt
           </button>
         </div>
       </div>
@@ -287,10 +279,9 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
       <div className="max-w-4xl mx-auto px-6 grid md:grid-cols-2 gap-6 relative z-10">
         
         {/* Card 1: Event Details */}
-        <div className="bg-white rounded-3xl p-7 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group hover:shadow-[0_8px_40px_rgb(0,0,0,0.08)] transition-all">
-          <div className="absolute top-[-20px] right-[-20px] w-24 h-24 bg-blue-50 rounded-full blur-2xl group-hover:bg-blue-100 transition-colors pointer-events-none"></div>
-          <h2 className="font-black text-[11px] uppercase tracking-[0.2em] text-[#000223] mb-6 flex items-center gap-2 pb-4 border-b border-slate-100">
-            <span className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">📅</span> Event Details
+        <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+          <h2 className="font-black text-[11px] uppercase tracking-[0.2em] text-[#000223] mb-6 flex items-center gap-2 pb-4 border-b border-slate-200">
+            <span>📅</span> Event Details
           </h2>
           <div className="space-y-4 text-sm font-bold text-slate-500">
             <div className="flex justify-between items-center">
@@ -311,18 +302,17 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
                 <span className="font-black bg-amber-50 px-2 py-0.5 rounded">+{extraServiceMins} mins (+${extraServiceFee.toFixed(2)})</span>
               </div>
             )}
-            <div className="flex justify-between items-center pt-2 border-t border-slate-50">
+            <div className="flex justify-between items-center pt-2 border-t border-slate-100">
               <span>Expected Guests</span>
-              <span className="font-black text-[#000223] bg-[#FFA000]/20 text-[#000223] px-3 py-1 rounded-lg">{booking.guests} People</span>
+              <span className="font-black text-[#000223] bg-amber-100 px-3 py-1 rounded-lg">{booking.guests} People</span>
             </div>
           </div>
         </div>
 
         {/* Card 2: Package Details */}
-        <div className="bg-white rounded-3xl p-7 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group hover:shadow-[0_8px_40px_rgb(0,0,0,0.08)] transition-all">
-          <div className="absolute top-[-20px] right-[-20px] w-24 h-24 bg-amber-50 rounded-full blur-2xl group-hover:bg-amber-100 transition-colors pointer-events-none"></div>
-          <h2 className="font-black text-[11px] uppercase tracking-[0.2em] text-[#000223] mb-6 flex items-center gap-2 pb-4 border-b border-slate-100">
-            <span className="w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">🍦</span> Package Details
+        <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+          <h2 className="font-black text-[11px] uppercase tracking-[0.2em] text-[#000223] mb-6 flex items-center gap-2 pb-4 border-b border-slate-200">
+            <span>🍦</span> Package Details
           </h2>
           <div className="space-y-4 text-sm font-bold text-slate-500">
             <div className="flex justify-between items-center">
@@ -343,7 +333,7 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
                 <span className="font-black bg-emerald-50 px-2 py-0.5 rounded">+${stopsFee.toFixed(2)}</span>
               </div>
             )}
-            <div className="flex justify-between items-center pt-2 border-t border-slate-50">
+            <div className="flex justify-between items-center pt-2 border-t border-slate-100">
               <span>Extra Guest Rate</span>
               <span className="font-black text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg">${extraPiecePrice}/person</span>
             </div>
@@ -351,12 +341,12 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
         </div>
 
         {/* Card 3: Contact & Location */}
-        <div className="bg-white rounded-3xl p-7 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group hover:shadow-[0_8px_40px_rgb(0,0,0,0.08)] transition-all md:col-span-2">
-          <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
+        <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-[0_2px_8px_rgba(0,0,0,0.02)] md:col-span-2">
+          <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-200">
             <h2 className="font-black text-[11px] uppercase tracking-[0.2em] text-[#000223] flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-600">👤</span> Contact & Event Location
+              <span>👤</span> Contact & Event Location
             </h2>
-            <button onClick={() => setShowEditModal(true)} className="text-xs font-black text-blue-600 hover:text-blue-800 bg-blue-50 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
+            <button onClick={() => setShowEditModal(true)} className="text-xs font-bold text-blue-600 hover:text-blue-800 bg-blue-50 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
               <Edit className="w-3.5 h-3.5"/> Edit Details
             </button>
           </div>
@@ -368,18 +358,18 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
                 <span className="font-black text-[#000223] text-base">{booking.customer.firstName} {booking.customer.lastName}</span>
               </div>
               <div className="flex items-center gap-3">
-                <Mail className="w-4 h-4 text-slate-300" />
+                <Mail className="w-4 h-4 text-slate-350" />
                 <span className="font-black text-[#000223]">{booking.customer.email}</span>
               </div>
               <div className="flex items-center gap-3">
-                <Phone className="w-4 h-4 text-slate-300" />
+                <Phone className="w-4 h-4 text-slate-350" />
                 <span className="font-black text-[#000223]">{booking.customer.phone}</span>
               </div>
             </div>
 
-            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+            <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center shrink-0 mt-1">
+                <div className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center shrink-0 mt-1">
                   <MapPin className="w-4 h-4 text-red-500" />
                 </div>
                 <div>
@@ -389,7 +379,7 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
                   {booking.notes && (
                     <div className="mt-3 pt-3 border-t border-slate-200">
                       <p className="text-[10px] font-black uppercase tracking-wider text-amber-600 mb-1">Notes / Instructions</p>
-                      <p className="text-xs font-semibold text-slate-600 italic">"{booking.notes}"</p>
+                      <p className="text-xs font-semibold text-slate-650 italic">"{booking.notes}"</p>
                     </div>
                   )}
                 </div>
@@ -398,33 +388,36 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
           </div>
         </div>
 
-        {/* Card 4: Route Timeline (If multi-stop) */}
+        {/* Card 4: Route Timeline */}
         {booking.stops && booking.stops.length > 0 && (
-          <div className="bg-white rounded-3xl p-7 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden md:col-span-2">
-            <h2 className="font-black text-[11px] uppercase tracking-[0.2em] text-[#000223] mb-6 flex items-center gap-2 pb-4 border-b border-slate-100">
-              <span className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">🗺️</span> Multi-Stop Routing
+          <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-[0_2px_8px_rgba(0,0,0,0.02)] md:col-span-2">
+            <h2 className="font-black text-[11px] uppercase tracking-[0.2em] text-[#000223] mb-6 flex items-center gap-2 pb-4 border-b border-slate-200">
+              <span>🗺️</span> Multi-Stop Routing
             </h2>
             
-            <div className="relative pl-6 space-y-6 before:absolute before:inset-0 before:ml-[11px] before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-emerald-400 before:via-blue-400 before:to-slate-200">
-              
-              <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                <div className="flex items-center justify-center w-6 h-6 rounded-full border-4 border-white bg-emerald-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 absolute left-[-29px] md:static"></div>
-                <div className="w-[calc(100%-2rem)] md:w-[calc(50%-2rem)] bg-emerald-50/50 border border-emerald-100 p-4 rounded-2xl">
-                  <span className="text-[10px] font-black uppercase text-emerald-600 tracking-wider">Start: Location 1</span>
-                  <p className="font-black text-[#000223] text-sm mt-1">{booking.address}</p>
-                  <p className="font-bold text-slate-500 text-xs">{booking.city}, {booking.zip}</p>
+            <div className="space-y-4">
+              <div className="flex items-start gap-4 p-4 bg-slate-50 border border-slate-200 rounded-xl">
+                <div className="w-8 h-8 rounded-full bg-[#000223] text-[#FFA000] flex items-center justify-center font-black text-sm shrink-0">
+                  1
+                </div>
+                <div>
+                  <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Start Location</span>
+                  <p className="font-black text-[#000223] text-sm mt-0.5">{booking.address}</p>
+                  <p className="font-bold text-slate-500 text-xs">{booking.city}, MA {booking.zip}</p>
                 </div>
               </div>
 
               {booking.stops.map((stop: any, idx: number) => (
-                <div key={stop.id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                  <div className="flex items-center justify-center w-6 h-6 rounded-full border-4 border-white bg-blue-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 absolute left-[-29px] md:static"></div>
-                  <div className="w-[calc(100%-2rem)] md:w-[calc(50%-2rem)] bg-white border border-slate-100 p-4 rounded-2xl shadow-sm">
-                    <span className="text-[10px] font-black uppercase text-blue-600 tracking-wider">Stop {idx + 2}</span>
-                    <p className="font-black text-[#000223] text-sm mt-1">{stop.street}</p>
+                <div key={stop.id} className="flex items-start gap-4 p-4 bg-white border border-slate-200 rounded-xl">
+                  <div className="w-8 h-8 rounded-full bg-slate-200 text-[#000223] flex items-center justify-center font-black text-sm shrink-0">
+                    {idx + 2}
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Stop {idx + 2}</span>
+                    <p className="font-black text-[#000223] text-sm mt-0.5">{stop.street}</p>
                     <p className="font-bold text-slate-500 text-xs">{stop.city}, {stop.state} {stop.zipCode}</p>
                     {stop.notes && (
-                      <p className="text-xs font-semibold text-slate-400 mt-2 italic bg-slate-50 p-2 rounded-lg">"{stop.notes}"</p>
+                      <p className="text-xs font-semibold text-slate-555 mt-2 italic bg-slate-50 p-2 rounded-lg">"{stop.notes}"</p>
                     )}
                   </div>
                 </div>
@@ -434,9 +427,9 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
         )}
 
         {/* Card 5: Travel & Mileage */}
-        <div className="bg-white rounded-3xl p-7 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group hover:shadow-[0_8px_40px_rgb(0,0,0,0.08)] transition-all">
-          <h2 className="font-black text-[11px] uppercase tracking-[0.2em] text-[#000223] mb-6 flex items-center gap-2 pb-4 border-b border-slate-100">
-            <span className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-600">📍</span> Travel & Logistics
+        <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+          <h2 className="font-black text-[11px] uppercase tracking-[0.2em] text-[#000223] mb-6 flex items-center gap-2 pb-4 border-b border-slate-200">
+            <span>📍</span> Travel & Logistics
           </h2>
           <div className="space-y-4 text-sm font-bold text-slate-500">
             <div className="flex justify-between items-center">
@@ -451,68 +444,64 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
               <span>Billable Miles</span>
               <span className="font-black text-[#000223]">{billableMiles.toFixed(1)} miles</span>
             </div>
-            <div className="flex justify-between items-center pt-2 border-t border-slate-50">
+            <div className="flex justify-between items-center pt-2 border-t border-slate-100">
               <span>Travel Fee</span>
               <span className="font-black text-amber-600">${travelFee.toFixed(2)}</span>
             </div>
           </div>
         </div>
 
-        {/* Card 6: Payment Policy */}
-        <div className="bg-white rounded-3xl p-1 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group hover:shadow-[0_8px_40px_rgb(0,0,0,0.08)] transition-all flex flex-col justify-between">
-          {/* Inner wrapper with gradient */}
-          <div className="bg-gradient-to-br from-[#000223] to-[#001a4c] rounded-[28px] p-6 h-full flex flex-col justify-between text-white relative">
-            <div className="absolute top-[-50%] right-[-50%] w-full h-full bg-[#FFA000]/10 rounded-full blur-3xl pointer-events-none"></div>
+        {/* Card 6: Billing Summary */}
+        <div className="bg-[#000223] rounded-xl p-6 border border-[#000223] text-white flex flex-col justify-between">
+          <div>
+            <h2 className="font-black text-[11px] uppercase tracking-[0.2em] text-white/70 mb-4 flex items-center gap-2">
+              <span className="text-[#FFA000]">💵</span> Billing Summary
+            </h2>
             
-            <div>
-              <h2 className="font-black text-[11px] uppercase tracking-[0.2em] text-white/70 mb-4 flex items-center gap-2">
-                <span className="text-[#FFA000]">💵</span> Billing Summary
-              </h2>
-              
-              <div className="flex justify-between items-end border-b border-white/10 pb-4 mb-4">
-                <span className="text-white/80 font-bold text-sm">Estimated Total</span>
-                {isCustomPkg ? (
-                  <span className="text-2xl font-black text-[#FFA000]">Custom Quote</span>
-                ) : (
-                  <span className="text-4xl font-black text-[#FFA000] tracking-tight">${estimatedTotal.toFixed(2)}</span>
-                )}
+            <div className="flex justify-between items-end border-b border-white/10 pb-4 mb-4">
+              <span className="text-white/80 font-bold text-sm">Estimated Total</span>
+              {isCustomPkg ? (
+                <span className="text-2xl font-black text-[#FFA000]">Custom Quote</span>
+              ) : (
+                <span className="text-4xl font-black text-[#FFA000] tracking-tight">${estimatedTotal.toFixed(2)}</span>
+              )}
+            </div>
+          </div>
+
+          {isCustomPkg ? (
+            <div className="space-y-2 mt-4">
+              <p className="text-xs font-bold text-white/80 mb-2 leading-relaxed">Our team will reach out via WhatsApp to finalize your custom quote:</p>
+              {[
+                { num: "617-999-3803", wa: "16179993803" },
+                { num: "781-921-3233", wa: "17819213233" },
+                { num: "617-866-2727", wa: "16178662727" }
+              ].map(({ num, wa }) => (
+                <a key={wa} href={`https://wa.me/${wa}`} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg font-bold text-sm text-[#000223] bg-white hover:bg-[#FFA000] transition-all shadow-sm">
+                  <svg className="w-4 h-4 text-[#25D366]" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+                  WhatsApp {num}
+                </a>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-white/10 rounded-lg p-4 border border-white/10 mt-4">
+              <p className="text-xs font-bold text-white/80 leading-relaxed">
+                {breakdown.paymentPolicy || "Payment is collected after the service is successfully provided."}
+              </p>
+              <div className="mt-3 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                <p className="text-[10px] font-black uppercase tracking-wider text-emerald-400">No Upfront Credit Card Required</p>
               </div>
             </div>
-
-            {isCustomPkg ? (
-              <div className="space-y-2 mt-4 relative z-10">
-                <p className="text-xs font-bold text-white/80 mb-2 leading-relaxed">Our team will reach out via WhatsApp to finalize your custom quote:</p>
-                {[
-                  { num: "617-999-3803", wa: "16179993803" },
-                  { num: "781-921-3233", wa: "17819213233" }
-                ].map(({ num, wa }) => (
-                  <a key={wa} href={`https://wa.me/${wa}`} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl font-black text-sm text-[#000223] bg-white hover:bg-slate-100 transition-all shadow-sm">
-                    <svg className="w-4 h-4 text-[#25D366]" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
-                    WhatsApp {num}
-                  </a>
-                ))}
-              </div>
-            ) : (
-              <div className="bg-white/10 rounded-2xl p-4 border border-white/10 mt-4 relative z-10">
-                <p className="text-xs font-bold text-white/80 leading-relaxed">
-                  {breakdown.paymentPolicy || "Payment is collected after the service is successfully provided."}
-                </p>
-                <div className="mt-3 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                  <p className="text-[10px] font-black uppercase tracking-wider text-emerald-400">No Upfront Credit Card Required</p>
-                </div>
-              </div>
-            )}
-          </div>
+          )}
         </div>
 
       </div>
 
       {/* EDIT CONTACT MODAL */}
       {showEditModal && (
-        <div className="fixed inset-0 bg-[#000223]/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[32px] p-8 max-w-md w-full shadow-2xl animate-in fade-in zoom-in-95 duration-300 border border-slate-100">
+        <div className="fixed inset-0 bg-[#000223]/60 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl animate-in fade-in zoom-in-95 duration-300 border border-slate-200">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-black text-[#000223]">Edit Details</h2>
               <button onClick={() => setShowEditModal(false)} className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors">
@@ -522,19 +511,19 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
             <form onSubmit={handleUpdateContact} className="space-y-4">
               <div className="space-y-1.5">
                 <label className="text-[11px] font-black uppercase tracking-widest text-slate-500">Email Address</label>
-                <input required type="email" value={editForm.email} onChange={e=>setEditForm({...editForm, email:e.target.value})} className="w-full py-3.5 px-4 rounded-xl border-2 font-bold text-sm outline-none transition-all bg-slate-50 text-[#000223] border-slate-200 placeholder:text-slate-400 focus:border-[#FFA000] focus:bg-white" />
+                <input required type="email" value={editForm.email} onChange={e=>setEditForm({...editForm, email:e.target.value})} className="w-full py-3.5 px-4 rounded-xl border-2 font-bold text-sm outline-none transition-all bg-slate-50 text-[#000223] border-slate-200 placeholder:text-slate-400 focus:border-[#000223] focus:bg-white" />
               </div>
               <div className="space-y-1.5">
                 <label className="text-[11px] font-black uppercase tracking-widest text-slate-500">Phone Number</label>
-                <input required type="tel" value={editForm.phone} onChange={e=>setEditForm({...editForm, phone:e.target.value})} className="w-full py-3.5 px-4 rounded-xl border-2 font-bold text-sm outline-none transition-all bg-slate-50 text-[#000223] border-slate-200 placeholder:text-slate-400 focus:border-[#FFA000] focus:bg-white" />
+                <input required type="tel" value={editForm.phone} onChange={e=>setEditForm({...editForm, phone:e.target.value})} className="w-full py-3.5 px-4 rounded-xl border-2 font-bold text-sm outline-none transition-all bg-slate-50 text-[#000223] border-slate-200 placeholder:text-slate-400 focus:border-[#000223] focus:bg-white" />
               </div>
               <div className="space-y-1.5">
                 <label className="text-[11px] font-black uppercase tracking-widest text-slate-500">Booking Notes / Instructions</label>
-                <textarea value={editForm.notes} onChange={e=>setEditForm({...editForm, notes:e.target.value})} className="w-full py-3.5 px-4 rounded-xl border-2 font-bold text-sm outline-none transition-all bg-slate-50 text-[#000223] border-slate-200 placeholder:text-slate-400 focus:border-[#FFA000] focus:bg-white" rows={3} placeholder="Add gate details or special requests..." />
+                <textarea value={editForm.notes} onChange={e=>setEditForm({...editForm, notes:e.target.value})} className="w-full py-3.5 px-4 rounded-xl border-2 font-bold text-sm outline-none transition-all bg-slate-50 text-[#000223] border-slate-200 placeholder:text-slate-400 focus:border-[#000223] focus:bg-white" rows={3} placeholder="Add gate details or special requests..." />
               </div>
               
               <div className="pt-4">
-                <button type="submit" disabled={submitting} className="w-full py-4 rounded-xl font-black text-sm text-[#000223] bg-[#FFA000] hover:bg-[#FFB020] transition-colors flex items-center justify-center gap-2 shadow-[0_8px_20px_rgba(255,160,0,0.25)]">
+                <button type="submit" disabled={submitting} className="w-full py-3.5 rounded-xl font-bold text-sm text-[#000223] bg-[#FFA000] hover:bg-[#e69000] transition-colors flex items-center justify-center gap-2 shadow-sm">
                   {submitting ? <><Loader2 className="w-4 h-4 animate-spin"/> Saving...</> : "Save Details"}
                 </button>
               </div>
@@ -545,8 +534,8 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
 
       {/* REQUEST MODAL (CHANGE/CANCEL) */}
       {showRequestModal && (
-        <div className="fixed inset-0 bg-[#000223]/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[32px] p-8 max-w-md w-full shadow-2xl animate-in fade-in zoom-in-95 duration-300 border border-slate-100">
+        <div className="fixed inset-0 bg-[#000223]/60 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl animate-in fade-in zoom-in-95 duration-300 border border-slate-200">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-black text-[#000223]">
                 {showRequestModal === "CANCEL" ? "Cancel Request" : "Change Request"}
@@ -556,14 +545,14 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
               </button>
             </div>
             
-            <p className="text-sm text-slate-500 font-bold mb-6 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100">
+            <p className="text-sm text-slate-500 font-bold mb-6 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-200">
               {showRequestModal === "CANCEL"
                 ? "Let us know why you need to cancel. Our policy details apply, and we will update your booking shortly."
                 : "Describe the dates, times, or servings adjustments you require. A staff member will review and update your schedule."}
             </p>
             
             {submitSuccess && (
-              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-sm font-bold mb-4 flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
+              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-sm font-bold mb-4 flex items-start gap-3 animate-in fade-in">
                 <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
                 <span>{submitSuccess}</span>
               </div>
@@ -572,11 +561,11 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
             <form onSubmit={handleRequestAction} className="space-y-4">
               <div className="space-y-1.5">
                 <label className="text-[11px] font-black uppercase tracking-widest text-slate-500">Reason & Details</label>
-                <textarea required value={requestReason} onChange={e=>setRequestReason(e.target.value)} className="w-full py-3.5 px-4 rounded-xl border-2 font-bold text-sm outline-none transition-all bg-slate-50 text-[#000223] border-slate-200 placeholder:text-slate-400 focus:border-[#FFA000] focus:bg-white" rows={4} placeholder={showRequestModal === "CANCEL" ? "E.g. Weather conditions..." : "E.g. Change time from 2:00 PM to 4:00 PM..."} />
+                <textarea required value={requestReason} onChange={e=>setRequestReason(e.target.value)} className="w-full py-3.5 px-4 rounded-xl border-2 font-bold text-sm outline-none transition-all bg-slate-50 text-[#000223] border-slate-200 placeholder:text-slate-400 focus:border-[#000223] focus:bg-white" rows={4} placeholder={showRequestModal === "CANCEL" ? "E.g. Weather conditions..." : "E.g. Change time from 2:00 PM to 4:00 PM..."} />
               </div>
               
               <div className="pt-4">
-                <button type="submit" disabled={submitting || !requestReason.trim()} className="w-full py-4 rounded-xl font-black text-sm text-white bg-[#000223] hover:bg-[#FFA000] hover:text-[#000223] transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-70 disabled:cursor-not-allowed">
+                <button type="submit" disabled={submitting || !requestReason.trim()} className="w-full py-3.5 rounded-xl font-bold text-sm text-white bg-[#000223] hover:bg-[#FFA000] hover:text-[#000223] transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-70 disabled:cursor-not-allowed">
                   {submitting ? <><Loader2 className="w-4 h-4 animate-spin"/> Submitting...</> : "Submit Request"}
                 </button>
               </div>
