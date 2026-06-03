@@ -121,6 +121,9 @@ function formatBookingDetailsHtml(booking: any) {
   const additionalStopsCount = breakdown.additionalStopsCount ?? (booking.additionalStops || 0);
   const additionalStopsFee = breakdown.additionalStopsFee ?? (booking.additionalStopsFee || 0);
   const estimatedTotal = breakdown.estimatedTotal ?? booking.totalAmount;
+  const additionalVehicleSetupFee = breakdown.additionalVehicleSetupFee ?? 0;
+  const weekendFee = breakdown.weekendFee ?? 0;
+  const additionalLocationServiceFee = breakdown.additionalLocationServiceFee ?? additionalStopsFee;
 
   return `
     <!-- Event Summary -->
@@ -220,12 +223,28 @@ function formatBookingDetailsHtml(booking: any) {
         <td style="font-weight:600;">Travel Fee</td>
         <td align="right" style="font-weight:800;color:${BRAND_NAVY};">+$${travelFee.toFixed(2)}</td>
       </tr>` : ''}
+      ${additionalVehicleSetupFee > 0 ? `
+      <tr>
+        <td style="font-weight:600;">Additional Vehicle Setup Fee</td>
+        <td align="right" style="font-weight:800;color:${BRAND_NAVY};">+$${additionalVehicleSetupFee.toFixed(2)}</td>
+      </tr>` : ''}
+      ${weekendFee > 0 ? `
+      <tr>
+        <td style="font-weight:600;">Weekend Event Fee</td>
+        <td align="right" style="font-weight:800;color:${BRAND_NAVY};">+$${weekendFee.toFixed(2)}</td>
+      </tr>` : ''}
       <tr>
         <td style="font-weight:900;color:${BRAND_NAVY};border-top:2px solid #E5E7EB;padding-top:12px;">Total Estimated Price</td>
         <td align="right" style="font-weight:900;color:${BRAND_GOLD};font-size:18px;border-top:2px solid #E5E7EB;padding-top:12px;">$${estimatedTotal.toFixed(2)}</td>
       </tr>
     </table>
     `}
+
+    ${weekendFee > 0 ? `
+    <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:12px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:#1E40AF;font-weight:600;">
+      📅 Weekend Event Fee applies because your event is scheduled on Saturday or Sunday.
+    </div>
+    ` : ''}
 
     <!-- Payment Policy -->
     <div style="background:#F0FDF4;border:1px solid #86EFAC;border-radius:12px;padding:16px 20px;margin-bottom:20px;">

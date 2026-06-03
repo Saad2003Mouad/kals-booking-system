@@ -199,6 +199,8 @@ export async function POST(req: NextRequest) {
     let finalExtraGuest = extraPieceFee;
     let finalExtraService = result.data.extraServiceFee || 0;
     let finalStopsFee = additionalStopsFee;
+    let finalWeekendFee = 0;
+    let finalVehicleSetupFee = 0;
     let quoteBreakdownStr = "{}";
 
     if (dbPkg) {
@@ -229,6 +231,11 @@ export async function POST(req: NextRequest) {
           additionalServiceFee: 0,
           additionalStopsCount: resolvedStops ? resolvedStops.length : 0,
           additionalStopsFee: 0,
+          additionalLocationServiceFee: 0,
+          additionalVehicleSetupFee: 0,
+          weekendFee: 0,
+          vehiclesRequired: 1,
+          locationsCount: resolvedStops ? resolvedStops.length + 1 : 1,
           estimatedTotal: 0,
           paymentPolicy: "Payment is collected after the service. We accept multiple payment methods.",
           locationMode,
@@ -259,7 +266,9 @@ export async function POST(req: NextRequest) {
           additionalStops: resolvedStops ? resolvedStops.length : (additionalStops || 0),
           extraServiceMins: result.data.extraServiceMins || 0,
           freeMiles,
-          ratePerMile
+          ratePerMile,
+          locationMode,
+          eventDate
         });
         
         finalTotal = q.totalAmount;
@@ -268,6 +277,8 @@ export async function POST(req: NextRequest) {
         finalExtraGuest = q.extraPieceFee;
         finalExtraService = q.additionalServiceFee || 0;
         finalStopsFee = q.additionalStopsFee;
+        finalWeekendFee = q.weekendFee;
+        finalVehicleSetupFee = q.additionalVehicleSetupFee;
         
         const fullQuotePayload = {
           packageName: dbPackageName,
@@ -286,6 +297,11 @@ export async function POST(req: NextRequest) {
           additionalServiceFee: q.additionalServiceFee || 0,
           additionalStopsCount: q.additionalStops,
           additionalStopsFee: q.additionalStopsFee,
+          additionalLocationServiceFee: q.additionalLocationServiceFee,
+          additionalVehicleSetupFee: q.additionalVehicleSetupFee,
+          weekendFee: q.weekendFee,
+          vehiclesRequired: q.vehiclesRequired,
+          locationsCount: q.locationsCount,
           estimatedTotal: q.totalAmount,
           paymentPolicy: "Payment is collected after the service. We accept multiple payment methods.",
           locationMode,
@@ -330,17 +346,19 @@ export async function POST(req: NextRequest) {
           create: isCustomPackage ? [
             { lineType: "PACKAGE", description: "Custom Quote", quantity: 1, unitPrice: 0, totalPrice: 0 }
           ] : [
-            { lineType: "PACKAGE", description: "Package base price", quantity: 1, unitPrice: finalTotal - finalTravel - finalOvertime - finalExtraGuest - finalExtraService - finalStopsFee, totalPrice: finalTotal - finalTravel - finalOvertime - finalExtraGuest - finalExtraService - finalStopsFee },
+            { lineType: "PACKAGE", description: "Package base price", quantity: 1, unitPrice: finalTotal - finalTravel - finalOvertime - finalExtraGuest - finalExtraService - finalStopsFee - finalWeekendFee - finalVehicleSetupFee, totalPrice: finalTotal - finalTravel - finalOvertime - finalExtraGuest - finalExtraService - finalStopsFee - finalWeekendFee - finalVehicleSetupFee },
             ...(finalTravel > 0 ? [{ lineType: "TRAVEL", description: "Travel fee",     quantity: 1, unitPrice: finalTravel,   totalPrice: finalTravel }]   : []),
             ...(finalOvertime > 0 ? [{ lineType: "OVERTIME", description: "Overtime fee",   quantity: 1, unitPrice: finalOvertime, totalPrice: finalOvertime }] : []),
             ...(finalExtraGuest > 0 ? [{ lineType: "EXTRA_GUESTS", description: "Extra guests fee",   quantity: 1, unitPrice: finalExtraGuest, totalPrice: finalExtraGuest }] : []),
             ...(finalExtraService > 0 ? [{ lineType: "EXTRA_SERVICE", description: `Additional service (${result.data.extraServiceMins} min)`, quantity: 1, unitPrice: finalExtraService, totalPrice: finalExtraService }] : []),
             ...(finalStopsFee > 0 ? [{ lineType: "MULTI_STOP", description: `Additional stops (${resolvedStops.length})`, quantity: resolvedStops.length, unitPrice: 50, totalPrice: finalStopsFee }] : []),
+            ...(finalVehicleSetupFee > 0 ? [{ lineType: "VEHICLE_SETUP", description: `Additional vehicle setup fee`, quantity: JSON.parse(quoteBreakdownStr).vehiclesRequired - 1, unitPrice: 200, totalPrice: finalVehicleSetupFee }] : []),
+            ...(finalWeekendFee > 0 ? [{ lineType: "WEEKEND_FEE", description: `Weekend event fee`, quantity: 1, unitPrice: 25, totalPrice: finalWeekendFee }] : []),
           ],
         },
         quote: {
           create: {
-            basePrice:     isCustomPackage ? 0 : finalTotal - finalTravel - finalOvertime - finalExtraService - finalStopsFee - finalExtraGuest,
+            basePrice:     isCustomPackage ? 0 : finalTotal - finalTravel - finalOvertime - finalExtraService - finalStopsFee - finalExtraGuest - finalWeekendFee - finalVehicleSetupFee,
             distanceMiles: resolvedDistance,
             travelFee:     finalTravel,
             overtimeFee:   finalOvertime,

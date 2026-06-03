@@ -764,6 +764,7 @@ export default function BookingForm() {
       extraServiceMins,
       locationMode,
       primaryLocation: primaryLoc,
+      eventDate,
     };
     const r = await fetch("/api/quotes", {
       method: "POST",
@@ -2141,6 +2142,25 @@ export default function BookingForm() {
                           )
                       )}
                     </div>
+                    {locationMode === "SIMULTANEOUS_MULTI_VEHICLE" && (
+                      <div className="mt-4 p-4 rounded-xl text-xs sm:text-sm font-bold text-amber-900 bg-amber-50 border border-amber-200 leading-relaxed">
+                        Because this event requires multiple vehicles at the same time, the package price is charged once and each additional vehicle includes a $200 setup and dispatch fee.
+                      </div>
+                    )}
+                    {(() => {
+                      if (!eventDate) return null;
+                      const date = new Date(eventDate + "T12:00:00");
+                      const day = date.getDay();
+                      const isWeekendDay = day === 0 || day === 6;
+                      if (isWeekendDay) {
+                        return (
+                          <div className="mt-4 p-4 rounded-xl text-xs sm:text-sm font-bold text-blue-900 bg-blue-50 border border-blue-200 leading-relaxed">
+                            A $25 weekend event fee applies to Saturday and Sunday bookings.
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
                     <div className="border-t-2 border-slate-200 pt-5 flex justify-between items-center gap-2">
                       <span className="font-black text-sm sm:text-xl text-[#000223]">Estimated Total Amount</span>
                       <span className="text-2xl sm:text-4xl font-black tracking-tight text-[#FFA000] shrink-0">

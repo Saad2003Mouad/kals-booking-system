@@ -11,10 +11,26 @@ export interface PricingParams {
   extraServiceMins?: number; // additional service time requested by customer (multiples of 30)
   freeMiles?: number;
   ratePerMile?: number;
+  locationMode?: string;
+  eventDate?: string | Date;
+  vehiclesRequired?: number;
 }
 
 const ADDITIONAL_STOP_FEE = 50;          // $50 per extra location
 const EXTRA_SERVICE_RATE_PER_30 = 35;   // $35 per additional 30-minute block
+
+export function isWeekend(dateInput: string | Date | undefined): boolean {
+  if (!dateInput) return false;
+  try {
+    const date = typeof dateInput === 'string'
+      ? new Date(dateInput.includes('T') ? dateInput : `${dateInput}T12:00:00`)
+      : new Date(dateInput);
+    const day = date.getDay();
+    return day === 0 || day === 6; // Sunday = 0, Saturday = 6
+  } catch {
+    return false;
+  }
+}
 
 export function calculateQuote(params: PricingParams) {
   const {
@@ -29,6 +45,9 @@ export function calculateQuote(params: PricingParams) {
     extraServiceMins = 0,
     freeMiles = 10,
     ratePerMile = 2.25,
+    locationMode = "SINGLE_LOCATION",
+    eventDate,
+    vehiclesRequired,
   } = params;
 
   let total = packagePrice;
@@ -66,10 +85,30 @@ export function calculateQuote(params: PricingParams) {
     total += additionalServiceFee;
   }
 
-  // Multi-Stop Fee
+  // Multi-Stop Fee / Additional Location Service Fee
   const stopsCount = Math.max(0, additionalStops);
-  const additionalStopsFee = stopsCount * ADDITIONAL_STOP_FEE;
-  total += additionalStopsFee;
+  const additionalLocationServiceFee = locationMode !== "SINGLE_LOCATION"
+    ? stopsCount * ADDITIONAL_STOP_FEE
+    : 0;
+  total += additionalLocationServiceFee;
+
+  // Vehicles Required
+  let resolvedVehicles = vehiclesRequired ?? 1;
+  if (vehiclesRequired === undefined && locationMode === "SIMULTANEOUS_MULTI_VEHICLE") {
+    resolvedVehicles = stopsCount + 1;
+  } else if (locationMode !== "SIMULTANEOUS_MULTI_VEHICLE") {
+    resolvedVehicles = 1;
+  }
+
+  // Additional Vehicle Setup Fee
+  const additionalVehicleSetupFee = locationMode === "SIMULTANEOUS_MULTI_VEHICLE"
+    ? Math.max(0, resolvedVehicles - 1) * 200
+    : 0;
+  total += additionalVehicleSetupFee;
+
+  // Weekend Event Fee
+  const weekendFee = isWeekend(eventDate) ? 25 : 0;
+  total += weekendFee;
 
   return {
     basePrice: packagePrice,
@@ -79,8 +118,13 @@ export function calculateQuote(params: PricingParams) {
     overtimeFee,
     additionalServiceFee,
     extraServiceMins,
-    additionalStopsFee,
+    additionalStopsFee: additionalLocationServiceFee, // for compatibility
+    additionalLocationServiceFee,
+    additionalVehicleSetupFee,
+    weekendFee,
     additionalStops: stopsCount,
+    locationsCount: stopsCount + 1,
+    vehiclesRequired: resolvedVehicles,
     distanceMiles,
     totalAmount: total,
     requiresReview: distanceMiles > 30 && packagePrice < 500,
@@ -90,3 +134,4 @@ export function calculateQuote(params: PricingParams) {
     extraPiecePrice: extraGuestPrice, // backwards-compat alias
   };
 }
+

@@ -21,7 +21,19 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     console.log("Quotes API body:", body);
-    const { packageId, durationMins, distanceMiles, guests, additionalStops, bookingStops, extraServiceMins, locationMode, primaryLocation } = body;
+    const {
+      packageId,
+      durationMins,
+      distanceMiles,
+      guests,
+      additionalStops,
+      bookingStops,
+      extraServiceMins,
+      locationMode,
+      primaryLocation,
+      eventDate,
+      vehiclesRequired
+    } = body;
 
     const missingFields = [];
     if (!packageId) missingFields.push("packageId");
@@ -108,6 +120,13 @@ export async function POST(req: Request) {
     const packageDurationMins = (pkg as any).durationMins ?? (pkg as any).includedMinutes ?? 60;
     const extraGuestPrice = (pkg as any).extraGuestPrice ?? pkg.extraPiecePrice ?? 5;
 
+    // Calculate resolvedVehicles based on locationMode and stops count
+    const stopsCount = bookingStops ? bookingStops.length : (parseInt(additionalStops as string) || 0);
+    let resolvedVehicles = vehiclesRequired;
+    if (resolvedVehicles === undefined) {
+      resolvedVehicles = (locationMode === "SIMULTANEOUS_MULTI_VEHICLE") ? (stopsCount + 1) : 1;
+    }
+
     const q = calculateQuote({
       packagePrice: pkg.price,
       servings: pkg.servings,
@@ -116,23 +135,32 @@ export async function POST(req: Request) {
       packageDurationMins,
       distanceMiles: resolvedDistance,
       guests: pkg.servings + (parseInt(guests as string) || 0),
-      additionalStops: bookingStops ? bookingStops.length : (parseInt(additionalStops as string) || 0),
+      additionalStops: stopsCount,
       extraServiceMins: parseInt(extraServiceMins as string) || 0,
       freeMiles,
-      ratePerMile
+      ratePerMile,
+      locationMode: locationMode || "SINGLE_LOCATION",
+      eventDate,
+      vehiclesRequired: resolvedVehicles
     });
 
     const breakdown = [
-      { label: "Base Package", amount: q.basePrice },
-      { label: q.extraServingsCount > 0 ? `Extra Guests (${q.extraServingsCount} × $${q.extraGuestPrice})` : "Extra Guests Fee", amount: q.extraPieceFee },
-      ...(q.additionalServiceFee > 0 ? [{ label: `Additional Service Time (${q.extraServiceMins} min × $35/30min)`, amount: q.additionalServiceFee }] : []),
-      { label: "Travel Fee", amount: q.travelFee },
-      { label: "Overtime Fee", amount: q.overtimeFee },
-      ...(q.additionalStopsFee > 0 ? [{ label: `Additional Stops (${q.additionalStops} × $50)`, amount: q.additionalStopsFee }] : []),
+      { label: "Package Price", amount: q.basePrice },
+      { label: q.extraServingsCount > 0 ? `Additional Guests (${q.extraServingsCount} × $${q.extraGuestPrice})` : "Additional Guests", amount: q.extraPieceFee },
+      { label: "Additional Service Time", amount: q.additionalServiceFee },
+      { label: "Additional Location Service Fee", amount: q.additionalLocationServiceFee },
+      { label: "Additional Vehicle Setup Fee", amount: q.additionalVehicleSetupFee },
+      { label: "Weekend Event Fee", amount: q.weekendFee },
+      { label: "Travel Distance Fee", amount: q.travelFee }
     ];
 
     // Return the flat quote object + breakdown to match frontend expectations
-    return NextResponse.json({ ...q, breakdown });
+    return NextResponse.json({
+      ...q,
+      packagePrice: q.basePrice,
+      estimatedTotal: q.totalAmount,
+      breakdown
+    });
   } catch (error) {
     console.error("Quote API Error:", error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

@@ -113,6 +113,11 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
   const travelFee = breakdown.travelFee ?? (booking.quote?.travelFee ?? 0);
   const additionalStopsFee = breakdown.additionalStopsFee ?? (booking.additionalStopsFee ?? 0);
   const estimatedTotal = breakdown.estimatedTotal ?? booking.totalAmount;
+  const vehiclesRequired = breakdown.vehiclesRequired ?? 1;
+  const locationMode = breakdown.locationMode ?? "SINGLE_LOCATION";
+  const additionalVehicleSetupFee = breakdown.additionalVehicleSetupFee ?? 0;
+  const additionalLocationServiceFee = breakdown.additionalLocationServiceFee ?? additionalStopsFee;
+  const weekendFee = breakdown.weekendFee ?? 0;
 
   return (
     <div className="max-w-4xl mx-auto pb-12 animate-in fade-in zoom-in duration-300">
@@ -215,19 +220,28 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
         {/* Pricing Info */}
         <div className="card-premium p-6">
           <h3 className="text-lg font-black mb-4 flex items-center gap-2 text-[#000223]"><DollarSign className="w-5 h-5 text-emerald-500" /> Pricing Breakdown</h3>
-          <div className="space-y-3 text-sm font-bold pb-4 border-b border-slate-100 mb-4">
-            <div className="flex justify-between items-center"><span className="text-slate-400">Package ({packageName}):</span> <span className="text-slate-800">${packagePrice.toFixed(2)}</span></div>
+          <div className="space-y-3 text-sm font-semibold pb-4 border-b border-slate-100 mb-4 text-slate-800">
+            <div className="flex justify-between items-center"><span className="text-slate-400">Location Mode:</span> <span>{locationMode}</span></div>
+            <div className="flex justify-between items-center"><span className="text-slate-400">Vehicles Required:</span> <span>{vehiclesRequired}</span></div>
+            <div className="h-px bg-slate-100 my-2" />
+            <div className="flex justify-between items-center"><span className="text-slate-400">Package ({packageName}):</span> <span>${packagePrice.toFixed(2)}</span></div>
             {extraGuestsFee > 0 && (
-              <div className="flex justify-between items-center"><span className="text-slate-400">Extra Guests Fee:</span> <span className="text-slate-800">${extraGuestsFee.toFixed(2)}</span></div>
+              <div className="flex justify-between items-center"><span className="text-slate-400">Extra Guests Fee:</span> <span>${extraGuestsFee.toFixed(2)}</span></div>
             )}
             {extraServiceFee > 0 && (
-              <div className="flex justify-between items-center"><span className="text-slate-400">Additional Service Time:</span> <span className="text-slate-800">${extraServiceFee.toFixed(2)}</span></div>
+              <div className="flex justify-between items-center"><span className="text-slate-400">Additional Service Time:</span> <span>${extraServiceFee.toFixed(2)}</span></div>
+            )}
+            {additionalLocationServiceFee > 0 && (
+              <div className="flex justify-between items-center"><span className="text-slate-400">Additional Location Service Fee:</span> <span>${additionalLocationServiceFee.toFixed(2)}</span></div>
+            )}
+            {additionalVehicleSetupFee > 0 && (
+              <div className="flex justify-between items-center"><span className="text-slate-400">Additional Vehicle Setup Fee:</span> <span>${additionalVehicleSetupFee.toFixed(2)}</span></div>
+            )}
+            {weekendFee > 0 && (
+              <div className="flex justify-between items-center"><span className="text-slate-400">Weekend Event Fee:</span> <span>${weekendFee.toFixed(2)}</span></div>
             )}
             {travelFee > 0 && (
-              <div className="flex justify-between items-center"><span className="text-slate-400">Travel Fee:</span> <span className="text-slate-800">${travelFee.toFixed(2)}</span></div>
-            )}
-            {additionalStopsFee > 0 && (
-              <div className="flex justify-between items-center"><span className="text-slate-400">Additional Stops Fee:</span> <span className="text-slate-800">${additionalStopsFee.toFixed(2)}</span></div>
+              <div className="flex justify-between items-center"><span className="text-slate-400">Travel Fee:</span> <span>${travelFee.toFixed(2)}</span></div>
             )}
           </div>
           <div className="flex justify-between items-center text-xl font-black">

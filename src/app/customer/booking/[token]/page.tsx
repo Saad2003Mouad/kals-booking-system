@@ -200,6 +200,9 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
   const stopsCount = breakdown.additionalStopsCount ?? booking.additionalStops;
   const stopsFee = breakdown.additionalStopsFee ?? (booking.additionalStopsFee ?? 0);
   const estimatedTotal = breakdown.estimatedTotal ?? booking.totalAmount;
+  const additionalVehicleSetupFee = breakdown.additionalVehicleSetupFee ?? 0;
+  const weekendFee = breakdown.weekendFee ?? 0;
+  const additionalLocationServiceFee = breakdown.additionalLocationServiceFee ?? stopsFee;
   const isCustomPkg = pkg?.slug === "custom-event-package" || (pkg as any)?.serviceType === "CUSTOM";
 
   return (
@@ -479,6 +482,51 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
             <h2 className="font-black text-[11px] uppercase tracking-[0.2em] text-white/70 mb-4 flex items-center gap-2">
               <span className="text-[#FFA000]">💵</span> Billing Summary
             </h2>
+            
+            {!isCustomPkg && (
+              <div className="space-y-3 text-sm font-semibold mb-6 border-b border-white/10 pb-4">
+                <div className="flex justify-between items-center text-white/80">
+                  <span>Package Price:</span>
+                  <span>${packagePrice.toFixed(2)}</span>
+                </div>
+                {extraGuestsFee > 0 && (
+                  <div className="flex justify-between items-center text-white/80">
+                    <span>Additional Guests:</span>
+                    <span>${extraGuestsFee.toFixed(2)}</span>
+                  </div>
+                )}
+                {extraServiceFee > 0 && (
+                  <div className="flex justify-between items-center text-white/80">
+                    <span>Additional Service Time:</span>
+                    <span>${extraServiceFee.toFixed(2)}</span>
+                  </div>
+                )}
+                {additionalLocationServiceFee > 0 && (
+                  <div className="flex justify-between items-center text-white/80">
+                    <span>Additional Location Service Fee:</span>
+                    <span>${additionalLocationServiceFee.toFixed(2)}</span>
+                  </div>
+                )}
+                {additionalVehicleSetupFee > 0 && (
+                  <div className="flex justify-between items-center text-white/80">
+                    <span>Additional Vehicle Setup Fee:</span>
+                    <span>${additionalVehicleSetupFee.toFixed(2)}</span>
+                  </div>
+                )}
+                {weekendFee > 0 && (
+                  <div className="flex justify-between items-center text-white/80">
+                    <span>Weekend Event Fee:</span>
+                    <span>${weekendFee.toFixed(2)}</span>
+                  </div>
+                )}
+                {travelFee > 0 && (
+                  <div className="flex justify-between items-center text-white/80">
+                    <span>Travel Fee:</span>
+                    <span>${travelFee.toFixed(2)}</span>
+                  </div>
+                )}
+              </div>
+            )}
             
             <div className="flex justify-between items-end border-b border-white/10 pb-4 mb-4">
               <span className="text-white/80 font-bold text-sm">Estimated Total</span>
