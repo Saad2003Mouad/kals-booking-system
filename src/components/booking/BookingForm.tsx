@@ -28,8 +28,6 @@ import OtpVerification from "./OtpVerification";
 import LocationVerificationWidget from "./LocationVerificationWidget";
 import { calcDistance, haversineDistanceMiles } from "@/lib/maps";
 
-const t = (s: string) => s;
-
 const MapPicker = dynamic(() => import("./MapPicker"), {
   ssr: false,
   loading: () => (
@@ -39,7 +37,7 @@ const MapPicker = dynamic(() => import("./MapPicker"), {
     >
       <div className="text-center text-amber-500">
         <MapPin className="w-8 h-8 mx-auto mb-2 animate-bounce" />
-        <p className="text-xs font-bold">{t('Loading map…')}</p>
+        <p className="text-xs font-bold">Loading map…</p>
       </div>
     </div>
   )
@@ -426,11 +424,11 @@ function ZipSelector({
         )}
         {open && search.length >= 3 && filtered.length === 0 && (
           <div className="absolute left-0 right-0 top-full mt-2 rounded-2xl border-2 border-red-200/80 p-5 text-center z-50 shadow-xl" style={{ background: "rgba(254,242,242,0.97)" }}>
-            <p className="text-red-700 font-black text-base">{t('Outside service area')}</p>
-            <p className="text-red-500 text-sm font-bold mt-1">{t('We serve Massachusetts only')}</p>
+            <p className="text-red-700 font-black text-base">Outside service area</p>
+            <p className="text-red-500 text-sm font-bold mt-1">We serve Massachusetts only</p>
           </div>
         )}
-        <p className="mt-2 ml-1 text-slate-500 font-semibold text-sm" style={{ fontFamily: FN }}>{t('Massachusetts service area')}</p>
+        <p className="mt-2 ml-1 text-slate-500 font-semibold text-sm" style={{ fontFamily: FN }}>Massachusetts service area</p>
       </div>
 
       {/* City — read-only floating label */}
@@ -702,8 +700,8 @@ export default function BookingForm() {
   const toEnNum = (str: string) => {
     if (!str) return str;
     return String(str)
-      .replace(/[٠-٩]/g, (d) => "0123456789".charAt(d.charCodeAt(0) - 1632))
-      .replace(/[۰-۹]/g, (d) => "0123456789".charAt(d.charCodeAt(0) - 1776));
+      .replace(/[٠-٩]/g, (d) => "0123456789"[d.charCodeAt(0) - 1632])
+      .replace(/[۰-۹]/g, (d) => "0123456789"[d.charCodeAt(0) - 1776]);
   };
 
   const formatEnDate = (d: string) => {
@@ -809,8 +807,8 @@ export default function BookingForm() {
     
     if (locationMode !== "SINGLE_LOCATION" && bookingStops.length > 0) {
       for (let i = 0; i < bookingStops.length; i++) {
-        const stop = bookingStops.at(i);
-        if (!stop || !stop.street || !stop.city || !stop.state || !stop.zipCode) {
+        const stop = bookingStops[i];
+        if (!stop.street || !stop.city || !stop.state || !stop.zipCode) {
           setSubmitErr(`Please fill out all address fields for Stop #${i + 1}`);
           setSubmitting(false);
           return;
@@ -899,7 +897,7 @@ export default function BookingForm() {
               <div className="w-20 h-20 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center mx-auto mb-7">
                 <XCircle className="w-10 h-10 text-rose-500" />
               </div>
-              <h2 className="text-3xl sm:text-4xl font-black mb-3 tracking-tight" style={{ color: NAVY, fontFamily: F_SERIF }}>{t('Request Not Available')}</h2>
+              <h2 className="text-3xl sm:text-4xl font-black mb-3 tracking-tight" style={{ color: NAVY, fontFamily: F_SERIF }}>Request Not Available</h2>
               <p className="text-slate-600 font-semibold text-base sm:text-lg leading-relaxed mb-8">{decision.customerMessage}</p>
               {decision.alternativeTimes && decision.alternativeTimes.length > 0 && (
                 <div className="rounded-2xl p-6 mb-8 text-left" style={{ background: "rgba(255,160,0,0.07)", border: "2px solid rgba(255,160,0,0.25)" }}>
@@ -917,7 +915,7 @@ export default function BookingForm() {
               )}
               <button onClick={() => setResult(null)}
                 className="w-full py-4.5 rounded-2xl font-black text-base text-white shadow-xl hover:-translate-y-0.5 transition-all"
-                style={{ background: NAVY }}>{t('Try Different Details')}</button>
+                style={{ background: NAVY }}>Try Different Details</button>
             </div>
           </div>
         </div>
@@ -990,7 +988,7 @@ export default function BookingForm() {
                 )}
                 <a href={result?.customerPortalUrl ?? `/customer/booking/${booking?.id}`}
                   className="flex items-center justify-center gap-2.5 w-full py-4.5 rounded-2xl font-black text-base shadow-xl hover:-translate-y-0.5 transition-all"
-                  style={{ background: NAVY, color: GOLD }}>{t('View Your Request Status ')}<ArrowRight className="w-5 h-5" /></a>
+                  style={{ background: NAVY, color: GOLD }}>View Your Request Status <ArrowRight className="w-5 h-5" /></a>
               </div>
             </div>
           </div>
@@ -1010,9 +1008,9 @@ export default function BookingForm() {
                 <div>
                   <div className="flex items-center gap-2 mb-3">
                     <CheckCircle2 className="w-5 h-5" style={{ color: GOLD }} />
-                    <span className="font-black text-xs uppercase tracking-[0.22em]" style={{ color: GOLD }}>{t('Booking Confirmed')}</span>
+                    <span className="font-black text-xs uppercase tracking-[0.22em]" style={{ color: GOLD }}>Booking Confirmed</span>
                   </div>
-                  <h2 className="text-3xl sm:text-4xl font-black text-white leading-tight" style={{ fontFamily: F_SERIF }}>{t('Your Experience')}<br/>is Reserved 🍦</h2>
+                  <h2 className="text-3xl sm:text-4xl font-black text-white leading-tight" style={{ fontFamily: F_SERIF }}>Your Experience<br/>is Reserved 🍦</h2>
                 </div>
                 <div className="text-5xl sm:text-6xl">🎉</div>
               </div>
@@ -1020,7 +1018,7 @@ export default function BookingForm() {
 
             {/* —— Booking Number Strip —— */}
             <div className="flex items-center justify-between px-6 py-4" style={{ background: GOLD }}>
-              <span className="font-black text-xs uppercase tracking-[0.2em]" style={{ color: NAVY }}>{t('Booking Reference')}</span>
+              <span className="font-black text-xs uppercase tracking-[0.2em]" style={{ color: NAVY }}>Booking Reference</span>
               <span className="font-mono font-black text-lg" style={{ color: NAVY }}>#{booking?.bookingNumber}</span>
             </div>
 
@@ -1030,13 +1028,13 @@ export default function BookingForm() {
               {/* Amount Row */}
               <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between p-4 sm:p-5 rounded-2xl mb-5" style={{ background: "rgba(0,2,35,0.03)", border: "2px solid rgba(0,2,35,0.07)" }}>
                 <div>
-                  <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-400 mb-1">{t('Estimated Total')}</p>
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-400 mb-1">Estimated Total</p>
                   <p className="text-3xl sm:text-4xl font-black tracking-tight" style={{ color: NAVY, fontFamily: F_SERIF }}>${quote?.totalAmount?.toFixed(2) ?? "—"}</p>
                 </div>
                 <div className="text-left sm:text-right">
-                  <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-400 mb-1">{t('Payment')}</p>
-                  <p className="font-black text-base" style={{ color: NAVY }}>{t('After Service')}</p>
-                  <p className="text-xs font-bold text-slate-500 mt-0.5">{t('Cash · Zelle · Venmo')}</p>
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-400 mb-1">Payment</p>
+                  <p className="font-black text-base" style={{ color: NAVY }}>After Service</p>
+                  <p className="text-xs font-bold text-slate-500 mt-0.5">Cash · Zelle · Venmo</p>
                 </div>
               </div>
 
@@ -1098,7 +1096,7 @@ export default function BookingForm() {
   const canContinueStep1 = isPrimaryVerified && (locationMode === "SINGLE_LOCATION" || (bookingStops.length > 0 && isAllStopsVerified));
   const isGuestCountInvalid = isCustom && (customGuestCount === "" || customGuestCount <= 200);
 
-  const listPkgs = pkgTab === "TRUCK" ? pkgList.TRUCK : pkgList.VAN;
+  const listPkgs = pkgList[pkgTab];
 
   return (
     <div className="booking-wrapper w-full relative" style={{ fontFamily: FN }}>
@@ -1112,7 +1110,7 @@ export default function BookingForm() {
                 Step {step + 1} of 5
               </span>
               <span className="text-base font-black" style={{ color: NAVY, fontFamily: FN }}>
-                {STEPS.at(step)}
+                {STEPS[step]}
               </span>
             </div>
 
@@ -1190,7 +1188,7 @@ export default function BookingForm() {
                 {listPkgs.length === 0 && (
                   <div className="text-center py-20 text-slate-400">
                     <Loader2 className="w-10 h-10 animate-spin mx-auto mb-4" />
-                    <p className="font-bold text-base sm:text-lg">{t('Loading premium catering packages…')}</p>
+                    <p className="font-bold text-base sm:text-lg">Loading premium catering packages…</p>
                   </div>
                 )}
                 {listPkgs.map((p: any) => {
@@ -1258,7 +1256,7 @@ export default function BookingForm() {
               <div className="p-6 sm:p-8 rounded-3xl border-2 border-amber-200/80 bg-amber-50/60 text-base sm:text-lg text-slate-800 font-bold mb-10 flex items-start gap-4.5 leading-relaxed shadow-sm">
                 <span className="text-3xl shrink-0 mt-0.5">💡</span>
                 <div>
-                  <p className="font-black text-amber-950 text-lg sm:text-xl">{t('Need more servings?')}</p>
+                  <p className="font-black text-amber-950 text-lg sm:text-xl">Need more servings?</p>
                   <p className="text-slate-700 mt-2">
                     Select the package closest to your estimate. Extra guests beyond the included count are billed at the package rate per person.
                   </p>
@@ -1270,7 +1268,7 @@ export default function BookingForm() {
                 <div className="mt-2 mb-6">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="h-px flex-1 bg-slate-200"></div>
-                    <span className="text-xs font-black uppercase tracking-wider text-slate-400">{t('Large Events')}</span>
+                    <span className="text-xs font-black uppercase tracking-wider text-slate-400">Large Events</span>
                     <div className="h-px flex-1 bg-slate-200"></div>
                   </div>
                   <button
@@ -1287,13 +1285,13 @@ export default function BookingForm() {
                       <div className="flex flex-wrap items-center gap-2.5">
                         <span className="font-black text-2xl sm:text-3xl tracking-tight" style={{ color: NAVY, fontFamily: F_SERIF }}>{customPkg.name}</span>
                         <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-200">{(customPkg as any).badge || "200+ Guests"}</span>
-                        {sel?.id === customPkg.id && <span className="px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-emerald-100/90 text-emerald-800 border border-emerald-250">{t('Selected')}</span>}
+                        {sel?.id === customPkg.id && <span className="px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-emerald-100/90 text-emerald-800 border border-emerald-250">Selected</span>}
                       </div>
                       <p className="text-slate-600 font-semibold text-sm sm:text-base mt-3 leading-relaxed">{(customPkg as any).description || "Planning a larger celebration? Tell us about your event and our team will prepare a custom package and final quote for you."}</p>
                     </div>
                     <div className="flex-shrink-0 text-center border-t sm:border-t-0 pt-4 sm:pt-0 border-dashed border-slate-300">
-                      <span className="text-3xl sm:text-4xl font-black block" style={{ color: NAVY }}>{t('Custom')}</span>
-                      <span className="text-sm font-bold text-slate-500 mt-1 block">{t('Quote')}</span>
+                      <span className="text-3xl sm:text-4xl font-black block" style={{ color: NAVY }}>Custom</span>
+                      <span className="text-sm font-bold text-slate-500 mt-1 block">Quote</span>
                     </div>
                   </button>
                 </div>
@@ -1370,7 +1368,7 @@ export default function BookingForm() {
                         Total Expected Guests
                       </label>
                       <p className="text-sm sm:text-base font-bold text-slate-700 mb-4 leading-relaxed">
-                        Please specify the total guest count for your custom request. This package is dedicated to large gatherings and requires a <strong style={{ color: NAVY }}>{t('minimum of 201 guests')}</strong>.
+                        Please specify the total guest count for your custom request. This package is dedicated to large gatherings and requires a <strong style={{ color: NAVY }}>minimum of 201 guests</strong>.
                       </p>
                       <div className="relative">
                         <input
@@ -1401,7 +1399,7 @@ export default function BookingForm() {
                         Additional Guests (Optional)
                       </label>
                       <p className="text-sm sm:text-base font-bold text-slate-700 mb-5 leading-relaxed">
-                        Only enter guests <strong style={{ color: NAVY }}>{t('beyond the included package amount')}</strong>. Extra guests are billed at ${(sel as any)?.extraGuestPrice ?? sel?.extraPiecePrice ?? 5}/person.
+                        Only enter guests <strong style={{ color: NAVY }}>beyond the included package amount</strong>. Extra guests are billed at ${(sel as any)?.extraGuestPrice ?? sel?.extraPiecePrice ?? 5}/person.
                       </p>
                       <div className="flex items-center gap-6 bg-white/40 backdrop-blur-md border-2 border-slate-200/80 rounded-3xl p-5 shadow-sm">
                         <button
@@ -1516,11 +1514,11 @@ export default function BookingForm() {
 
                       <div className="grid grid-cols-2 gap-6 border-t-2 border-dashed border-slate-200/80 pt-5 text-sm font-bold text-slate-700">
                         <div>
-                          <span className="text-slate-500 block">{t('First 10.0 miles:')}</span>
-                          <span className="text-emerald-700 font-extrabold text-base">{t('FREE (Included)')}</span>
+                          <span className="text-slate-500 block">First 10.0 miles:</span>
+                          <span className="text-emerald-700 font-extrabold text-base">FREE (Included)</span>
                         </div>
                         <div>
-                          <span className="text-slate-500 block">{t('Billable miles:')}</span>
+                          <span className="text-slate-500 block">Billable miles:</span>
                           <span className="text-slate-800 font-extrabold text-base">
                             {Math.max(0, drivingMiles - 10).toFixed(1)} miles
                           </span>
@@ -1528,10 +1526,10 @@ export default function BookingForm() {
                       </div>
 
                       <div className="mt-5 p-4 rounded-xl bg-amber-50 border-2 border-amber-200/60 flex items-center justify-between text-base sm:text-lg font-black text-amber-900 shadow-inner">
-                        <span>{t('Travel Fee:')}</span>
+                        <span>Travel Fee:</span>
                         <span>
                           {drivingMiles <= 10 ? (
-                            <span className="text-emerald-755 font-black">{t('Free ($0.00)')}</span>
+                            <span className="text-emerald-755 font-black">Free ($0.00)</span>
                           ) : (
                             <span>${mapTravelFee.toFixed(2)}</span>
                           )}
@@ -1539,7 +1537,7 @@ export default function BookingForm() {
                       </div>
 
                       <p className="text-xs text-slate-550 font-bold mt-4 text-center">
-                        Garage: <strong>{t('Boston Revere — 84 Fernwood Ave')}</strong>
+                        Garage: <strong>Boston Revere — 84 Fernwood Ave</strong>
                       </p>
                     </div>
                   ) : (
@@ -1558,8 +1556,8 @@ export default function BookingForm() {
                   <div className="flex items-start gap-3 p-4 rounded-2xl mb-5 border-2" style={{ background: "rgba(255,160,0,0.07)", borderColor: "rgba(255,160,0,0.35)" }}>
                     <span className="text-2xl shrink-0">💰</span>
                     <div>
-                      <p className="font-black text-[#000223] text-sm sm:text-base">{t('Additional Stop Fee: ')}<span style={{ color: "#FFA000" }}>$50 per stop</span></p>
-                      <p className="text-slate-600 text-xs sm:text-sm font-bold mt-0.5">{t('Each extra location added to your booking will add $50 to the total. This covers routing and setup time between stops.')}</p>
+                      <p className="font-black text-[#000223] text-sm sm:text-base">Additional Stop Fee: <span style={{ color: "#FFA000" }}>$50 per stop</span></p>
+                      <p className="text-slate-600 text-xs sm:text-sm font-bold mt-0.5">Each extra location added to your booking will add $50 to the total. This covers routing and setup time between stops.</p>
                     </div>
                   </div>
                   <p className="text-sm sm:text-base font-bold text-slate-600 mb-5">
@@ -1630,22 +1628,20 @@ export default function BookingForm() {
                             label={`Stop #${idx + 1} Address Details`}
                             value={stop}
                             onChange={(updatedStop) => {
-                              const newStops = bookingStops.map((stopItem, i) =>
-                                i === idx ? { ...stopItem, ...updatedStop } : stopItem
-                              );
+                              const newStops = [...bookingStops];
+                              newStops[idx] = { ...newStops[idx], ...updatedStop };
                               setBookingStops(newStops);
                             }}
                           />
                           
                           <div>
-                            <label className="block text-sm font-black text-slate-700 mb-1.5 uppercase tracking-wide">{t('Stop Notes (Optional)')}</label>
+                            <label className="block text-sm font-black text-slate-700 mb-1.5 uppercase tracking-wide">Stop Notes (Optional)</label>
                             <input
                               type="text"
                               value={stop.notes || ""}
                               onChange={(e) => {
-                                const newStops = bookingStops.map((stopItem, i) =>
-                                  i === idx ? { ...stopItem, notes: e.target.value } : stopItem
-                                );
+                                const newStops = [...bookingStops];
+                                newStops[idx].notes = e.target.value;
                                 setBookingStops(newStops);
                               }}
                               placeholder="e.g. Set up by the garden gate"
@@ -1960,7 +1956,7 @@ export default function BookingForm() {
                   <p className="text-2xl font-black mb-1" style={{ color: NAVY, fontFamily: FN }}>
                     Email Verified!
                   </p>
-                  <p className="text-slate-500 font-bold text-base">{t('Proceeding to review your details...')}</p>
+                  <p className="text-slate-500 font-bold text-base">Proceeding to review your details...</p>
                   <button
                     onClick={() => setStep(4)}
                     className="mt-8 inline-flex items-center gap-3 px-12 py-5.5 rounded-full text-white font-black shadow-2xl hover:-translate-y-1 active:translate-y-0 transition-all duration-300 text-lg"
@@ -2015,7 +2011,7 @@ export default function BookingForm() {
                 {/* Package Summary Card */}
                 <div className="rounded-2xl border-2 border-slate-200/80 bg-white/70 backdrop-blur-md overflow-hidden shadow-md">
                   <div className="px-6 py-4 bg-slate-100/80 border-b-2 border-slate-200/80 flex items-center gap-2.5 font-black text-[#000223] text-base sm:text-lg">
-                    <span className="text-base sm:text-lg">{t('Catering Package')}</span>
+                    <span className="text-base sm:text-lg">Catering Package</span>
                   </div>
                   <div className="px-6 py-6 flex items-center justify-between gap-4">
                     <div className="min-w-0">
@@ -2029,7 +2025,7 @@ export default function BookingForm() {
                       )}
                     </div>
                     {(sel?.slug === "custom-event-package" || (sel as any)?.serviceType === "CUSTOM") ? (
-                      <span className="font-black text-xl text-blue-700 shrink-0">{t('Custom Quote')}</span>
+                      <span className="font-black text-xl text-blue-700 shrink-0">Custom Quote</span>
                     ) : (
                       <span className="font-black text-2xl text-[#FFA000] shrink-0">${sel?.basePrice || sel?.price}</span>
                     )}
@@ -2039,7 +2035,7 @@ export default function BookingForm() {
                 {/* Event Details Summary Card */}
                 <div className="rounded-2xl border-2 border-slate-200/80 bg-white/70 backdrop-blur-md overflow-hidden shadow-md">
                   <div className="px-6 py-4 bg-slate-100/80 border-b-2 border-slate-200/80 flex items-center gap-2.5 font-black text-[#000223] text-base sm:text-lg">
-                    <span className="text-base sm:text-lg">{t('Scheduling Details')}</span>
+                    <span className="text-base sm:text-lg">Scheduling Details</span>
                   </div>
                   <div className="divide-y-2 divide-slate-100">
                     {[
@@ -2077,7 +2073,7 @@ export default function BookingForm() {
                 {/* Customer Contact Summary Card */}
                 <div className="rounded-2xl border-2 border-slate-200/80 bg-white/70 backdrop-blur-md overflow-hidden shadow-md">
                   <div className="px-6 py-4 bg-slate-100/80 border-b-2 border-slate-200/80 flex items-center gap-2.5 font-black text-[#000223] text-base sm:text-lg">
-                    <span className="text-base sm:text-lg">{t('Customer Contact Info')}</span>
+                    <span className="text-base sm:text-lg">Customer Contact Info</span>
                   </div>
                   <div className="divide-y-2 divide-slate-100">
                     {[
@@ -2100,10 +2096,10 @@ export default function BookingForm() {
                   <div className="rounded-2xl border-2 border-blue-200 bg-blue-50/70 p-4 sm:p-8 shadow-md">
                     <div className="flex items-center gap-2.5 mb-5 border-b-2 border-blue-100 pb-3">
                       <span className="text-xl">📋</span>
-                      <span className="text-base sm:text-lg font-black text-blue-900">{t('Custom Quote Request')}</span>
+                      <span className="text-base sm:text-lg font-black text-blue-900">Custom Quote Request</span>
                     </div>
                     <div className="rounded-xl bg-white/80 border border-blue-200 p-5 mb-5">
-                      <p className="font-black text-blue-900 text-sm mb-2">{t('No fixed price for this package.')}</p>
+                      <p className="font-black text-blue-900 text-sm mb-2">No fixed price for this package.</p>
                       <p className="text-blue-800 font-semibold text-sm leading-relaxed">
                         Our team will review your guest count, location, route, timing, and vehicle needs before preparing your final custom quote. You'll be contacted via WhatsApp.
                       </p>
@@ -2166,7 +2162,7 @@ export default function BookingForm() {
                       return null;
                     })()}
                     <div className="border-t-2 border-slate-200 pt-5 flex justify-between items-center gap-2">
-                      <span className="font-black text-sm sm:text-xl text-[#000223]">{t('Estimated Total Amount')}</span>
+                      <span className="font-black text-sm sm:text-xl text-[#000223]">Estimated Total Amount</span>
                       <span className="text-2xl sm:text-4xl font-black tracking-tight text-[#FFA000] shrink-0">
                         ${(quote?.totalAmount ?? 0).toFixed(2)}
                       </span>
@@ -2182,7 +2178,7 @@ export default function BookingForm() {
                     <DollarSign className="w-7 h-7 text-emerald-600" />
                   </div>
                   <div>
-                    <p className="font-black text-lg sm:text-xl text-emerald-950" style={{ fontFamily: F_SERIF }}>{t('Payment After Service')}</p>
+                    <p className="font-black text-lg sm:text-xl text-emerald-950" style={{ fontFamily: F_SERIF }}>Payment After Service</p>
                     <p className="text-sm sm:text-base font-bold text-emerald-805 mt-2 leading-relaxed" style={{ fontFamily: FN }}>
                       Payment is collected after the service. We accept cash, Zelle, Venmo, and other card methods.
                     </p>
@@ -2191,7 +2187,7 @@ export default function BookingForm() {
               </div>
 
               <p className="text-center text-sm text-slate-700 font-extrabold mb-8">
-                📍 Pricing calculations based on travel distances from <strong>{t('Boston Revere — 84 Fernwood Ave')}</strong>
+                📍 Pricing calculations based on travel distances from <strong>Boston Revere — 84 Fernwood Ave</strong>
               </p>
 
               <div className="flex flex-col-reverse sm:flex-row justify-between gap-4 mt-14">
