@@ -240,9 +240,15 @@ function formatBookingDetailsHtml(booking: any) {
     </table>
     `}
 
+    ${additionalVehicleSetupFee > 0 ? `
+    <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:12px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:#1E40AF;font-weight:600;">
+      🚚 Additional Vehicle Setup Fee: If your event requires another truck/van for the same package at the same time, each additional vehicle includes a $200 setup and dispatch fee.
+    </div>
+    ` : ''}
+
     ${weekendFee > 0 ? `
     <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:12px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:#1E40AF;font-weight:600;">
-      📅 Weekend Event Fee applies because your event is scheduled on Saturday or Sunday.
+      📅 Weekend Event Fee: Saturday and Sunday bookings include an additional $25 weekend event fee.
     </div>
     ` : ''}
 
@@ -254,7 +260,7 @@ function formatBookingDetailsHtml(booking: any) {
 }
 
 export async function sendBookingApprovedEmail(to: string, firstName: string, bookingNumber: string, paymentUrl: string, amount: string, bookingId: string) {
-  const portalUrl = `${process.env.NEXTAUTH_URL || 'https://bostonlegendwebflowio.vercel.app'}/customer/booking/${bookingId}`;
+  const portalUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.bostonlegendicecreamtruck.com'}/customer/booking/${bookingId}`;
   
   let bookingDetailsHtml = "";
   try {
@@ -296,7 +302,7 @@ export async function sendBookingPendingEmail(
   details: any,
   bookingId: string
 ) {
-  const portalUrl = `${process.env.NEXTAUTH_URL || 'https://bostonlegendwebflowio.vercel.app'}/customer/booking/${bookingId}`;
+  const portalUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.bostonlegendicecreamtruck.com'}/customer/booking/${bookingId}`;
   
   let bookingDetailsHtml = "";
   try {
@@ -359,7 +365,7 @@ export async function sendBookingRejectedEmail(
   reason: string,
   bookingId: string
 ) {
-  const portalUrl = `${process.env.NEXTAUTH_URL || 'https://bostonlegendwebflowio.vercel.app'}/customer/booking/${bookingId}`;
+  const portalUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.bostonlegendicecreamtruck.com'}/customer/booking/${bookingId}`;
   
   let bookingDetailsHtml = "";
   try {
@@ -410,7 +416,7 @@ export async function sendBookingPendingReviewEmail(
   reason: string,
   bookingId: string
 ) {
-  const portalUrl = `${process.env.NEXTAUTH_URL || 'https://bostonlegendwebflowio.vercel.app'}/customer/booking/${bookingId}`;
+  const portalUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.bostonlegendicecreamtruck.com'}/customer/booking/${bookingId}`;
   
   let bookingDetailsHtml = "";
   try {
@@ -460,7 +466,7 @@ export async function sendCustomQuoteEmail(
   bookingNumber: string,
   bookingId: string
 ) {
-  const portalUrl = `${process.env.NEXTAUTH_URL || 'https://bostonlegendwebflowio.vercel.app'}/customer/booking/${bookingId}`;
+  const portalUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.bostonlegendicecreamtruck.com'}/customer/booking/${bookingId}`;
   
   let bookingDetailsHtml = "";
   try {

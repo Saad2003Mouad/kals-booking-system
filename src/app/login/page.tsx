@@ -3,7 +3,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
-import { Eye, EyeOff, ArrowRight, Loader2, Lock, ShieldAlert, Key } from "lucide-react";
+import { Eye, EyeOff, ArrowRight, Loader2, ShieldAlert } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail]       = useState("");
@@ -11,7 +11,7 @@ export default function LoginPage() {
   const [show, setShow]         = useState(false);
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState("");
-  const [showDemo, setShowDemo] = useState(false);
+
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -125,29 +125,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Collapsible Demo Details */}
-          <div className="mt-6 pt-5 border-t border-slate-100 text-center">
-            <button 
-              type="button" 
-              onClick={() => setShowDemo(!showDemo)} 
-              className="text-xs font-bold text-slate-500 hover:text-[#000223] transition-colors flex items-center justify-center gap-1.5 mx-auto"
-            >
-              <Lock className="w-3.5 h-3.5" />
-              {showDemo ? "Hide Demo Credentials" : "Show Demo Credentials"}
-            </button>
 
-            {showDemo && (
-              <div className="mt-3 p-3.5 rounded-2xl bg-[#FAF6EF] border border-[#FFA000]/20 text-left space-y-1.5 animate-in slide-in-from-top-2 duration-200">
-                <div className="text-[10px] font-black text-[#FFA000] uppercase tracking-wider flex items-center gap-1">
-                  <Key className="w-3 h-3" /> Testing Admin Account
-                </div>
-                <div className="text-xs text-[#000223]/80 font-medium">
-                  <div><strong>Email:</strong> <span className="select-all text-[#000223] font-bold">Ahiyari@outlook.com</span></div>
-                  <div><strong>Password:</strong> <span className="select-all text-[#000223] font-bold">Dvyns1234@</span></div>
-                </div>
-              </div>
-            )}
-          </div>
         </div>
 
         {/* Back Link */}
