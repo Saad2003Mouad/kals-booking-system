@@ -1,9 +1,16 @@
 import { NextResponse } from "next/server";
-export const dynamic = "force-dynamic";
 import { orchestrateAI } from "@/lib/ai/orchestrator";
+import { requirePermission } from "@/lib/rbac";
+
+export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
+    const auth = await requirePermission(req, "ai.use");
+    if (!auth.success) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+    }
+
     const { messages } = await req.json();
 
     if (!process.env.GROQ_API_KEY) {

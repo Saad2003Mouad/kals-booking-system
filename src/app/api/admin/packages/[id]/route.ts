@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/rbac";
 
 export const dynamic = "force-dynamic";
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   try {
-    const role = req.headers.get("x-mock-user-role") || "OWNER";
-    if (!["OWNER", "ADMIN"].includes(role)) {
-      return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
+    const auth = await requirePermission(req, "packages.update");
+    if (!auth.success) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
     }
 
     const data = await req.json();
@@ -41,9 +42,9 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
   try {
-    const role = req.headers.get("x-mock-user-role") || "OWNER";
-    if (!["OWNER", "ADMIN"].includes(role)) {
-      return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
+    const auth = await requirePermission(req, "packages.delete");
+    if (!auth.success) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
     }
 
     // Check if package is used in bookings

@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { checkPermission, unauthorized } from "@/lib/rbac";
+import { requirePermission } from "@/lib/rbac";
 import bcrypt from "bcryptjs";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
-  const hasAccess = await checkPermission(req, "manage_drivers");
-  if (!hasAccess) return unauthorized();
+  const auth = await requirePermission(req, "drivers.view");
+  if (!auth.success) {
+    return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+  }
 
   const users = await prisma.user.findMany({
     where: { role: "DRIVER" },
@@ -34,8 +36,10 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const hasAccess = await checkPermission(req, "manage_drivers");
-  if (!hasAccess) return unauthorized();
+  const auth = await requirePermission(req, "drivers.assign");
+  if (!auth.success) {
+    return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+  }
 
   const { name, email, password, phone, active } = await req.json();
   if (!name || !email || !password)

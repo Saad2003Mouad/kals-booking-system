@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { checkPermission, unauthorized } from "@/lib/rbac";
+import { requirePermission } from "@/lib/rbac";
 import bcrypt from "bcryptjs";
 
 export const dynamic = "force-dynamic";
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
-  const hasAccess = await checkPermission(req, "manage_drivers");
-  if (!hasAccess) return unauthorized();
+  const auth = await requirePermission(req, "drivers.assign");
+  if (!auth.success) {
+    return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+  }
 
   const { name, email, password, phone, active } = await req.json();
 
@@ -34,8 +36,10 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
-  const hasAccess = await checkPermission(req, "manage_drivers");
-  if (!hasAccess) return unauthorized();
+  const auth = await requirePermission(req, "drivers.assign");
+  if (!auth.success) {
+    return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+  }
 
   await prisma.driver.deleteMany({ where: { userId: params.id } });
   await prisma.user.delete({ where: { id: params.id } });

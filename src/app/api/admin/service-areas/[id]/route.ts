@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { checkPermission, unauthorized } from "@/lib/rbac";
+import { requirePermission } from "@/lib/rbac";
 
 export const dynamic = "force-dynamic";
 
@@ -9,8 +9,10 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const hasAccess = await checkPermission(req, "manage_settings");
-  if (!hasAccess) return unauthorized();
+  const auth = await requirePermission(req, "serviceAreas.update");
+  if (!auth.success) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
 
   const body = await req.json();
   const { city, county, isActive, notes } = body;
@@ -36,8 +38,10 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const hasAccess = await checkPermission(req, "manage_settings");
-  if (!hasAccess) return unauthorized();
+  const auth = await requirePermission(req, "serviceAreas.delete");
+  if (!auth.success) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
 
   try {
     await prisma.serviceZipCode.delete({ where: { id: params.id } });

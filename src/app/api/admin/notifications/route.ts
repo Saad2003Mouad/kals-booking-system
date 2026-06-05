@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/rbac";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
+  const auth = await requirePermission(req, "notifications.view");
+  if (!auth.success) {
+    return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+  }
+
   const pendingBookings = await prisma.booking.count({ where: { status: "PENDING" } });
   const pendingTasks = 0;
   const recentAudit = await prisma.auditLog.findMany({

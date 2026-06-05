@@ -1,13 +1,15 @@
 export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { checkPermission, unauthorized } from "@/lib/rbac";
+import { requirePermission } from "@/lib/rbac";
 import bcrypt from "bcryptjs";
 
 export async function GET(req: NextRequest) {
   try {
-    const hasAccess = await checkPermission(req, "manage_users");
-    if (!hasAccess) return unauthorized();
+    const auth = await requirePermission(req, "users.view");
+    if (!auth.success) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+    }
 
     const users = await prisma.user.findMany({
       orderBy: { createdAt: "desc" },
@@ -30,8 +32,11 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const hasAccess = await checkPermission(req, "manage_users");
-    if (!hasAccess) return unauthorized();
+    const auth = await requirePermission(req, "users.create");
+    if (!auth.success) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+    }
+    const loggedInUser = auth.user!;
 
     const body = await req.json();
     const { name, email, role, permissions, password } = body;
@@ -39,6 +44,11 @@ export async function POST(req: NextRequest) {
     // Validate inputs
     if (!name || !email || !password || !role) {
       return NextResponse.json({ success: false, error: "Missing required fields" }, { status: 400 });
+    }
+
+    // Double check that only OWNER can create an OWNER or ADMIN user
+    if ((role === "OWNER" || role === "ADMIN") && loggedInUser.role !== "OWNER") {
+      return NextResponse.json({ success: false, error: "Only an OWNER can create OWNER or ADMIN accounts." }, { status: 403 });
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
@@ -59,7 +69,8 @@ export async function POST(req: NextRequest) {
         entityType: "USER",
         entityId: user.id,
         action: "USER_CREATED",
-        metadataJson: JSON.stringify({ name, email, role, permissions })
+        metadataJson: JSON.stringify({ name, email, role, permissions }),
+        actorId: loggedInUser.id
       }
     });
 

@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import {
   LayoutDashboard, Calendar, Users, Settings, Truck,
   UserCircle, Package, ClipboardList, MessageSquare,
@@ -12,6 +12,46 @@ import { useState, useEffect, useRef } from "react";
 
 type NavItem = { href: string; label: string; icon: any };
 type NavGroup = { title: string; items: NavItem[] };
+
+function isRouteAllowed(role: string, href: string): boolean {
+  if (role === "OWNER") return true;
+  if (role === "ADMIN") {
+    return href !== "/admin/users";
+  }
+  if (role === "DISPATCHER") {
+    return [
+      "/admin",
+      "/admin/bookings",
+      "/admin/tasks",
+      "/admin/customers",
+      "/admin/inquiries",
+      "/admin/vehicles",
+      "/admin/drivers",
+    ].includes(href);
+  }
+  if (role === "SUPPORT") {
+    return [
+      "/admin",
+      "/admin/bookings",
+      "/admin/customers",
+      "/admin/inquiries",
+    ].includes(href);
+  }
+  if (role === "VIEWER") {
+    return [
+      "/admin",
+      "/admin/bookings",
+      "/admin/customers",
+      "/admin/packages",
+    ].includes(href);
+  }
+  if (role === "DRIVER") {
+    return [
+      "/admin",
+    ].includes(href);
+  }
+  return false;
+}
 
 const NAV_GROUPS: NavGroup[] = [
   {
@@ -58,6 +98,11 @@ type Notification = {
 };
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const { data: session } = useSession();
+  const userRole = (session?.user as any)?.role || "DRIVER";
+  const userName = session?.user?.name || session?.user?.email || "Staff Member";
+  const userInitials = userName.substring(0, 1).toUpperCase();
+
   const pathname = usePathname();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -173,48 +218,49 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         {/* User Mini Profile */}
         <div className="px-6 py-6 border-b border-white/5 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#FFA000] to-[#FFD000] p-0.5 shadow-[0_0_15px_rgba(255,160,0,0.3)]">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#FFA000] to-[#FFD000] p-0.5 shadow-[0_0_15px_rgba(255,160,0,0.3)] flex-shrink-0">
             <div className="w-full h-full rounded-full bg-[#020617] flex items-center justify-center border-2 border-transparent">
-              <span className="text-[#FFA000] font-bold text-lg">A</span>
+              <span className="text-[#FFA000] font-bold text-lg">{userInitials}</span>
             </div>
           </div>
-          <div>
-            <div className="text-white font-semibold text-sm">Administrator</div>
-            <div className="text-emerald-400 text-xs font-medium flex items-center gap-1.5 mt-0.5">
-              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              Online
-            </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-white font-semibold text-sm truncate">{userName}</div>
+            <div className="text-emerald-400 text-xs font-semibold uppercase mt-0.5 tracking-wider">{userRole}</div>
           </div>
         </div>
 
         {/* Nav */}
         <nav className="flex-1 px-4 py-6 overflow-y-auto scrollbar-hide space-y-6">
-          {NAV_GROUPS.map((group, i) => (
-            <div key={i} className="space-y-1">
-              <div className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-3 px-4">{group.title}</div>
-              {group.items.map(({ href, label, icon: Icon }) => {
-                const active = isActive(href);
-                return (
-                  <Link
-                    key={href}
-                    href={href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group ${
-                      active 
-                        ? "bg-gradient-to-r from-[#FFA000]/20 to-transparent text-[#FFA000] border-l-2 border-[#FFA000]" 
-                        : "text-white/60 hover:bg-white/5 hover:text-white border-l-2 border-transparent"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <Icon className={`w-4 h-4 ${active ? "text-[#FFA000]" : "text-white/40 group-hover:text-white/80"}`} />
-                      {label}
-                    </div>
-                    {active && <ChevronRight className="w-4 h-4 text-[#FFA000]/50" />}
-                  </Link>
-                );
-              })}
-            </div>
-          ))}
+          {NAV_GROUPS.map((group, i) => {
+            const visibleItems = group.items.filter(item => isRouteAllowed(userRole, item.href));
+            if (visibleItems.length === 0) return null;
+            return (
+              <div key={i} className="space-y-1">
+                <div className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-3 px-4">{group.title}</div>
+                {visibleItems.map(({ href, label, icon: Icon }) => {
+                  const active = isActive(href);
+                  return (
+                    <Link
+                      key={href}
+                      href={href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group ${
+                        active 
+                          ? "bg-gradient-to-r from-[#FFA000]/20 to-transparent text-[#FFA000] border-l-2 border-[#FFA000]" 
+                          : "text-white/60 hover:bg-white/5 hover:text-white border-l-2 border-transparent"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Icon className={`w-4 h-4 ${active ? "text-[#FFA000]" : "text-white/40 group-hover:text-white/80"}`} />
+                        {label}
+                      </div>
+                      {active && <ChevronRight className="w-4 h-4 text-[#FFA000]/50" />}
+                    </Link>
+                  );
+                })}
+              </div>
+            );
+          })}
         </nav>
 
         {/* Sign Out */}
@@ -338,11 +384,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 className="flex items-center gap-3 cursor-pointer hover:bg-slate-50 rounded-xl px-2 py-1.5 transition-colors"
               >
                 <div className="hidden sm:block text-right">
-                  <div className="text-sm font-bold text-slate-800">Admin User</div>
-                  <div className="text-xs font-semibold text-slate-400">Operations</div>
+                  <div className="text-sm font-bold text-slate-800">{userName}</div>
+                  <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{userRole}</div>
                 </div>
                 <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center shadow-sm">
-                  <span className="text-slate-700 font-bold">A</span>
+                  <span className="text-slate-700 font-bold">{userInitials}</span>
                 </div>
                 <ChevronDown className="w-4 h-4 text-slate-400 hidden sm:block" />
               </button>
@@ -350,18 +396,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               {showUserMenu && (
                 <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden z-50 animate-in slide-in-from-top-2 duration-200">
                   <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
-                    <div className="font-black text-sm text-[#000223]">Admin User</div>
-                    <div className="text-xs text-slate-500 font-semibold">Operations Manager</div>
+                    <div className="font-black text-sm text-[#000223] truncate">{userName}</div>
+                    <div className="text-xs text-slate-500 font-semibold uppercase tracking-wider">{userRole}</div>
                   </div>
                   <div className="py-2">
-                    <Link href="/admin/settings" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
-                      <Settings className="w-4 h-4 text-slate-400" />
-                      Settings
-                    </Link>
-                    <Link href="/admin/users" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
-                      <Users className="w-4 h-4 text-slate-400" />
-                      Staff & Permissions
-                    </Link>
+                    {isRouteAllowed(userRole, "/admin/settings") && (
+                      <Link href="/admin/settings" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+                        <Settings className="w-4 h-4 text-slate-400" />
+                        Settings
+                      </Link>
+                    )}
+                    {isRouteAllowed(userRole, "/admin/users") && (
+                      <Link href="/admin/users" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+                        <Users className="w-4 h-4 text-slate-400" />
+                        Staff & Permissions
+                      </Link>
+                    )}
                   </div>
                   <div className="py-2 border-t border-slate-100">
                     <button

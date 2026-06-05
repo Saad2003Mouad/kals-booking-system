@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { checkPermission, unauthorized } from "@/lib/rbac";
+import { requirePermission, unauthenticated, unauthorized } from "@/lib/rbac";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const hasAccess = await checkPermission(req, "manage_bookings");
-    if (!hasAccess) return unauthorized();
+    const auth = await requirePermission(req, "bookings.assign");
+    if (!auth.success) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+    }
+    const user = auth.user!;
 
     const { vehicleId, driverId } = await req.json();
 
@@ -55,7 +58,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         entityId: params.id,
         bookingId: params.id,
         action: "VEHICLE_ASSIGNED",
-        metadataJson: JSON.stringify({ vehicleId, driverId, assignmentId: assignment.id })
+        metadataJson: JSON.stringify({ vehicleId, driverId, assignmentId: assignment.id }),
+        actorId: user.id
       }
     });
 

@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { checkPermission, unauthorized } from "@/lib/rbac";
+import { requirePermission } from "@/lib/rbac";
 import { SERVICE_AREAS } from "@/lib/serviceAreas";
 
 export const dynamic = "force-dynamic";
 
 // POST — seed ZIP codes from static list (upsert, idempotent)
 export async function POST(req: NextRequest) {
-  const hasAccess = await checkPermission(req, "manage_settings");
-  if (!hasAccess) return unauthorized();
+  const auth = await requirePermission(req, "serviceAreas.create");
+  if (!auth.success) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
 
   let created = 0;
   let skipped = 0;

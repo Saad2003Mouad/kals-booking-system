@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/rbac";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   try {
-    const role = req.headers.get("x-mock-user-role") || "OWNER";
-    if (!["OWNER", "ADMIN"].includes(role)) {
-      return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
+    const auth = await requirePermission(req, "packages.view");
+    if (!auth.success) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
     }
 
     const packages = await prisma.package.findMany({
@@ -23,9 +24,9 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const role = req.headers.get("x-mock-user-role") || "OWNER";
-    if (!["OWNER", "ADMIN"].includes(role)) {
-      return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
+    const auth = await requirePermission(req, "packages.create");
+    if (!auth.success) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
     }
 
     const data = await req.json();

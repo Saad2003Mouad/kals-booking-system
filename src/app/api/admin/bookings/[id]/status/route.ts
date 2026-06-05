@@ -1,12 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendBookingApprovedEmail, sendBookingRejectedEmail, sendBookingPendingReviewEmail } from "@/lib/email";
+import { getSessionUser, hasPermission, unauthenticated, unauthorized } from "@/lib/rbac";
 
 export const dynamic = "force-dynamic";
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
+    const user = await getSessionUser(req);
+    if (!user) return unauthenticated();
+
     const { status, internalNote } = await req.json();
+
+    // Enforce permission matrix for status change actions
+    if (status === "CONFIRMED" || status === "PENDING_PAYMENT") {
+      if (!hasPermission(user.role, "bookings.approve")) {
+        return unauthorized();
+      }
+    } else if (status === "REJECTED") {
+      if (!hasPermission(user.role, "bookings.reject")) {
+        return unauthorized();
+      }
+    } else {
+      if (!hasPermission(user.role, "bookings.update")) {
+        return unauthorized();
+      }
+    }
 
     let targetStatus = status;
     if (status === "PENDING_PAYMENT") {
@@ -33,7 +52,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         entityId: booking.id,
         bookingId: booking.id,
         action: `STATUS_CHANGED_TO_${targetStatus}`,
-        metadataJson: JSON.stringify({ previousStatus: "UNKNOWN", newStatus: targetStatus, internalNote })
+        metadataJson: JSON.stringify({ previousStatus: "UNKNOWN", newStatus: targetStatus, internalNote }),
+        actorId: user.id
       }
     });
 

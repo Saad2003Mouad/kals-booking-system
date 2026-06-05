@@ -1,12 +1,14 @@
 export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { checkPermission, unauthorized } from "@/lib/rbac";
+import { requirePermission } from "@/lib/rbac";
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const hasAccess = await checkPermission(req, "manage_tasks");
-    if (!hasAccess) return unauthorized();
+    const auth = await requirePermission(req, "bookings.update");
+    if (!auth.success) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+    }
 
     const { title, description, assignedToId, priority, dueDate } = await req.json();
 

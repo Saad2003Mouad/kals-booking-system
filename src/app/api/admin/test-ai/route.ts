@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
 import { orchestrateAI } from "@/lib/ai/orchestrator";
-import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/rbac";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   try {
+    const auth = await requirePermission(req, "ai.view");
+    if (!auth.success) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+    }
+
     const prompts = [
       "Show today's bookings",
       "Summarize pending reviews",

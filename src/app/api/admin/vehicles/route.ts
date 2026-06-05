@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { checkPermission, unauthorized } from "@/lib/rbac";
+import { requirePermission } from "@/lib/rbac";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   try {
-    const hasAccess = await checkPermission(req, "manage_fleet");
-    if (!hasAccess) return unauthorized();
+    const auth = await requirePermission(req, "drivers.view");
+    if (!auth.success) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    }
 
     const vehicles = await prisma.vehicle.findMany({
       orderBy: { code: "asc" },
@@ -47,8 +49,10 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const hasAccess = await checkPermission(req, "manage_fleet");
-    if (!hasAccess) return unauthorized();
+    const auth = await requirePermission(req, "settings.update");
+    if (!auth.success) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    }
 
     const { code, name, type, status } = await req.json();
     if (!code || !name || !type) {

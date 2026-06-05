@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { checkPermission, unauthorized } from "@/lib/rbac";
+import { requirePermission } from "@/lib/rbac";
 
 export const dynamic = "force-dynamic";
 
 // GET — list all service ZIP codes
 export async function GET(req: NextRequest) {
-  const hasAccess = await checkPermission(req, "manage_settings");
-  if (!hasAccess) return unauthorized();
+  const auth = await requirePermission(req, "serviceAreas.view");
+  if (!auth.success) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
 
   const { searchParams } = new URL(req.url);
   const activeOnly = searchParams.get("active") === "true";
@@ -22,8 +24,10 @@ export async function GET(req: NextRequest) {
 
 // POST — add a new ZIP code
 export async function POST(req: NextRequest) {
-  const hasAccess = await checkPermission(req, "manage_settings");
-  if (!hasAccess) return unauthorized();
+  const auth = await requirePermission(req, "serviceAreas.create");
+  if (!auth.success) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
 
   const body = await req.json();
   const { zip, city, county, isActive, notes } = body;
@@ -57,8 +61,10 @@ export async function POST(req: NextRequest) {
 
 // DELETE — bulk delete by IDs
 export async function DELETE(req: NextRequest) {
-  const hasAccess = await checkPermission(req, "manage_settings");
-  if (!hasAccess) return unauthorized();
+  const auth = await requirePermission(req, "serviceAreas.delete");
+  if (!auth.success) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
 
   const body = await req.json();
   const { ids } = body;

@@ -1,12 +1,14 @@
 export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { checkPermission, unauthorized } from "@/lib/rbac";
+import { requirePermission } from "@/lib/rbac";
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const hasAccess = await checkPermission(req, "manage_inquiries");
-    if (!hasAccess) return unauthorized();
+    const auth = await requirePermission(req, "bookings.view");
+    if (!auth.success) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+    }
 
     const inquiry = await prisma.inquiry.findUnique({
       where: { id: params.id },
@@ -25,8 +27,10 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const hasAccess = await checkPermission(req, "manage_inquiries");
-    if (!hasAccess) return unauthorized();
+    const auth = await requirePermission(req, "bookings.update");
+    if (!auth.success) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+    }
 
     const body = await req.json();
     const { status, priority, assignedToId, internalNote } = body;

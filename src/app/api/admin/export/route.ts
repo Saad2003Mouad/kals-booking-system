@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { checkPermission, unauthorized } from "@/lib/rbac";
+import { requirePermission } from "@/lib/rbac";
 
 export const dynamic = "force-dynamic";
 
@@ -14,12 +14,13 @@ function escapeCSV(val: any) {
 }
 
 export async function GET(req: NextRequest) {
+  const auth = await requirePermission(req, "bookings.view");
+  if (!auth.success) {
+    return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+  }
+
   const { searchParams } = new URL(req.url);
   const type = searchParams.get("type");
-
-  // Require owner/admin permission to export CSV
-  const hasAccess = await checkPermission(req, "manage_bookings");
-  if (!hasAccess) return unauthorized();
 
   let csvContent = "";
   let filename = "export.csv";
@@ -27,13 +28,13 @@ export async function GET(req: NextRequest) {
   if (type === "customers") {
     filename = "customers_export.csv";
     const customers = await prisma.customer.findMany({
-      include: { bookings: { include: { quote: true } } },
+      include: { bookings: true },
       orderBy: { firstName: 'asc' }
     });
 
     const headers = ["ID", "First Name", "Last Name", "Email", "Phone", "Address", "City", "Zip", "Bookings Count", "Lifetime Spent", "Created At"];
     const rows = customers.map(c => {
-      const spent = c.bookings.reduce((sum, b) => sum + (b.quote?.totalAmount ?? 0), 0);
+      const spent = c.bookings.reduce((sum, b) => sum + (b.totalAmount ?? 0), 0);
       return [
         c.id,
         c.firstName,
@@ -54,7 +55,7 @@ export async function GET(req: NextRequest) {
   } else if (type === "bookings") {
     filename = "bookings_export.csv";
     const bookings = await prisma.booking.findMany({
-      include: { customer: true, quote: true },
+      include: { customer: true },
       orderBy: { eventDate: 'desc' }
     });
 
@@ -67,7 +68,7 @@ export async function GET(req: NextRequest) {
       b.eventDate.toISOString().split("T")[0],
       b.eventType,
       b.status,
-      (b.quote?.totalAmount ?? 0).toFixed(2),
+      (b.totalAmount ?? 0).toFixed(2),
       b.createdAt.toISOString()
     ]);
 

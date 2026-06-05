@@ -6,22 +6,24 @@ export async function middleware(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   const { pathname } = req.nextUrl;
 
-  // Admin routes — require ADMIN role
+  // Admin routes — require login for any role
   if (pathname.startsWith("/admin")) {
-    if (!token) return NextResponse.redirect(new URL("/login?from=admin", req.url));
-    if ((token as any).role !== "ADMIN") return NextResponse.redirect(new URL("/driver", req.url));
+    if (!token) {
+      return NextResponse.redirect(new URL("/login?from=admin", req.url));
+    }
   }
 
-  // Driver routes — require DRIVER role
+  // Driver routes — redirect to login if not authenticated, or to /admin if logged in
   if (pathname.startsWith("/driver")) {
-    if (!token) return NextResponse.redirect(new URL("/login?from=driver", req.url));
-    if ((token as any).role !== "DRIVER") return NextResponse.redirect(new URL("/admin", req.url));
+    if (!token) {
+      return NextResponse.redirect(new URL("/login?from=driver", req.url));
+    }
+    return NextResponse.redirect(new URL("/admin", req.url));
   }
 
-  // Login page — redirect if already logged in
+  // Login page — redirect to /admin if already logged in
   if (pathname === "/login" && token) {
-    const dest = (token as any).role === "ADMIN" ? "/admin" : "/driver";
-    return NextResponse.redirect(new URL(dest, req.url));
+    return NextResponse.redirect(new URL("/admin", req.url));
   }
 
   return NextResponse.next();

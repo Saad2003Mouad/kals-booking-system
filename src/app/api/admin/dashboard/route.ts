@@ -1,11 +1,21 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getSessionUser, hasPermission, unauthenticated, unauthorized } from "@/lib/rbac";
 
 export const dynamic = "force-dynamic";
 
-
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    const user = await getSessionUser(req);
+    if (!user) return unauthenticated();
+
+    const canViewFull = hasPermission(user.role, "dashboard.view");
+    const canViewLimited = hasPermission(user.role, "dashboard.view.limited");
+
+    if (!canViewFull && !canViewLimited) {
+      return unauthorized();
+    }
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -60,17 +70,20 @@ export async function GET() {
       };
     });
 
+    // If limited view (e.g. SUPPORT role), redact revenue data
+    const finalStats = {
+      todayJobs: todayBookings.length,
+      pending,
+      weekRevenue: canViewFull ? (weekRevAggr._sum.totalAmount || 0) : 0,
+      monthRevenue: canViewFull ? (monthRevAggr._sum.totalAmount || 0) : 0,
+      completedMonth: completedMonthBookings,
+      totalCustomers,
+    };
+
     return NextResponse.json({
       success: true,
       data: {
-        stats: {
-          todayJobs: todayBookings.length,
-          pending,
-          weekRevenue: weekRevAggr._sum.totalAmount || 0,
-          monthRevenue: monthRevAggr._sum.totalAmount || 0,
-          completedMonth: completedMonthBookings,
-          totalCustomers,
-        },
+        stats: finalStats,
         todayBookings: todayBookings.map(b => ({
           bookingNumber: b.bookingNumber,
           startTime: b.startTime,
@@ -88,7 +101,7 @@ export async function GET() {
           totalAmount: b.totalAmount
         })),
         vehicles: vehicles.map(v => ({ code: v.code, type: v.type, status: v.status })),
-        revenueChart
+        revenueChart: canViewFull ? revenueChart : []
       }
     });
   } catch (error: any) {
