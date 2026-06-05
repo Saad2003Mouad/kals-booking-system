@@ -248,6 +248,21 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
             <span className="text-[#000223]">Total:</span>
             <span className="text-emerald-600">${estimatedTotal.toFixed(2)}</span>
           </div>
+
+          {estimatedTotal > 0 && (additionalVehicleSetupFee > 0 || weekendFee > 0) && (
+            <div className="mt-4 space-y-2 border-t border-slate-100 pt-4 text-xs font-semibold text-slate-500">
+              {additionalVehicleSetupFee > 0 && (
+                <p className="leading-relaxed">
+                  🚚 <strong>Additional Vehicle Setup Fee:</strong> If your event requires another truck/van for the same package at the same time, each additional vehicle includes a $200 setup and dispatch fee.
+                </p>
+              )}
+              {weekendFee > 0 && (
+                <p className="leading-relaxed">
+                  📅 <strong>Weekend Event Fee:</strong> Saturday and Sunday bookings include an additional $25 weekend event fee.
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Dispatch Actions */}

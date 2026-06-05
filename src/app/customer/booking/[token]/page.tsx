@@ -536,6 +536,21 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
                 <span className="text-4xl font-black text-[#FFA000] tracking-tight">${estimatedTotal.toFixed(2)}</span>
               )}
             </div>
+
+            {!isCustomPkg && (additionalVehicleSetupFee > 0 || weekendFee > 0) && (
+              <div className="mt-4 space-y-2 border-t border-white/10 pt-4 text-left">
+                {additionalVehicleSetupFee > 0 && (
+                  <p className="text-[11px] font-bold text-white/80 leading-relaxed">
+                    🚚 <strong>Additional Vehicle Setup Fee:</strong> If your event requires another truck/van for the same package at the same time, each additional vehicle includes a $200 setup and dispatch fee.
+                  </p>
+                )}
+                {weekendFee > 0 && (
+                  <p className="text-[11px] font-bold text-white/80 leading-relaxed">
+                    📅 <strong>Weekend Event Fee:</strong> Saturday and Sunday bookings include an additional $25 weekend event fee.
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
           {isCustomPkg ? (

@@ -2144,7 +2144,7 @@ export default function BookingForm() {
                     </div>
                     {locationMode === "SIMULTANEOUS_MULTI_VEHICLE" && (
                       <div className="mt-4 p-4 rounded-xl text-xs sm:text-sm font-bold text-amber-900 bg-amber-50 border border-amber-200 leading-relaxed">
-                        Because this event requires multiple vehicles at the same time, the package price is charged once and each additional vehicle includes a $200 setup and dispatch fee.
+                        <strong>Additional Vehicle Setup Fee:</strong> If your event requires another truck/van for the same package at the same time, each additional vehicle includes a $200 setup and dispatch fee.
                       </div>
                     )}
                     {(() => {
@@ -2155,7 +2155,7 @@ export default function BookingForm() {
                       if (isWeekendDay) {
                         return (
                           <div className="mt-4 p-4 rounded-xl text-xs sm:text-sm font-bold text-blue-900 bg-blue-50 border border-blue-200 leading-relaxed">
-                            A $25 weekend event fee applies to Saturday and Sunday bookings.
+                            <strong>Weekend Event Fee:</strong> Saturday and Sunday bookings include an additional $25 weekend event fee.
                           </div>
                         );
                       }
