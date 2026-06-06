@@ -10,7 +10,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     const user = await getSessionUser(req);
     if (!user) return unauthenticated();
 
-    const { status, internalNote } = await req.json();
+    const { status, internalNote, customPrice, customerNotes } = await req.json();
 
     // Enforce permission matrix for status change actions
     if (status === "CONFIRMED" || status === "PENDING_PAYMENT") {
@@ -35,6 +35,51 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     const updateData: any = { status: targetStatus };
     if (internalNote !== undefined) {
       updateData.internalNote = internalNote;
+    }
+    if (customPrice !== undefined && (status === "CONFIRMED" || status === "PENDING_PAYMENT")) {
+      updateData.totalAmount = parseFloat(customPrice);
+    }
+    if (customerNotes !== undefined) {
+      updateData.notes = customerNotes;
+    }
+
+    // If customPrice is provided, update associated BookingItems and Quote
+    if (customPrice !== undefined && (status === "CONFIRMED" || status === "PENDING_PAYMENT")) {
+      const priceNum = parseFloat(customPrice);
+      
+      // Update BookingItem of lineType "PACKAGE"
+      await prisma.bookingItem.updateMany({
+        where: {
+          bookingId: params.id,
+          lineType: "PACKAGE"
+        },
+        data: {
+          unitPrice: priceNum,
+          totalPrice: priceNum
+        }
+      });
+
+      // Fetch existing quote to update its snapshotJson
+      const existingQuote = await prisma.quote.findUnique({
+        where: { bookingId: params.id }
+      });
+      if (existingQuote) {
+        let snap: any = {};
+        try {
+          snap = JSON.parse(existingQuote.snapshotJson);
+        } catch (e) {}
+        snap.packagePrice = priceNum;
+        snap.estimatedTotal = priceNum;
+        
+        await prisma.quote.update({
+          where: { bookingId: params.id },
+          data: {
+            basePrice: priceNum,
+            totalAmount: priceNum,
+            snapshotJson: JSON.stringify(snap)
+          }
+        });
+      }
     }
 
     const booking = await prisma.booking.update({

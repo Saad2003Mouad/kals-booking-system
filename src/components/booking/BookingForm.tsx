@@ -21,7 +21,8 @@ import {
   DollarSign,
   Calendar,
   Users,
-  Star
+  Star,
+  Truck
 } from "lucide-react";
 import { SERVICE_AREAS } from "@/lib/serviceAreas";
 import OtpVerification from "./OtpVerification";
@@ -579,6 +580,14 @@ export default function BookingForm() {
   const [customGuestCount, setCustomGuestCount] = useState<number | "">(250);
   const [vehiclePreference, setVehiclePreference] = useState("Not sure");
 
+  const getWhatsAppUrl = (waPhone: string) => {
+    const b = result?.booking;
+    const refText = b ? `Ref: #${b.bookingNumber}` : "Pending submission";
+    const guestNum = b ? ((b as any).guests || customGuestCount || 201) : (customGuestCount || 201);
+    const msg = `Hello! I just submitted a Custom Quote request (${refText}) for my event on ${formatEnDate(eventDate)} at ${formatEnTime(startTime)} with ${guestNum} guests. Please review and provide the custom quote.`;
+    return `https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`;
+  };
+
   const [primaryLoc, setPrimaryLoc] = useState<any>({
     street: "",
     city: "",
@@ -862,6 +871,7 @@ export default function BookingForm() {
       longitude: primaryLoc.longitude || lng,
       locationMode,
       primaryLocation: primaryLoc,
+      vehiclePreference: isCustom ? vehiclePreference : null,
     };
     const r = await fetch("/api/bookings", {
       method: "POST",
@@ -964,7 +974,7 @@ export default function BookingForm() {
                         { num: "781-921-3233", wa: "17819213233" },
                         { num: "617-866-2727", wa: "16178662727" },
                       ].map(({ num, wa }) => (
-                        <a key={wa} href={`https://wa.me/${wa}`} target="_blank" rel="noopener noreferrer"
+                        <a key={wa} href={getWhatsAppUrl(wa)} target="_blank" rel="noopener noreferrer"
                           className="flex items-center justify-center gap-2 w-full py-3 rounded-xl font-black text-sm text-white transition-all hover:-translate-y-0.5"
                           style={{ background: "#25D366" }}>
                           <span>💬</span> WhatsApp {num}
@@ -1347,6 +1357,30 @@ export default function BookingForm() {
                   helper="Select start time in 24h format (e.g. 14:00)"
                 />
 
+                {/* Weekend Notice */}
+                {(() => {
+                  if (!eventDate) return null;
+                  const date = new Date(eventDate + "T12:00:00");
+                  const day = date.getDay();
+                  const isWeekendDay = day === 0 || day === 6;
+                  if (isWeekendDay) {
+                    return (
+                      <div className="md:col-span-2 bg-blue-50/70 border-2 border-blue-200 rounded-3xl p-6 flex items-center gap-4.5 shadow-sm">
+                        <span className="text-3xl">📅</span>
+                        <div>
+                          <p className="font-black text-[#000223] text-lg sm:text-xl">
+                            Weekend Event Notice
+                          </p>
+                          <p className="text-base font-bold text-slate-700 mt-1">
+                            Saturday and Sunday bookings include an additional <strong>$25 weekend event fee</strong>.
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+
                 {/* Package duration info banner */}
                 <div className="md:col-span-2 bg-amber-50/70 border-2 border-amber-200 rounded-3xl p-6 flex items-center gap-4.5 shadow-sm">
                   <span className="text-3xl">⏱️</span>
@@ -1391,6 +1425,19 @@ export default function BookingForm() {
                             ⚠️ This package is exclusively for large requests of more than 200 guests. Please enter 201 or more.
                           </p>
                         )}
+                      </div>
+
+                      {/* Preferred Vehicle Type dropdown */}
+                      <div className="mt-6">
+                        <PremiumSelect
+                          label="Preferred Vehicle Type"
+                          value={vehiclePreference}
+                          onChange={setVehiclePreference}
+                          options={["Truck", "Van", "Not sure"]}
+                          placeholder="Select preferred vehicle type..."
+                          helper="Select the vehicle type you'd prefer for your event setup."
+                          icon={Truck}
+                        />
                       </div>
                     </div>
                   ) : (
@@ -2096,23 +2143,53 @@ export default function BookingForm() {
                   <div className="rounded-2xl border-2 border-blue-200 bg-blue-50/70 p-4 sm:p-8 shadow-md">
                     <div className="flex items-center gap-2.5 mb-5 border-b-2 border-blue-100 pb-3">
                       <span className="text-xl">📋</span>
-                      <span className="text-base sm:text-lg font-black text-blue-900">Custom Quote Request</span>
+                      <span className="text-base sm:text-lg font-black text-blue-900">Custom Quote Details</span>
                     </div>
+                    
+                    {/* Estimated Review Summary */}
                     <div className="rounded-xl bg-white/80 border border-blue-200 p-5 mb-5">
-                      <p className="font-black text-blue-900 text-sm mb-2">No fixed price for this package.</p>
-                      <p className="text-blue-800 font-semibold text-sm leading-relaxed">
-                        Our team will review your guest count, location, route, timing, and vehicle needs before preparing your final custom quote. You'll be contacted via WhatsApp.
-                      </p>
+                      <h4 className="font-black text-blue-955 text-sm mb-3 uppercase tracking-wider">Estimated Review Summary</h4>
+                      <div className="space-y-2.5 text-xs sm:text-sm font-semibold text-slate-700">
+                        <div className="flex justify-between border-b border-dashed border-slate-200 pb-1.5">
+                          <span>Preferred Vehicle Type</span>
+                          <span className="font-black text-[#000223]">{vehiclePreference}</span>
+                        </div>
+                        <div className="flex justify-between border-b border-dashed border-slate-200 pb-1.5">
+                          <span>Expected Guest Count</span>
+                          <span className="font-black text-[#000223]">{customGuestCount || 201} guests</span>
+                        </div>
+                        <div className="flex justify-between border-b border-dashed border-slate-200 pb-1.5">
+                          <span>Calculated Distance</span>
+                          <span className="font-black text-[#000223]">{drivingMiles.toFixed(1)} miles</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Review Verdict Status</span>
+                          <span className="font-black text-amber-700 bg-amber-100 px-2 py-0.5 rounded text-xs uppercase tracking-wider">PENDING REVIEW</span>
+                        </div>
+                      </div>
                     </div>
-                    <p className="font-black text-blue-900 text-xs uppercase tracking-wider mb-3">📲 We'll contact you via WhatsApp</p>
+
+                    {/* Pricing Policy Summary */}
+                    <div className="rounded-xl bg-white/80 border border-blue-200 p-5 mb-5">
+                      <h4 className="font-black text-blue-955 text-sm mb-3 uppercase tracking-wider">Pricing Policy Summary</h4>
+                      <ul className="list-disc list-inside space-y-1.5 text-xs sm:text-sm font-semibold text-slate-650">
+                        <li>Custom quote tailored specifically for large events (200+ guests).</li>
+                        <li>Travel fee applies to routes exceeding 10.0 miles ($2.25/mile).</li>
+                        <li>Weekend events (Saturday/Sunday) include a $25 weekend fee.</li>
+                        <li>Multi-stop setups include an additional $50/stop location fee.</li>
+                        <li>No upfront credit card required — payment collected after service.</li>
+                      </ul>
+                    </div>
+
+                    <p className="font-black text-blue-900 text-xs uppercase tracking-wider mb-3">📲 Contact our dispatch team via WhatsApp</p>
                     <div className="space-y-2">
                       {[
                         { num: "617-999-3803", wa: "16179993803" },
                         { num: "781-921-3233", wa: "17819213233" },
                         { num: "617-866-2727", wa: "16178662727" },
                       ].map(({ num, wa }) => (
-                        <a key={wa} href={`https://wa.me/${wa}`} target="_blank" rel="noopener noreferrer"
-                          className="flex items-center justify-center gap-2 w-full py-3 rounded-xl font-black text-sm text-white transition-all hover:-translate-y-0.5 hover:opacity-90"
+                        <a key={wa} href={getWhatsAppUrl(wa)} target="_blank" rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-2 w-full py-3 rounded-xl font-black text-sm text-white transition-all hover:-translate-y-0.5 hover:opacity-90 shadow-sm"
                           style={{ background: "#25D366" }}>
                           <span>💬</span> WhatsApp {num}
                         </a>

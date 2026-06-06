@@ -46,6 +46,7 @@ const BookingSchema = z.object({
   latitude: z.coerce.number().optional().nullable(),
   longitude: z.coerce.number().optional().nullable(),
   bookingStops: z.array(z.any()).optional(),
+  vehiclePreference: z.string().optional().nullable(),
 });
 
 function genBookingNumber() {
@@ -98,7 +99,7 @@ export async function POST(req: NextRequest) {
       guests, eventType, packageId, notes,
       totalAmount, travelFee, overtimeFee, extraPieceFee, distanceMiles,
       additionalStops, additionalStopsFee, bookingStops,
-      latitude, longitude
+      latitude, longitude, vehiclePreference
     } = result.data;
 
     // ── 0.5. Verify locations & calculate accurate distance ──
@@ -341,7 +342,7 @@ export async function POST(req: NextRequest) {
         additionalStops: resolvedStops.length,
         additionalStopsFee: finalStopsFee,
         totalAmount: finalTotal,
-        notes: notes || null,
+        notes: isCustomPackage && vehiclePreference ? `[Preferred Vehicle Type: ${vehiclePreference}]${notes ? ` ${notes}` : ""}` : (notes || null),
         items: {
           create: isCustomPackage ? [
             { lineType: "PACKAGE", description: "Custom Quote", quantity: 1, unitPrice: 0, totalPrice: 0 }

@@ -10,6 +10,8 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState("");
   const [internalNote, setInternalNote] = useState("");
+  const [customPrice, setCustomPrice] = useState("");
+  const [customerNotes, setCustomerNotes] = useState("");
 
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [drivers, setDrivers] = useState<any[]>([]);
@@ -24,6 +26,9 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
       if (res.ok) {
         const json = await res.json();
         setBooking(json.data);
+        setInternalNote(json.data.internalNote || "");
+        setCustomPrice(json.data.totalAmount > 0 ? String(json.data.totalAmount) : "");
+        setCustomerNotes(json.data.notes || "");
         if (json.data.assignment) {
           setSelectedVehicleId(json.data.assignment.vehicleId || "");
           setSelectedDriverId(json.data.assignment.driverId || "");
@@ -87,7 +92,7 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
       await fetch(`/api/admin/bookings/${params.id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status, internalNote })
+        body: JSON.stringify({ status, internalNote, customPrice, customerNotes })
       });
       await loadBooking();
     } catch (e) { }
@@ -141,10 +146,11 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
           <p className="text-sm font-semibold text-slate-500 mt-1">Placed on {new Date(booking.createdAt).toLocaleString()}</p>
         </div>
 
-        {booking.status === "PENDING_REVIEW" && (
-          <div className="flex flex-col gap-2 p-4 bg-amber-50 rounded-2xl border border-amber-200 w-full md:w-auto">
-            <div className="text-xs font-black text-amber-800 uppercase tracking-wider mb-1">
-              Review Reason: {booking.quote?.snapshotJson ? (() => {
+        {booking.status === "PENDING_REVIEW" && (() => {
+          const isCustomPackage = booking.package?.slug === "custom-event-package" || booking.package?.serviceType === "CUSTOM";
+          const reviewReason = isCustomPackage 
+            ? "Custom package request for 200+ guests requires manual quote pricing."
+            : (booking.quote?.snapshotJson ? (() => {
                 try {
                   const snap = JSON.parse(booking.quote.snapshotJson);
                   if (snap.aiFlags?.includes("LONG_DISTANCE_LOW_PACKAGE_VALUE")) {
@@ -155,17 +161,58 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
                   }
                 } catch(e){}
                 return "Long distance + package below $500";
-              })() : "Long distance + package below $500"}
+              })() : "Long distance + package below $500");
+
+          return (
+            <div className="flex flex-col gap-4 p-5 bg-amber-50 rounded-2xl border border-amber-200 w-full md:w-auto shadow-sm">
+              <div>
+                <div className="text-xs font-black text-amber-800 uppercase tracking-wider mb-1">
+                  Review Reason
+                </div>
+                <div className="text-sm font-semibold text-slate-700">
+                  {reviewReason}
+                </div>
+              </div>
+
+              {isCustomPackage && (
+                <div className="space-y-4 border-t border-amber-200 pt-4">
+                  <div>
+                    <label className="block text-xs font-black text-amber-900 uppercase tracking-wider mb-1">Final Custom Price ($)</label>
+                    <input
+                      type="number"
+                      value={customPrice}
+                      onChange={(e) => setCustomPrice(e.target.value)}
+                      className="w-full max-w-md p-2.5 rounded-xl border border-slate-200 font-bold text-sm bg-white text-[#000223] outline-none focus:border-[#FFA000] focus:ring-2 focus:ring-[#FFA000]/15"
+                      placeholder="E.g. 1500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-black text-amber-900 uppercase tracking-wider mb-1">Customer-facing Notes / Pricing Notes</label>
+                    <textarea
+                      value={customerNotes}
+                      onChange={(e) => setCustomerNotes(e.target.value)}
+                      className="w-full p-2.5 rounded-xl border border-slate-200 font-bold text-sm bg-white text-[#000223] outline-none focus:border-[#FFA000] focus:ring-2 focus:ring-[#FFA000]/15"
+                      rows={3}
+                      placeholder="E.g. Approved custom quote including Sprinter Van setup, 200 portions, and 2 stops."
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-2">
+                <button disabled={!!updating} onClick={() => updateStatus("REJECTED")} className="btn-secondary py-2.5 px-6 text-sm text-red-650 border-red-200 hover:bg-red-50 disabled:opacity-50 flex items-center gap-2"><XCircle className="w-4 h-4"/> Reject</button>
+                <button 
+                  disabled={!!updating || (isCustomPackage && !customPrice)} 
+                  onClick={() => updateStatus("CONFIRMED")} 
+                  className="btn-primary py-2.5 px-6 text-sm bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 flex items-center gap-2"
+                >
+                  {updating === "CONFIRMED" ? <Loader2 className="w-4 h-4 animate-spin"/> : <CheckCircle2 className="w-4 h-4"/>}
+                  Approve Booking
+                </button>
+              </div>
             </div>
-            <div className="flex gap-3">
-              <button disabled={!!updating} onClick={() => updateStatus("REJECTED")} className="btn-secondary py-2 px-6 text-sm text-red-600 border-red-200 hover:bg-red-50 disabled:opacity-50 flex items-center gap-2"><XCircle className="w-4 h-4"/> Reject</button>
-              <button disabled={!!updating} onClick={() => updateStatus("CONFIRMED")} className="btn-primary py-2 px-6 text-sm bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 flex items-center gap-2">
-                {updating === "CONFIRMED" ? <Loader2 className="w-4 h-4 animate-spin"/> : <CheckCircle2 className="w-4 h-4"/>}
-                Approve Booking
-              </button>
-            </div>
-          </div>
-        )}
+          );
+        })()}
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
@@ -220,49 +267,80 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
         {/* Pricing Info */}
         <div className="card-premium p-6">
           <h3 className="text-lg font-black mb-4 flex items-center gap-2 text-[#000223]"><DollarSign className="w-5 h-5 text-emerald-500" /> Pricing Breakdown</h3>
-          <div className="space-y-3 text-sm font-semibold pb-4 border-b border-slate-100 mb-4 text-slate-800">
-            <div className="flex justify-between items-center"><span className="text-slate-400">Location Mode:</span> <span>{locationMode}</span></div>
-            <div className="flex justify-between items-center"><span className="text-slate-400">Vehicles Required:</span> <span>{vehiclesRequired}</span></div>
-            <div className="h-px bg-slate-100 my-2" />
-            <div className="flex justify-between items-center"><span className="text-slate-400">Package ({packageName}):</span> <span>${packagePrice.toFixed(2)}</span></div>
-            {extraGuestsFee > 0 && (
-              <div className="flex justify-between items-center"><span className="text-slate-400">Extra Guests Fee:</span> <span>${extraGuestsFee.toFixed(2)}</span></div>
-            )}
-            {extraServiceFee > 0 && (
-              <div className="flex justify-between items-center"><span className="text-slate-400">Additional Service Time:</span> <span>${extraServiceFee.toFixed(2)}</span></div>
-            )}
-            {additionalLocationServiceFee > 0 && (
-              <div className="flex justify-between items-center"><span className="text-slate-400">Additional Location Service Fee:</span> <span>${additionalLocationServiceFee.toFixed(2)}</span></div>
-            )}
-            {additionalVehicleSetupFee > 0 && (
-              <div className="flex justify-between items-center"><span className="text-slate-400">Additional Vehicle Setup Fee:</span> <span>${additionalVehicleSetupFee.toFixed(2)}</span></div>
-            )}
-            {weekendFee > 0 && (
-              <div className="flex justify-between items-center"><span className="text-slate-400">Weekend Event Fee:</span> <span>${weekendFee.toFixed(2)}</span></div>
-            )}
-            {travelFee > 0 && (
-              <div className="flex justify-between items-center"><span className="text-slate-400">Travel Fee:</span> <span>${travelFee.toFixed(2)}</span></div>
-            )}
-          </div>
-          <div className="flex justify-between items-center text-xl font-black">
-            <span className="text-[#000223]">Total:</span>
+          
+          {/* Custom Pricing Status */}
+          {(() => {
+            const isCustomPackage = booking.package?.slug === "custom-event-package" || booking.package?.serviceType === "CUSTOM";
+            return (
+              <div className="mb-4 p-3 bg-slate-50 border border-slate-100 rounded-xl flex justify-between items-center font-bold text-xs">
+                <span className="text-slate-500 uppercase tracking-wider">Pricing System</span>
+                <span className={`px-2.5 py-0.5 rounded-full uppercase tracking-wider text-[10px] ${
+                  isCustomPackage ? "bg-blue-100 text-blue-800" : "bg-slate-100 text-slate-700"
+                }`}>
+                  {isCustomPackage ? "Custom Quote" : "Standard Fixed"}
+                </span>
+              </div>
+            );
+          })()}
+
+          {(() => {
+            const isCustomPackage = booking.package?.slug === "custom-event-package" || booking.package?.serviceType === "CUSTOM";
+            if (isCustomPackage && booking.status === "PENDING_REVIEW") {
+              return (
+                <div className="py-4 border-b border-slate-100 mb-4 text-sm font-semibold text-slate-500 space-y-2">
+                  <p className="text-xs text-amber-700 bg-amber-50 border border-amber-250 p-2.5 rounded-lg leading-relaxed">
+                    ⚠️ <strong>Pending Quote Review:</strong> This booking has no fixed price yet. Please review details, compute travel and weekend fees, and enter a final custom price.
+                  </p>
+                </div>
+              );
+            }
+            return (
+              <div className="space-y-3 text-sm font-semibold pb-4 border-b border-slate-100 mb-4 text-slate-800">
+                <div className="flex justify-between items-center"><span className="text-slate-400">Location Mode:</span> <span>{locationMode}</span></div>
+                <div className="flex justify-between items-center"><span className="text-slate-400">Vehicles Required:</span> <span>{vehiclesRequired}</span></div>
+                <div className="h-px bg-slate-100 my-2" />
+                <div className="flex justify-between items-center"><span className="text-slate-400">Package ({packageName}):</span> <span>${packagePrice.toFixed(2)}</span></div>
+                {extraGuestsFee > 0 && (
+                  <div className="flex justify-between items-center"><span className="text-slate-400">Extra Guests Fee:</span> <span>${extraGuestsFee.toFixed(2)}</span></div>
+                )}
+                {extraServiceFee > 0 && (
+                  <div className="flex justify-between items-center"><span className="text-slate-400">Additional Service Time:</span> <span>${extraServiceFee.toFixed(2)}</span></div>
+                )}
+                {additionalLocationServiceFee > 0 && (
+                  <div className="flex justify-between items-center"><span className="text-slate-400">Additional Location Service Fee:</span> <span>${additionalLocationServiceFee.toFixed(2)}</span></div>
+                )}
+                {additionalVehicleSetupFee > 0 && (
+                  <div className="flex justify-between items-center"><span className="text-slate-400">Additional Vehicle Setup Fee:</span> <span>${additionalVehicleSetupFee.toFixed(2)}</span></div>
+                )}
+                {weekendFee > 0 && (
+                  <div className="flex justify-between items-center"><span className="text-slate-400">Weekend Event Fee:</span> <span>${weekendFee.toFixed(2)}</span></div>
+                )}
+                {travelFee > 0 && (
+                  <div className="flex justify-between items-center"><span className="text-slate-400">Travel Fee:</span> <span>${travelFee.toFixed(2)}</span></div>
+                )}
+              </div>
+            );
+          })()}
+
+          <div className="flex justify-between items-center text-xl font-black mb-4">
+            <span className="text-[#000223]">Total Amount:</span>
             <span className="text-emerald-600">${estimatedTotal.toFixed(2)}</span>
           </div>
 
-          {estimatedTotal > 0 && (additionalVehicleSetupFee > 0 || weekendFee > 0) && (
-            <div className="mt-4 space-y-2 border-t border-slate-100 pt-4 text-xs font-semibold text-slate-500">
-              {additionalVehicleSetupFee > 0 && (
-                <p className="leading-relaxed">
-                  🚚 <strong>Additional Vehicle Setup Fee:</strong> If your event requires another truck/van for the same package at the same time, each additional vehicle includes a $200 setup and dispatch fee.
-                </p>
-              )}
-              {weekendFee > 0 && (
-                <p className="leading-relaxed">
-                  📅 <strong>Weekend Event Fee:</strong> Saturday and Sunday bookings include an additional $25 weekend event fee.
-                </p>
-              )}
-            </div>
-          )}
+          {/* Weekend notice in Admin Details */}
+          {(() => {
+            if (!booking.eventDate) return null;
+            const day = new Date(booking.eventDate.toString().split('T')[0] + "T12:00:00").getDay();
+            const isWeekendDay = day === 0 || day === 6;
+            if (isWeekendDay) {
+              return (
+                <div className="mt-4 p-3 rounded-xl text-xs font-bold text-blue-900 bg-blue-50 border border-blue-200 leading-relaxed">
+                  📅 <strong>Weekend Event:</strong> Saturday/Sunday bookings include a $25 weekend event fee. Please verify this is factored into the custom total.
+                </div>
+              );
+            }
+            return null;
+          })()}
         </div>
 
         {/* Dispatch Actions */}

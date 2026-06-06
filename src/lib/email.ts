@@ -263,24 +263,40 @@ export async function sendBookingApprovedEmail(to: string, firstName: string, bo
   const portalUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.bostonlegendicecreamtruck.com'}/customer/booking/${bookingId}`;
   
   let bookingDetailsHtml = "";
+  let isCustom = false;
   try {
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
       include: { customer: true, package: true, quote: true, stops: { orderBy: { stopOrder: 'asc' } } }
     });
     bookingDetailsHtml = formatBookingDetailsHtml(booking);
+    if (booking?.package?.slug === "custom-event-package" || booking?.packageId === "custom-event-package" || booking?.package?.name === "Custom Event Package") {
+      isCustom = true;
+    }
   } catch (e) {
     console.error("Error formatting booking details for approved email:", e);
   }
 
+  const subject = isCustom 
+    ? `Approved: Your Boston Legend Custom Quote #${bookingNumber}`
+    : `Approved: Your Boston Legend Booking #${bookingNumber}`;
+
+  const headerText = isCustom 
+    ? `Your Custom Quote is Approved! 🎉` 
+    : `Legendary News, ${firstName}! 🎉`;
+
+  const bodyText = isCustom 
+    ? `Your custom quote request **#${bookingNumber}** has been approved with a finalized price. We have prepared your custom pricing details below. You can view the full details, pricing notes, and status on your Booking Portal.`
+    : `Your reservation **#${bookingNumber}** has been officially **APPROVED**. We can't wait to sweeten your event!`;
+
   const html = `
-    <h2 style="margin:0 0 16px;color:${BRAND_NAVY};font-size:28px;font-weight:900;">Legendary News, ${firstName}! 🎉</h2>
+    <h2 style="margin:0 0 16px;color:${BRAND_NAVY};font-size:28px;font-weight:900;">${headerText}</h2>
     <p style="margin:0 0 24px;color:#4B5563;font-size:16px;line-height:1.6;font-weight:600;">
-      Your reservation **#${bookingNumber}** has been officially **APPROVED**. We can't wait to sweeten your event!
+      ${bodyText}
     </p>
     
     <div style="background:#ECFDF5;border:2px solid #10B981;border-radius:16px;padding:24px;margin-bottom:32px;text-align:center;">
-      <p style="margin:0 0 4px;color:#065F46;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;">Estimated Total</p>
+      <p style="margin:0 0 4px;color:#065F46;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;">Approved Price Total</p>
       <p style="margin:0 0 10px;color:${BRAND_NAVY};font-size:36px;font-weight:900;">$${amount}</p>
       <p style="margin:0;color:#047857;font-size:14px;font-weight:700;">Payment is collected after the service. We accept multiple payment methods.</p>
     </div>
@@ -288,11 +304,11 @@ export async function sendBookingApprovedEmail(to: string, firstName: string, bo
     ${bookingDetailsHtml}
     
     <div style="text-align:center;margin-top:20px;padding:15px;background:#F8F9FC;border-radius:12px;">
-      <p style="margin:0 0 8px;font-size:13px;font-weight:700;color:${BRAND_NAVY};">Need to change or cancel details?</p>
+      <p style="margin:0 0 8px;font-size:13px;font-weight:700;color:${BRAND_NAVY};">Need to check details or manage your booking?</p>
       <a href="${portalUrl}" style="color:${BRAND_GOLD};font-weight:900;text-decoration:underline;font-size:14px;">Access Your Booking Portal →</a>
     </div>
   `;
-  return sendEmail({ to, subject: `Approved: Your Boston Legend Booking #${bookingNumber}`, html });
+  return sendEmail({ to, subject, html });
 }
 
 export async function sendBookingPendingEmail(
@@ -469,15 +485,28 @@ export async function sendCustomQuoteEmail(
   const portalUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.bostonlegendicecreamtruck.com'}/customer/booking/${bookingId}`;
   
   let bookingDetailsHtml = "";
+  let bookingDateStr = "";
+  let bookingStartTime = "";
+  let bookingGuests = "200+";
   try {
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
       include: { customer: true, package: true, quote: true, stops: { orderBy: { stopOrder: 'asc' } } }
     });
     bookingDetailsHtml = formatBookingDetailsHtml(booking);
+    if (booking) {
+      bookingDateStr = booking.eventDate ? new Date(booking.eventDate).toLocaleDateString("en-US") : "";
+      bookingStartTime = booking.startTime || "";
+      bookingGuests = String(booking.guests);
+    }
   } catch (e) {
     console.error("Error formatting booking details for custom quote email:", e);
   }
+
+  const getWaLink = (waNumber: string) => {
+    const msg = `Hello! I just submitted a Custom Quote request (Ref: #${bookingNumber}) for my event on ${bookingDateStr} at ${bookingStartTime} with ${bookingGuests} guests. Please review and provide the custom quote.`;
+    return `https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`;
+  };
 
   const html = `
     <div style="text-align:center;padding:32px 0 24px;">
@@ -513,9 +542,9 @@ export async function sendCustomQuoteEmail(
         You can also message us anytime using the WhatsApp buttons below:
       </p>
       <div style="text-align:center;">
-        <a href="https://wa.me/16179993803" style="display:block;background:#25D366;color:#ffffff;padding:12px 20px;border-radius:12px;text-decoration:none;font-weight:950;font-size:15px;margin-bottom:10px;text-align:center;">WhatsApp 617-999-3803</a>
-        <a href="https://wa.me/17819213233" style="display:block;background:#25D366;color:#ffffff;padding:12px 20px;border-radius:12px;text-decoration:none;font-weight:950;font-size:15px;margin-bottom:10px;text-align:center;">WhatsApp 781-921-3233</a>
-        <a href="https://wa.me/16178662727" style="display:block;background:#25D366;color:#ffffff;padding:12px 20px;border-radius:12px;text-decoration:none;font-weight:950;font-size:15px;margin-bottom:10px;text-align:center;">WhatsApp 617-866-2727</a>
+        <a href="${getWaLink('16179993803')}" style="display:block;background:#25D366;color:#ffffff;padding:12px 20px;border-radius:12px;text-decoration:none;font-weight:950;font-size:15px;margin-bottom:10px;text-align:center;">WhatsApp 617-999-3803</a>
+        <a href="${getWaLink('17819213233')}" style="display:block;background:#25D366;color:#ffffff;padding:12px 20px;border-radius:12px;text-decoration:none;font-weight:950;font-size:15px;margin-bottom:10px;text-align:center;">WhatsApp 781-921-3233</a>
+        <a href="${getWaLink('16178662727')}" style="display:block;background:#25D366;color:#ffffff;padding:12px 20px;border-radius:12px;text-decoration:none;font-weight:950;font-size:15px;margin-bottom:10px;text-align:center;">WhatsApp 617-866-2727</a>
       </div>
     </div>
 
@@ -525,7 +554,7 @@ export async function sendCustomQuoteEmail(
       <p style="margin:0 0 16px;color:#4B5563;font-size:14px;font-weight:600;">
         You can check the current status, update details, or message our team using the link below.
       </p>
-      <a href="${portalUrl}" style="display:inline-block;background:${BRAND_NAVY};color:${BRAND_GOLD};padding:16px 32px;border-radius:32px;text-decoration:none;font-weight:900;font-size:15px;box-shadow:0 10px 20px rgba(0,2,35,0.15);">View or Manage Your Request →</a>
+      <a href="${portalUrl}" style="display:inline-block;background:${BRAND_NAVY};color:${BRAND_GOLD};padding:16px 32px;border-radius:32px;text-decoration:none;font-weight:950;font-size:15px;box-shadow:0 10px 20px rgba(0,2,35,0.15);">View or Manage Your Request →</a>
     </div>
   `;
   return sendEmail({ to, subject: `Custom Quote Request Received — Boston Legend`, html });
