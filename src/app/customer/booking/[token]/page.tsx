@@ -208,8 +208,30 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
   const getWhatsAppUrl = (waPhone: string) => {
     const bookingRef = booking.bookingNumber;
     const guestNum = booking.guests;
-    const dateFormatted = new Date(booking.eventDate).toLocaleDateString("en-US");
-    const msg = `Hello! I am following up on my Custom Quote request (Ref: #${bookingRef}) for my event on ${dateFormatted} at ${booking.startTime} with ${guestNum} guests. Please let me know the status.`;
+    const dateFormatted = new Date(booking.eventDate + "T12:00:00").toLocaleDateString("en-US");
+    const duration = isCustomPkg ? "Flexible/Custom" : `${booking.durationMins} mins`;
+    const primaryAddr = `${booking.address}, ${booking.city}, MA ${booking.zip}`;
+    const stopsList = booking.stops && booking.stops.length > 0
+      ? booking.stops.map((s: any, i: number) => `Stop ${i+2}: ${s.street}, ${s.city}`).join(", ")
+      : "None";
+    const travelDist = quote?.distanceMiles ? `${quote.distanceMiles.toFixed(1)} miles` : "N/A";
+    
+    const msg = `Hello! I am following up on my Custom Quote request. Here are the details:
+- Name: ${booking.customer.firstName} ${booking.customer.lastName}
+- Email: ${booking.customer.email}
+- Phone: ${booking.customer.phone}
+- Event Date: ${dateFormatted}
+- Event Time: ${booking.startTime}
+- Guests: ${guestNum}
+- Requested Duration: ${duration}
+- Preferred Vehicle: ${booking.notes?.match(/\[Preferred Vehicle Type:\s*([^\]]+)\]/)?.[1] || "N/A"}
+- Primary Location: ${primaryAddr}
+- Additional Locations: ${stopsList}
+- Extra Service Time: ${booking.extraServiceMins > 0 ? `${booking.extraServiceMins} mins` : "None"}
+- Travel Distance: ${travelDist}
+- Notes: ${booking.notes || "None"}
+- Booking Reference: #${bookingRef}`;
+
     return `https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`;
   };
 

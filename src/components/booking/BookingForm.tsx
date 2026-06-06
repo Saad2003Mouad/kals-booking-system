@@ -582,9 +582,31 @@ export default function BookingForm() {
 
   const getWhatsAppUrl = (waPhone: string) => {
     const b = result?.booking;
-    const refText = b ? `Ref: #${b.bookingNumber}` : "Pending submission";
+    const refText = b ? `#${b.bookingNumber}` : "Pending";
     const guestNum = b ? ((b as any).guests || customGuestCount || 201) : (customGuestCount || 201);
-    const msg = `Hello! I just submitted a Custom Quote request (${refText}) for my event on ${formatEnDate(eventDate)} at ${formatEnTime(startTime)} with ${guestNum} guests. Please review and provide the custom quote.`;
+    const duration = sel?.slug === "custom-event-package" ? "Flexible/Custom" : `${(sel as any)?.durationMins ?? sel?.includedMinutes ?? 60} mins`;
+    const primaryAddr = primaryLoc.formattedAddress || `${address}, ${city}, MA ${zip}`;
+    const stopsList = bookingStops.length > 0 
+      ? bookingStops.map((s: any, i: number) => `Stop ${i+2}: ${s.formattedAddress || s.street}`).join(", ")
+      : "None";
+    const travelDist = drivingMiles ? `${drivingMiles.toFixed(1)} miles` : "Calculating...";
+    
+    const msg = `Hello! I just submitted a Custom Quote request. Here are the event details:
+- Name: ${firstName} ${lastName}
+- Email: ${email}
+- Phone: ${phone}
+- Event Date: ${formatEnDate(eventDate)}
+- Event Time: ${formatEnTime(startTime)}
+- Guests: ${guestNum}
+- Requested Duration: ${duration}
+- Preferred Vehicle: ${vehiclePreference}
+- Primary Location: ${primaryAddr}
+- Additional Locations: ${stopsList}
+- Extra Service Time: ${extraServiceMins > 0 ? `${extraServiceMins} mins` : "None"}
+- Travel Distance: ${travelDist}
+- Notes: ${notes || "None"}
+- Booking Reference: ${refText}`;
+
     return `https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`;
   };
 
