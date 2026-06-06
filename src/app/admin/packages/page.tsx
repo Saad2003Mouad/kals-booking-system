@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Loader2, Plus, Edit2, Package as PackageIcon, Trash2, CheckCircle2, XCircle, AlertCircle, ImageIcon, Save } from "lucide-react";
+import { Loader2, Plus, Edit2, Package as PackageIcon, Trash2, CheckCircle2, XCircle, AlertCircle, ImageIcon, Save, X } from "lucide-react";
 
 type Package = any;
 
@@ -18,6 +18,156 @@ const EMPTY_PACKAGE = {
   isActive: true,
   features: []
 };
+
+function PremiumImageUploader({
+  value,
+  onChange
+}: {
+  value: string;
+  onChange: (url: string) => void;
+}) {
+  const [dragActive, setDragActive] = useState(false);
+  const [localPreview, setLocalPreview] = useState<string | null>(value || null);
+  const [error, setError] = useState("");
+  const [showAdvanced, setShowAdvanced] = useState(false);
+
+  useEffect(() => {
+    setLocalPreview(value || null);
+    setError("");
+  }, [value]);
+
+  const handleFile = (file: File) => {
+    setError("");
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      setError("Only JPG, PNG, and WebP images are allowed.");
+      return;
+    }
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      setError("File size exceeds 5MB limit.");
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    setLocalPreview(objectUrl);
+  };
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    if (e.target.files && e.target.files[0]) {
+      handleFile(e.target.files[0]);
+    }
+  };
+
+  const handleRemove = () => {
+    setLocalPreview(null);
+    onChange("");
+  };
+
+  return (
+    <div className="space-y-4">
+      <label className="block text-xs font-black uppercase tracking-widest text-[#000223]">Package Image</label>
+      
+      <div 
+        onDragEnter={handleDrag}
+        onDragOver={handleDrag}
+        onDragLeave={handleDrag}
+        onDrop={handleDrop}
+        className={`relative rounded-2xl border-2 border-dashed p-6 transition-all flex flex-col items-center justify-center text-center bg-slate-50 min-h-[160px] ${
+          dragActive ? "border-[#FFA000] bg-amber-50/40" : "border-slate-200 hover:border-slate-350"
+        }`}
+      >
+        {localPreview ? (
+          <div className="relative w-full max-w-[200px] h-32 rounded-xl overflow-hidden shadow-sm border border-slate-100">
+            <img src={localPreview} alt="Preview" className="w-full h-full object-cover" />
+            <button 
+              type="button" 
+              onClick={handleRemove}
+              className="absolute top-1.5 right-1.5 p-1 rounded-lg bg-black/75 text-white hover:bg-black transition-colors"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center mx-auto text-slate-400">
+              <ImageIcon className="w-5 h-5" />
+            </div>
+            <div className="text-xs font-semibold text-slate-505">
+              Drag and drop an image here, <label className="text-[#FFA000] hover:underline cursor-pointer font-black">choose a file<input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleChange} /></label>, or paste an image URL.
+            </div>
+            <div className="text-[10px] text-slate-400 font-bold">
+              Recommended: 1200×800px, JPG/PNG/WebP. Max size: 5MB.
+            </div>
+          </div>
+        )}
+      </div>
+
+      {localPreview && !localPreview.startsWith("http") && (
+        <div className="bg-amber-50/70 border border-amber-200 p-3.5 rounded-xl text-[11px] text-amber-800 font-bold flex items-start gap-2 leading-relaxed">
+          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+          <span>
+            <strong>Upload storage is not configured yet.</strong> This preview is local only. To persist this image on the server, please paste a web URL in the "Advanced: Paste image URL" section below.
+          </span>
+        </div>
+      )}
+
+      {error && (
+        <p className="text-xs text-red-650 font-bold flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5"/> {error}</p>
+      )}
+
+      <div className="border border-slate-200/80 rounded-xl overflow-hidden bg-white shadow-sm">
+        <button 
+          type="button"
+          onClick={() => setShowAdvanced(!showAdvanced)}
+          className="w-full px-4 py-3 flex items-center justify-between bg-[#FAF6EF]/50 hover:bg-[#FAF6EF]/85 text-[#000223] font-black text-xs border-b border-slate-200/40"
+        >
+          <span>Advanced: Paste image URL</span>
+          <span className="text-[10px] font-black text-[#FFA000]">{showAdvanced ? "HIDE" : "SHOW"}</span>
+        </button>
+        {showAdvanced && (
+          <div className="p-4 bg-white">
+            <input 
+              type="url"
+              value={value} 
+              onChange={e => {
+                const url = e.target.value;
+                onChange(url);
+                if (url.startsWith("http")) {
+                  setLocalPreview(url);
+                }
+              }} 
+              className="w-full py-2.5 px-4 rounded-xl border-2 font-mono text-sm outline-none transition-all bg-[#FAF8F0]/30 text-[#000223] border-slate-200 focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/10 placeholder:text-slate-400 text-[16px]" 
+              placeholder="https://example.com/image.jpg" 
+            />
+            <p className="text-[9.5px] font-semibold text-slate-400 mt-1.5">Provide a web address to save this image permanently in the database.</p>
+          </div>
+        )}
+      </div>
+
+    </div>
+  );
+}
 
 export default function AdminPackagesPage() {
   const [packages, setPackages] = useState<Package[]>([]);
@@ -243,10 +393,10 @@ export default function AdminPackagesPage() {
                     <label className="label-premium">Description</label>
                     <textarea required value={formData.description} onChange={e=>setFormData({...formData, description:e.target.value})} className="w-full py-3.5 px-5 rounded-2xl border-2 font-semibold text-base outline-none transition-all bg-white text-[#000223] border-slate-100 placeholder:text-slate-400 focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/15 h-28" placeholder="Brief description for customers..." />
                   </div>
-                  <div>
-                    <label className="label-premium flex items-center gap-2"><ImageIcon className="w-4 h-4 text-[#FFA000]"/> Image URL</label>
-                    <input required value={formData.image} onChange={e=>setFormData({...formData, image:e.target.value})} className="w-full py-3.5 px-5 rounded-2xl border-2 font-mono text-base outline-none transition-all bg-white text-[#000223] border-slate-100 placeholder:text-slate-400 focus:border-[#FFA000] focus:ring-4 focus:ring-[#FFA000]/15" placeholder="https://..." />
-                  </div>
+                  <PremiumImageUploader 
+                    value={formData.image} 
+                    onChange={url => setFormData({ ...formData, image: url })} 
+                  />
                 </div>
 
                 {/* Pricing & Logistics */}
