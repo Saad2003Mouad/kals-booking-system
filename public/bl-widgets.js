@@ -418,12 +418,117 @@
   }
 
   /* ─────────────────────────────────────────────
-     3. INIT
+     3. SWIPER MARQUEE INIT
+     Initializes brand marquee + review sliders on
+     all pages (static HTML + React-rendered pages).
+     Safe to call multiple times - guards against double-init.
+  ───────────────────────────────────────────── */
+  function initSwipers() {
+    if (window.__blSwipersInited) return;
+
+    function doInit() {
+      if (typeof window.Swiper === 'undefined') return;
+      window.__blSwipersInited = true;
+
+      // Brand marquee: .swiper-movies
+      var brandEl = document.querySelector('.swiper-movies');
+      if (brandEl && !brandEl.swiper) {
+        new window.Swiper('.swiper-movies', {
+          spaceBetween: 0,
+          speed: 5000,
+          slidesPerView: 2,
+          loop: true,
+          pagination: false,
+          autoplay: {
+            delay: 0,
+            disableOnInteraction: false,
+          },
+          freeMode: true,
+          freeModeMomentum: false,
+          cssMode: false,
+          breakpoints: {
+            766: {
+              slidesPerView: 4,
+            },
+          },
+        });
+      }
+
+      // Review slider: .swiper-review
+      var reviewEl = document.querySelector('.swiper-review');
+      if (reviewEl && !reviewEl.swiper) {
+        new window.Swiper('.swiper-review', {
+          slidesPerView: 1,
+          loop: true,
+          pagination: false,
+          autoplay: {
+            delay: 7000,
+          },
+        });
+      }
+    }
+
+    if (typeof window.Swiper !== 'undefined') {
+      doInit();
+    } else {
+      // Swiper not loaded yet – inject it then init
+      var existing = document.querySelector('script[src*="swiper-bundle.min.js"]');
+      if (!existing) {
+        var s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js';
+        s.onload = doInit;
+        document.head.appendChild(s);
+      } else {
+        // Script tag exists but may not be loaded yet
+        existing.addEventListener('load', doInit);
+        // Also try after a short delay as fallback
+        setTimeout(doInit, 1200);
+      }
+    }
+  }
+
+  /* ─────────────────────────────────────────────
+     4. MOBILE NAV FIX FOR STATIC HTML PAGES
+     Ensures one clean handler for mobile menu toggle
+     (static pages use Webflow inline nav script;
+     this is a belt-and-suspenders guard).
+  ───────────────────────────────────────────── */
+  function fixMobileNav() {
+    var btn = document.querySelector('.menu-button.w-nav-button');
+    var menu = document.querySelector('.nav-menu.w-nav-menu');
+    if (!btn || !menu) return;
+    if (btn.dataset.blNavFixed) return;
+    btn.dataset.blNavFixed = '1';
+
+    // Prevent Webflow scripts from fighting React/inline scripts:
+    // Stop propagation so global click-close only fires after toggle.
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var isOpen = btn.classList.contains('w--open');
+      if (isOpen) {
+        btn.classList.remove('w--open');
+        menu.classList.remove('w--open');
+        menu.style.display = '';
+        document.body.style.overflow = '';
+      } else {
+        btn.classList.add('w--open');
+        menu.classList.add('w--open');
+        menu.style.display = 'flex';
+        menu.style.flexDirection = 'column';
+        document.body.style.overflow = 'hidden';
+      }
+    }, true); // capture phase to run before Webflow
+  }
+
+  /* ─────────────────────────────────────────────
+     5. INIT
   ───────────────────────────────────────────── */
   function init() {
     injectNavButtons();
     injectManageBookingLink();
     buildChatWidget();
+    initSwipers();
+    fixMobileNav();
   }
 
   if (document.readyState === 'loading') {

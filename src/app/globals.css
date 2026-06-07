@@ -114,3 +114,112 @@
     transform: translate(0px, 0px) scale(1) rotate(-360deg);
   }
 }
+
+/* ─────────────────────────────────────────────
+   MOBILE LAYOUT & NAV FIXES
+   Applied to React-rendered pages (cities, booking,
+   packages, manage-booking) which use SiteHeader.tsx
+───────────────────────────────────────────── */
+
+/* Prevent any horizontal overflow globally */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Header stacking context */
+.header {
+  position: relative;
+  z-index: 9100;
+}
+
+/* Nav links inside mobile panel get white text */
+@media (max-width: 991px) {
+  .nav-menu.w--open .nav-link,
+  .nav-menu.w--open .nav-link.w-nav-link,
+  .nav-menu.w--open .dropdown .nav-link,
+  .nav-menu.w--open a {
+    color: #ffffff !important;
+  }
+
+  .nav-menu.w--open .nav-link.w-nav-link {
+    padding: 14px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    display: block;
+    width: 100%;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .nav-menu.w--open .nav-link.w-nav-link:hover {
+    background: rgba(255, 160, 0, 0.12);
+    color: #ffa000 !important;
+  }
+
+  /* Dropdown inside mobile panel */
+  .nav-menu.w--open .w-dropdown {
+    position: relative;
+    width: 100%;
+  }
+
+  .nav-menu.w--open .w-dropdown-toggle {
+    padding: 14px 24px;
+    color: #ffffff !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .nav-menu.w--open .dropdown-list {
+    position: static;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0;
+    display: none;
+  }
+
+  .nav-menu.w--open .w-dropdown:hover .dropdown-list,
+  .nav-menu.w--open .w-dropdown.w--open .dropdown-list {
+    display: block;
+  }
+
+  .nav-menu.w--open .dropdown-link {
+    padding: 10px 36px;
+    color: rgba(255, 255, 255, 0.8) !important;
+    display: block;
+    width: 100%;
+    font-size: 14px;
+  }
+
+  .nav-menu.w--open .dropdown-link:hover {
+    color: #ffa000 !important;
+  }
+
+  /* Hide desktop Sign In / Sign Up button on mobile */
+  .right-menu-links {
+    display: none;
+  }
+
+  /* Hamburger button stays visible and on top */
+  .menu-button.w-nav-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 9300;
+  }
+}
+
+/* Swiper brand marquee — make sure it hides overflow on mobile */
+.swiper-movies {
+  overflow: hidden;
+  width: 100%;
+}
+
+/* Fix nav-menu hidden on desktop correctly */
+@media (min-width: 992px) {
+  .menu-button.w-nav-button {
+    display: none !important;
+  }
+}

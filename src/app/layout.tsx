@@ -144,13 +144,20 @@ export default function RootLayout({
             __html: JSON.stringify(localBusinessSchema),
           }}
         />
+        {/* Swiper CSS for brand marquee on all pages */}
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
       </head>
       <body
         className={`${sans.variable} ${playfair.variable} antialiased font-sans bg-amber-50 page`}
       >
         <Providers>{children}</Providers>
-        {/* Unified Chat & Nav Injector */}
+        {/* Unified Chat, Nav Injector & Swiper Init */}
         <Script src="/bl-widgets.js" strategy="afterInteractive" />
+        {/* Swiper JS for React-rendered pages (cities, booking, etc.) */}
+        <Script
+          src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );
