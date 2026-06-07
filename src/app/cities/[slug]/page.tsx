@@ -76,6 +76,28 @@ function getCityData(slug: string) {
   // Replace Webflow hash CTA buttons with packages link
   contentHtml = contentHtml.replace(/href="#"(\s+class="[^"]*link-bt[^"]*")/g, 'href="/packages"$1');
 
+  // 4. Fix broken /occasion/xyz-in-city or /occasion/xyz-city links
+  const validOccasions = {
+    'birthday-parties': 'birthday-parties',
+    'block-parties': 'block-parties',
+    'corporate-parties': 'corporate-parties',
+    'fundraisers': 'fundraisers',
+    'launch-parties': 'launch-parties',
+    'marketing-events': 'marketing-events',
+    'movie-rental': 'movie-rental',
+    'photo-shoots': 'photo-sessions',
+    'reunions': 'reunions',
+    'school-events': 'school-occasions',
+    'sporting-events': 'sports-occasions',
+    'wedding-receptions': 'wedding-receptions'
+  };
+
+  Object.entries(validOccasions).forEach(([legacySlug, correctSlug]) => {
+    // Matches /occasion/legacySlug optionally followed by any -city suffix
+    const regex = new RegExp(`href="\\/occasion\\/${legacySlug}(?:-[a-z-]+)?"`, 'g');
+    contentHtml = contentHtml.replace(regex, `href="/occasions/${correctSlug}"`);
+  });
+
   return {
     title,
     description,

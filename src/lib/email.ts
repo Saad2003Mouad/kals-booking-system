@@ -18,9 +18,9 @@ function baseTemplate(content: string, title: string) {
       </style>
     </head>
     <body style="margin:0;padding:0;background-color:#F4F4F5;font-family:'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-      <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;background:#F4F4F5;padding:40px 16px;">
+      <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;background:#F4F4F5;padding:20px 10px;">
         <tr><td align="center">
-          <table role="presentation" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:24px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.05);">
+          <table role="presentation" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.05);margin:0 auto;">
             
             <!-- Header -->
             <tr>
@@ -127,10 +127,10 @@ function formatBookingDetailsHtml(booking: any) {
 
   return `
     <!-- Event Summary -->
-    <h3 style="margin:24px 0 12px;color:${BRAND_NAVY};font-size:18px;font-weight:800;border-bottom:2px solid #F3F4F6;padding-bottom:8px;">Event Summary</h3>
-    <table width="100%" cellpadding="8" cellspacing="0" style="margin-bottom:24px;font-size:14px;color:#4B5563;">
+    <h3 style="margin:24px 0 12px;color:${BRAND_NAVY};font-size:20px;font-weight:900;border-bottom:2px solid #F3F4F6;padding-bottom:8px;">Event Summary</h3>
+    <table width="100%" cellpadding="10" cellspacing="0" style="margin-bottom:24px;font-size:16px;color:#4B5563;">
       <tr>
-        <td width="35%" style="font-weight:800;color:${BRAND_NAVY};border-bottom:1px solid #F3F4F6;">Event Type</td>
+        <td width="40%" style="font-weight:800;color:${BRAND_NAVY};border-bottom:1px solid #F3F4F6;">Event Type</td>
         <td style="border-bottom:1px solid #F3F4F6;font-weight:600;">${booking.eventType}</td>
       </tr>
       <tr>
@@ -183,20 +183,20 @@ function formatBookingDetailsHtml(booking: any) {
     </table>
 
     <!-- Pricing Breakdown -->
-    <h3 style="margin:0 0 12px;color:${BRAND_NAVY};font-size:18px;font-weight:800;border-bottom:2px solid #F3F4F6;padding-bottom:8px;">Pricing & Travel Fee</h3>
+    <h3 style="margin:0 0 12px;color:${BRAND_NAVY};font-size:20px;font-weight:900;border-bottom:2px solid #F3F4F6;padding-bottom:8px;">Pricing & Travel Fee</h3>
     ${(booking.package?.slug === "custom-event-package" || booking.packageId === "custom-event-package" || booking.package?.name === "Custom Event Package") ? `
-    <div style="background:#FFF9F0;border:1px dashed #FFA000;border-radius:12px;padding:16px 20px;margin-bottom:24px;font-size:15px;color:#92400E;font-weight:700;">
+    <div style="background:#FFF9F0;border:1px dashed #FFA000;border-radius:12px;padding:16px 20px;margin-bottom:24px;font-size:16px;color:#92400E;font-weight:700;">
       Custom Quote Pending — our team will review your guest count, vehicle needs, route, timing, and event details before preparing your final quote.
     </div>
     ` : `
-    <table width="100%" cellpadding="8" cellspacing="0" style="margin-bottom:24px;font-size:14px;color:#4B5563;background:#F8F9FC;border-radius:12px;">
+    <table width="100%" cellpadding="10" cellspacing="0" style="margin-bottom:24px;font-size:16px;color:#4B5563;background:#F8F9FC;border-radius:12px;">
       <tr>
-        <td width="70%" style="font-weight:600;">Base Package Price</td>
-        <td width="30%" align="right" style="font-weight:800;color:${BRAND_NAVY};">$${basePrice.toFixed(2)}</td>
+        <td width="65%" style="font-weight:600;">Base Package Price</td>
+        <td width="35%" align="right" style="font-weight:800;color:${BRAND_NAVY};">$${basePrice.toFixed(2)}</td>
       </tr>
       <tr>
-        <td style="font-weight:600;color:#6B7280;font-size:13px;">Included: ${pkgServings} guests, ${pkgDurationMins} min</td>
-        <td align="right" style="font-weight:700;color:#6B7280;font-size:13px;"></td>
+        <td style="font-weight:600;color:#6B7280;font-size:14px;">Included: ${pkgServings} guests, ${pkgDurationMins} min</td>
+        <td align="right" style="font-weight:700;color:#6B7280;font-size:14px;"></td>
       </tr>
       ${extraGuestsFee > 0 ? `
       <tr>
@@ -234,8 +234,8 @@ function formatBookingDetailsHtml(booking: any) {
         <td align="right" style="font-weight:800;color:${BRAND_NAVY};">+$${weekendFee.toFixed(2)}</td>
       </tr>` : ''}
       <tr>
-        <td style="font-weight:900;color:${BRAND_NAVY};border-top:2px solid #E5E7EB;padding-top:12px;">Total Estimated Price</td>
-        <td align="right" style="font-weight:900;color:${BRAND_GOLD};font-size:18px;border-top:2px solid #E5E7EB;padding-top:12px;">$${estimatedTotal.toFixed(2)}</td>
+        <td style="font-weight:900;color:${BRAND_NAVY};border-top:2px solid #E5E7EB;padding-top:16px;">Total Estimated Price</td>
+        <td align="right" style="font-weight:900;color:${BRAND_GOLD};font-size:22px;border-top:2px solid #E5E7EB;padding-top:16px;">$${estimatedTotal.toFixed(2)}</td>
       </tr>
     </table>
     `}
@@ -303,9 +303,9 @@ export async function sendBookingApprovedEmail(to: string, firstName: string, bo
     
     ${bookingDetailsHtml}
     
-    <div style="text-align:center;margin-top:20px;padding:15px;background:#F8F9FC;border-radius:12px;">
-      <p style="margin:0 0 8px;font-size:13px;font-weight:700;color:${BRAND_NAVY};">Need to check details or manage your booking?</p>
-      <a href="${portalUrl}" style="color:${BRAND_GOLD};font-weight:900;text-decoration:underline;font-size:14px;">Access Your Booking Portal →</a>
+    <div style="text-align:center;margin-top:24px;padding:24px 16px;background:#F8F9FC;border-radius:16px;">
+      <p style="margin:0 0 16px;font-size:16px;font-weight:800;color:${BRAND_NAVY};">Need to check details or manage your booking?</p>
+      <a href="${portalUrl}" style="display:block;width:100%;box-sizing:border-box;background:${BRAND_NAVY};color:${BRAND_GOLD};padding:18px 24px;border-radius:12px;text-decoration:none;font-weight:900;font-size:16px;text-transform:uppercase;">Access Booking Portal</a>
     </div>
   `;
   return sendEmail({ to, subject, html });
@@ -358,11 +358,11 @@ export async function sendBookingPendingEmail(
       <p style="margin:0;font-weight:600;">Payment is collected after the service. We accept multiple payment methods.</p>
     </div>
 
-    <div style="text-align:center;margin-bottom:24px;">
-      <p style="margin:0 0 16px;color:#4B5563;font-size:14px;font-weight:600;">
-        You will hear from us shortly with final confirmation.
+    <div style="text-align:center;margin-bottom:32px;">
+      <p style="margin:0 0 20px;color:#4B5563;font-size:16px;font-weight:700;">
+        You will hear from us shortly with an official update.
       </p>
-      <a href="${portalUrl}" style="display:inline-block;background:${BRAND_NAVY};color:white;padding:14px 28px;border-radius:24px;text-decoration:none;font-weight:800;font-size:14px;">View Request Status & Portal</a>
+      <a href="${portalUrl}" style="display:block;width:100%;box-sizing:border-box;background:${BRAND_NAVY};color:white;padding:18px 24px;border-radius:12px;text-decoration:none;font-weight:900;font-size:16px;text-transform:uppercase;">View Request Status & Portal</a>
     </div>
 
     <div style="background:#F3F4F6;border-radius:12px;padding:20px;text-align:center;">
@@ -415,11 +415,11 @@ export async function sendBookingRejectedEmail(
 
     ${bookingDetailsHtml}
 
-    <div style="text-align:center;margin-bottom:24px;">
-      <p style="margin:0 0 16px;color:#4B5563;font-size:14px;font-weight:600;">
+    <div style="text-align:center;margin-bottom:32px;">
+      <p style="margin:0 0 20px;color:#4B5563;font-size:16px;font-weight:700;">
         You can still update your request using the link below, and our team will be happy to review it again.
       </p>
-      <a href="${portalUrl}" style="display:inline-block;background:${BRAND_NAVY};color:${BRAND_GOLD};padding:16px 32px;border-radius:32px;text-decoration:none;font-weight:900;font-size:15px;box-shadow:0 10px 20px rgba(0,2,35,0.15);">Update My Booking Request →</a>
+      <a href="${portalUrl}" style="display:block;width:100%;box-sizing:border-box;background:${BRAND_NAVY};color:${BRAND_GOLD};padding:18px 24px;border-radius:12px;text-decoration:none;font-weight:900;font-size:16px;text-transform:uppercase;box-shadow:0 10px 20px rgba(0,2,35,0.15);">Update My Booking Request</a>
     </div>
   `;
   return sendEmail({ to, subject: `Update Needed: Your Boston Legend Booking Request #${bookingNumber}`, html });
@@ -466,11 +466,11 @@ export async function sendBookingPendingReviewEmail(
 
     ${bookingDetailsHtml}
 
-    <div style="text-align:center;margin-bottom:24px;">
-      <p style="margin:0 0 16px;color:#4B5563;font-size:14px;font-weight:600;">
+    <div style="text-align:center;margin-bottom:32px;">
+      <p style="margin:0 0 20px;color:#4B5563;font-size:16px;font-weight:700;">
         You can check the current status, update details, or message our team using the link below.
       </p>
-      <a href="${portalUrl}" style="display:inline-block;background:${BRAND_NAVY};color:${BRAND_GOLD};padding:16px 32px;border-radius:32px;text-decoration:none;font-weight:900;font-size:15px;box-shadow:0 10px 20px rgba(0,2,35,0.15);">View or Manage Your Booking →</a>
+      <a href="${portalUrl}" style="display:block;width:100%;box-sizing:border-box;background:${BRAND_NAVY};color:${BRAND_GOLD};padding:18px 24px;border-radius:12px;text-decoration:none;font-weight:900;font-size:16px;text-transform:uppercase;box-shadow:0 10px 20px rgba(0,2,35,0.15);">View or Manage Your Booking</a>
     </div>
   `;
   return sendEmail({ to, subject: `Booking Under Review: Your Boston Legend Request #${bookingNumber}`, html });
@@ -551,10 +551,10 @@ export async function sendCustomQuoteEmail(
     ${bookingDetailsHtml}
 
     <div style="text-align:center;margin:32px 0 24px;">
-      <p style="margin:0 0 16px;color:#4B5563;font-size:14px;font-weight:600;">
+      <p style="margin:0 0 20px;color:#4B5563;font-size:16px;font-weight:700;">
         You can check the current status, update details, or message our team using the link below.
       </p>
-      <a href="${portalUrl}" style="display:inline-block;background:${BRAND_NAVY};color:${BRAND_GOLD};padding:16px 32px;border-radius:32px;text-decoration:none;font-weight:950;font-size:15px;box-shadow:0 10px 20px rgba(0,2,35,0.15);">View or Manage Your Request →</a>
+      <a href="${portalUrl}" style="display:block;width:100%;box-sizing:border-box;background:${BRAND_NAVY};color:${BRAND_GOLD};padding:18px 24px;border-radius:12px;text-decoration:none;font-weight:950;font-size:16px;text-transform:uppercase;box-shadow:0 10px 20px rgba(0,2,35,0.15);">View or Manage Your Request</a>
     </div>
   `;
   return sendEmail({ to, subject: `Custom Quote Request Received — Boston Legend`, html });
