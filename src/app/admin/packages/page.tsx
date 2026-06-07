@@ -30,13 +30,14 @@ function PremiumImageUploader({
   const [localPreview, setLocalPreview] = useState<string | null>(value || null);
   const [error, setError] = useState("");
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     setLocalPreview(value || null);
     setError("");
   }, [value]);
 
-  const handleFile = (file: File) => {
+  const handleFile = async (file: File) => {
     setError("");
     const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
     if (!allowedTypes.includes(file.type)) {
@@ -49,8 +50,29 @@ function PremiumImageUploader({
       return;
     }
 
-    const objectUrl = URL.createObjectURL(file);
-    setLocalPreview(objectUrl);
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success && data.url) {
+        setLocalPreview(data.url);
+        onChange(data.url);
+      } else {
+        setError(data.error || "Failed to upload image.");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Network error uploading image.");
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleDrag = (e: React.DragEvent) => {
@@ -97,7 +119,12 @@ function PremiumImageUploader({
           dragActive ? "border-[#FFA000] bg-amber-50/40" : "border-slate-200 hover:border-slate-350"
         }`}
       >
-        {localPreview ? (
+        {uploading ? (
+          <div className="flex flex-col items-center justify-center space-y-2">
+            <Loader2 className="w-8 h-8 animate-spin text-[#FFA000]" />
+            <p className="text-xs font-bold text-slate-500">Uploading to secure storage...</p>
+          </div>
+        ) : localPreview ? (
           <div className="relative w-full max-w-[200px] h-32 rounded-xl overflow-hidden shadow-sm border border-slate-100">
             <img src={localPreview} alt="Preview" className="w-full h-full object-cover" />
             <button 
@@ -113,7 +140,7 @@ function PremiumImageUploader({
             <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center mx-auto text-slate-400">
               <ImageIcon className="w-5 h-5" />
             </div>
-            <div className="text-xs font-semibold text-slate-505">
+            <div className="text-xs font-semibold text-slate-550">
               Drag and drop an image here, <label className="text-[#FFA000] hover:underline cursor-pointer font-black">choose a file<input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleChange} /></label>, or paste an image URL.
             </div>
             <div className="text-[10px] text-slate-400 font-bold">
@@ -123,11 +150,11 @@ function PremiumImageUploader({
         )}
       </div>
 
-      {localPreview && !localPreview.startsWith("http") && (
-        <div className="bg-amber-50/70 border border-amber-200 p-3.5 rounded-xl text-[11px] text-amber-800 font-bold flex items-start gap-2 leading-relaxed">
-          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+      {localPreview && localPreview.startsWith("https://") && (
+        <div className="bg-emerald-50/80 border border-emerald-200 p-3.5 rounded-xl text-[11px] text-emerald-800 font-bold flex items-start gap-2 leading-relaxed">
+          <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-emerald-600" />
           <span>
-            <strong>Upload storage is not configured yet.</strong> This preview is local only. To persist this image on the server, please paste a web URL in the "Advanced: Paste image URL" section below.
+            <strong>Success!</strong> Image is uploaded to secure production storage.
           </span>
         </div>
       )}

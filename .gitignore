@@ -19,3 +19,4 @@ test_structure.mjs
 architecture.txt
 webflow-shared.css
 boston-legend.webflow.io
+.env*.local
