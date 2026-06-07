@@ -19,7 +19,7 @@ export default function SiteFooter() {
             <p className="footer-p">
               Make your events extra special with our ice cream truck catering! From birthdays to weddings and everything in between, we bring premium flavors and smiles right to your celebration. Serving Greater Boston, we’re here to sweeten every moment.
             </p>
-            <Link href="/booking" className="link-bt">Reserve Now</Link>
+            <Link href="/packages" className="link-bt">Reserve Now</Link>
             <div className="w-layout-hflex social-row">
               <img 
                 src="https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/681bd97f9407e01489f8f216_boston-legend-ice-cream-truck-facebook.png" 

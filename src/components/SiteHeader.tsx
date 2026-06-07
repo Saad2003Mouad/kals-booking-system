@@ -1,12 +1,38 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Script from "next/script";
 
 export default function SiteHeader() {
-  // We need to load Webflow's JS to make dropdowns and mobile menu work
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const btnRef = useRef<HTMLDivElement>(null);
+
+  // Close menu when clicking outside
   useEffect(() => {
-    // Attempt to re-init webflow if it's already loaded
+    function handleClick(e: MouseEvent) {
+      if (
+        mobileOpen &&
+        menuRef.current &&
+        btnRef.current &&
+        !menuRef.current.contains(e.target as Node) &&
+        !btnRef.current.contains(e.target as Node)
+      ) {
+        setMobileOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [mobileOpen]);
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileOpen]);
+
+  // Also try to re-init Webflow for dropdown functionality on desktop
+  useEffect(() => {
     const w = window as any;
     if (w.Webflow && w.Webflow.destroy) {
       w.Webflow.destroy();
@@ -15,19 +41,26 @@ export default function SiteHeader() {
     }
   }, []);
 
+  const closeMenu = () => setMobileOpen(false);
+
   return (
     <>
       <link href="https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/css/boston-legend.webflow.shared.fe0e6a837.min.css" rel="stylesheet" type="text/css" />
       <header className="header">
         <div data-animation="over-left" data-collapse="medium" data-duration="400" data-easing="ease" data-easing2="ease" role="banner" className="navbar w-nav">
           <div className="container menu w-container">
-            <Link href="/" className="brand w-nav-brand">
+            <Link href="/" className="brand w-nav-brand" onClick={closeMenu}>
               <img src="https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/67e3936366827af4bed1d0d0_logo-boston-legend-ice-cream-truck.avif" loading="lazy" width="165" height="63" alt="Boston legend ice cream truck logo" className="logo"/>
             </Link>
-            <nav role="navigation" className="nav-menu w-nav-menu">
-              <Link href="/" className="nav-link w-nav-link">Home</Link>
-              <Link href="/about" className="nav-link w-nav-link">About</Link>
-              <Link href="/menu" className="nav-link w-nav-link">Menu</Link>
+            <nav
+              ref={menuRef}
+              role="navigation"
+              className={`nav-menu w-nav-menu${mobileOpen ? " w--open" : ""}`}
+              style={mobileOpen ? { display: "flex", flexDirection: "column" } : {}}
+            >
+              <Link href="/" className="nav-link w-nav-link" onClick={closeMenu}>Home</Link>
+              <Link href="/about" className="nav-link w-nav-link" onClick={closeMenu}>About</Link>
+              <Link href="/menu" className="nav-link w-nav-link" onClick={closeMenu}>Menu</Link>
               <div data-hover="true" data-delay="0" className="w-dropdown">
                 <div className="nav-link dropdown w-dropdown-toggle">
                   <div className="dropdown-menu-icon w-icon-dropdown-toggle"></div>
@@ -37,12 +70,12 @@ export default function SiteHeader() {
                   <div className="w-dyn-list">
                     <div role="list" className="w-dyn-items">
                       <div role="listitem" className="drop-meu-item w-dyn-item">
-                        <Link href="/occasions/birthday-parties" className="dropdown-link w-inline-block">
+                        <Link href="/occasions/birthday-parties" className="dropdown-link w-inline-block" onClick={closeMenu}>
                           <div className="dorpdown-move"><div className="dorp-down-b">Birthday Parties</div><div className="dropdown-o">Birthday Parties</div></div>
                         </Link>
                       </div>
                       <div role="listitem" className="drop-meu-item w-dyn-item">
-                        <Link href="/occasions/corporate-parties" className="dropdown-link w-inline-block">
+                        <Link href="/occasions/corporate-parties" className="dropdown-link w-inline-block" onClick={closeMenu}>
                           <div className="dorpdown-move"><div className="dorp-down-b">Corporate Parties</div><div className="dropdown-o">Corporate Parties</div></div>
                         </Link>
                       </div>
@@ -50,14 +83,23 @@ export default function SiteHeader() {
                   </div>
                 </nav>
               </div>
-              <Link href="/packages" className="nav-link w-nav-link">Packages</Link>
-              <Link href="/manage-booking" className="nav-link w-nav-link">Manage Booking</Link>
-              <Link href="/contact-us" className="nav-link w-nav-link">Contact</Link>
+              <Link href="/packages" className="nav-link w-nav-link" onClick={closeMenu}>Packages</Link>
+              <Link href="/manage-booking" className="nav-link w-nav-link" onClick={closeMenu}>Manage Booking</Link>
+              <Link href="/contact-us" className="nav-link w-nav-link" onClick={closeMenu}>Contact</Link>
             </nav>
             <div className="right-menu-links">
               <Link href="/login" className="link-bt menu-bt">Sign In or Sign Up</Link>
             </div>
-            <div className="menu-button w-nav-button"><div className="icon w-icon-nav-menu"></div></div>
+            <div
+              ref={btnRef}
+              className={`menu-button w-nav-button${mobileOpen ? " w--open" : ""}`}
+              onClick={() => setMobileOpen(prev => !prev)}
+              role="button"
+              aria-label="Toggle navigation menu"
+              aria-expanded={mobileOpen}
+            >
+              <div className="icon w-icon-nav-menu"></div>
+            </div>
           </div>
         </div>
       </header>
