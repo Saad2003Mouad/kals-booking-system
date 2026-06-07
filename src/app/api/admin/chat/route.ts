@@ -13,13 +13,13 @@ export async function POST(req: Request) {
 
     const { messages } = await req.json();
 
-    if (!process.env.GROQ_API_KEY) {
+    if (!process.env.GROQ_API_KEY && !process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
       return NextResponse.json({ 
         intent: "FALLBACK",
         tool_calls: [],
         data: {},
-        final_response: "AI Concierge is in offline mode (No GROQ_API_KEY). Please check the dashboard directly for live data.",
-        reply: "AI Concierge is in offline mode (No GROQ_API_KEY). Please check the dashboard directly for live data."
+        final_response: "AI Concierge is in offline mode (No AI API key configured). Please check the dashboard directly for live data.",
+        reply: "AI Concierge is in offline mode (No AI API key configured). Please check the dashboard directly for live data."
       });
     }
 

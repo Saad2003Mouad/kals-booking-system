@@ -6,7 +6,7 @@ export async function POST(req: Request) {
   try {
     const { messages, currentPage } = await req.json();
 
-    if (!process.env.GROQ_API_KEY) {
+    if (!process.env.GROQ_API_KEY && !process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
       return NextResponse.json({ 
         intent: "FALLBACK",
         tool_calls: [],
@@ -56,7 +56,7 @@ export async function POST(req: Request) {
             html: `<p>A customer requested human assistance via the AI Chat Widget.</p>
                    <p><strong>Page:</strong> ${req.url}</p>
                    <p><strong>Last Message:</strong> ${lastUserMsg}</p>
-                   <p><a href="http://localhost:3000/admin/inquiries">View Inquiry in Dashboard</a></p>`,
+                   <p><a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.bostonlegendicecreamtruck.com'}/admin/inquiries">View Inquiry in Dashboard</a></p>`,
           });
         } catch (e) {
           console.error("Failed to send escalation email", e);

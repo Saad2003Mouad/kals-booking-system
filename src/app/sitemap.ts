@@ -9,53 +9,49 @@ const SITE_URL =
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
 
-  const baseRoutes = [
-    {
-      url: `${SITE_URL}/`,
-      lastModified: now,
-      changeFrequency: "weekly" as const,
-      priority: 1.0,
-    },
-    {
-      url: `${SITE_URL}/packages`,
-      lastModified: now,
-      changeFrequency: "weekly" as const,
-      priority: 0.9,
-    },
-    {
-      url: `${SITE_URL}/booking`,
-      lastModified: now,
-      changeFrequency: "monthly" as const,
-      priority: 0.9,
-    },
-    {
-      url: `${SITE_URL}/manage-booking`,
-      lastModified: now,
-      changeFrequency: "monthly" as const,
-      priority: 0.7,
-    },
+  const baseRoutes: MetadataRoute.Sitemap = [
+    { url: `${SITE_URL}/`, lastModified: now, changeFrequency: "weekly", priority: 1.0 },
+    { url: `${SITE_URL}/packages`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${SITE_URL}/booking`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${SITE_URL}/about`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${SITE_URL}/blog`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${SITE_URL}/contact-us`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${SITE_URL}/manage-booking`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
+    // Occasions pages
+    { url: `${SITE_URL}/occasions/birthday-parties`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${SITE_URL}/occasions/block-parties`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${SITE_URL}/occasions/corporate-parties`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${SITE_URL}/occasions/fundraisers`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${SITE_URL}/occasions/launch-parties`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${SITE_URL}/occasions/marketing-events`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${SITE_URL}/occasions/movie-rental`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${SITE_URL}/occasions/photo-sessions`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${SITE_URL}/occasions/reunions`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${SITE_URL}/occasions/school-occasions`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${SITE_URL}/occasions/sports-occasions`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${SITE_URL}/occasions/wedding-receptions`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
   ];
 
+  const cityRoutes: MetadataRoute.Sitemap = [];
   try {
     const citiesDir = path.join(process.cwd(), "cities");
     if (fs.existsSync(citiesDir)) {
       const files = fs.readdirSync(citiesDir);
-      const cityRoutes = files
+      files
         .filter((file) => file.endsWith(".html"))
-        .map((file) => {
+        .forEach((file) => {
           const slug = file.replace(".html", "").toLowerCase();
-          return {
+          cityRoutes.push({
             url: `${SITE_URL}/cities/${slug}`,
             lastModified: now,
-            changeFrequency: "weekly" as const,
+            changeFrequency: "weekly",
             priority: 0.8,
-          };
+          });
         });
-      return [...baseRoutes, ...cityRoutes];
     }
   } catch (error) {
     console.error("Error reading cities directory for sitemap:", error);
   }
 
-  return baseRoutes;
+  return [...baseRoutes, ...cityRoutes];
 }

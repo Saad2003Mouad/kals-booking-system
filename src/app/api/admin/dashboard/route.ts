@@ -60,14 +60,24 @@ export async function GET(req: Request) {
       orderBy: { code: "asc" }
     });
 
-    // 5. REVENUE CHART (mocked 7 days for now since grouping by date in Prisma requires raw queries or complex logic)
-    const revenueChart = Array.from({length: 7}).map((_, i) => {
+    // 5. REVENUE CHART — real 7-day data grouped by event date
+    const sevenDaysBookings = await prisma.booking.findMany({
+      where: {
+        status: { in: ["CONFIRMED", "COMPLETED"] },
+        eventDate: { gte: sevenDaysAgo },
+      },
+      select: { eventDate: true, totalAmount: true },
+    });
+
+    const revenueChart = Array.from({ length: 7 }).map((_, i) => {
       const d = new Date(today);
       d.setDate(d.getDate() - (6 - i));
-      return {
-        day: d.toLocaleDateString("en-US", { weekday: "short" }),
-        revenue: Math.floor(Math.random() * 2000) + 500 // Mock chart for UI beauty
-      };
+      const dayLabel = d.toLocaleDateString("en-US", { weekday: "short" });
+      const dayKey = d.toISOString().split("T")[0];
+      const revenue = sevenDaysBookings
+        .filter(b => b.eventDate.toISOString().split("T")[0] === dayKey)
+        .reduce((sum, b) => sum + (b.totalAmount || 0), 0);
+      return { day: dayLabel, revenue };
     });
 
     // If limited view (e.g. SUPPORT role), redact revenue data

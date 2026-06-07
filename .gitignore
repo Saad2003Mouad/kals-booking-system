@@ -17,3 +17,5 @@ prisma/*.db
 test_ai.ts
 test_structure.mjs
 architecture.txt
+webflow-shared.css
+boston-legend.webflow.io
