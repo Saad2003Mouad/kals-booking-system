@@ -20,6 +20,11 @@ const SITE_URL =
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  icons: {
+    icon: "https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/67e2c72e4fc41adc8f680014_a5a1d669e420812b3a56fb6706e45145_favicon-boston-legend-ice-cream-truck.png",
+    shortcut: "https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/67e2c72e4fc41adc8f680014_a5a1d669e420812b3a56fb6706e45145_favicon-boston-legend-ice-cream-truck.png",
+    apple: "https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/67e2c731abd6316959c63502_54b03788659eeaac6911fa083e1c20ee_webclip-boston-legend-ice-cream-truck.png",
+  },
   title: {
     default: "Boston Legend Ice Cream Truck | Book Now in Greater Boston",
     template: "%s | Boston Legend Ice Cream Truck",
@@ -141,7 +146,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${sans.variable} ${playfair.variable} antialiased font-sans bg-amber-50`}
+        className={`${sans.variable} ${playfair.variable} antialiased font-sans bg-amber-50 page`}
       >
         <Providers>{children}</Providers>
         {/* Unified Chat & Nav Injector */}
