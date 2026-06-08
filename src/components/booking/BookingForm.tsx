@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import {
@@ -536,11 +536,19 @@ const EVENT_TYPES = [
   "Other"
 ];
 const STEPS = ["Package", "Event Details", "Contact", "Verify", "Review"];
+const STEP_ICONS = ["🎁", "📅", "👤", "🔐", "✅"];
 
 export default function BookingForm() {
+  const wizardTopRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
   const packageParamId = searchParams.get("package") || searchParams.get("packageId");
-  const [step, setStep] = useState(0);
+  const [step, setStepRaw] = useState(0);
+  const setStep = (n: number) => {
+    setStepRaw(n);
+    setTimeout(() => {
+      wizardTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 60);
+  };
   const [pkgList, setPkgList] = useState<{ TRUCK: Pkg[]; VAN: Pkg[] }>({
     TRUCK: [],
     VAN: []
@@ -1132,50 +1140,119 @@ export default function BookingForm() {
 
   return (
     <div className="booking-wrapper w-full relative" style={{ fontFamily: FN }}>
+      {/* Scroll anchor */}
+      <div ref={wizardTopRef} style={{ scrollMarginTop: "80px" }} />
       <div className="w-full relative z-10">
         <div className="backdrop-blur-2xl bg-white/75 border-2 border-white/60 shadow-2xl rounded-3xl p-4 sm:p-12 transition-all duration-300">
           
-          {/* Stepper Header */}
+          {/* ── PREMIUM STEPPER ── */}
           <div className="mb-10 sm:mb-14">
-            <div className="flex items-center justify-between sm:hidden mb-6 bg-white/80 p-4.5 rounded-2xl border border-slate-100 shadow-sm">
-              <span className="text-xs font-black uppercase tracking-[0.22em] text-slate-400" style={{ fontFamily: FN }}>
-                Step {step + 1} of 5
-              </span>
-              <span className="text-base font-black" style={{ color: NAVY, fontFamily: FN }}>
-                {STEPS[step]}
-              </span>
+
+            {/* Mobile stepper — pill progress bar */}
+            <div className="sm:hidden mb-7">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">{STEP_ICONS[step]}</span>
+                  <span className="font-black text-base" style={{ color: NAVY, fontFamily: FN }}>
+                    {STEPS[step]}
+                  </span>
+                </div>
+                <span
+                  className="text-xs font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full"
+                  style={{ background: "rgba(255,160,0,0.12)", color: GOLD, fontFamily: FN }}
+                >
+                  {step + 1} / 5
+                </span>
+              </div>
+              {/* Progress bar */}
+              <div className="h-2 w-full rounded-full" style={{ background: "rgba(0,2,35,0.08)" }}>
+                <div
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{
+                    width: `${((step + 1) / 5) * 100}%`,
+                    background: `linear-gradient(90deg, ${GOLD}, #FFB800)`
+                  }}
+                />
+              </div>
             </div>
 
-            <div className="hidden sm:flex items-center justify-between gap-3 px-6 mb-2">
+            {/* Desktop stepper — premium numbered nodes */}
+            <div className="hidden sm:flex items-center justify-center gap-0 mb-2">
               {STEPS.map((s, i) => (
-                <div key={i} className="flex items-center flex-1 last:flex-initial">
-                  <div className="flex flex-col items-center">
+                <div key={i} className="flex items-center">
+                  {/* Step node */}
+                  <div className="flex flex-col items-center" style={{ minWidth: 72 }}>
                     <div
-                      className="w-12 h-12 rounded-[1.25rem] flex items-center justify-center font-black text-base transition-all duration-300 border-2"
+                      className="relative flex items-center justify-center transition-all duration-400"
                       style={{
-                        background: i === step ? NAVY : i < step ? "#EBFBEE" : "rgba(255, 255, 255, 0.8)",
-                        color: i === step ? GOLD : i < step ? "#10B981" : "#A3A3C2",
-                        borderColor: i === step ? NAVY : i < step ? "#A7F3D0" : SOFT_BORDER,
-                        boxShadow: i === step ? "0 4px 15px rgba(0,2,35,0.15)" : "none"
+                        width: i === step ? 56 : 44,
+                        height: i === step ? 56 : 44,
+                        borderRadius: i === step ? 18 : 14,
+                        background: i < step
+                          ? "linear-gradient(135deg, #10B981, #059669)"
+                          : i === step
+                          ? `linear-gradient(135deg, ${NAVY} 0%, #001a4c 100%)`
+                          : "rgba(255,255,255,0.8)",
+                        border: i === step
+                          ? `3px solid ${GOLD}`
+                          : i < step
+                          ? "3px solid #A7F3D0"
+                          : "2px solid rgba(0,2,35,0.10)",
+                        boxShadow: i === step
+                          ? `0 0 0 5px rgba(255,160,0,0.18), 0 8px 24px rgba(0,2,35,0.22)`
+                          : i < step
+                          ? "0 4px 12px rgba(16,185,129,0.25)"
+                          : "0 2px 8px rgba(0,0,0,0.04)",
+                        transition: "all 0.35s cubic-bezier(.4,0,.2,1)"
                       }}
                     >
-                      {i < step ? <CheckCircle2 className="w-6 h-6 text-emerald-600" /> : i + 1}
+                      {i < step ? (
+                        <CheckCircle2 className="w-5 h-5 text-white" />
+                      ) : i === step ? (
+                        <span className="text-base" style={{ color: GOLD, fontWeight: 900, fontFamily: FN }}>
+                          {i + 1}
+                        </span>
+                      ) : (
+                        <span className="text-sm" style={{ color: "#9CA3AF", fontWeight: 800, fontFamily: FN }}>
+                          {i + 1}
+                        </span>
+                      )}
+                      {/* Active glow pulse */}
+                      {i === step && (
+                        <span
+                          className="absolute inset-0 rounded-[18px] animate-ping"
+                          style={{ background: "rgba(255,160,0,0.15)", animationDuration: "2s" }}
+                        />
+                      )}
                     </div>
                     <span
-                      className="text-xs font-black uppercase tracking-[0.15em] mt-3 whitespace-nowrap transition-all duration-300"
-                      style={{ color: i <= step ? NAVY : "#6B7280", opacity: i <= step ? 0.95 : 0.7, fontFamily: FN }}
+                      className="text-xs font-black mt-2.5 whitespace-nowrap transition-all duration-300"
+                      style={{
+                        fontFamily: FN,
+                        color: i === step ? NAVY : i < step ? "#059669" : "#9CA3AF",
+                        letterSpacing: "0.08em",
+                        textTransform: "uppercase",
+                        fontSize: i === step ? "11px" : "10px",
+                        fontWeight: i === step ? 900 : 700
+                      }}
                     >
                       {s}
                     </span>
                   </div>
+                  {/* Connector line */}
                   {i < STEPS.length - 1 && (
                     <div
-                      className="flex-1 h-1 mx-4 rounded-full transition-all duration-500"
-                      style={{
-                        background: i < step ? "#10B981" : "rgba(0, 2, 35, 0.08)",
-                        opacity: i < step ? 0.85 : 0.5
-                      }}
-                    />
+                      className="relative mx-1 transition-all duration-500"
+                      style={{ width: 48, height: 4, borderRadius: 4, flexShrink: 0, overflow: "hidden", background: "rgba(0,2,35,0.07)" }}
+                    >
+                      <div
+                        className="absolute inset-y-0 left-0 rounded-full transition-all duration-500"
+                        style={{
+                          width: i < step ? "100%" : "0%",
+                          background: `linear-gradient(90deg, ${GOLD}, #059669)`
+                        }}
+                      />
+                    </div>
                   )}
                 </div>
               ))}
@@ -1186,37 +1263,55 @@ export default function BookingForm() {
           {step === 0 && (
             <div>
               <div className="mb-10 text-center sm:text-left">
+                <div className="inline-flex items-center gap-2 mb-3 px-4 py-1.5 rounded-full" style={{ background: "rgba(255,160,0,0.1)", border: "1px solid rgba(255,160,0,0.25)" }}>
+                  <span style={{ fontSize: 14, color: GOLD }}>🍦</span>
+                  <span className="text-xs font-black uppercase tracking-[0.2em]" style={{ color: GOLD, fontFamily: FN }}>Step 1 of 5</span>
+                </div>
                 <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight" style={{ color: NAVY, fontFamily: F_SERIF }}>
                   Choose Your Package
                 </h2>
-                <p className="text-slate-600 font-semibold text-base sm:text-lg mt-2 leading-relaxed" style={{ fontFamily: FN }}>
+                <p className="text-slate-500 font-semibold text-base sm:text-lg mt-2 leading-relaxed" style={{ fontFamily: FN }}>
                   Select the vehicle type and package that fits your event size
                 </p>
               </div>
 
-              {/* Vehicle Tabs */}
-              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-10 p-1.5 sm:p-2 rounded-[1.5rem] sm:rounded-[2rem] border-2 bg-white/60 border-slate-100 shadow-sm">
+              {/* Vehicle Type Tabs — premium pill switcher */}
+              <div className="grid grid-cols-2 gap-3 mb-10">
                 {(["TRUCK", "VAN"] as const).map((t) => (
                   <button
                     key={t}
-                    onClick={() => {
-                      setPkgTab(t);
-                      setSel(null);
-                    }}
-                    className="flex-1 py-3 sm:py-4.5 rounded-xl sm:rounded-2xl font-black text-sm sm:text-lg transition-all duration-300 flex items-center justify-center gap-1.5 sm:gap-2.5"
+                    onClick={() => { setPkgTab(t); setSel(null); }}
+                    className="relative py-4 sm:py-5 rounded-2xl font-black text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2 overflow-hidden"
                     style={
                       pkgTab === t
-                        ? { background: NAVY, color: GOLD, boxShadow: "0 8px 24px rgba(0,2,35,0.2)" }
-                        : { color: NAVY, opacity: 0.85 }
+                        ? {
+                            background: `linear-gradient(135deg, ${NAVY} 0%, #001a4c 100%)`,
+                            color: GOLD,
+                            boxShadow: `0 10px 30px rgba(0,2,35,0.25), 0 0 0 3px rgba(255,160,0,0.25)`,
+                            border: `2px solid ${GOLD}`
+                          }
+                        : {
+                            background: "rgba(255,255,255,0.8)",
+                            color: NAVY,
+                            border: "2px solid rgba(0,2,35,0.10)",
+                            boxShadow: "0 2px 8px rgba(0,0,0,0.04)"
+                          }
                     }
                   >
-                    {t === "TRUCK" ? "🚐 Americano Truck" : "🚌 Sprinter / Dodge Van"}
+                    {pkgTab === t && (
+                      <span className="absolute inset-0 opacity-10" style={{ background: "radial-gradient(circle at 30% 50%, #FFA000 0%, transparent 60%)" }} />
+                    )}
+                    <span className="text-xl">{t === "TRUCK" ? "🚐" : "🚌"}</span>
+                    <span>{t === "TRUCK" ? "Americano Truck" : "Sprinter Van"}</span>
+                    {pkgTab === t && (
+                      <CheckCircle2 className="w-4 h-4 absolute top-2 right-2" style={{ color: GOLD, opacity: 0.8 }} />
+                    )}
                   </button>
                 ))}
               </div>
 
               {/* Package Cards List */}
-              <div className="space-y-5 mb-10">
+              <div className="space-y-4 mb-10">
                 {listPkgs.length === 0 && (
                   <div className="text-center py-20 text-slate-400">
                     <Loader2 className="w-10 h-10 animate-spin mx-auto mb-4" />
@@ -1229,55 +1324,110 @@ export default function BookingForm() {
                     <button
                       key={p.id}
                       onClick={() => setSel(p)}
-                      className="w-full text-left p-5 sm:p-8 rounded-3xl border-2 transition-all duration-300 flex flex-col sm:flex-row sm:items-center gap-6 hover:shadow-2xl hover:-translate-y-1 group backdrop-blur-md"
-                      style={{
-                        borderColor: isSelected ? GOLD : "rgba(0, 2, 35, 0.12)",
-                        background: isSelected ? "rgba(255, 253, 245, 0.85)" : "rgba(255, 255, 255, 0.65)",
-                        boxShadow: isSelected ? "0 12px 35px rgba(255,160,0,0.15)" : "0 4px 20px rgba(0,0,0,0.02)"
-                      }}
+                      className="w-full text-left transition-all duration-300 group"
+                      style={{ outline: "none" }}
                     >
-                      {/* Vehicle Icon Badge */}
                       <div
-                        className="w-18 h-18 rounded-2xl flex items-center justify-center text-4xl flex-shrink-0 transition-transform duration-300 group-hover:scale-105 shadow-sm"
-                        style={{ background: isSelected ? "#FFF0B3" : CREAM_LIGHT }}
+                        className="relative rounded-3xl border-2 overflow-hidden transition-all duration-300"
+                        style={{
+                          borderColor: isSelected ? GOLD : "rgba(0, 2, 35, 0.10)",
+                          background: isSelected
+                            ? `linear-gradient(135deg, rgba(255,250,235,0.98) 0%, rgba(255,253,245,0.95) 100%)`
+                            : "rgba(255,255,255,0.75)",
+                          boxShadow: isSelected
+                            ? `0 0 0 4px rgba(255,160,0,0.15), 0 20px 50px rgba(255,160,0,0.15)`
+                            : "0 4px 20px rgba(0,0,0,0.04)",
+                          transform: isSelected ? "translateY(-2px)" : "translateY(0)"
+                        }}
                       >
-                        {p.type === "TRUCK" || p.serviceType === "AMERICANO_TRUCK" ? "🚐" : "🚌"}
-                      </div>
+                        {/* Selected ribbon */}
+                        {isSelected && (
+                          <div
+                            className="absolute top-0 left-0 right-0 h-1.5 rounded-t-3xl"
+                            style={{ background: `linear-gradient(90deg, ${GOLD}, #FFB800, ${GOLD})` }}
+                          />
+                        )}
 
-                      {/* Details */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center gap-2.5">
-                          <span className="font-black text-2xl sm:text-3xl tracking-tight leading-tight" style={{ color: NAVY, fontFamily: F_SERIF }}>
-                            {p.name}
-                          </span>
-                          {isSelected && (
-                            <span className="px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-emerald-100/90 text-emerald-800 border border-emerald-250">
-                              Selected
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-slate-800 font-bold text-base sm:text-lg mt-3 flex flex-wrap items-center gap-4">
-                          <span className="flex items-center gap-1.5">
-                            <Users className="w-5.5 h-5.5 text-slate-650" /> {p.includedQty || p.servings} Servings Included
-                          </span>
-                          <span className="w-2 h-2 rounded-full bg-slate-400 hidden sm:inline" />
-                          <span className="flex items-center gap-1.5">
-                            <Clock className="w-5.5 h-5.5 text-slate-655" /> {p.durationMins || p.includedMinutes || 60} Min Duration
-                          </span>
-                        </div>
-                        <div className="text-sm sm:text-base font-black mt-3 flex items-center gap-1.5" style={{ color: GOLD }}>
-                          <Star className="w-5 h-5 fill-current" /> Extra guests billed at ${p.extraGuestPrice ?? p.extraPiecePrice ?? 5} per person
-                        </div>
-                      </div>
+                        <div className="p-5 sm:p-7 flex flex-col sm:flex-row sm:items-center gap-5">
+                          {/* Icon */}
+                          <div
+                            className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center text-3xl sm:text-4xl flex-shrink-0 transition-all duration-300 shadow-sm"
+                            style={{
+                              background: isSelected
+                                ? `linear-gradient(135deg, #FFF0B3 0%, #FFE57A 100%)`
+                                : CREAM_LIGHT,
+                              boxShadow: isSelected ? "0 4px 16px rgba(255,160,0,0.3)" : "none"
+                            }}
+                          >
+                            {p.type === "TRUCK" || p.serviceType === "AMERICANO_TRUCK" ? "🚐" : "🚌"}
+                          </div>
 
-                      {/* Pricing */}
-                      <div className="flex-shrink-0 text-left sm:text-right border-t sm:border-t-0 pt-4 sm:pt-0 border-dashed border-slate-300 flex sm:flex-col items-baseline sm:items-end justify-between sm:justify-center">
-                        <span className="text-sm font-black uppercase tracking-wider text-slate-600 sm:hidden">
-                          Base Price:
-                        </span>
-                        <span className="text-4xl sm:text-5xl font-black tracking-tight" style={{ color: isSelected ? GOLD : NAVY }}>
-                          ${p.basePrice || p.price}
-                        </span>
+                          {/* Details */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-2 mb-2">
+                              <span
+                                className="font-black text-xl sm:text-2xl tracking-tight leading-tight"
+                                style={{ color: isSelected ? NAVY : NAVY, fontFamily: F_SERIF }}
+                              >
+                                {p.name}
+                              </span>
+                              {isSelected && (
+                                <span
+                                  className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider"
+                                  style={{ background: "#ECFDF5", color: "#059669", border: "1.5px solid #A7F3D0" }}
+                                >
+                                  <CheckCircle2 className="w-3 h-3" /> Selected
+                                </span>
+                              )}
+                            </div>
+
+                            <div
+                              className="flex flex-wrap items-center gap-x-5 gap-y-1.5 mb-3"
+                              style={{ color: "#6B7280", fontSize: 14, fontWeight: 700 }}
+                            >
+                              <span className="flex items-center gap-1.5">
+                                <Users className="w-4 h-4" style={{ color: isSelected ? GOLD : "#9CA3AF" }} />
+                                <span style={{ color: isSelected ? NAVY : "#374151" }}>
+                                  {p.includedQty || p.servings} servings included
+                                </span>
+                              </span>
+                              <span className="flex items-center gap-1.5">
+                                <Clock className="w-4 h-4" style={{ color: isSelected ? GOLD : "#9CA3AF" }} />
+                                <span style={{ color: isSelected ? NAVY : "#374151" }}>
+                                  {p.durationMins || p.includedMinutes || 60} min service
+                                </span>
+                              </span>
+                            </div>
+
+                            <div
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black"
+                              style={{
+                                background: isSelected ? "rgba(255,160,0,0.12)" : "rgba(0,2,35,0.04)",
+                                color: isSelected ? "#92400E" : "#6B7280"
+                              }}
+                            >
+                              <Star className="w-3.5 h-3.5" style={{ color: GOLD, fill: GOLD }} />
+                              Extra guests: ${p.extraGuestPrice ?? p.extraPiecePrice ?? 5} / person
+                            </div>
+                          </div>
+
+                          {/* Price block */}
+                          <div
+                            className="flex-shrink-0 flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 border-t sm:border-t-0 border-dashed pt-4 sm:pt-0"
+                            style={{ borderColor: "rgba(0,2,35,0.10)" }}
+                          >
+                            <span className="text-xs font-black uppercase tracking-wider text-slate-400 sm:hidden">Base Price</span>
+                            <div className="text-right">
+                              <span
+                                className="block text-3xl sm:text-4xl font-black tracking-tight"
+                                style={{ color: isSelected ? GOLD : NAVY, fontFamily: F_SERIF }}
+                              >
+                                ${p.basePrice || p.price}
+                              </span>
+                              <span className="text-xs font-bold text-slate-400 block mt-0.5">base price</span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </button>
                   );
@@ -1285,45 +1435,147 @@ export default function BookingForm() {
               </div>
 
               {/* Microcopy note */}
-              <div className="p-6 sm:p-8 rounded-3xl border-2 border-amber-200/80 bg-amber-50/60 text-base sm:text-lg text-slate-800 font-bold mb-10 flex items-start gap-4.5 leading-relaxed shadow-sm">
-                <span className="text-3xl shrink-0 mt-0.5">💡</span>
+              <div className="p-5 sm:p-7 rounded-2xl mb-10 flex items-start gap-4 leading-relaxed" style={{ background: "rgba(255,160,0,0.06)", border: "1.5px solid rgba(255,160,0,0.25)" }}>
+                <span className="text-2xl shrink-0">💡</span>
                 <div>
-                  <p className="font-black text-amber-950 text-lg sm:text-xl">Need more servings?</p>
-                  <p className="text-slate-700 mt-2">
+                  <p className="font-black text-sm" style={{ color: NAVY }}>Need more servings?</p>
+                  <p className="text-slate-600 font-semibold text-sm mt-1">
                     Select the package closest to your estimate. Extra guests beyond the included count are billed at the package rate per person.
                   </p>
                 </div>
               </div>
 
-              {/* Custom Event Package special card */}
+              {/* Custom Event Package — premium distinct card */}
               {customPkg && (
-                <div className="mt-2 mb-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="h-px flex-1 bg-slate-200"></div>
-                    <span className="text-xs font-black uppercase tracking-wider text-slate-400">Large Events</span>
-                    <div className="h-px flex-1 bg-slate-200"></div>
+                <div className="mt-2 mb-8">
+                  {/* Section divider */}
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="h-px flex-1" style={{ background: "rgba(0,2,35,0.08)" }} />
+                    <span
+                      className="text-xs font-black uppercase tracking-[0.2em] px-4 py-1.5 rounded-full"
+                      style={{ background: "rgba(0,2,35,0.05)", color: "#6B7280", fontFamily: FN }}
+                    >
+                      Large Events — 200+ Guests
+                    </span>
+                    <div className="h-px flex-1" style={{ background: "rgba(0,2,35,0.08)" }} />
                   </div>
+
                   <button
                     onClick={() => setSel(customPkg)}
-                    className="w-full text-left p-5 sm:p-8 rounded-3xl border-2 transition-all duration-300 flex flex-col sm:flex-row sm:items-center gap-6 hover:shadow-2xl hover:-translate-y-1 backdrop-blur-md"
-                    style={{
-                      borderColor: sel?.id === customPkg.id ? "#000223" : "rgba(0, 2, 35, 0.18)",
-                      background: sel?.id === customPkg.id ? "rgba(255,253,235,0.9)" : "rgba(255,255,255,0.65)",
-                      boxShadow: sel?.id === customPkg.id ? "0 12px 35px rgba(0,2,35,0.15)" : "0 4px 20px rgba(0,0,0,0.02)"
-                    }}
+                    className="w-full text-left transition-all duration-300"
+                    style={{ outline: "none" }}
                   >
-                    <div className="w-18 h-18 rounded-2xl flex items-center justify-center text-4xl flex-shrink-0 shadow-sm" style={{ background: "rgba(255,160,0,0.12)" }}>🎪</div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-2.5">
-                        <span className="font-black text-2xl sm:text-3xl tracking-tight" style={{ color: NAVY, fontFamily: F_SERIF }}>{customPkg.name}</span>
-                        <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-200">{(customPkg as any).badge || "200+ Guests"}</span>
-                        {sel?.id === customPkg.id && <span className="px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-emerald-100/90 text-emerald-800 border border-emerald-250">Selected</span>}
+                    <div
+                      className="relative rounded-3xl border-2 overflow-hidden transition-all duration-300"
+                      style={{
+                        borderColor: sel?.id === customPkg.id ? NAVY : "rgba(0,2,35,0.15)",
+                        background: sel?.id === customPkg.id
+                          ? `linear-gradient(135deg, ${NAVY} 0%, #001a4c 100%)`
+                          : `linear-gradient(135deg, rgba(0,2,35,0.03) 0%, rgba(255,253,245,0.9) 100%)`,
+                        boxShadow: sel?.id === customPkg.id
+                          ? `0 0 0 4px rgba(0,2,35,0.12), 0 20px 50px rgba(0,2,35,0.25)`
+                          : "0 4px 20px rgba(0,0,0,0.04)"
+                      }}
+                    >
+                      {/* Decorative top stripe */}
+                      <div
+                        className="absolute top-0 left-0 right-0 h-1"
+                        style={{
+                          background: sel?.id === customPkg.id
+                            ? `linear-gradient(90deg, ${GOLD}, #FFD700, ${GOLD})`
+                            : "linear-gradient(90deg, rgba(0,2,35,0.2), rgba(0,2,35,0.1))"
+                        }}
+                      />
+
+                      <div className="p-5 sm:p-7 flex flex-col sm:flex-row sm:items-center gap-5">
+                        {/* Icon */}
+                        <div
+                          className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center text-3xl sm:text-4xl flex-shrink-0 shadow-md"
+                          style={{
+                            background: sel?.id === customPkg.id
+                              ? "rgba(255,160,0,0.25)"
+                              : "rgba(0,2,35,0.07)"
+                          }}
+                        >
+                          🎪
+                        </div>
+
+                        {/* Details */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-2 mb-2">
+                            <span
+                              className="font-black text-xl sm:text-2xl tracking-tight"
+                              style={{
+                                color: sel?.id === customPkg.id ? "#FFFFFF" : NAVY,
+                                fontFamily: F_SERIF
+                              }}
+                            >
+                              {customPkg.name}
+                            </span>
+                            <span
+                              className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider"
+                              style={{
+                                background: sel?.id === customPkg.id ? "rgba(255,160,0,0.25)" : "rgba(255,160,0,0.12)",
+                                color: sel?.id === customPkg.id ? GOLD : "#92400E",
+                                border: `1.5px solid ${sel?.id === customPkg.id ? GOLD : "rgba(255,160,0,0.3)"}`
+                              }}
+                            >
+                              200+ Guests
+                            </span>
+                            {sel?.id === customPkg.id && (
+                              <span
+                                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider"
+                                style={{ background: "rgba(255,255,255,0.15)", color: "#fff", border: "1.5px solid rgba(255,255,255,0.3)" }}
+                              >
+                                <CheckCircle2 className="w-3 h-3" /> Selected
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="space-y-1.5 mb-3">
+                            {[
+                              { icon: "👥", text: "For large gatherings of 200+ guests" },
+                              { icon: "📋", text: "Team reviews your event details personally" },
+                              { icon: "💬", text: "We'll contact you via WhatsApp with your quote" },
+                            ].map((item, i) => (
+                              <div key={i} className="flex items-center gap-2">
+                                <span style={{ fontSize: 12 }}>{item.icon}</span>
+                                <span
+                                  className="text-xs sm:text-sm font-bold"
+                                  style={{ color: sel?.id === customPkg.id ? "rgba(255,255,255,0.8)" : "#6B7280" }}
+                                >
+                                  {item.text}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Custom pricing block */}
+                        <div className="flex-shrink-0 text-center sm:text-right border-t sm:border-t-0 pt-4 sm:pt-0" style={{ borderColor: sel?.id === customPkg.id ? "rgba(255,255,255,0.1)" : "rgba(0,2,35,0.08)" }}>
+                          <span
+                            className="block text-2xl sm:text-3xl font-black tracking-tight"
+                            style={{ color: sel?.id === customPkg.id ? GOLD : NAVY, fontFamily: F_SERIF }}
+                          >
+                            Custom
+                          </span>
+                          <span
+                            className="block text-xs sm:text-sm font-bold mt-1"
+                            style={{ color: sel?.id === customPkg.id ? "rgba(255,255,255,0.6)" : "#9CA3AF" }}
+                          >
+                            Pricing
+                          </span>
+                          <span
+                            className="block text-xs font-black uppercase tracking-wider mt-2 px-3 py-1 rounded-full"
+                            style={{
+                              background: sel?.id === customPkg.id ? "rgba(255,160,0,0.2)" : "rgba(0,2,35,0.05)",
+                              color: sel?.id === customPkg.id ? GOLD : "#9CA3AF"
+                            }}
+                          >
+                            Team Review
+                          </span>
+                        </div>
                       </div>
-                      <p className="text-slate-600 font-semibold text-sm sm:text-base mt-3 leading-relaxed">{(customPkg as any).description || "Planning a larger celebration? Tell us about your event and our team will prepare a custom package and final quote for you."}</p>
-                    </div>
-                    <div className="flex-shrink-0 text-center border-t sm:border-t-0 pt-4 sm:pt-0 border-dashed border-slate-300">
-                      <span className="text-3xl sm:text-4xl font-black block" style={{ color: NAVY }}>Custom</span>
-                      <span className="text-sm font-bold text-slate-500 mt-1 block">Quote</span>
                     </div>
                   </button>
                 </div>
@@ -1334,10 +1586,10 @@ export default function BookingForm() {
                 <button
                   onClick={() => setStep(1)}
                   disabled={!sel}
-                  className="inline-flex items-center gap-3 px-12 py-5.5 rounded-full font-black text-lg sm:text-xl shadow-2xl disabled:opacity-40 hover:-translate-y-1 active:translate-y-0 transition-all duration-300 w-full sm:w-auto justify-center"
-                  style={{ background: NAVY, color: GOLD, fontFamily: FN }}
+                  className="inline-flex items-center gap-3 px-10 sm:px-12 py-4 sm:py-5 rounded-full font-black text-base sm:text-xl shadow-2xl disabled:opacity-40 hover:-translate-y-1 active:translate-y-0 transition-all duration-300 w-full sm:w-auto justify-center"
+                  style={{ background: `linear-gradient(135deg, ${NAVY} 0%, #001a4c 100%)`, color: GOLD, fontFamily: FN }}
                 >
-                  Continue to Details <ArrowRight className="w-5.5 h-5.5" />
+                  Continue to Details <ArrowRight className="w-5 h-5" />
                 </button>
               </div>
             </div>
