@@ -24,6 +24,7 @@ interface LocationVerificationWidgetProps {
   value: LocationData;
   onChange: (val: LocationData) => void;
   error?: string;
+  serviceZones?: { zip: string; city: string }[];
 }
 
 export default function LocationVerificationWidget({
@@ -31,6 +32,7 @@ export default function LocationVerificationWidget({
   value,
   onChange,
   error,
+  serviceZones = [],
 }: LocationVerificationWidgetProps) {
   const [activeTab, setActiveTab] = useState<"search" | "manual" | "map">("search");
   const [searchQuery, setSearchQuery] = useState("");
@@ -78,6 +80,16 @@ export default function LocationVerificationWidget({
 
     return () => clearTimeout(delayDebounce);
   }, [searchQuery]);
+
+  // Auto-populate City from ZIP code
+  useEffect(() => {
+    if (value.zipCode && value.zipCode.length === 5 && serviceZones.length > 0) {
+      const zone = serviceZones.find((z) => z.zip === value.zipCode);
+      if (zone && (!value.city || value.city !== zone.city)) {
+        onChange({ ...value, city: zone.city, latitude: null, longitude: null, locationVerificationMethod: "" });
+      }
+    }
+  }, [value.zipCode, serviceZones]);
 
   const handleSuggestionSelect = (item: any) => {
     // Parse street from suggestion label
@@ -402,6 +414,9 @@ export default function LocationVerificationWidget({
               />
             </div>
           </div>
+          {serviceZones.length > 0 && value.zipCode.length > 0 && value.zipCode.length < 5 && (
+            <p className="text-xs text-slate-500 font-medium">Enter 5-digit Massachusetts ZIP code to auto-detect City.</p>
+          )}
           <button
             type="button"
             onClick={handleManualVerify}

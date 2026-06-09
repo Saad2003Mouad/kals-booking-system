@@ -93,7 +93,7 @@ const localBusinessSchema = {
   url: SITE_URL,
   description:
     "Boston's premier luxury ice cream truck booking and dispatch service. Available for birthdays, corporate events, school parties, weddings, and community gatherings across Greater Boston.",
-  telephone: ["617-999-3803", "781-921-3233", "617-866-2727"],
+  telephone: ["617-999-3803", "617-866-2727"],
   image: `${SITE_URL}/images/og-image.jpg`,
   priceRange: "$$",
   address: {

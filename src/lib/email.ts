@@ -535,7 +535,7 @@ export async function sendCustomQuoteEmail(
       </p>
       <p style="margin:0 0 16px;color:#1E3A8A;font-size:15px;font-weight:700;line-height:1.4;">
         📞 617-999-3803<br/>
-        📞 781-921-3233<br/>
+        📞 617-999-3803<br/>
         📞 617-866-2727
       </p>
       <p style="margin:0 0 12px;color:#1E3A8A;font-size:15px;font-weight:600;line-height:1.4;">
@@ -543,7 +543,7 @@ export async function sendCustomQuoteEmail(
       </p>
       <div style="text-align:center;">
         <a href="${getWaLink('16179993803')}" style="display:block;background:#25D366;color:#ffffff;padding:12px 20px;border-radius:12px;text-decoration:none;font-weight:950;font-size:15px;margin-bottom:10px;text-align:center;">WhatsApp 617-999-3803</a>
-        <a href="${getWaLink('17819213233')}" style="display:block;background:#25D366;color:#ffffff;padding:12px 20px;border-radius:12px;text-decoration:none;font-weight:950;font-size:15px;margin-bottom:10px;text-align:center;">WhatsApp 781-921-3233</a>
+        <a href="${getWaLink('16179993803')}" style="display:block;background:#25D366;color:#ffffff;padding:12px 20px;border-radius:12px;text-decoration:none;font-weight:950;font-size:15px;margin-bottom:10px;text-align:center;">WhatsApp 617-999-3803</a>
         <a href="${getWaLink('16178662727')}" style="display:block;background:#25D366;color:#ffffff;padding:12px 20px;border-radius:12px;text-decoration:none;font-weight:950;font-size:15px;margin-bottom:10px;text-align:center;">WhatsApp 617-866-2727</a>
       </div>
     </div>

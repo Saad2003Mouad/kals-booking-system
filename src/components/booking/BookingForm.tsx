@@ -387,184 +387,6 @@ function Field({
   );
 }
 
-function ZipSelector({
-  zip,
-  city,
-  onZipChange,
-  serviceZones,
-  zipErr,
-  cityErr
-}: {
-  zip: string;
-  city: string;
-  onZipChange: (zip: string, city: string) => void;
-  serviceZones: { zip: string; city: string }[];
-  zipErr?: string;
-  cityErr?: string;
-}) {
-  const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState("");
-  const [focused, setFocused] = useState(false);
-
-  const zones = serviceZones.length > 0 ? serviceZones : SERVICE_AREAS;
-  // Show results from 1 char — up to 20 matches
-  const filtered =
-    search.length >= 1
-      ? zones
-          .filter(
-            (a) =>
-              a.zip.startsWith(search) ||
-              a.city.toLowerCase().startsWith(search.toLowerCase())
-          )
-          .slice(0, 20)
-      : [];
-
-  return (
-    <div className="md:col-span-2 grid md:grid-cols-2 gap-6">
-      {/* ZIP Input — floating label style */}
-      <div className="relative flex flex-col gap-2 w-full">
-        <div
-          className="relative w-full transition-all duration-300"
-          style={{
-            background: zipErr ? "rgba(255,240,240,0.90)" : (focused ? "rgba(255,255,255,0.97)" : "rgba(255,255,255,0.82)"),
-            borderRadius: 18,
-            border: `2px solid ${zipErr ? "rgba(220,38,38,0.5)" : (focused ? GOLD : "rgba(0,2,35,0.10)")}`,
-            boxShadow: focused && !zipErr
-              ? `0 0 0 5px rgba(255,160,0,0.13), 0 8px 32px rgba(0,0,0,0.05)`
-              : "0 2px 10px rgba(0,0,0,0.04)",
-            backdropFilter: "blur(16px)",
-            transition: "all 0.25s cubic-bezier(.4,0,.2,1)"
-          }}
-        >
-          <div
-            className="absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors duration-300"
-            style={{ color: zipErr ? "#DC2626" : (focused ? GOLD : "#94A3B8") }}
-          >
-            <MapPin className="w-5 h-5" />
-          </div>
-          <label
-            className="absolute pointer-events-none font-black tracking-wide transition-all duration-200 select-none"
-            style={{
-              left: "3.0rem",
-              top: (focused || zip || search) ? "0.5rem" : "50%",
-              transform: (focused || zip || search) ? "none" : "translateY(-50%)",
-              fontSize: (focused || zip || search) ? "10px" : "16px",
-              letterSpacing: (focused || zip || search) ? "0.16em" : "0.01em",
-              textTransform: (focused || zip || search) ? "uppercase" : "none",
-              color: zipErr ? "#DC2626" : (focused ? GOLD : "#94A3B8"),
-              fontFamily: FN,
-              zIndex: 1
-            }}
-          >
-            ZIP Code
-          </label>
-          <input
-            value={focused ? search : (zip ? `${zip}${city ? ` — ${city}` : ""}` : search)}
-            onChange={(e) => {
-              // Clear parent selection first so input is fully writable
-              if (zip) onZipChange("", "");
-              setSearch(e.target.value);
-              setOpen(true);
-              if (e.target.value.length === 5) {
-                const found = zones.find((a) => a.zip === e.target.value);
-                if (found) { onZipChange(found.zip, found.city); setSearch(""); }
-              }
-            }}
-            onFocus={() => { setSearch(""); setOpen(true); setFocused(true); }}
-            onBlur={() => { setFocused(false); setTimeout(() => setOpen(false), 250); }}
-            placeholder=""
-            className="w-full outline-none bg-transparent font-bold"
-            style={{
-              fontFamily: FN,
-              fontSize: "1.2rem",
-              lineHeight: 1.4,
-              paddingTop: "1.65rem",
-              paddingBottom: "0.75rem",
-              paddingLeft: "3.0rem",
-              paddingRight: "1.1rem",
-              color: NAVY,
-              caretColor: GOLD
-            }}
-            autoComplete="off"
-          />
-        </div>
-        {/* Dropdown */}
-        {open && filtered.length > 0 && (
-          <div className="absolute left-0 right-0 top-full mt-2 bg-white/97 backdrop-blur-xl rounded-2xl border border-slate-200/80 shadow-2xl z-50 max-h-60 overflow-y-auto divide-y divide-slate-100/50">
-            {filtered.map((a) => (
-              <button
-                key={a.zip}
-                type="button"
-                onMouseDown={() => { onZipChange(a.zip, a.city); setSearch(""); setOpen(false); }}
-                className="w-full text-left px-5 py-4 hover:bg-amber-50/60 transition-colors flex items-center justify-between"
-              >
-                <span className="font-extrabold text-base" style={{ color: NAVY, fontFamily: FN }}>{a.city}</span>
-                <span className="font-mono text-sm font-black px-3 py-1 rounded-lg" style={{ background: "rgba(255,160,0,0.12)", color: GOLD }}>{a.zip}</span>
-              </button>
-            ))}
-          </div>
-        )}
-        {open && search.length >= 3 && filtered.length === 0 && (
-          <div className="absolute left-0 right-0 top-full mt-2 rounded-2xl border-2 border-red-200/80 p-5 text-center z-50 shadow-xl" style={{ background: "rgba(254,242,242,0.97)" }}>
-            <p className="text-red-700 font-black text-base">Outside service area</p>
-            <p className="text-red-500 text-sm font-bold mt-1">We serve Massachusetts only</p>
-          </div>
-        )}
-        <p className="mt-2 ml-1 text-slate-500 font-semibold text-sm" style={{ fontFamily: FN }}>Massachusetts service area</p>
-      </div>
-
-      {/* City — editable, auto-filled from ZIP lookup, can be manually overridden */}
-      <div className="relative flex flex-col gap-2 w-full">
-        <div
-          className="relative w-full transition-all duration-300"
-          style={{
-            background: cityErr ? "rgba(255,240,240,0.90)" : "rgba(255,255,255,0.82)",
-            borderRadius: 18,
-            border: `2px solid ${cityErr ? "rgba(220,38,38,0.5)" : "rgba(0,2,35,0.10)"}`,
-            boxShadow: "0 2px 10px rgba(0,0,0,0.04)",
-          }}
-        >
-          <label
-            className="absolute pointer-events-none font-black tracking-wide select-none"
-            style={{
-              left: "1.1rem",
-              top: city ? "0.5rem" : "50%",
-              transform: city ? "none" : "translateY(-50%)",
-              fontSize: city ? "10px" : "16px",
-              letterSpacing: city ? "0.16em" : "0.01em",
-              textTransform: city ? "uppercase" : "none",
-              color: cityErr ? "#DC2626" : "#94A3B8",
-              fontFamily: FN,
-              transition: "all 0.2s"
-            }}
-          >
-            City
-          </label>
-          <input
-            value={city}
-            onChange={(e) => {
-              onZipChange(zip, e.target.value);
-            }}
-            placeholder=""
-            className="w-full outline-none bg-transparent font-bold"
-            style={{
-              fontFamily: FN,
-              fontSize: "1.2rem",
-              paddingTop: "1.65rem",
-              paddingBottom: "0.75rem",
-              paddingLeft: "1.1rem",
-              paddingRight: "1.1rem",
-              color: NAVY,
-              caretColor: GOLD
-            }}
-          />
-        </div>
-        <p className="mt-1 ml-1 text-slate-400 font-semibold text-xs" style={{ fontFamily: FN }}>Auto-detected from ZIP · editable</p>
-      </div>
-    </div>
-  );
-}
-
 type Pkg = {
   id: string;
   name: string;
@@ -697,7 +519,7 @@ export default function BookingForm() {
     const refText = b ? `#${b.bookingNumber}` : "Pending";
     const guestNum = b ? ((b as any).guests || customGuestCount || 201) : (customGuestCount || 201);
     const duration = sel?.slug === "custom-event-package" ? "Flexible/Custom" : `${(sel as any)?.durationMins ?? sel?.includedMinutes ?? 60} mins`;
-    const primaryAddr = primaryLoc.formattedAddress || `${address}, ${city}, MA ${zip}`;
+    const primaryAddr = primaryLoc.formattedAddress || `${address}, ${primaryLoc.city}, MA ${primaryLoc.zipCode}`;
     const stopsList = bookingStops.length > 0 
       ? bookingStops.map((s: any, i: number) => `Stop ${i+2}: ${s.formattedAddress || s.street}`).join(", ")
       : "None";
@@ -844,7 +666,7 @@ export default function BookingForm() {
   const handleZipChange = useCallback((z: string, c: string) => {
     setZip(z);
     setCity(c);
-    if (z) setZipErr("");
+    if (z) setLocationErr("");
     if (c) setCityErr("");
     // Sync to primaryLoc as well to avoid duplicates
     setPrimaryLoc((prev: any) => ({ ...prev, zipCode: z, city: c }));
@@ -906,7 +728,7 @@ export default function BookingForm() {
     const pkgDuration = (sel as any)?.durationMins ?? sel?.includedMinutes ?? 60;
     const payload = {
       packageId: sel?.id,
-      zip: primaryLoc.zipCode || zip,
+      zip: primaryLoc.zipCode,
       address: primaryLoc.street || address,
       city: primaryLoc.city || city,
       guests: additionalGuests,           // only extra guests beyond included
@@ -994,7 +816,7 @@ export default function BookingForm() {
       eventType,
       address: primaryLoc.street || address,
       city: primaryLoc.city || city,
-      zip: primaryLoc.zipCode || zip,
+      zip: primaryLoc.zipCode,
       notes,
       extraServings: 0,
       firstName,
@@ -1115,7 +937,6 @@ export default function BookingForm() {
                     <div className="space-y-2">
                       {[
                         { num: "617-999-3803", wa: "16179993803" },
-                        { num: "781-921-3233", wa: "17819213233" },
                         { num: "617-866-2727", wa: "16178662727" },
                       ].map(({ num, wa }) => (
                         <a key={wa} href={getWhatsAppUrl(wa)} target="_blank" rel="noopener noreferrer"
@@ -1840,14 +1661,7 @@ export default function BookingForm() {
                   />
                 </div>
 
-                <ZipSelector
-                  zip={zip}
-                  city={city}
-                  onZipChange={handleZipChange}
-                  serviceZones={serviceZones}
-                  zipErr={zipErr}
-                  cityErr={cityErr}
-                />
+                
 
                 <div className="md:col-span-2">
                   <LocationVerificationWidget
@@ -2103,11 +1917,11 @@ export default function BookingForm() {
                       setLocationErr("");
                     }
 
-                    if (!zip.trim()) {
+                    if (!primaryLoc.zipCode.trim()) {
                       setZipErr("ZIP Code is required.");
                       hasErr = true;
                     } else {
-                      setZipErr("");
+                      setLocationErr("");
                     }
                     if (!city.trim()) {
                       setCityErr("City is required.");
@@ -2509,7 +2323,7 @@ export default function BookingForm() {
                             ...(additionalGuests > 0 ? [["Additional Guests", `+${additionalGuests} guests`]] as [string, string][] : []),
                             ...(extraServiceMins > 0 ? [["Additional Service Time", `+${extraServiceMins} mins`]] as [string, string][] : []),
                           ]),
-                      ["Location", `${primaryLoc.formattedAddress || `${address}, ${city} ${zip}`}`],
+                      ["Location", `${primaryLoc.formattedAddress || `${address}, ${primaryLoc.city} ${primaryLoc.zipCode}`}`],
                       ...(bookingStops.length > 0 ? [["Stops", `${bookingStops.length} additional stop(s)`]] as [string, string][] : []),
                       ["Garage Origin", "Boston Revere — 84 Fernwood Ave"],
                       ...(quote ? [
@@ -2597,7 +2411,7 @@ export default function BookingForm() {
                     <div className="space-y-2">
                       {[
                         { num: "617-999-3803", wa: "16179993803" },
-                        { num: "781-921-3233", wa: "17819213233" },
+                        { num: "617-999-3803", wa: "16179993803" },
                         { num: "617-866-2727", wa: "16178662727" },
                       ].map(({ num, wa }) => (
                         <a key={wa} href={getWhatsAppUrl(wa)} target="_blank" rel="noopener noreferrer"

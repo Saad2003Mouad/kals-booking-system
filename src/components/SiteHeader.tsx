@@ -48,20 +48,50 @@ export default function SiteHeader() {
         href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
       />
 
+      <style dangerouslySetInnerHTML={{__html: `
+        .mobile-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(0,2,35,0.55);
+          z-index: 9000;
+          backdrop-filter: blur(4px);
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 0.3s ease;
+        }
+        .mobile-backdrop.open {
+          opacity: 1;
+          pointer-events: auto;
+        }
+        @media (max-width: 991px) {
+          .nav-menu.w-nav-menu {
+            display: flex !important;
+            flex-direction: column !important;
+            position: fixed !important;
+            top: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: min(85vw, 320px) !important;
+            background: #000223 !important;
+            z-index: 9200 !important;
+            overflow-y: auto !important;
+            padding: 70px 0 30px !important;
+            box-shadow: -8px 0 40px rgba(0,0,0,0.35) !important;
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+          }
+          .nav-menu.w-nav-menu.w--open {
+            transform: translateX(0) !important;
+          }
+        }
+      `}} />
+
       {/* Mobile overlay backdrop */}
-      {mobileOpen && (
-        <div
-          onClick={closeMenu}
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,2,35,0.55)",
-            zIndex: 9000,
-            backdropFilter: "blur(2px)",
-          }}
-          aria-hidden="true"
-        />
-      )}
+      <div
+        className={`mobile-backdrop ${mobileOpen ? "open" : ""}`}
+        onClick={closeMenu}
+        aria-hidden="true"
+      />
 
       <header className="header" style={{ position: "relative", zIndex: 9100 }}>
         <div
@@ -90,24 +120,7 @@ export default function SiteHeader() {
               ref={menuRef}
               role="navigation"
               className={`nav-menu w-nav-menu${mobileOpen ? " w--open" : ""}`}
-              style={
-                mobileOpen
-                  ? {
-                      display: "flex",
-                      flexDirection: "column",
-                      position: "fixed",
-                      top: 0,
-                      right: 0,
-                      bottom: 0,
-                      width: "min(85vw, 320px)",
-                      background: "#000223",
-                      zIndex: 9200,
-                      overflowY: "auto",
-                      padding: "70px 0 30px",
-                      boxShadow: "-8px 0 40px rgba(0,0,0,0.35)",
-                    }
-                  : {}
-              }
+              style={{}}
             >
               {/* Close button inside panel */}
               {mobileOpen && (
