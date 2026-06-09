@@ -391,12 +391,16 @@ function ZipSelector({
   zip,
   city,
   onZipChange,
-  serviceZones
+  serviceZones,
+  zipErr,
+  cityErr
 }: {
   zip: string;
   city: string;
   onZipChange: (zip: string, city: string) => void;
   serviceZones: { zip: string; city: string }[];
+  zipErr?: string;
+  cityErr?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -422,10 +426,10 @@ function ZipSelector({
         <div
           className="relative w-full transition-all duration-300"
           style={{
-            background: focused ? "rgba(255,255,255,0.97)" : "rgba(255,255,255,0.82)",
+            background: zipErr ? "rgba(255,240,240,0.90)" : (focused ? "rgba(255,255,255,0.97)" : "rgba(255,255,255,0.82)"),
             borderRadius: 18,
-            border: `2px solid ${focused ? GOLD : "rgba(0,2,35,0.10)"}`,
-            boxShadow: focused
+            border: `2px solid ${zipErr ? "rgba(220,38,38,0.5)" : (focused ? GOLD : "rgba(0,2,35,0.10)")}`,
+            boxShadow: focused && !zipErr
               ? `0 0 0 5px rgba(255,160,0,0.13), 0 8px 32px rgba(0,0,0,0.05)`
               : "0 2px 10px rgba(0,0,0,0.04)",
             backdropFilter: "blur(16px)",
@@ -434,7 +438,7 @@ function ZipSelector({
         >
           <div
             className="absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors duration-300"
-            style={{ color: focused ? GOLD : "#94A3B8" }}
+            style={{ color: zipErr ? "#DC2626" : (focused ? GOLD : "#94A3B8") }}
           >
             <MapPin className="w-5 h-5" />
           </div>
@@ -447,7 +451,7 @@ function ZipSelector({
               fontSize: (focused || zip || search) ? "10px" : "16px",
               letterSpacing: (focused || zip || search) ? "0.16em" : "0.01em",
               textTransform: (focused || zip || search) ? "uppercase" : "none",
-              color: focused ? GOLD : "#94A3B8",
+              color: zipErr ? "#DC2626" : (focused ? GOLD : "#94A3B8"),
               fontFamily: FN,
               zIndex: 1
             }}
@@ -514,9 +518,9 @@ function ZipSelector({
         <div
           className="relative w-full transition-all duration-300"
           style={{
-            background: "rgba(255,255,255,0.82)",
+            background: cityErr ? "rgba(255,240,240,0.90)" : "rgba(255,255,255,0.82)",
             borderRadius: 18,
-            border: `2px solid rgba(0,2,35,0.10)`,
+            border: `2px solid ${cityErr ? "rgba(220,38,38,0.5)" : "rgba(0,2,35,0.10)"}`,
             boxShadow: "0 2px 10px rgba(0,0,0,0.04)",
           }}
         >
@@ -529,7 +533,7 @@ function ZipSelector({
               fontSize: city ? "10px" : "16px",
               letterSpacing: city ? "0.16em" : "0.01em",
               textTransform: city ? "uppercase" : "none",
-              color: "#94A3B8",
+              color: cityErr ? "#DC2626" : "#94A3B8",
               fontFamily: FN,
               transition: "all 0.2s"
             }}
@@ -652,7 +656,9 @@ export default function BookingForm() {
   const [eventType, setEventType] = useState("");
   const [address, setAddress] = useState("");
   const [zip, setZip] = useState("");
+  const [zipErr, setZipErr] = useState("");
   const [city, setCity] = useState("");
+  const [cityErr, setCityErr] = useState("");
   const [notes, setNotes] = useState("");
   const extraServings = "0"; // legacy — extra guests handled by extraGuestPrice from package
   const [firstName, setFirst] = useState("");
@@ -838,6 +844,10 @@ export default function BookingForm() {
   const handleZipChange = useCallback((z: string, c: string) => {
     setZip(z);
     setCity(c);
+    if (z) setZipErr("");
+    if (c) setCityErr("");
+    // Sync to primaryLoc as well to avoid duplicates
+    setPrimaryLoc((prev: any) => ({ ...prev, zipCode: z, city: c }));
   }, []);
 
   const toEnNum = (str: string) => {
@@ -1830,6 +1840,15 @@ export default function BookingForm() {
                   />
                 </div>
 
+                <ZipSelector
+                  zip={zip}
+                  city={city}
+                  onZipChange={handleZipChange}
+                  serviceZones={serviceZones}
+                  zipErr={zipErr}
+                  cityErr={cityErr}
+                />
+
                 <div className="md:col-span-2">
                   <LocationVerificationWidget
                     label="Primary Event Setup Location"
@@ -2082,6 +2101,19 @@ export default function BookingForm() {
                       hasErr = true;
                     } else {
                       setLocationErr("");
+                    }
+
+                    if (!zip.trim()) {
+                      setZipErr("ZIP Code is required.");
+                      hasErr = true;
+                    } else {
+                      setZipErr("");
+                    }
+                    if (!city.trim()) {
+                      setCityErr("City is required.");
+                      hasErr = true;
+                    } else {
+                      setCityErr("");
                     }
 
                     if (isGuestCountInvalid) {

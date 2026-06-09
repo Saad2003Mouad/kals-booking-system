@@ -65,50 +65,8 @@ export default function PackagesPage() {
   const customs = packages.filter(p => p.serviceType === "CUSTOM" || p.slug === "custom-event-package");
 
   return (
-    <div className="min-h-screen bg-amber-50 relative overflow-hidden">
-      {/* Decorative Background Image & Blobs */}
-      <div className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden flex items-center justify-center">
-        {/* About Page Background Image */}
-        <img 
-          src="https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/6806e0e50044373b2a3731cd_3f0ed1b4c359e3e652e232aa0100b911_boston-legend-ice-cream-truck-service-bg.avif" 
-          alt="" 
-          className="absolute inset-0 min-w-full min-h-full object-cover opacity-80"
-        />
-        
-        {/* Top Left Matte/Clear Yellow/Orange Blob */}
-        <div 
-          className="absolute top-[-5%] left-[-5%] w-[450px] h-[450px] bg-[#F59E0B] opacity-90"
-          style={{ animation: 'organicBlob1 15s ease-in-out infinite alternate' }}
-        ></div>
-        
-        {/* Top Right Matte/Clear Pink Blob */}
-        <div 
-          className="absolute top-[-5%] right-[-5%] w-[500px] h-[500px] bg-[#FF4081] opacity-90"
-          style={{ animation: 'organicBlob2 18s ease-in-out infinite alternate-reverse' }}
-        ></div>
-      </div>
-
-      {/* Main Content Container with relative z-index to sit above the background */}
+    <div className="page min-h-screen bg-transparent relative overflow-hidden">
       <div className="relative z-10 flex flex-col min-h-screen">
-        {/* Header accent bars — sit ABOVE Webflow nav background */}
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 80, zIndex: 20, pointerEvents: "none", overflow: "hidden" }}>
-          {/* Orange-amber — left (behind logo) */}
-          <div style={{
-            position: "absolute", top: 0, left: 0,
-            width: 300, height: "100%",
-            background: "linear-gradient(105deg, #FF6B00 0%, #FF8C00 45%, #FFA500 70%, transparent 100%)",
-            opacity: 1,
-            borderBottomRightRadius: 72,
-          }} />
-          {/* Deep rose — right */}
-          <div style={{
-            position: "absolute", top: 0, right: 0,
-            width: 300, height: "100%",
-            background: "linear-gradient(255deg, #C2185B 0%, #E91E8C 45%, #FF4DB2 70%, transparent 100%)",
-            opacity: 1,
-            borderBottomLeftRadius: 72,
-          }} />
-        </div>
         <div style={{ position: "relative", zIndex: 25 }}>
           <SiteHeader />
         </div>

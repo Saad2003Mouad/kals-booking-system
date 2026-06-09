@@ -32,26 +32,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden bg-[#FAF6EF]">
-      {/* Header accent bars — match About page style */}
-      <div className="absolute top-0 left-0 right-0 h-20 z-20 pointer-events-none overflow-hidden">
-        {/* Orange-amber — left */}
-        <div style={{
-          position: "absolute", top: 0, left: 0,
-          width: 300, height: "100%",
-          background: "linear-gradient(105deg, #FF6B00 0%, #FF8C00 45%, #FFA500 70%, transparent 100%)",
-          opacity: 1,
-          borderBottomRightRadius: 72,
-        }} />
-        {/* Deep rose — right */}
-        <div style={{
-          position: "absolute", top: 0, right: 0,
-          width: 300, height: "100%",
-          background: "linear-gradient(255deg, #C2185B 0%, #E91E8C 45%, #FF4DB2 70%, transparent 100%)",
-          opacity: 1,
-          borderBottomLeftRadius: 72,
-        }} />
-      </div>
+    <div className="page min-h-screen flex flex-col relative overflow-hidden bg-transparent">
 
       {/* Nav */}
       <div style={{ position: "relative", zIndex: 25 }}>
@@ -82,9 +63,6 @@ export default function LoginPage() {
       {/* Login Card */}
       <main className="flex-1 flex items-start justify-center px-4 pt-8 pb-20">
         <div className="relative z-10 w-full max-w-md">
-          {/* Background decorative blobs */}
-          <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full opacity-20 pointer-events-none filter blur-[120px]" style={{ background: "radial-gradient(circle, #FFA000, transparent)" }}/>
-          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full opacity-10 pointer-events-none filter blur-[100px]" style={{ background: "radial-gradient(circle, #000223, transparent)" }}/>
 
           <div className="bg-white rounded-2xl shadow-lg p-8 border border-slate-200 relative overflow-hidden">
             {/* Top golden accent bar */}

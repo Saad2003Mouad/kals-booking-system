@@ -50,8 +50,6 @@ const nextConfig = {
   async redirects() {
     return [
       // Legacy routes
-      { source: '/menu', destination: '/packages', permanent: true },
-      { source: '/menu.html', destination: '/packages', permanent: true },
       { source: '/products', destination: '/packages', permanent: true },
       { source: '/reserve', destination: '/packages', permanent: true },
       { source: '/book-now', destination: '/packages', permanent: true },

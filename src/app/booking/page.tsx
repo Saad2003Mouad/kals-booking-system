@@ -10,52 +10,9 @@ export const metadata = {
 
 export default function BookingPage() {
   return (
-    <div style={{ fontFamily: "var(--font-sans), sans-serif", minHeight: "100vh", display: "flex", flexDirection: "column", position: "relative" }}>
+    <div className="page min-h-screen flex flex-col relative" style={{ fontFamily: "var(--font-sans), sans-serif" }}>
       
-      {/* Decorative Background Image & Blobs */}
-      <div className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden flex items-center justify-center bg-[#FAF8F5]">
-        <img 
-          src="https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/6806e0e50044373b2a3731cd_3f0ed1b4c359e3e652e232aa0100b911_boston-legend-ice-cream-truck-service-bg.avif" 
-          alt="" 
-          className="absolute inset-0 min-w-full min-h-full object-cover opacity-30"
-        />
-        {/* Amber Blob */}
-        <div 
-          className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] rounded-full bg-[#F59E0B] opacity-[0.35] blur-[100px] sm:blur-[140px]"
-          style={{ animation: 'organicBlob1 25s ease-in-out infinite alternate' }}
-        ></div>
-        {/* Violet/Magenta Blob */}
-        <div 
-          className="absolute bottom-[10%] right-[-10%] w-[700px] h-[700px] rounded-full bg-[#FF4081] opacity-[0.25] blur-[120px] sm:blur-[160px]"
-          style={{ animation: 'organicBlob2 28s ease-in-out infinite alternate-reverse' }}
-        ></div>
-        {/* Light Blue Blob */}
-        <div 
-          className="absolute top-[40%] left-[20%] w-[500px] h-[500px] rounded-full bg-[#06B6D4] opacity-[0.18] blur-[100px]"
-          style={{ animation: 'organicBlob1 20s ease-in-out infinite alternate-reverse' }}
-        ></div>
-      </div>
-
       <div className="relative w-full z-10 flex flex-col flex-grow">
-        {/* Header accent bars — sit ABOVE Webflow nav background */}
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 80, zIndex: 20, pointerEvents: "none", overflow: "hidden" }}>
-          {/* Orange-amber — left (behind logo) */}
-          <div style={{
-            position: "absolute", top: 0, left: 0,
-            width: 300, height: "100%",
-            background: "linear-gradient(105deg, #FF6B00 0%, #FF8C00 45%, #FFA500 70%, transparent 100%)",
-            opacity: 1,
-            borderBottomRightRadius: 72,
-          }} />
-          {/* Deep rose — right */}
-          <div style={{
-            position: "absolute", top: 0, right: 0,
-            width: 300, height: "100%",
-            background: "linear-gradient(255deg, #C2185B 0%, #E91E8C 45%, #FF4DB2 70%, transparent 100%)",
-            opacity: 1,
-            borderBottomLeftRadius: 72,
-          }} />
-        </div>
         <div style={{ position: "relative", zIndex: 25 }}>
           <SiteHeader />
         </div>
