@@ -60,31 +60,36 @@ export default function BookingPage() {
           <SiteHeader />
         </div>
 
-        {/* Hero strip without blue background */}
-        <div className="py-12 px-6 sm:px-8">
-          <div className="max-w-4xl mx-auto text-center">
-            <div style={{
-              display: "inline-flex", alignItems: "center", gap: 8,
-              padding: "8px 20px", borderRadius: 999, marginBottom: 20,
-              background: "white", border: "1px solid rgba(255, 160, 0, 0.4)",
-              color: "#FFA000", fontSize: 13, fontWeight: 900, letterSpacing: "0.12em", textTransform: "uppercase",
-              boxShadow: "0 6px 20px rgba(255, 160, 0, 0.08)"
-            }}>
-              ✨ Boston Legend · Reserve Your Experience
-            </div>
-            <h1 className="text-[#000223] text-4xl sm:text-5xl md:text-6xl font-black tracking-tight leading-none mb-6">
-              Book Your Ice Cream Experience
+        <section className="page-head">
+          <div className="w-layout-blockcontainer container w-container">
+            <h1 className="h1-page-hed">
+              <span className="page-titel-top">Boston Legend </span>
+              <br />
+              Book Your 
+              <br />
+              <span className="title-event">Experience</span>
             </h1>
-            <p className="text-slate-700 text-lg sm:text-xl font-bold max-w-2xl mx-auto">
-              Get an instant quote · Check real-time availability · Confirm in minutes
-            </p>
-            <p className="mt-4 text-sm text-slate-500 font-semibold">
-              Already booked?{" "}
-              <a href="/manage-booking" className="text-[#FFA000] font-black hover:underline">
-                Manage your booking here →
-              </a>
-            </p>
+            <img 
+              src="https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/681d4ed9eee047f1fa20bfc9_decore-line.avif" 
+              loading="lazy" 
+              width="426" 
+              height="36" 
+              alt="" 
+              className="h1-page-line" 
+            />
           </div>
+        </section>
+
+        <div className="text-center max-w-2xl mx-auto mt-6 mb-10 px-4">
+          <p className="text-slate-700 text-lg sm:text-xl font-bold">
+            Get an instant quote · Check real-time availability · Confirm in minutes
+          </p>
+          <p className="mt-3 text-sm text-slate-500 font-semibold">
+            Already booked?{" "}
+            <a href="/manage-booking" className="text-[#FFA000] font-black hover:underline">
+              Manage your booking here →
+            </a>
+          </p>
         </div>
 
         {/* Booking Form */}

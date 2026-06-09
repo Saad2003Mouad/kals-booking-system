@@ -190,18 +190,32 @@ export default function ManageBookingPage() {
         <SiteHeader />
       </div>
 
+      <section className="page-head">
+        <div className="w-layout-blockcontainer container w-container">
+          <h1 className="h1-page-hed">
+            <span className="page-titel-top">Boston Legend </span>
+            <br />
+            Manage Your 
+            <br />
+            <span className="title-event">Booking</span>
+          </h1>
+          <img 
+            src="https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/681d4ed9eee047f1fa20bfc9_decore-line.avif" 
+            loading="lazy" 
+            width="426" 
+            height="36" 
+            alt="" 
+            className="h1-page-line" 
+          />
+        </div>
+      </section>
+
       {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center justify-center p-6 min-h-[calc(100vh-80px)]">
+      <main className="flex-1 flex flex-col items-center justify-start p-6">
         
         <div className="w-full max-w-[460px] animate-in fade-in slide-in-from-bottom-4 duration-500">
           
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 text-[#a37000] font-bold text-xs uppercase tracking-wider mb-3">
-              🍦 Customer Portal
-            </div>
-            <h1 className="text-3xl sm:text-4xl font-black text-[#000223] tracking-tight mb-2">
-              Manage Booking
-            </h1>
+          <div className="text-center mt-4 mb-8">
             <p className="text-slate-500 font-bold text-sm sm:text-base max-w-[320px] mx-auto">
               Securely access your event details, track status, and request modifications.
             </p>

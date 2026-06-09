@@ -89,13 +89,53 @@ export default function PackagesPage() {
 
       {/* Main Content Container with relative z-index to sit above the background */}
       <div className="relative z-10 flex flex-col min-h-screen">
-        <SiteHeader />
+        {/* Header accent bars — sit ABOVE Webflow nav background */}
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 80, zIndex: 20, pointerEvents: "none", overflow: "hidden" }}>
+          {/* Orange-amber — left (behind logo) */}
+          <div style={{
+            position: "absolute", top: 0, left: 0,
+            width: 300, height: "100%",
+            background: "linear-gradient(105deg, #FF6B00 0%, #FF8C00 45%, #FFA500 70%, transparent 100%)",
+            opacity: 1,
+            borderBottomRightRadius: 72,
+          }} />
+          {/* Deep rose — right */}
+          <div style={{
+            position: "absolute", top: 0, right: 0,
+            width: 300, height: "100%",
+            background: "linear-gradient(255deg, #C2185B 0%, #E91E8C 45%, #FF4DB2 70%, transparent 100%)",
+            opacity: 1,
+            borderBottomLeftRadius: 72,
+          }} />
+        </div>
+        <div style={{ position: "relative", zIndex: 25 }}>
+          <SiteHeader />
+        </div>
 
-        <main className="pt-24 pb-20 flex-1">
+        <section className="page-head">
+          <div className="w-layout-blockcontainer container w-container">
+            <h1 className="h1-page-hed">
+              <span className="page-titel-top">Boston Legend </span>
+              <br />
+              Catering & Event 
+              <br />
+              <span className="title-event">Packages</span>
+            </h1>
+            <img 
+              src="https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/681d4ed9eee047f1fa20bfc9_decore-line.avif" 
+              loading="lazy" 
+              width="426" 
+              height="36" 
+              alt="" 
+              className="h1-page-line" 
+            />
+          </div>
+        </section>
+
+        <main className="pb-20 flex-1">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
-            <div className="text-center max-w-3xl mx-auto mb-16 mt-10">
-              <h1 className="text-5xl font-black text-[#000223] mb-6 tracking-tight">Boston Legend Packages</h1>
+            <div className="text-center max-w-3xl mx-auto mt-6 mb-16 px-4">
               <p className="text-lg text-gray-600 font-medium">
                 Choose the perfect ice cream truck or van package for your event. We bring premium flavors and unforgettable memories directly to you.
               </p>

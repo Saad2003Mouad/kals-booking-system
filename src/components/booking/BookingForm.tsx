@@ -180,6 +180,7 @@ function PremiumSelect({
   options,
   placeholder = "Select…",
   helper = "",
+  error = "",
   icon: Icon
 }: {
   label: string;
@@ -188,6 +189,7 @@ function PremiumSelect({
   options: string[];
   placeholder?: string;
   helper?: string;
+  error?: string;
   icon?: any;
 }) {
   const [focused, setFocused] = useState(false);
@@ -198,11 +200,21 @@ function PremiumSelect({
       <div
         className="relative w-full transition-all duration-300"
         style={{
-          background: focused ? "rgba(255,255,255,0.97)" : "rgba(255,255,255,0.82)",
+          background: focused
+            ? "rgba(255,255,255,0.97)"
+            : error
+            ? "rgba(255,240,240,0.90)"
+            : "rgba(255,255,255,0.82)",
           borderRadius: 18,
-          border: `2px solid ${focused ? GOLD : "rgba(0,2,35,0.10)"}`,
+          border: focused
+            ? `2px solid ${GOLD}`
+            : error
+            ? "2px solid rgba(220,38,38,0.5)"
+            : "2px solid rgba(0,2,35,0.10)",
           boxShadow: focused
             ? `0 0 0 5px rgba(255,160,0,0.13), 0 8px 32px rgba(0,0,0,0.05)`
+            : error
+            ? "0 0 0 4px rgba(220,38,38,0.07)"
             : "0 2px 10px rgba(0,0,0,0.04)",
           backdropFilter: "blur(16px)",
           transition: "all 0.25s cubic-bezier(.4,0,.2,1)"
@@ -211,7 +223,7 @@ function PremiumSelect({
         {Icon && (
           <div
             className="absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors duration-300"
-            style={{ color: focused ? GOLD : "#94A3B8" }}
+            style={{ color: focused ? GOLD : error ? "#EF4444" : "#94A3B8" }}
           >
             <Icon className="w-5 h-5" />
           </div>
@@ -226,7 +238,7 @@ function PremiumSelect({
             fontSize: floated ? "10px" : "16px",
             letterSpacing: floated ? "0.16em" : "0.01em",
             textTransform: floated ? "uppercase" : "none",
-            color: focused ? GOLD : "#94A3B8",
+            color: focused ? GOLD : error ? "#DC2626" : "#94A3B8",
             fontFamily: FN,
             zIndex: 1
           }}
@@ -263,14 +275,79 @@ function PremiumSelect({
           className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none transition-transform duration-300"
           style={{ transform: focused ? "translateY(-50%) rotate(180deg)" : "translateY(-50%)" }}
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={focused ? GOLD : "#94A3B8"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={focused ? GOLD : error ? "#EF4444" : "#94A3B8"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="6 9 12 15 18 9"/>
           </svg>
         </div>
       </div>
-      {helper && (
-        <p className="mt-2 ml-1 text-slate-500 font-semibold text-sm" style={{ fontFamily: FN }}>{helper}</p>
-      )}
+      {error ? (
+        <p className="text-xs font-semibold text-rose-500 mt-2 flex items-center gap-1.5 px-3">
+          <AlertCircle className="w-4 h-4 shrink-0" /> {error}
+        </p>
+      ) : helper ? (
+        <p className="text-xs font-semibold text-slate-400 mt-2 px-3">{helper}</p>
+      ) : null}
+    </div>
+  );
+}
+
+function PackageCardHeader({ imageUrl, serviceType, name }: { imageUrl?: string | null; serviceType: string; name: string }) {
+  const [imgErr, setImgErr] = useState(false);
+  const isTruck = serviceType === "AMERICANO_TRUCK" || serviceType === "TRUCK";
+  const icon = isTruck ? "🚐" : "🚌";
+
+  if (imageUrl && !imgErr) {
+    return (
+      <div className="h-44 w-full relative overflow-hidden bg-slate-100">
+        <img 
+          src={imageUrl} 
+          alt={name} 
+          onError={() => setImgErr(true)}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent pointer-events-none" />
+      </div>
+    );
+  }
+
+  return (
+    <div 
+      className="h-44 w-full relative overflow-hidden flex flex-col justify-between p-5"
+      style={{
+        background: "linear-gradient(135deg, #000223 0%, #17193d 100%)",
+      }}
+    >
+      <div className="absolute inset-0 opacity-15 pointer-events-none overflow-hidden">
+        <div className="absolute -top-10 -right-10 w-36 h-36 rounded-full border-[5px] border-[#FFA000] opacity-35" />
+        <div className="absolute -bottom-8 -left-8 w-24 h-24 rounded-full border-[3px] border-[#FFA000] opacity-25" />
+        <div 
+          className="absolute inset-0" 
+          style={{
+            backgroundImage: "radial-gradient(#FFA000 1.5px, transparent 1.5px)",
+            backgroundSize: "14px 14px",
+            opacity: 0.20
+          }} 
+        />
+      </div>
+      
+      <div className="flex justify-between items-start relative z-10">
+        <span className="text-4xl filter drop-shadow-md select-none">{icon}</span>
+        <span 
+          className="text-[9px] font-black tracking-widest uppercase py-1 px-2.5 rounded-full border"
+          style={{
+            borderColor: "rgba(255, 160, 0, 0.4)",
+            background: "rgba(0, 2, 35, 0.65)",
+            color: "#FFA000"
+          }}
+        >
+          {isTruck ? "Americano Truck" : "Sprinter Van"}
+        </span>
+      </div>
+
+      <div className="relative z-10">
+        <p className="text-white/40 text-[9px] font-black uppercase tracking-wider mb-0.5">Boston Legend Experience</p>
+        <h4 className="text-white text-base font-black tracking-tight" style={{ fontFamily: F_SERIF }}>{name}</h4>
+      </div>
     </div>
   );
 }
@@ -495,6 +572,8 @@ type Pkg = {
   extraGuestPrice?: number;
   description?: string;
   slug?: string;
+  imageUrl?: string | null;
+  badge?: string;
 };
 
 type Quote = {
@@ -546,7 +625,14 @@ export default function BookingForm() {
   const setStep = (n: number) => {
     setStepRaw(n);
     setTimeout(() => {
-      wizardTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (wizardTopRef.current) {
+        const rect = wizardTopRef.current.getBoundingClientRect();
+        const absoluteTop = window.scrollY + rect.top;
+        window.scrollTo({
+          top: absoluteTop - 110,
+          behavior: "smooth"
+        });
+      }
     }, 60);
   };
   const [pkgList, setPkgList] = useState<{ TRUCK: Pkg[]; VAN: Pkg[] }>({
@@ -580,6 +666,13 @@ export default function BookingForm() {
   const [result, setResult] = useState<AIResult | null>(null);
   const [phoneErr, setPhoneErr] = useState("");
   const [submitErr, setSubmitErr] = useState("");
+  const [eventDateErr, setEventDateErr] = useState("");
+  const [startTimeErr, setStartTimeErr] = useState("");
+  const [eventTypeErr, setEventTypeErr] = useState("");
+  const [locationErr, setLocationErr] = useState("");
+  const [firstNameErr, setFirstNameErr] = useState("");
+  const [lastNameErr, setLastNameErr] = useState("");
+  const [emailErr, setEmailErr] = useState("");
   const [serviceZones, setServiceZones] = useState<{ zip: string; city: string }[]>([]);
   const [phoneFocused, setPhoneFocused] = useState(false);
   const [hasMultipleLocations, setHasMultipleLocations] = useState(false);
@@ -730,6 +823,12 @@ export default function BookingForm() {
       })
       .catch(() => {});
   }, [packageParamId]);
+
+  useEffect(() => {
+    if (primaryLoc.latitude !== null) {
+      setLocationErr("");
+    }
+  }, [primaryLoc.latitude]);
 
   const handleZipChange = useCallback((z: string, c: string) => {
     setZip(z);
@@ -1148,24 +1247,27 @@ export default function BookingForm() {
           {/* ── PREMIUM STEPPER ── */}
           <div className="mb-10 sm:mb-14">
 
-            {/* Mobile stepper — pill progress bar */}
-            <div className="sm:hidden mb-7">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">{STEP_ICONS[step]}</span>
-                  <span className="font-black text-base" style={{ color: NAVY, fontFamily: FN }}>
-                    {STEPS[step]}
-                  </span>
+            {/* Mobile stepper — progress capsule */}
+            <div className="sm:hidden mb-8 bg-slate-50 border border-slate-200/60 rounded-2xl p-4 shadow-[inset_0_2px_4px_rgba(0,0,0,0.01)]">
+              <div className="flex items-center justify-between mb-3.5">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-[#000223] text-white flex items-center justify-center text-sm shadow">
+                    {step === 0 ? "🍦" : step === 1 ? "📅" : step === 2 ? "📞" : step === 3 ? "🔐" : "✅"}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-[#FFA000]">{step + 1} of 5</span>
+                    <span className="font-black text-sm text-[#000223]" style={{ fontFamily: FN }}>
+                      {STEPS[step]}
+                    </span>
+                  </div>
                 </div>
-                <span
-                  className="text-xs font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full"
-                  style={{ background: "rgba(255,160,0,0.12)", color: GOLD, fontFamily: FN }}
-                >
-                  {step + 1} / 5
-                </span>
+                {step < STEPS.length - 1 && (
+                  <span className="text-[10px] font-black uppercase text-slate-400 bg-slate-100 px-2.5 py-1 rounded-md">
+                    Next: {STEPS[step + 1]}
+                  </span>
+                )}
               </div>
-              {/* Progress bar */}
-              <div className="h-2 w-full rounded-full" style={{ background: "rgba(0,2,35,0.08)" }}>
+              <div className="h-2.5 w-full bg-slate-200/60 rounded-full overflow-hidden p-0.5 border border-slate-200/20">
                 <div
                   className="h-full rounded-full transition-all duration-500"
                   style={{
@@ -1176,86 +1278,82 @@ export default function BookingForm() {
               </div>
             </div>
 
-            {/* Desktop stepper — premium numbered nodes */}
-            <div className="hidden sm:flex items-center justify-center gap-0 mb-2">
-              {STEPS.map((s, i) => (
-                <div key={i} className="flex items-center">
-                  {/* Step node */}
-                  <div className="flex flex-col items-center" style={{ minWidth: 72 }}>
-                    <div
-                      className="relative flex items-center justify-center transition-all duration-400"
-                      style={{
-                        width: i === step ? 56 : 44,
-                        height: i === step ? 56 : 44,
-                        borderRadius: i === step ? 18 : 14,
-                        background: i < step
-                          ? "linear-gradient(135deg, #10B981, #059669)"
-                          : i === step
-                          ? `linear-gradient(135deg, ${NAVY} 0%, #001a4c 100%)`
-                          : "rgba(255,255,255,0.8)",
-                        border: i === step
-                          ? `3px solid ${GOLD}`
-                          : i < step
-                          ? "3px solid #A7F3D0"
-                          : "2px solid rgba(0,2,35,0.10)",
-                        boxShadow: i === step
-                          ? `0 0 0 5px rgba(255,160,0,0.18), 0 8px 24px rgba(0,2,35,0.22)`
-                          : i < step
-                          ? "0 4px 12px rgba(16,185,129,0.25)"
-                          : "0 2px 8px rgba(0,0,0,0.04)",
-                        transition: "all 0.35s cubic-bezier(.4,0,.2,1)"
-                      }}
+            {/* Desktop stepper — luxury horizontal journey rail */}
+            <div className="hidden sm:flex items-center justify-between bg-slate-50/80 border border-slate-200/50 rounded-2xl p-2.5 w-full relative mb-2 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]">
+              {STEPS.map((s, i) => {
+                const isActive = i === step;
+                const isCompleted = i < step;
+                
+                let stepIcon = "🍦";
+                if (i === 0) stepIcon = "🍦";
+                else if (i === 1) stepIcon = "📅";
+                else if (i === 2) stepIcon = "📞";
+                else if (i === 3) stepIcon = "🔐";
+                else if (i === 4) stepIcon = "✅";
+
+                return (
+                  <div key={i} className="flex-1 flex items-center relative">
+                    <div 
+                      className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300"
+                      style={
+                        isActive 
+                          ? {
+                              background: "white",
+                              boxShadow: "0 10px 25px -5px rgba(0,2,35,0.08), 0 8px 10px -6px rgba(0,2,35,0.05)",
+                              border: "1px solid rgba(0,2,35,0.06)",
+                            }
+                          : {}
+                      }
                     >
-                      {i < step ? (
-                        <CheckCircle2 className="w-5 h-5 text-white" />
-                      ) : i === step ? (
-                        <span className="text-base" style={{ color: GOLD, fontWeight: 900, fontFamily: FN }}>
-                          {i + 1}
-                        </span>
-                      ) : (
-                        <span className="text-sm" style={{ color: "#9CA3AF", fontWeight: 800, fontFamily: FN }}>
-                          {i + 1}
-                        </span>
-                      )}
-                      {/* Active glow pulse */}
-                      {i === step && (
-                        <span
-                          className="absolute inset-0 rounded-[18px] animate-ping"
-                          style={{ background: "rgba(255,160,0,0.15)", animationDuration: "2s" }}
-                        />
-                      )}
-                    </div>
-                    <span
-                      className="text-xs font-black mt-2.5 whitespace-nowrap transition-all duration-300"
-                      style={{
-                        fontFamily: FN,
-                        color: i === step ? NAVY : i < step ? "#059669" : "#9CA3AF",
-                        letterSpacing: "0.08em",
-                        textTransform: "uppercase",
-                        fontSize: i === step ? "11px" : "10px",
-                        fontWeight: i === step ? 900 : 700
-                      }}
-                    >
-                      {s}
-                    </span>
-                  </div>
-                  {/* Connector line */}
-                  {i < STEPS.length - 1 && (
-                    <div
-                      className="relative mx-1 transition-all duration-500"
-                      style={{ width: 48, height: 4, borderRadius: 4, flexShrink: 0, overflow: "hidden", background: "rgba(0,2,35,0.07)" }}
-                    >
-                      <div
-                        className="absolute inset-y-0 left-0 rounded-full transition-all duration-500"
+                      <div 
+                        className="w-10 h-10 rounded-lg flex items-center justify-center text-lg transition-all duration-300 relative"
                         style={{
-                          width: i < step ? "100%" : "0%",
-                          background: `linear-gradient(90deg, ${GOLD}, #059669)`
+                          background: isActive 
+                            ? "linear-gradient(135deg, #000223 0%, #1e214a 100%)"
+                            : isCompleted 
+                            ? "#ECFDF5" 
+                            : "rgba(0,2,35,0.03)",
+                          color: isActive ? GOLD : isCompleted ? "#059669" : "#94A3B8"
                         }}
-                      />
+                      >
+                        {isCompleted ? "✓" : stepIcon}
+                        {isActive && (
+                          <span 
+                            className="absolute -inset-1 rounded-lg animate-ping opacity-15"
+                            style={{ background: GOLD }}
+                          />
+                        )}
+                      </div>
+
+                      <div className="flex flex-col">
+                        <span 
+                          className="text-[8px] font-black uppercase tracking-widest"
+                          style={{
+                            color: isActive ? GOLD : isCompleted ? "#059669" : "#94A3B8"
+                          }}
+                        >
+                          {isCompleted ? "Completed" : isActive ? "Active Step" : `Step 0${i + 1}`}
+                        </span>
+                        <span 
+                          className="text-xs font-black tracking-tight"
+                          style={{
+                            color: isActive ? NAVY : isCompleted ? "#10B981" : "#475569",
+                            fontFamily: FN
+                          }}
+                        >
+                          {s}
+                        </span>
+                      </div>
                     </div>
-                  )}
-                </div>
-              ))}
+
+                    {i < STEPS.length - 1 && (
+                      <div className="absolute right-[-10px] top-1/2 -translate-y-1/2 z-10 text-slate-300 pointer-events-none font-bold text-xs select-none">
+                        ❯
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -1311,275 +1409,194 @@ export default function BookingForm() {
               </div>
 
               {/* Package Cards List */}
-              <div className="space-y-4 mb-10">
-                {listPkgs.length === 0 && (
-                  <div className="text-center py-20 text-slate-400">
-                    <Loader2 className="w-10 h-10 animate-spin mx-auto mb-4" />
+              <div className="mb-10">
+                {listPkgs.length === 0 ? (
+                  <div className="text-center py-20 text-slate-400 bg-white/50 border-2 border-dashed border-slate-200 rounded-3xl">
+                    <Loader2 className="w-10 h-10 animate-spin mx-auto mb-4 text-[#FFA000]" />
                     <p className="font-bold text-base sm:text-lg">Loading premium catering packages…</p>
                   </div>
-                )}
-                {listPkgs.map((p: any) => {
-                  const isSelected = sel?.id === p.id;
-                  return (
-                    <button
-                      key={p.id}
-                      onClick={() => setSel(p)}
-                      className="w-full text-left transition-all duration-300 group"
-                      style={{ outline: "none" }}
-                    >
-                      <div
-                        className="relative rounded-3xl border-2 overflow-hidden transition-all duration-300"
-                        style={{
-                          borderColor: isSelected ? GOLD : "rgba(0, 2, 35, 0.10)",
-                          background: isSelected
-                            ? `linear-gradient(135deg, rgba(255,250,235,0.98) 0%, rgba(255,253,245,0.95) 100%)`
-                            : "rgba(255,255,255,0.75)",
-                          boxShadow: isSelected
-                            ? `0 0 0 4px rgba(255,160,0,0.15), 0 20px 50px rgba(255,160,0,0.15)`
-                            : "0 4px 20px rgba(0,0,0,0.04)",
-                          transform: isSelected ? "translateY(-2px)" : "translateY(0)"
-                        }}
-                      >
-                        {/* Selected ribbon */}
-                        {isSelected && (
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {listPkgs.map((p: any) => {
+                      const isSelected = sel?.id === p.id;
+                      return (
+                        <button
+                          key={p.id}
+                          onClick={() => setSel(p)}
+                          type="button"
+                          className="w-full text-left transition-all duration-300 group focus:outline-none"
+                        >
                           <div
-                            className="absolute top-0 left-0 right-0 h-1.5 rounded-t-3xl"
-                            style={{ background: `linear-gradient(90deg, ${GOLD}, #FFB800, ${GOLD})` }}
-                          />
-                        )}
-
-                        <div className="p-5 sm:p-7 flex flex-col sm:flex-row sm:items-center gap-5">
-                          {/* Icon */}
-                          <div
-                            className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center text-3xl sm:text-4xl flex-shrink-0 transition-all duration-300 shadow-sm"
+                            className="relative flex flex-col h-full bg-white rounded-3xl overflow-hidden border-2 transition-all duration-300 hover:shadow-lg"
                             style={{
-                              background: isSelected
-                                ? `linear-gradient(135deg, #FFF0B3 0%, #FFE57A 100%)`
-                                : CREAM_LIGHT,
-                              boxShadow: isSelected ? "0 4px 16px rgba(255,160,0,0.3)" : "none"
+                              borderColor: isSelected ? GOLD : "rgba(0, 2, 35, 0.08)",
+                              boxShadow: isSelected
+                                ? `0 0 0 4px rgba(255,160,0,0.15), 0 16px 36px rgba(255,160,0,0.12)`
+                                : "0 4px 18px rgba(0,0,0,0.03)",
+                              transform: isSelected ? "translateY(-4px)" : "translateY(0)"
                             }}
                           >
-                            {p.type === "TRUCK" || p.serviceType === "AMERICANO_TRUCK" ? "🚐" : "🚌"}
-                          </div>
-
-                          {/* Details */}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex flex-wrap items-center gap-2 mb-2">
-                              <span
-                                className="font-black text-xl sm:text-2xl tracking-tight leading-tight"
-                                style={{ color: isSelected ? NAVY : NAVY, fontFamily: F_SERIF }}
-                              >
-                                {p.name}
-                              </span>
-                              {isSelected && (
-                                <span
-                                  className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider"
-                                  style={{ background: "#ECFDF5", color: "#059669", border: "1.5px solid #A7F3D0" }}
-                                >
-                                  <CheckCircle2 className="w-3 h-3" /> Selected
-                                </span>
-                              )}
-                            </div>
-
-                            <div
-                              className="flex flex-wrap items-center gap-x-5 gap-y-1.5 mb-3"
-                              style={{ color: "#6B7280", fontSize: 14, fontWeight: 700 }}
-                            >
-                              <span className="flex items-center gap-1.5">
-                                <Users className="w-4 h-4" style={{ color: isSelected ? GOLD : "#9CA3AF" }} />
-                                <span style={{ color: isSelected ? NAVY : "#374151" }}>
-                                  {p.includedQty || p.servings} servings included
-                                </span>
-                              </span>
-                              <span className="flex items-center gap-1.5">
-                                <Clock className="w-4 h-4" style={{ color: isSelected ? GOLD : "#9CA3AF" }} />
-                                <span style={{ color: isSelected ? NAVY : "#374151" }}>
-                                  {p.durationMins || p.includedMinutes || 60} min service
-                                </span>
-                              </span>
-                            </div>
-
-                            <div
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black"
-                              style={{
-                                background: isSelected ? "rgba(255,160,0,0.12)" : "rgba(0,2,35,0.04)",
-                                color: isSelected ? "#92400E" : "#6B7280"
-                              }}
-                            >
-                              <Star className="w-3.5 h-3.5" style={{ color: GOLD, fill: GOLD }} />
-                              Extra guests: ${p.extraGuestPrice ?? p.extraPiecePrice ?? 5} / person
-                            </div>
-                          </div>
-
-                          {/* Price block */}
-                          <div
-                            className="flex-shrink-0 flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 border-t sm:border-t-0 border-dashed pt-4 sm:pt-0"
-                            style={{ borderColor: "rgba(0,2,35,0.10)" }}
-                          >
-                            <span className="text-xs font-black uppercase tracking-wider text-slate-400 sm:hidden">Base Price</span>
-                            <div className="text-right">
-                              <span
-                                className="block text-3xl sm:text-4xl font-black tracking-tight"
-                                style={{ color: isSelected ? GOLD : NAVY, fontFamily: F_SERIF }}
-                              >
-                                ${p.basePrice || p.price}
-                              </span>
-                              <span className="text-xs font-bold text-slate-400 block mt-0.5">base price</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Microcopy note */}
-              <div className="p-5 sm:p-7 rounded-2xl mb-10 flex items-start gap-4 leading-relaxed" style={{ background: "rgba(255,160,0,0.06)", border: "1.5px solid rgba(255,160,0,0.25)" }}>
-                <span className="text-2xl shrink-0">💡</span>
-                <div>
-                  <p className="font-black text-sm" style={{ color: NAVY }}>Need more servings?</p>
-                  <p className="text-slate-600 font-semibold text-sm mt-1">
-                    Select the package closest to your estimate. Extra guests beyond the included count are billed at the package rate per person.
-                  </p>
-                </div>
-              </div>
-
-              {/* Custom Event Package — premium distinct card */}
-              {customPkg && (
-                <div className="mt-2 mb-8">
-                  {/* Section divider */}
-                  <div className="flex items-center gap-3 mb-5">
-                    <div className="h-px flex-1" style={{ background: "rgba(0,2,35,0.08)" }} />
-                    <span
-                      className="text-xs font-black uppercase tracking-[0.2em] px-4 py-1.5 rounded-full"
-                      style={{ background: "rgba(0,2,35,0.05)", color: "#6B7280", fontFamily: FN }}
-                    >
-                      Large Events — 200+ Guests
-                    </span>
-                    <div className="h-px flex-1" style={{ background: "rgba(0,2,35,0.08)" }} />
-                  </div>
-
-                  <button
-                    onClick={() => setSel(customPkg)}
-                    className="w-full text-left transition-all duration-300"
-                    style={{ outline: "none" }}
-                  >
-                    <div
-                      className="relative rounded-3xl border-2 overflow-hidden transition-all duration-300"
-                      style={{
-                        borderColor: sel?.id === customPkg.id ? NAVY : "rgba(0,2,35,0.15)",
-                        background: sel?.id === customPkg.id
-                          ? `linear-gradient(135deg, ${NAVY} 0%, #001a4c 100%)`
-                          : `linear-gradient(135deg, rgba(0,2,35,0.03) 0%, rgba(255,253,245,0.9) 100%)`,
-                        boxShadow: sel?.id === customPkg.id
-                          ? `0 0 0 4px rgba(0,2,35,0.12), 0 20px 50px rgba(0,2,35,0.25)`
-                          : "0 4px 20px rgba(0,0,0,0.04)"
-                      }}
-                    >
-                      {/* Decorative top stripe */}
-                      <div
-                        className="absolute top-0 left-0 right-0 h-1"
-                        style={{
-                          background: sel?.id === customPkg.id
-                            ? `linear-gradient(90deg, ${GOLD}, #FFD700, ${GOLD})`
-                            : "linear-gradient(90deg, rgba(0,2,35,0.2), rgba(0,2,35,0.1))"
-                        }}
-                      />
-
-                      <div className="p-5 sm:p-7 flex flex-col sm:flex-row sm:items-center gap-5">
-                        {/* Icon */}
-                        <div
-                          className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center text-3xl sm:text-4xl flex-shrink-0 shadow-md"
-                          style={{
-                            background: sel?.id === customPkg.id
-                              ? "rgba(255,160,0,0.25)"
-                              : "rgba(0,2,35,0.07)"
-                          }}
-                        >
-                          🎪
-                        </div>
-
-                        {/* Details */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex flex-wrap items-center gap-2 mb-2">
-                            <span
-                              className="font-black text-xl sm:text-2xl tracking-tight"
-                              style={{
-                                color: sel?.id === customPkg.id ? "#FFFFFF" : NAVY,
-                                fontFamily: F_SERIF
-                              }}
-                            >
-                              {customPkg.name}
-                            </span>
-                            <span
-                              className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider"
-                              style={{
-                                background: sel?.id === customPkg.id ? "rgba(255,160,0,0.25)" : "rgba(255,160,0,0.12)",
-                                color: sel?.id === customPkg.id ? GOLD : "#92400E",
-                                border: `1.5px solid ${sel?.id === customPkg.id ? GOLD : "rgba(255,160,0,0.3)"}`
-                              }}
-                            >
-                              200+ Guests
-                            </span>
-                            {sel?.id === customPkg.id && (
-                              <span
-                                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider"
-                                style={{ background: "rgba(255,255,255,0.15)", color: "#fff", border: "1.5px solid rgba(255,255,255,0.3)" }}
-                              >
-                                <CheckCircle2 className="w-3 h-3" /> Selected
-                              </span>
+                            {/* Selected gold top strip */}
+                            {isSelected && (
+                              <div
+                                className="absolute top-0 left-0 right-0 h-1 z-20"
+                                style={{ background: `linear-gradient(90deg, ${GOLD}, #FFB800, ${GOLD})` }}
+                              />
                             )}
-                          </div>
 
-                          <div className="space-y-1.5 mb-3">
-                            {[
-                              { icon: "👥", text: "For large gatherings of 200+ guests" },
-                              { icon: "📋", text: "Team reviews your event details personally" },
-                              { icon: "💬", text: "We'll contact you via WhatsApp with your quote" },
-                            ].map((item, i) => (
-                              <div key={i} className="flex items-center gap-2">
-                                <span style={{ fontSize: 12 }}>{item.icon}</span>
-                                <span
-                                  className="text-xs sm:text-sm font-bold"
-                                  style={{ color: sel?.id === customPkg.id ? "rgba(255,255,255,0.8)" : "#6B7280" }}
-                                >
-                                  {item.text}
+                            {/* Badge Overlay */}
+                            {p.badge && (
+                              <div className="absolute top-4 right-4 z-10">
+                                <span className="bg-[#000223] text-[#FFA000] text-[9px] font-black uppercase tracking-wider py-1 px-2.5 rounded-full shadow border border-[#FFA000]/20">
+                                  {p.badge}
                                 </span>
                               </div>
-                            ))}
+                            )}
+
+                            {/* Premium Header/Image with fallback */}
+                            <PackageCardHeader imageUrl={p.imageUrl} serviceType={p.serviceType || p.type} name={p.name} />
+
+                            {/* Content body */}
+                            <div className="p-5 flex-1 flex flex-col justify-between">
+                              <div>
+                                <h3 className="text-xl font-black text-[#000223] mb-3 leading-tight" style={{ fontFamily: F_SERIF }}>
+                                  {p.name}
+                                </h3>
+
+                                <div className="flex flex-col gap-2.5 mb-4 text-xs font-bold text-slate-600">
+                                  <span className="flex items-center gap-2 text-slate-700">
+                                    <Users className="w-4 h-4 text-[#FFA000] shrink-0" />
+                                    <span>{p.includedQty || p.servings} Servings Included</span>
+                                  </span>
+                                  <span className="flex items-center gap-2 text-slate-700">
+                                    <Clock className="w-4 h-4 text-[#FFA000] shrink-0" />
+                                    <span>{p.durationMins || p.includedMinutes || 60} Mins Service</span>
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div>
+                                <div className="mb-4">
+                                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-50 border text-slate-500">
+                                    ★ Extra guest: ${p.extraGuestPrice ?? p.extraPiecePrice ?? 5} / person
+                                  </span>
+                                </div>
+
+                                <div className="pt-4 border-t border-dashed border-slate-100 flex items-center justify-between">
+                                  <div>
+                                    <span className="text-2xl font-black text-[#000223]" style={{ fontFamily: F_SERIF }}>
+                                      ${p.basePrice || p.price}
+                                    </span>
+                                    <span className="text-[10px] text-slate-400 font-bold block leading-none mt-0.5">base price</span>
+                                  </div>
+
+                                  <span 
+                                    className="px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all"
+                                    style={{
+                                      background: isSelected ? "#000223" : "rgba(0, 2, 35, 0.04)",
+                                      color: isSelected ? GOLD : "#000223"
+                                    }}
+                                  >
+                                    {isSelected ? "✓ Selected" : "Select"}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
                           </div>
+                        </button>
+                      );
+                    })}
+
+                    {/* Custom Event Package — premium distinct full-width card in grid */}
+                    {customPkg && (
+                      <div className="col-span-1 md:col-span-2 lg:col-span-3 mt-4">
+                        {/* Section divider */}
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="h-px flex-1 bg-slate-200/80" />
+                          <span className="text-xs font-black uppercase tracking-[0.2em] px-4 py-1.5 rounded-full bg-slate-100 text-slate-500" style={{ fontFamily: FN }}>
+                            Large Events — 200+ Guests
+                          </span>
+                          <div className="h-px flex-1 bg-slate-200/80" />
                         </div>
 
-                        {/* Custom pricing block */}
-                        <div className="flex-shrink-0 text-center sm:text-right border-t sm:border-t-0 pt-4 sm:pt-0" style={{ borderColor: sel?.id === customPkg.id ? "rgba(255,255,255,0.1)" : "rgba(0,2,35,0.08)" }}>
-                          <span
-                            className="block text-2xl sm:text-3xl font-black tracking-tight"
-                            style={{ color: sel?.id === customPkg.id ? GOLD : NAVY, fontFamily: F_SERIF }}
-                          >
-                            Custom
-                          </span>
-                          <span
-                            className="block text-xs sm:text-sm font-bold mt-1"
-                            style={{ color: sel?.id === customPkg.id ? "rgba(255,255,255,0.6)" : "#9CA3AF" }}
-                          >
-                            Pricing
-                          </span>
-                          <span
-                            className="block text-xs font-black uppercase tracking-wider mt-2 px-3 py-1 rounded-full"
+                        <button
+                          onClick={() => setSel(customPkg)}
+                          type="button"
+                          className="w-full text-left transition-all duration-300 focus:outline-none"
+                        >
+                          <div
+                            className="relative flex flex-col md:flex-row rounded-3xl border-2 overflow-hidden transition-all duration-300 hover:shadow-lg"
                             style={{
-                              background: sel?.id === customPkg.id ? "rgba(255,160,0,0.2)" : "rgba(0,2,35,0.05)",
-                              color: sel?.id === customPkg.id ? GOLD : "#9CA3AF"
+                              borderColor: sel?.id === customPkg.id ? GOLD : "rgba(0,2,35,0.12)",
+                              background: sel?.id === customPkg.id
+                                ? `linear-gradient(135deg, ${NAVY} 0%, #17193d 100%)`
+                                : `linear-gradient(135deg, rgba(0,2,35,0.02) 0%, rgba(255,253,245,0.8) 100%)`,
+                              boxShadow: sel?.id === customPkg.id
+                                ? `0 0 0 4px rgba(255,160,0,0.15), 0 16px 36px rgba(0,0,0,0.12)`
+                                : "0 4px 18px rgba(0,0,0,0.03)",
                             }}
                           >
-                            Team Review
-                          </span>
-                        </div>
+                            {/* Selected top/left stripe */}
+                            {sel?.id === customPkg.id && (
+                              <div
+                                className="absolute top-0 left-0 right-0 h-1 md:h-full md:w-1 z-20"
+                                style={{ background: `linear-gradient(90deg, ${GOLD}, #FFB800, ${GOLD})` }}
+                              />
+                            )}
+
+                            {/* Left/Top header visual */}
+                            <div className="w-full md:w-80 shrink-0">
+                              <PackageCardHeader imageUrl={customPkg.imageUrl} serviceType="CUSTOM" name={customPkg.name} />
+                            </div>
+
+                            {/* Details (Right Side) */}
+                            <div className="flex-1 p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                              <div className="space-y-3.5 flex-1">
+                                <div className="flex items-center gap-2">
+                                  <h3 className="text-xl font-black tracking-tight" style={{ color: sel?.id === customPkg.id ? "white" : NAVY, fontFamily: F_SERIF }}>
+                                    {customPkg.name}
+                                  </h3>
+                                  <span className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider" style={{ background: sel?.id === customPkg.id ? "rgba(255,160,0,0.2)" : "rgba(255,160,0,0.1)", color: sel?.id === customPkg.id ? GOLD : "#B45309" }}>
+                                    200+ Guests
+                                  </span>
+                                </div>
+                                <p className="text-xs font-bold leading-relaxed max-w-lg" style={{ color: sel?.id === customPkg.id ? "rgba(255,255,255,0.7)" : "#475569" }}>
+                                  {customPkg.description || "Planning a larger celebration? Tell us about your event and our team will prepare a custom package and final quote for you."}
+                                </p>
+                                <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-xs font-bold" style={{ color: sel?.id === customPkg.id ? "rgba(255,255,255,0.6)" : "#64748B" }}>
+                                  <span className="flex items-center gap-1.5">👥 For large gatherings</span>
+                                  <span className="flex items-center gap-1.5">📋 Personal team review</span>
+                                  <span className="flex items-center gap-1.5">💬 WhatsApp chat quote</span>
+                                </div>
+                              </div>
+
+                              <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-4 border-t md:border-t-0 border-dashed w-full md:w-auto pt-4 md:pt-0" style={{ borderColor: sel?.id === customPkg.id ? "rgba(255,255,255,0.15)" : "rgba(0,2,35,0.1)" }}>
+                                <div className="text-left md:text-right">
+                                  <span className="block text-2.5xl font-black tracking-tight" style={{ color: sel?.id === customPkg.id ? GOLD : NAVY, fontFamily: F_SERIF }}>
+                                    Custom
+                                  </span>
+                                  <span className="block text-[10px] font-bold" style={{ color: sel?.id === customPkg.id ? "rgba(255,255,255,0.5)" : "#94A3B8" }}>
+                                    Pricing Quote
+                                  </span>
+                                </div>
+                                <span 
+                                  className="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all"
+                                  style={{
+                                    background: sel?.id === customPkg.id ? GOLD : "#000223",
+                                    color: sel?.id === customPkg.id ? NAVY : GOLD,
+                                  }}
+                                >
+                                  {sel?.id === customPkg.id ? "✓ Selected" : "Request Quote"}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </button>
                       </div>
-                    </div>
-                  </button>
-                </div>
-              )}
+                    )}
+                  </div>
+                )}
+              </div>
 
               {/* Action */}
               <div className="flex justify-end">
@@ -1611,16 +1628,17 @@ export default function BookingForm() {
                 <PremiumInput
                   label="Event Date"
                   value={eventDate}
-                  onChange={setEventDate}
+                  onChange={(val) => { setEventDate(val); if (eventDateErr) setEventDateErr(""); }}
                   type="date"
                   min={new Date().toISOString().split("T")[0]}
                   icon={Calendar}
                   helper="Select a future calendar date"
+                  error={eventDateErr}
                 />
                 <PremiumSelect
                   label="Start Time (24h format)"
                   value={startTime}
-                  onChange={setStartTime}
+                  onChange={(val) => { setStartTime(val); if (startTimeErr) setStartTimeErr(""); }}
                   options={Array.from({ length: 48 }, (_, i) => {
                     const h = Math.floor(i / 2).toString().padStart(2, "0");
                     const m = (i % 2 === 0 ? "00" : "30");
@@ -1629,6 +1647,7 @@ export default function BookingForm() {
                   placeholder="Select start time…"
                   icon={Clock}
                   helper="Select start time in 24h format (e.g. 14:00)"
+                  error={startTimeErr}
                 />
 
                 {/* Weekend Notice */}
@@ -1797,11 +1816,12 @@ export default function BookingForm() {
                   <PremiumSelect
                     label="Event Type"
                     value={eventType}
-                    onChange={setEventType}
+                    onChange={(val) => { setEventType(val); if (eventTypeErr) setEventTypeErr(""); }}
                     options={EVENT_TYPES}
                     placeholder="Select type of event…"
                     icon={Star}
                     helper="Helps our drivers coordinate themed setup"
+                    error={eventTypeErr}
                   />
                 </div>
 
@@ -1810,7 +1830,7 @@ export default function BookingForm() {
                     label="Primary Event Setup Location"
                     value={primaryLoc}
                     onChange={setPrimaryLoc}
-                    error={submitErr && !primaryLoc.latitude ? "Please verify your setup location." : undefined}
+                    error={locationErr || (submitErr && !primaryLoc.latitude ? "Please verify your setup location." : undefined)}
                   />
                 </div>
 
@@ -2028,8 +2048,51 @@ export default function BookingForm() {
                   <ArrowLeft className="w-5.5 h-5.5" /> Back
                 </button>
                 <button
-                  onClick={fetchQuote}
-                  disabled={quoting || !eventDate || !startTime || !eventType || !canContinueStep1 || isGuestCountInvalid}
+                  onClick={() => {
+                    let hasErr = false;
+                    
+                    if (!eventDate) {
+                      setEventDateErr("Event date is required.");
+                      hasErr = true;
+                    } else {
+                      setEventDateErr("");
+                    }
+                    
+                    if (!startTime) {
+                      setStartTimeErr("Start time is required.");
+                      hasErr = true;
+                    } else {
+                      setStartTimeErr("");
+                    }
+                    
+                    if (!eventType) {
+                      setEventTypeErr("Event type is required.");
+                      hasErr = true;
+                    } else {
+                      setEventTypeErr("");
+                    }
+
+                    if (!isPrimaryVerified) {
+                      setLocationErr("Please verify your setup location on the map.");
+                      hasErr = true;
+                    } else {
+                      setLocationErr("");
+                    }
+
+                    if (isGuestCountInvalid) {
+                      setQuoteErr("Custom Event Package is exclusively for events with more than 200 guests. Please enter 201 or more.");
+                      hasErr = true;
+                    } else {
+                      setQuoteErr("");
+                    }
+
+                    if (hasErr) {
+                      return;
+                    }
+
+                    fetchQuote();
+                  }}
+                  disabled={quoting}
                   className="inline-flex items-center justify-center gap-3 px-12 py-5.5 rounded-full font-black text-lg sm:text-xl shadow-2xl disabled:opacity-40 hover:-translate-y-1 active:translate-y-0 transition-all duration-300 w-full sm:w-auto justify-center"
                   style={{ background: NAVY, color: GOLD, fontFamily: FN }}
                 >
@@ -2113,26 +2176,29 @@ export default function BookingForm() {
                 <PremiumInput
                   label="First Name"
                   value={firstName}
-                  onChange={setFirst}
+                  onChange={(val) => { setFirst(val); if (firstNameErr) setFirstNameErr(""); }}
                   placeholder="Jane"
                   icon={User}
                   helper="As listed on government ID"
+                  error={firstNameErr}
                 />
                 <PremiumInput
                   label="Last Name"
                   value={lastName}
-                  onChange={setLast}
+                  onChange={(val) => { setLast(val); if (lastNameErr) setLastNameErr(""); }}
                   placeholder="Smith"
                   icon={User}
+                  error={lastNameErr}
                 />
                 <PremiumInput
                   label="Email Address"
                   value={email}
-                  onChange={setEmail}
+                  onChange={(val) => { setEmail(val); if (emailErr) setEmailErr(""); }}
                   type="email"
                   placeholder="jane@example.com"
                   icon={Mail}
                   helper="OTP verification code will be sent here"
+                  error={emailErr}
                 />
 
               <div className="relative w-full">
@@ -2240,15 +2306,43 @@ export default function BookingForm() {
                 </button>
                 <button
                   onClick={() => {
-                    const err = validatePhone(phone);
-                    if (err) {
-                      setPhoneErr(err);
+                    let hasErr = false;
+                    if (!firstName.trim()) {
+                      setFirstNameErr("First name is required.");
+                      hasErr = true;
+                    } else {
+                      setFirstNameErr("");
+                    }
+                    if (!lastName.trim()) {
+                      setLastNameErr("Last name is required.");
+                      hasErr = true;
+                    } else {
+                      setLastNameErr("");
+                    }
+                    if (!email.trim()) {
+                      setEmailErr("Email address is required.");
+                      hasErr = true;
+                    } else if (!/\S+@\S+\.\S+/.test(email)) {
+                      setEmailErr("Please enter a valid email address.");
+                      hasErr = true;
+                    } else {
+                      setEmailErr("");
+                    }
+                    const pErr = validatePhone(phone);
+                    if (pErr) {
+                      setPhoneErr(pErr);
+                      hasErr = true;
+                    } else {
+                      setPhoneErr("");
+                    }
+                    
+                    if (hasErr) {
                       return;
                     }
+                    
                     setStep(3);
                   }}
-                  disabled={!firstName || !lastName || !email || !phone}
-                  className="inline-flex items-center justify-center gap-3 px-12 py-5.5 rounded-full font-black text-lg sm:text-xl shadow-2xl disabled:opacity-40 hover:-translate-y-1 active:translate-y-0 transition-all duration-300 w-full sm:w-auto justify-center"
+                  className="inline-flex items-center justify-center gap-3 px-12 py-5.5 rounded-full font-black text-lg sm:text-xl shadow-2xl hover:-translate-y-1 active:translate-y-0 transition-all duration-300 w-full sm:w-auto justify-center"
                   style={{ background: NAVY, color: GOLD, fontFamily: FN }}
                 >
                   Verify Contact Details <ArrowRight className="w-5.5 h-5.5" />

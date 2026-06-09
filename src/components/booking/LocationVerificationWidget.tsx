@@ -237,9 +237,15 @@ export default function LocationVerificationWidget({
   const isVerified = value.latitude !== null && value.longitude !== null && value.locationVerificationMethod !== "";
 
   return (
-    <div className="bg-white/80 border-2 border-slate-200/80 rounded-2xl p-4 sm:p-8 shadow-md transition-all relative">
-      <div className="flex justify-between items-center mb-6 pb-3 border-b border-slate-100">
-        <label className="text-lg sm:text-xl font-black text-[#000223] tracking-wide">{label}</label>
+    <div 
+      className="rounded-2xl p-4 sm:p-8 shadow-md transition-all relative border-2"
+      style={{
+        borderColor: error ? "rgba(220,38,38,0.5)" : "rgba(0, 2, 35, 0.08)",
+        background: error ? "rgba(255,240,240,0.90)" : "rgba(255,255,255,0.82)"
+      }}
+    >
+      <div className="flex justify-between items-center mb-6 pb-3 border-b border-slate-100" style={{ borderColor: error ? "rgba(220,38,38,0.15)" : "rgba(0,2,35,0.05)" }}>
+        <label className="text-lg sm:text-xl font-black tracking-wide" style={{ color: error ? "#DC2626" : "#000223" }}>{label}</label>
         
         {/* Verification Status Badge */}
         {isVerified ? (
