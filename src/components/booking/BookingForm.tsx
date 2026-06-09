@@ -509,15 +509,15 @@ function ZipSelector({
         <p className="mt-2 ml-1 text-slate-500 font-semibold text-sm" style={{ fontFamily: FN }}>Massachusetts service area</p>
       </div>
 
-      {/* City — read-only floating label */}
+      {/* City — editable, auto-filled from ZIP lookup, can be manually overridden */}
       <div className="relative flex flex-col gap-2 w-full">
         <div
-          className="relative w-full"
+          className="relative w-full transition-all duration-300"
           style={{
-            background: "rgba(0,2,35,0.04)",
+            background: "rgba(255,255,255,0.82)",
             borderRadius: 18,
-            border: "2px solid rgba(0,2,35,0.07)",
-            boxShadow: "0 2px 10px rgba(0,0,0,0.03)"
+            border: `2px solid rgba(0,2,35,0.10)`,
+            boxShadow: "0 2px 10px rgba(0,0,0,0.04)",
           }}
         >
           <label
@@ -534,13 +534,15 @@ function ZipSelector({
               transition: "all 0.2s"
             }}
           >
-            City (auto-filled)
+            City
           </label>
           <input
-            readOnly
             value={city}
+            onChange={(e) => {
+              onZipChange(zip, e.target.value);
+            }}
             placeholder=""
-            className="w-full outline-none bg-transparent font-bold cursor-default"
+            className="w-full outline-none bg-transparent font-bold"
             style={{
               fontFamily: FN,
               fontSize: "1.2rem",
@@ -548,10 +550,12 @@ function ZipSelector({
               paddingBottom: "0.75rem",
               paddingLeft: "1.1rem",
               paddingRight: "1.1rem",
-              color: NAVY
+              color: NAVY,
+              caretColor: GOLD
             }}
           />
         </div>
+        <p className="mt-1 ml-1 text-slate-400 font-semibold text-xs" style={{ fontFamily: FN }}>Auto-detected from ZIP · editable</p>
       </div>
     </div>
   );
@@ -619,6 +623,7 @@ const STEP_ICONS = ["🎁", "📅", "👤", "🔐", "✅"];
 
 export default function BookingForm() {
   const wizardTopRef = useRef<HTMLDivElement>(null);
+  const quoteValidationRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
   const packageParamId = searchParams.get("package") || searchParams.get("packageId");
   const [step, setStepRaw] = useState(0);
@@ -2033,7 +2038,7 @@ export default function BookingForm() {
               </div>
 
               {quoteErr && (
-                <div className="mt-8 p-5 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-800 font-bold text-base flex items-center gap-3 shadow-sm animate-fade-in">
+                <div ref={quoteValidationRef} className="mt-8 p-5 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-800 font-bold text-base flex items-center gap-3 shadow-sm animate-fade-in">
                   <AlertCircle className="w-6 h-6 shrink-0 text-rose-600" />
                   <span>{quoteErr}</span>
                 </div>
@@ -2087,6 +2092,13 @@ export default function BookingForm() {
                     }
 
                     if (hasErr) {
+                      // Show validation summary banner and scroll to it
+                      setQuoteErr((prev) => prev || "Please complete the required fields before continuing.");
+                      setTimeout(() => {
+                        if (quoteValidationRef.current) {
+                          quoteValidationRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+                        }
+                      }, 60);
                       return;
                     }
 

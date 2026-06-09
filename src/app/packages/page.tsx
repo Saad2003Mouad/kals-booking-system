@@ -15,6 +15,7 @@ type Package = {
   price: number;
   extraPiecePrice: number;
   extraGuestPrice?: number;
+  durationMins?: number;
   imageUrl: string;
   badge: string;
   features: string;
@@ -46,13 +47,13 @@ export default function PackagesPage() {
     function loadFallbackPackages() {
       // Hardcoded fallback so the page doesn't look empty while DB is paused
       setPackages([
-        { id: "1", name: "Starter Event", slug: "starter-event-truck", serviceType: "AMERICANO_TRUCK", description: "", servings: 30, price: 250, extraPiecePrice: 5, imageUrl: "/pkg_truck_classic.jpg", badge: "Perfect for Small Events", features: "" },
-        { id: "2", name: "Family Event", slug: "family-event-truck", serviceType: "AMERICANO_TRUCK", description: "", servings: 50, price: 340, extraPiecePrice: 5, imageUrl: "/pkg_truck_grand.jpg", badge: "", features: "" },
-        { id: "3", name: "Celebration Pack", slug: "celebration-pack-truck", serviceType: "AMERICANO_TRUCK", description: "", servings: 75, price: 425, extraPiecePrice: 5, imageUrl: "/pkg_truck_legend.jpg", badge: "Most Popular", features: "" },
-        { id: "4", name: "Starter Party", slug: "starter-party-van", serviceType: "SPRINTER_VAN", description: "", servings: 30, price: 190, extraPiecePrice: 4, imageUrl: "/pkg_van_starter.jpg", badge: "", features: "" },
-        { id: "5", name: "Celebration Pack", slug: "celebration-pack-van", serviceType: "SPRINTER_VAN", description: "", servings: 75, price: 365, extraPiecePrice: 4, imageUrl: "/pkg_van_gold.jpg", badge: "Most Popular", features: "" },
-        { id: "6", name: "School Festival Special", slug: "school-festival-van", serviceType: "SPRINTER_VAN", description: "", servings: 200, price: 825, extraPiecePrice: 4, imageUrl: "/pkg_van_school.jpg", badge: "Great for Schools", features: "" },
-        { id: "custom", name: "Custom Event Package", slug: "custom-event-package", serviceType: "CUSTOM", description: "Planning a larger celebration? Tell us about your event and our team will prepare a custom package and final quote for you.", servings: 201, price: 0, extraPiecePrice: 0, imageUrl: "/images/packages/custom-event.jpg", badge: "For 200+ guests", features: "" }
+        { id: "1", name: "Starter Event", slug: "starter-event-truck", serviceType: "AMERICANO_TRUCK", description: "", servings: 30, price: 250, extraPiecePrice: 5, durationMins: 60, imageUrl: "/pkg_truck_classic.jpg", badge: "Perfect for Small Events", features: "" },
+        { id: "2", name: "Family Event", slug: "family-event-truck", serviceType: "AMERICANO_TRUCK", description: "", servings: 50, price: 340, extraPiecePrice: 5, durationMins: 90, imageUrl: "/pkg_truck_grand.jpg", badge: "", features: "" },
+        { id: "3", name: "Celebration Pack", slug: "celebration-pack-truck", serviceType: "AMERICANO_TRUCK", description: "", servings: 75, price: 425, extraPiecePrice: 5, durationMins: 120, imageUrl: "/pkg_truck_legend.jpg", badge: "Most Popular", features: "" },
+        { id: "4", name: "Starter Party", slug: "starter-party-van", serviceType: "SPRINTER_VAN", description: "", servings: 30, price: 190, extraPiecePrice: 4, durationMins: 60, imageUrl: "/pkg_van_starter.jpg", badge: "", features: "" },
+        { id: "5", name: "Celebration Pack", slug: "celebration-pack-van", serviceType: "SPRINTER_VAN", description: "", servings: 75, price: 365, extraPiecePrice: 4, durationMins: 120, imageUrl: "/pkg_van_gold.jpg", badge: "Most Popular", features: "" },
+        { id: "6", name: "School Festival Special", slug: "school-festival-van", serviceType: "SPRINTER_VAN", description: "", servings: 200, price: 825, extraPiecePrice: 4, durationMins: 180, imageUrl: "/pkg_van_school.jpg", badge: "Great for Schools", features: "" },
+        { id: "custom", name: "Custom Event Package", slug: "custom-event-package", serviceType: "CUSTOM", description: "Planning a larger celebration? Tell us about your event and our team will prepare a custom package and final quote for you.", servings: 201, price: 0, extraPiecePrice: 0, durationMins: 0, imageUrl: "/images/packages/custom-event.jpg", badge: "For 200+ guests", features: "" }
       ]);
     }
 
@@ -241,6 +242,19 @@ function PackageCard({ pkg }: { pkg: Package }) {
         ) : (
           <>
             <ul className="space-y-3 mb-8 flex-1">
+              {pkg.durationMins && pkg.durationMins > 0 && (
+                <li className="flex items-center gap-3 font-medium">
+                  <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-black" style={{ background: 'rgba(255,160,0,0.12)', color: '#B45309' }}>
+                    ⏱️ {pkg.durationMins < 60
+                      ? `${pkg.durationMins} Minute Service`
+                      : pkg.durationMins === 60
+                      ? '1 Hour Service'
+                      : pkg.durationMins % 60 === 0
+                      ? `${pkg.durationMins / 60} Hour Service`
+                      : `${Math.floor(pkg.durationMins / 60)}h ${pkg.durationMins % 60}m Service`}
+                  </span>
+                </li>
+              )}
               <li className="flex items-center gap-3 text-gray-700 font-medium">
                 <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
                 <span>Up to <strong>{pkg.servings} Servings</strong> included</span>
