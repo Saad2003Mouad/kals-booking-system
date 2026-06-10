@@ -223,3 +223,7 @@ body {
     display: none !important;
   }
 }
+
+/* Hide Webflow Badge globally */
+.w-webflow-badge { display: none !important; }
+
