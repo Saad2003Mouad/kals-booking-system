@@ -117,7 +117,7 @@
     const style = document.createElement('style');
     style.textContent = `
       #bl-chat-root * { box-sizing: border-box; font-family: 'Nunito', sans-serif; }
-      .w-webflow-badge { display: none !important; opacity: 0 !important; visibility: hidden !important; }
+      
       
       #bl-chat-bubble {
         position: fixed; bottom: 28px; right: 28px; z-index: 9999;
