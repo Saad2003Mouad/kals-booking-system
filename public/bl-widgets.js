@@ -460,39 +460,73 @@
         new window.Swiper('.swiper-review', {
           slidesPerView: 1,
           loop: true,
-          pagination: false,
-          autoplay: {
-            delay: 7000,
-          },
-        });
-      }
-    }
+        /* ─────────────────────────────────────────────
+     4. PREMIUM MOBILE NAV — FULL DRAWER + OCCASIONS ACCORDION
+     Replaces Webflow's basic mobile toggle with a premium
+     slide-in drawer identical to the React SiteHeader.
+     Works on ALL static HTML pages consistently.
+  ───────────────────────────────────────────── */
+  var OCCASIONS_LIST = [
+    ['/occasions/birthday-parties', 'Birthday Parties'],
+    ['/occasions/block-parties', 'Block Parties'],
+    ['/occasions/corporate-parties', 'Corporate Parties'],
+    ['/occasions/fundraisers', 'Fundraisers'],
+    ['/occasions/launch-parties', 'Launch Parties'],
+    ['/occasions/marketing-events', 'Marketing Events'],
+    ['/occasions/movie-rental', 'Movie Rental'],
+    ['/occasions/photo-sessions', 'Photo Sessions'],
+    ['/occasions/reunions', 'Reunions'],
+    ['/occasions/school-occasions', 'School Occasions'],
+    ['/occasions/sports-occasions', 'Sports Occasions'],
+    ['/occasions/wedding-receptions', 'Wedding Receptions'],
+  ];
 
-    if (typeof window.Swiper !== 'undefined') {
-      doInit();
-    } else {
-      // Swiper not loaded yet – inject it then init
-      var existing = document.querySelector('script[src*="swiper-bundle.min.js"]');
-      if (!existing) {
-        var s = document.createElement('script');
-        s.src = 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js';
-        s.onload = doInit;
-        document.head.appendChild(s);
-      } else {
-        // Script tag exists but may not be loaded yet
-        existing.addEventListener('load', doInit);
-        // Also try after a short delay as fallback
-        setTimeout(doInit, 1200);
-      }
-    }
+  function injectMobileNavStyles() {
+    if (document.getElementById('bl-mobile-nav-styles')) return;
+    var style = document.createElement('style');
+    style.id = 'bl-mobile-nav-styles';
+    style.textContent = [
+      /* Backdrop */
+      '.bl-mob-backdrop{position:fixed;inset:0;background:rgba(0,2,35,0.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:9000;opacity:0;pointer-events:none;transition:opacity .3s ease;}',
+      '.bl-mob-backdrop.open{opacity:1;pointer-events:auto;}',
+      /* Drawer */
+      '@media(max-width:991px){',
+        '.nav-menu.w-nav-menu{display:flex!important;flex-direction:column!important;position:fixed!important;top:0!important;right:0!important;bottom:0!important;width:min(85vw,310px)!important;background:#000223!important;z-index:9200!important;overflow-y:auto!important;padding:72px 0 40px!important;box-shadow:-8px 0 40px rgba(0,0,0,.45)!important;transform:translateX(110%)!important;transition:transform .38s cubic-bezier(.4,0,.2,1)!important;}',
+        '.nav-menu.w-nav-menu.w--open{transform:translateX(0)!important;}',
+        /* Nav links */
+        '.nav-menu.w-nav-menu .nav-link.w-nav-link,.nav-menu.w-nav-menu .nav-link.dropdown.w-dropdown-toggle{color:#fff!important;font-weight:800!important;font-size:17px!important;padding:14px 24px!important;border-bottom:1px solid rgba(255,255,255,.07)!important;display:flex!important;align-items:center!important;justify-content:space-between!important;width:100%!important;box-sizing:border-box!important;cursor:pointer!important;text-decoration:none!important;}',
+        '.nav-menu.w-nav-menu .nav-link.w-nav-link:hover,.nav-menu.w-nav-menu .nav-link.dropdown.w-dropdown-toggle:hover{color:#FFA000!important;background:rgba(255,160,0,.07)!important;}',
+        /* Hide Webflow dropdown list and old arrow on mobile */
+        '.nav-menu.w-nav-menu .dropdown-list.w-dropdown-list{display:none!important;}',
+        '.nav-menu.w-nav-menu .w-icon-dropdown-toggle{display:none!important;}',
+        '.nav-menu.w-nav-menu .w-dropdown{position:static!important;}',
+        /* Mobile Sign-In */
+        '.bl-mob-signin{display:block;margin:20px 16px 0;padding:13px 24px;background:#FFA000;color:#000223!important;font-weight:900;font-size:15px;border-radius:50px;text-align:center;text-decoration:none;box-shadow:0 6px 18px rgba(255,160,0,.35);}',
+        '.bl-mob-signin:hover{background:#FFB300;}',
+        /* Close button */
+        '.bl-mob-close-btn{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.12);border:none;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:18px;line-height:1;z-index:10;}',
+        /* Occasions arrow */
+        '.bl-occasions-arrow{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.1);transition:transform .28s ease,background .2s ease;flex-shrink:0;}',
+        '.bl-occasions-arrow.open{transform:rotate(180deg);background:rgba(255,160,0,.2);}',
+        /* Occasions panel */
+        '.bl-occasions-panel{overflow:hidden;max-height:0;transition:max-height .38s cubic-bezier(.4,0,.2,1);background:rgba(255,255,255,.04);}',
+        '.bl-occasions-panel.open{max-height:700px;}',
+        '.bl-occasions-panel a{display:block;color:rgba(255,255,255,.82)!important;font-size:14.5px!important;font-weight:700!important;padding:11px 24px 11px 36px!important;border-bottom:1px solid rgba(255,255,255,.04)!important;text-decoration:none!important;transition:color .18s,background .18s;}',
+        '.bl-occasions-panel a:hover{color:#FFA000!important;background:rgba(255,160,0,.07)!important;}',
+        /* hide right-menu-links on mobile */
+        '.right-menu-links{display:none!important;}',
+        '.menu-button.w-nav-button{display:flex!important;}',
+      '}',
+      /* Desktop: hide mobile elements */
+      '@media(min-width:992px){',
+        '.bl-mob-close-btn,.bl-mob-signin,.bl-occasions-panel,.bl-occasions-arrow{display:none!important;}',
+        '.right-menu-links{display:flex!important;}',
+        '.menu-button.w-nav-button{display:none!important;}',
+      '}',
+    ].join('');
+    document.head.appendChild(style);
   }
 
-  /* ─────────────────────────────────────────────
-     4. MOBILE NAV FIX FOR STATIC HTML PAGES
-     Ensures one clean handler for mobile menu toggle
-     (static pages use Webflow inline nav script;
-     this is a belt-and-suspenders guard).
-  ───────────────────────────────────────────── */
   function fixMobileNav() {
     var btn = document.querySelector('.menu-button.w-nav-button');
     var menu = document.querySelector('.nav-menu.w-nav-menu');
@@ -500,24 +534,117 @@
     if (btn.dataset.blNavFixed) return;
     btn.dataset.blNavFixed = '1';
 
-    // Prevent Webflow scripts from fighting React/inline scripts:
-    // Stop propagation so global click-close only fires after toggle.
-    btn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      var isOpen = btn.classList.contains('w--open');
-      if (isOpen) {
-        btn.classList.remove('w--open');
-        menu.classList.remove('w--open');
-        menu.style.display = '';
-        document.body.style.overflow = '';
-      } else {
-        btn.classList.add('w--open');
-        menu.classList.add('w--open');
-        menu.style.display = 'flex';
-        menu.style.flexDirection = 'column';
-        document.body.style.overflow = 'hidden';
+    /* ── Inject shared CSS ── */
+    injectMobileNavStyles();
+
+    /* ── Backdrop ── */
+    var backdrop = document.createElement('div');
+    backdrop.className = 'bl-mob-backdrop';
+    document.body.insertBefore(backdrop, document.body.firstChild);
+
+    /* ── Close button ── */
+    var closeBtn = document.createElement('button');
+    closeBtn.className = 'bl-mob-close-btn';
+    closeBtn.setAttribute('aria-label', 'Close navigation menu');
+    closeBtn.textContent = '✕';
+    menu.insertBefore(closeBtn, menu.firstChild);
+
+    /* ── Mobile Sign-In link ── */
+    if (!menu.querySelector('.bl-mob-signin')) {
+      var signinMob = document.createElement('a');
+      signinMob.href = '/login';
+      signinMob.className = 'bl-mob-signin';
+      signinMob.textContent = 'Sign In or Sign Up';
+      menu.appendChild(signinMob);
+    }
+
+    /* ── Occasions accordion ── */
+    var occasionsToggle = menu.querySelector('.nav-link.dropdown.w-dropdown-toggle');
+    var occasionsWrapper = menu.querySelector('.w-dropdown');
+
+    if (occasionsToggle && occasionsWrapper) {
+      // Inject arrow SVG into toggle
+      var arrow = document.createElement('span');
+      arrow.className = 'bl-occasions-arrow';
+      arrow.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      occasionsToggle.appendChild(arrow);
+
+      // Build accordion panel
+      var panel = document.createElement('div');
+      panel.className = 'bl-occasions-panel';
+      OCCASIONS_LIST.forEach(function(item) {
+        var a = document.createElement('a');
+        a.href = item[0];
+        a.textContent = item[1];
+        a.addEventListener('click', closeNav);
+        panel.appendChild(a);
+      });
+      occasionsWrapper.appendChild(panel);
+
+      // Toggle on click
+      occasionsToggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var isOpen = panel.classList.contains('open');
+        panel.classList.toggle('open', !isOpen);
+        arrow.classList.toggle('open', !isOpen);
+        occasionsToggle.setAttribute('aria-expanded', (!isOpen).toString());
+      });
+    }
+
+    /* ── Open / close helpers ── */
+    function openNav() {
+      btn.classList.add('w--open');
+      menu.classList.add('w--open');
+      backdrop.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeNav() {
+      btn.classList.remove('w--open');
+      menu.classList.remove('w--open');
+      backdrop.classList.remove('open');
+      document.body.style.overflow = '';
+      // Also collapse occasions
+      if (occasionsWrapper) {
+        var panel = occasionsWrapper.querySelector('.bl-occasions-panel');
+        var arrow = occasionsWrapper.querySelector('.bl-occasions-arrow');
+        if (panel) panel.classList.remove('open');
+        if (arrow) arrow.classList.remove('open');
       }
-    }, true); // capture phase to run before Webflow
+    }
+
+    /* ── Hamburger toggle (capture phase, before Webflow) ── */
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (btn.classList.contains('w--open')) { closeNav(); } else { openNav(); }
+    }, true);
+
+    /* ── Close button ── */
+    closeBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      closeNav();
+    });
+
+    /* ── Backdrop click ── */
+    backdrop.addEventListener('click', closeNav);
+
+    /* ── Close nav links ── */
+    menu.querySelectorAll('.nav-link.w-nav-link, .bl-mob-signin').forEach(function(link) {
+      link.addEventListener('click', closeNav);
+    });
+
+
+    /* ── Webflow anti-interference: MutationObserver ── */
+    var wfObserver = new MutationObserver(function(mutations) {
+      mutations.forEach(function(m) {
+        if (m.attributeName === 'class' && !btn.classList.contains('w--open') && menu.classList.contains('w--open')) {
+          menu.classList.remove('w--open');
+          backdrop.classList.remove('open');
+          document.body.style.overflow = '';
+        }
+      });
+    });
+    wfObserver.observe(btn, { attributes: true, attributeFilter: ['class'] });
   }
 
   /* ─────────────────────────────────────────────
