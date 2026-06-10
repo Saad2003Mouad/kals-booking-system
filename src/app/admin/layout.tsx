@@ -21,6 +21,7 @@ function isRouteAllowed(role: string, href: string): boolean {
   if (role === "DISPATCHER") {
     return [
       "/admin",
+      "/admin/calendar",
       "/admin/bookings",
       "/admin/tasks",
       "/admin/customers",
@@ -32,6 +33,7 @@ function isRouteAllowed(role: string, href: string): boolean {
   if (role === "SUPPORT") {
     return [
       "/admin",
+      "/admin/calendar",
       "/admin/bookings",
       "/admin/customers",
       "/admin/inquiries",
@@ -40,6 +42,7 @@ function isRouteAllowed(role: string, href: string): boolean {
   if (role === "VIEWER") {
     return [
       "/admin",
+      "/admin/calendar",
       "/admin/bookings",
       "/admin/customers",
       "/admin/packages",
@@ -58,7 +61,8 @@ const NAV_GROUPS: NavGroup[] = [
     title: "Operations",
     items: [
       { href: "/admin",            label: "Dashboard",    icon: LayoutDashboard },
-      { href: "/admin/bookings",   label: "Bookings",     icon: Calendar },
+      { href: "/admin/calendar",   label: "Calendar",     icon: Calendar },
+      { href: "/admin/bookings",   label: "Bookings",     icon: ClipboardList },
       { href: "/admin/tasks",      label: "Tasks",        icon: ClipboardList },
     ]
   },

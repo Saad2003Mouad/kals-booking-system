@@ -235,6 +235,27 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
     return `https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`;
   };
 
+  const getGoogleCalendarUrl = () => {
+    const eventDate = new Date(booking.eventDate);
+    const [hours, minutes] = (booking.startTime || "12:00").split(":");
+    
+    const startDateTime = new Date(eventDate);
+    startDateTime.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
+    
+    const endDateTime = new Date(startDateTime);
+    endDateTime.setMinutes(endDateTime.getMinutes() + (booking.durationMins || 60));
+
+    const formatGCalDate = (date: Date) => {
+      return date.toISOString().replace(/-|:|\.\d\d\d/g, "");
+    };
+
+    const title = `Boston Legend - ${booking.package?.name || "Ice Cream Event"}`;
+    const details = `Booking ID: ${booking.bookingNumber}\nPhone: 617-999-3803\nEmail: support@bostonlegend.com`;
+    const location = `${booking.address}, ${booking.city}, MA ${booking.zip}`;
+
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${formatGCalDate(startDateTime)}/${formatGCalDate(endDateTime)}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(location)}`;
+  };
+
   return (
     <div className="min-h-screen bg-[#FAF6EF] pb-24 font-['Nunito',sans-serif] selection:bg-[#FFA000] selection:text-[#000223] relative overflow-x-hidden">
       
@@ -322,6 +343,16 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
               <button onClick={() => setShowRequestModal("CANCEL")} className="flex-1 sm:flex-initial py-2.5 px-4 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg font-bold text-xs transition-all flex items-center justify-center gap-2 border border-rose-200">
                 <XCircle className="w-3.5 h-3.5" /> Cancel Booking
               </button>
+            </>
+          )}
+          {["CONFIRMED", "PENDING_PAYMENT"].includes(booking.status) && (
+            <>
+              <a href={getGoogleCalendarUrl()} target="_blank" rel="noopener noreferrer" className="flex-1 sm:flex-initial py-2.5 px-4 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg font-bold text-xs transition-all flex items-center justify-center gap-2 border border-blue-200">
+                <Calendar className="w-3.5 h-3.5" /> Add to Google
+              </a>
+              <a href={`/api/customer/bookings/${booking.id}/calendar`} className="flex-1 sm:flex-initial py-2.5 px-4 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-lg font-bold text-xs transition-all flex items-center justify-center gap-2 border border-slate-200">
+                <Calendar className="w-3.5 h-3.5" /> Apple / Outlook
+              </a>
             </>
           )}
           <button onClick={() => window.print()} className="flex-1 sm:flex-initial py-2.5 px-4 bg-[#000223] hover:bg-slate-800 text-white rounded-lg font-bold text-xs transition-all flex items-center justify-center gap-2 shadow-sm">

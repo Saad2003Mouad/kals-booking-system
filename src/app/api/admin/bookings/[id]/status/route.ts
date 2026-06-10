@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendBookingApprovedEmail, sendBookingRejectedEmail, sendBookingPendingReviewEmail } from "@/lib/email";
 import { getSessionUser, hasPermission, unauthenticated, unauthorized } from "@/lib/rbac";
+import { googleCalendarService } from "@/lib/google-calendar";
 
 export const dynamic = "force-dynamic";
 
@@ -133,6 +134,17 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       }
     } catch (emailErr) {
       console.error("[Email Dispatch Error inside Status Update]", emailErr);
+    }
+
+    // Google Calendar Sync
+    try {
+      if (status === "CONFIRMED" || status === "PENDING_PAYMENT") {
+        await googleCalendarService.updateBookingEvent(booking);
+      } else if (status === "CANCELLED" || status === "REJECTED") {
+        await googleCalendarService.deleteBookingEvent(booking.id);
+      }
+    } catch (gcalErr) {
+      console.error("[Google Calendar Sync Error]", gcalErr);
     }
 
     return NextResponse.json({ success: true, data: booking });
