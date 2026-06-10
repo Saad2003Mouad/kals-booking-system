@@ -1,19 +1,33 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
-import { Loader2, Calendar as CalendarIcon, MapPin, Phone, Mail, User, X } from "lucide-react";
+import { Calendar as CalendarIcon, MapPin, Phone, Mail, User, X } from "lucide-react";
 import Link from "next/link";
 
+const FC_STYLES = `
+  .fc-theme-standard td, .fc-theme-standard th { border-color: #e2e8f0; }
+  .fc-button-primary { background-color: #000223 !important; border-color: #000223 !important; font-weight: bold !important; text-transform: capitalize !important; }
+  .fc-button-primary:hover { background-color: #1a1b3a !important; }
+  .fc-button-active { background-color: #FFA000 !important; border-color: #FFA000 !important; color: #000223 !important; }
+  .fc-event { cursor: pointer; border-radius: 4px; padding: 2px 4px; font-weight: 600; font-size: 0.85em; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: opacity 0.2s; }
+  .fc-event:hover { opacity: 0.9; }
+  .fc-toolbar-title { font-weight: 900 !important; color: #000223 !important; }
+`;
+
 export default function AdminCalendarPage() {
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
+
+  useEffect(() => {
+    const style = document.createElement("style");
+    style.innerHTML = FC_STYLES;
+    document.head.appendChild(style);
+    return () => { document.head.removeChild(style); };
+  }, []);
 
   const fetchEvents = async (fetchInfo: any, successCallback: any, failureCallback: any) => {
     try {
@@ -44,42 +58,6 @@ export default function AdminCalendarPage() {
       </div>
 
       <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200 relative z-0">
-        <style jsx global>{`
-          .fc-theme-standard td, .fc-theme-standard th {
-            border-color: #e2e8f0;
-          }
-          .fc-button-primary {
-            background-color: #000223 !important;
-            border-color: #000223 !important;
-            font-weight: bold !important;
-            text-transform: capitalize !important;
-          }
-          .fc-button-primary:hover {
-            background-color: #1a1b3a !important;
-          }
-          .fc-button-active {
-            background-color: #FFA000 !important;
-            border-color: #FFA000 !important;
-            color: #000223 !important;
-          }
-          .fc-event {
-            cursor: pointer;
-            border-radius: 4px;
-            padding: 2px 4px;
-            font-weight: 600;
-            font-size: 0.85em;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            transition: opacity 0.2s;
-          }
-          .fc-event:hover {
-            opacity: 0.9;
-          }
-          .fc-toolbar-title {
-            font-weight: 900 !important;
-            color: #000223 !important;
-          }
-        `}</style>
-
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
           initialView="dayGridMonth"
@@ -102,7 +80,7 @@ export default function AdminCalendarPage() {
       {/* Event Details Modal */}
       {selectedEvent && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden">
             <div className="p-6 border-b border-slate-100 flex justify-between items-start">
               <div>
                 <h3 className="text-xl font-black text-slate-900 leading-tight">
@@ -112,23 +90,23 @@ export default function AdminCalendarPage() {
                   {selectedEvent.extendedProps.status}
                 </span>
               </div>
-              <button 
+              <button
                 onClick={() => setSelectedEvent(null)}
                 className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1.5 rounded-full transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            
+
             <div className="p-6 space-y-4">
               <div className="flex items-start gap-3">
                 <CalendarIcon className="w-5 h-5 text-[#FFA000] shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-bold text-slate-900">Event Time</p>
                   <p className="text-sm text-slate-600">
-                    {selectedEvent.start?.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
-                    {" - "}
-                    {selectedEvent.end?.toLocaleTimeString([], { timeStyle: 'short' })}
+                    {selectedEvent.start?.toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}
+                    {" – "}
+                    {selectedEvent.end?.toLocaleTimeString([], { timeStyle: "short" })}
                   </p>
                 </div>
               </div>
@@ -167,13 +145,13 @@ export default function AdminCalendarPage() {
             </div>
 
             <div className="p-6 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
-              <button 
+              <button
                 onClick={() => setSelectedEvent(null)}
                 className="px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-200 bg-slate-100 rounded-xl transition-colors"
               >
                 Close
               </button>
-              <Link 
+              <Link
                 href={`/admin/bookings/${selectedEvent.id}`}
                 className="px-4 py-2.5 text-sm font-bold text-[#000223] bg-[#FFA000] hover:bg-[#e69000] rounded-xl transition-colors shadow-sm"
               >
