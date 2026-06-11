@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendBookingApprovedEmail } from "@/lib/email";
+import { googleCalendarService } from "@/lib/google-calendar";
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -34,6 +35,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     const updated = await prisma.booking.update({
       where: { id: params.id },
       data: { status: "CONFIRMED" },
+      include: { customer: true, package: true }
     });
 
     await prisma.auditLog.create({
@@ -56,6 +58,13 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       booking.totalAmount.toFixed(2),
       booking.id
     );
+
+    // Sync to Google Calendar
+    try {
+      await googleCalendarService.createBookingEvent(updated);
+    } catch (gcalErr) {
+      console.error("[Google Calendar Sync Error]", gcalErr);
+    }
 
     return NextResponse.json({ success: true, booking: updated });
   } catch (err) {

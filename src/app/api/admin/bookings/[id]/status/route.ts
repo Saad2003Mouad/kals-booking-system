@@ -141,7 +141,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       if (status === "CONFIRMED" || status === "PENDING_PAYMENT") {
         await googleCalendarService.updateBookingEvent(booking);
       } else if (status === "CANCELLED" || status === "REJECTED") {
-        await googleCalendarService.deleteBookingEvent(booking.id);
+        await googleCalendarService.deleteBookingEvent(booking.googleEventId);
       }
     } catch (gcalErr) {
       console.error("[Google Calendar Sync Error]", gcalErr);

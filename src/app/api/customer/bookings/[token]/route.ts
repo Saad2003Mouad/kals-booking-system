@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { googleCalendarService } from "@/lib/google-calendar";
 
 export const dynamic = "force-dynamic";
 
@@ -73,6 +74,14 @@ export async function PATCH(req: NextRequest, { params }: { params: { token: str
       where: { id: params.token },
       include: { customer: true, package: true, quote: true }
     });
+
+    if (updatedBooking) {
+      try {
+        await googleCalendarService.updateBookingEvent(updatedBooking);
+      } catch (gcalErr) {
+        console.error("[Google Calendar Sync Error]", gcalErr);
+      }
+    }
 
     return NextResponse.json({ success: true, data: updatedBooking });
   } catch (error: any) {

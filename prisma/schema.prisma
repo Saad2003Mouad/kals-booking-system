@@ -112,6 +112,7 @@ model Booking {
   additionalStopsFee  Float    @default(0)
   totalAmount         Float    @default(0)
   internalNote        String?
+  googleEventId       String?
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 

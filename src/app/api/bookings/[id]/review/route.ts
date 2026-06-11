@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendBookingApprovedEmail } from "@/lib/email";
+import { googleCalendarService } from "@/lib/google-calendar";
 import { z } from "zod";
 
 const ReviewSchema = z.object({
@@ -107,6 +108,19 @@ export async function POST(
         booking.id
       );
 
+      // Google Calendar Sync
+      try {
+        const fullBookingForGcal = await prisma.booking.findUnique({
+          where: { id: updated.id },
+          include: { customer: true, package: true }
+        });
+        if (fullBookingForGcal) {
+          await googleCalendarService.createBookingEvent(fullBookingForGcal);
+        }
+      } catch (gcalErr) {
+        console.error("[Google Calendar Sync Error]", gcalErr);
+      }
+
       return NextResponse.json({
         success: true,
         action: "APPROVED",
@@ -149,6 +163,15 @@ export async function POST(
       reason || "Your request did not meet our availability criteria.",
       booking.id
     );
+
+    // Google Calendar Sync
+    try {
+      if (updated.googleEventId) {
+        await googleCalendarService.deleteBookingEvent(updated.googleEventId);
+      }
+    } catch (gcalErr) {
+      console.error("[Google Calendar Sync Error]", gcalErr);
+    }
 
     return NextResponse.json({
       success: true,
