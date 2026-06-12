@@ -291,7 +291,7 @@ export default function OccasionPage({ params }: { params: { slug: string } }) {
             <div className="border-titel">Boston {data.title} Bliss</div>
             <div className="row mb-100">
               <div className="service-page-col-info">
-                <MotionWrapper animation="fade-in-up" delay={0.1}>
+                <FadeInUp>
                   {/* AI Feature Trust Badge */}
                   <div
                     style={{
