@@ -58,6 +58,7 @@ export default function SettingsPage() {
   const [original, setOriginal] = useState<Record<string,string>>(DEFAULTS);
   const [loading, setLoading]   = useState(true);
   const [saving, setSaving]     = useState(false);
+  const [syncing, setSyncing]   = useState(false);
   const [toast, setToast]       = useState<{type:"success"|"error"; msg:string}|null>(null);
 
   useEffect(() => {
@@ -106,6 +107,21 @@ export default function SettingsPage() {
       setToast({ type: "success", msg: "Google Calendar disconnected." });
     } catch {
       setToast({ type: "error", msg: "Failed to disconnect Google Calendar." });
+    }
+  };
+
+  const handleInitialSync = async () => {
+    setSyncing(true);
+    try {
+      const res = await fetch("/api/admin/calendar/sync", { method: "POST" });
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json.message || "Sync failed");
+      setToast({ type: "success", msg: json.message || "Initial sync completed successfully." });
+    } catch (e: any) {
+      setToast({ type: "error", msg: e.message || "Failed to run initial sync." });
+    } finally {
+      setSyncing(false);
+      setTimeout(() => setToast(null), 4000);
     }
   };
 
@@ -241,12 +257,22 @@ export default function SettingsPage() {
                   <Calendar className="w-4 h-4" /> Connect Google Account
                 </a>
               ) : (
-                <button
-                  onClick={handleDisconnectGoogle}
-                  className="px-5 py-2.5 rounded-xl text-sm font-black text-red-700 bg-red-50 border border-red-200 hover:bg-red-100 transition-all flex items-center gap-2"
-                >
-                  <Unplug className="w-4 h-4" /> Disconnect Calendar
-                </button>
+                <>
+                  <button
+                    onClick={handleInitialSync}
+                    disabled={syncing}
+                    className="px-5 py-2.5 rounded-xl text-sm font-black text-white bg-[#000223] hover:bg-slate-800 transition-all flex items-center gap-2 disabled:opacity-50"
+                  >
+                    {syncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RotateCcw className="w-4 h-4" />}
+                    {syncing ? "Syncing..." : "Run Initial Calendar Sync"}
+                  </button>
+                  <button
+                    onClick={handleDisconnectGoogle}
+                    className="px-5 py-2.5 rounded-xl text-sm font-black text-red-700 bg-red-50 border border-red-200 hover:bg-red-100 transition-all flex items-center gap-2"
+                  >
+                    <Unplug className="w-4 h-4" /> Disconnect Calendar
+                  </button>
+                </>
               )}
             </div>
           </div>

@@ -193,5 +193,37 @@ export const googleCalendarService = {
       console.error("Error deleting Google Calendar event:", error);
       return false;
     }
+  },
+
+  async initialSync() {
+    const client = await getAuthenticatedClient();
+    if (!client) return { success: false, message: "Google Calendar not connected" };
+
+    try {
+      // Find all bookings that should be on the calendar but aren't
+      const bookingsToSync = await prisma.booking.findMany({
+        where: {
+          status: { in: ["CONFIRMED", "PENDING_PAYMENT"] },
+          googleEventId: null
+        },
+        include: {
+          customer: true,
+          package: true
+        }
+      });
+
+      let syncedCount = 0;
+      for (const booking of bookingsToSync) {
+        const eventId = await this.createBookingEvent(booking);
+        if (eventId) {
+          syncedCount++;
+        }
+      }
+
+      return { success: true, count: syncedCount, message: `Successfully synced ${syncedCount} bookings.` };
+    } catch (error) {
+      console.error("Error in initial calendar sync:", error);
+      return { success: false, message: "Error running initial sync" };
+    }
   }
 };

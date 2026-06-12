@@ -184,14 +184,10 @@ export async function POST(req: NextRequest) {
       };
     }
 
-    // ── 3. Upsert customer ────────────────────────────────────
-    let customer = await withRetry(() => prisma.customer.findFirst({ where: { phone } }));
-    if (!customer) {
-      customer = await withRetry(() => prisma.customer.create({
-        data: { firstName, lastName, email, phone, address: resolvedPrimaryLocation.street, city: resolvedPrimaryLocation.city, zip: resolvedPrimaryLocation.zipCode },
-      }));
-    }
-
+    // ── 3. Create customer (Immutable Snapshot for Data Integrity) ──
+    const customer = await withRetry(() => prisma.customer.create({
+      data: { firstName, lastName, email, phone, address: resolvedPrimaryLocation.street, city: resolvedPrimaryLocation.city, zip: resolvedPrimaryLocation.zipCode },
+    }));
     // ── 3.5. Server-side quote recalculation ──────────────────
     let dbPackageName = "Custom Package";
     let finalTotal = totalAmount;
