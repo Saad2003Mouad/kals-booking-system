@@ -1,18 +1,13 @@
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { notFound } from "next/navigation";
-import { citiesData } from "@/lib/cityContent";
+import { getCityContent } from "@/lib/cityContent";
 import { FadeInUp } from "@/components/MotionWrapper";
 import Script from "next/script";
 
-export function generateStaticParams() {
-  return Object.keys(cityContent).map((slug) => ({
-    slug,
-  }));
-}
 
 export function generateMetadata({ params }: { params: { slug: string } }) {
-  const content = cityContent[params.slug];
+  const content = getCityContent(params.slug);
   if (!content) return {};
 
   return {
@@ -22,7 +17,7 @@ export function generateMetadata({ params }: { params: { slug: string } }) {
 }
 
 export default function CityPage({ params }: { params: { slug: string } }) {
-  const content = cityContent[params.slug];
+  const content = getCityContent(params.slug);
 
   if (!content) {
     notFound();

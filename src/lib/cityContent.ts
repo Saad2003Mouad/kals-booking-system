@@ -52,11 +52,11 @@ export function getCityContent(slug: string) {
   const title = `Ice Cream Truck Event Rentals in ${cityName} | Boston Legend`;
 
   return {
-    cityName,
-    title,
+    name: cityName,
+    metaTitle: title,
     h1,
     metaDescription,
-    intro,
-    faqList
+    introHtml: `<p>${intro}</p>`,
+    faq: faqList.map(f => ({ question: f.q, answer: f.a }))
   };
 }
