@@ -15,7 +15,7 @@ export const FAQS = [
   { question: "Can you provide a Certificate of Insurance (COI)?", answer: "Yes, we frequently provide Certificates of Insurance (COI) for corporate clients, HOAs, schools, and apartment communities upon request." },
 ];
 
-export default function FaqAccordion() {
+export default function FaqAccordion({ faqs = FAQS }: { faqs?: { question: string, answer: string }[] }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const toggle = (index: number) => {
@@ -25,7 +25,7 @@ export default function FaqAccordion() {
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    "mainEntity": FAQS.map(faq => ({
+    "mainEntity": faqs.map(faq => ({
       "@type": "Question",
       "name": faq.question,
       "acceptedAnswer": {
@@ -39,7 +39,7 @@ export default function FaqAccordion() {
     <div className="w-full max-w-3xl mx-auto space-y-3">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       <h2 className="text-3xl font-black text-center mb-8" style={{ color: "#000223" }}>Frequently Asked Questions</h2>
-      {FAQS.map((faq, idx) => (
+      {faqs.map((faq, idx) => (
         <div key={idx} className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
           <button
             onClick={() => toggle(idx)}

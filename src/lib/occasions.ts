@@ -91,6 +91,41 @@ export const OCCASIONS: OccasionConfig[] = [
     h1: "Summer Camp Ice Cream Truck",
     image: "/images/occasions/school.jpg"
   },
+  {
+    slug: "college-events",
+    title: "College Event Ice Cream Truck | Boston Legend",
+    metaDescription: "Make your next college event legendary! Hire our premium ice cream truck for university events, orientations, and student activities across Massachusetts.",
+    h1: "College Event Ice Cream Truck",
+    image: "/images/occasions/school.jpg"
+  },
+  {
+    slug: "graduation-parties",
+    title: "Graduation Party Ice Cream Truck | Boston Legend",
+    metaDescription: "Celebrate the graduate with Boston Legend Ice Cream Truck. The ultimate premium dessert experience for graduation parties in Greater Boston.",
+    h1: "Graduation Party Ice Cream Truck",
+    image: "/images/occasions/school.jpg"
+  },
+  {
+    slug: "church-events",
+    title: "Church Event Ice Cream Truck | Boston Legend",
+    metaDescription: "Book Boston's best ice cream truck for your church event, youth group, or congregation gathering. Instant online booking available.",
+    h1: "Church Event Ice Cream Truck",
+    image: "/images/occasions/fundraiser.jpg"
+  },
+  {
+    slug: "festivals",
+    title: "Festival Ice Cream Truck | Boston Legend",
+    metaDescription: "Looking for a high-volume, professional ice cream vendor for your festival? Boston Legend serves premium treats at festivals across Massachusetts.",
+    h1: "Festival Ice Cream Truck Vendor",
+    image: "/images/occasions/block-party.jpg"
+  },
+  {
+    slug: "weddings",
+    title: "Wedding Ice Cream Truck | Boston Legend",
+    metaDescription: "Add a magical touch to your special day with our luxury wedding ice cream truck catering. Serving weddings across Massachusetts.",
+    h1: "Wedding Ice Cream Truck Catering",
+    image: "/images/occasions/wedding.jpg"
+  },
   // Keep legacy URLs active
   {
     slug: "block-parties",

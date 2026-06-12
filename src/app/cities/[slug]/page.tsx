@@ -4,6 +4,11 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import FaqAccordion from "@/components/FaqAccordion";
+import { FadeInUp } from "@/components/MotionWrapper";
+import Link from "next/link";
+import { CheckCircle2, Star, ShieldCheck } from "lucide-react";
+import { getCityContent } from "@/lib/cityContent";
 
 interface PageProps {
   params: {
@@ -13,106 +18,14 @@ interface PageProps {
 
 export const dynamicParams = false;
 
-function getCityData(slug: string) {
-  // Enforce lowercase slug matching to prevent duplicate routing issues
-  const cleanSlug = slug.toLowerCase();
-  const filePath = path.join(process.cwd(), "cities", `${cleanSlug}.html`);
-  
-  if (!fs.existsSync(filePath)) {
-    return null;
-  }
-  
-  let html = fs.readFileSync(filePath, "utf-8");
-
-  // Parse Title
-  const titleMatch = html.match(/<title>(.*?)<\/title>/i);
-  const title = titleMatch ? titleMatch[1] : "Boston Legend Ice Cream Truck Event Rentals";
-
-  // Parse Description
-  const descMatch = html.match(/<meta\s+name="description"\s+content="([^"]*)"/i) || 
-                    html.match(/<meta\s+content="([^"]*)"\s+name="description"/i);
-  const description = descMatch ? descMatch[1] : "";
-
-  // Extract content between </header> and the start of the footer
-  const contentStart = html.indexOf("</header>");
-  const contentEnd = html.indexOf("<footer");
-  
-  if (contentStart === -1 || contentEnd === -1) {
-    return null;
-  }
-
-  // Adding length of "</header>" (9) to start extracting after it
-  let contentHtml = html.substring(contentStart + 9, contentEnd);
-
-  // Clean up content:
-  // 1. Remove the old booking form block and replace it with the new premium CTA banner
-  const formStartToken = '<div class="w-form">';
-  const formEndToken = 'Thank you! Your submission has been received!</div></div><div class="w-form-fail"><div>Oops! Something went wrong while submitting the form.</div></div></div>';
-
-  const startIndex = contentHtml.indexOf(formStartToken);
-  const endIndex = contentHtml.indexOf(formEndToken);
-
-  if (startIndex !== -1 && endIndex !== -1) {
-    const formReplacementHtml = `
-<div class="w-form premium-cta-container" style="display:flex; flex-direction:column; justify-content:center; align-items:center; padding: 60px 20px; background: linear-gradient(135deg, rgba(255, 160, 0, 0.1), rgba(243, 145, 189, 0.1)); border-radius: 24px; border: 1px solid rgba(255,160,0,0.3); min-height: 400px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.05); margin: 40px 0;">
-    <img src="https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/67e3936366827af4bed1d0d0_logo-boston-legend-ice-cream-truck.avif" alt="Boston Legend Logo" style="height: 60px; margin-bottom: 30px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));" />
-    <h3 style="font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 2rem; color: #000223; margin-bottom: 10px;">Ready to sweeten your event?</h3>
-    <p style="font-family: 'Nunito', sans-serif; font-size: 1.1rem; color: #666; margin-bottom: 30px; max-width: 400px;">Get an instant quote and secure your ice cream truck in under 3 minutes.</p>
-    <a href="/packages" class="link-bt w-button hover-cta" style="font-family: 'Nunito', sans-serif; font-size: 1.25rem; padding: 20px 48px; border-radius: 50px; background: #000223; color: #FFA000; box-shadow: 0 10px 30px rgba(0, 2, 35, 0.3); transition: all 0.3s ease; text-decoration: none; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; display: inline-block;">
-        Start Your Booking 🍦
-    </a>
-</div>
-    `;
-    contentHtml = contentHtml.substring(0, startIndex) + formReplacementHtml + contentHtml.substring(endIndex + formEndToken.length);
-  }
-
-  // 2. Remove absolute domain references to keep links clean and local
-  contentHtml = contentHtml.replace(/href="https?:\/\/(www\.)?bostonlegendicecreamtruck\.com(\/)?/g, 'href="/');
-
-  // 3. Ensure all Reserve CTA/booking links point directly to /packages
-  contentHtml = contentHtml.replaceAll('href="/booking"', 'href="/packages"');
-  contentHtml = contentHtml.replaceAll('href="/reserve"', 'href="/packages"');
-  
-  // Replace Webflow hash CTA buttons with packages link
-  contentHtml = contentHtml.replace(/href="#"(\s+class="[^"]*link-bt[^"]*")/g, 'href="/packages"$1');
-
-  // 4. Fix broken /occasion/xyz-in-city or /occasion/xyz-city links
-  const validOccasions = {
-    'birthday-parties': 'birthday-parties',
-    'block-parties': 'block-parties',
-    'corporate-parties': 'corporate-parties',
-    'fundraisers': 'fundraisers',
-    'launch-parties': 'launch-parties',
-    'marketing-events': 'marketing-events',
-    'movie-rental': 'movie-rental',
-    'photo-shoots': 'photo-sessions',
-    'reunions': 'reunions',
-    'school-events': 'school-occasions',
-    'sporting-events': 'sports-occasions',
-    'wedding-receptions': 'wedding-receptions'
-  };
-
-  Object.entries(validOccasions).forEach(([legacySlug, correctSlug]) => {
-    // Matches /occasion/legacySlug optionally followed by any -city suffix
-    const regex = new RegExp(`href="\\/occasion\\/${legacySlug}(?:-[a-z-]+)?"`, 'g');
-    contentHtml = contentHtml.replace(regex, `href="/occasions/${correctSlug}"`);
-  });
-
-  return {
-    title,
-    description,
-    contentHtml,
-  };
-}
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const data = getCityData(params.slug);
-  if (!data) {
-    return {};
-  }
+  const content = getCityContent(params.slug);
   return {
-    title: data.title,
-    description: data.description,
+    title: content.title,
+    description: content.metaDescription,
+    alternates: {
+      canonical: `https://www.bostonlegendicecreamtruck.com/cities/${params.slug}`
+    }
   };
 }
 
@@ -131,16 +44,178 @@ export async function generateStaticParams() {
 }
 
 export default function CityPage({ params }: PageProps) {
-  const data = getCityData(params.slug);
+  const content = getCityContent(params.slug);
   
-  if (!data) {
+  // Ensure we still validate the slug against existing cities
+  const citiesDir = path.join(process.cwd(), "cities");
+  const validFiles = fs.readdirSync(citiesDir).filter(f => f.endsWith('.html')).map(f => f.replace('.html', '').toLowerCase());
+  
+  if (!validFiles.includes(params.slug.toLowerCase())) {
     notFound();
   }
 
+  // Generate Service & Breadcrumb JSON-LD Schema
+  const serviceSchema = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "serviceType": "Ice Cream Truck Catering",
+    "provider": {
+      "@type": "LocalBusiness",
+      "name": "Boston Legend Ice Cream Truck",
+      "image": "https://www.bostonlegendicecreamtruck.com/images/og-image.jpg",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "84 Fernwood Ave",
+        "addressLocality": "Revere",
+        "addressRegion": "MA",
+        "addressCountry": "US"
+      }
+    },
+    "areaServed": {
+      "@type": "City",
+      "name": content.cityName,
+      "containedInPlace": {
+        "@type": "State",
+        "name": "Massachusetts"
+      }
+    },
+    "description": content.metaDescription
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://www.bostonlegendicecreamtruck.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Cities",
+        "item": "https://www.bostonlegendicecreamtruck.com/#areas"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": content.cityName,
+        "item": `https://www.bostonlegendicecreamtruck.com/cities/${params.slug}`
+      }
+    ]
+  };
+
+  const mapFaqs = content.faqList.map(f => ({ question: f.q, answer: f.a }));
+
   return (
-    <div className="site-wrapper">
-      <SiteHeader />
-      <div dangerouslySetInnerHTML={{ __html: data.contentHtml }} />
+    <div className="page min-h-screen bg-amber-50 relative overflow-hidden flex flex-col">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+      
+      <div style={{ position: "relative", zIndex: 25 }}>
+        <SiteHeader />
+      </div>
+
+      {/* Hero Section */}
+      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden px-4">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="/images/og-image.jpg" 
+            alt={content.h1}
+            className="w-full h-full object-cover opacity-20"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-amber-50/80 via-amber-50/95 to-amber-50"></div>
+        </div>
+        
+        <div className="max-w-5xl mx-auto relative z-10 text-center">
+          <FadeInUp delay={0.1}>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 text-blue-800 font-bold text-sm mb-6 shadow-sm border border-blue-200">
+              <ShieldCheck className="w-4 h-4" />
+              The World's First AI-Powered Ice Cream Truck Reservation Platform
+            </div>
+          </FadeInUp>
+          
+          <FadeInUp delay={0.2}>
+            <h1 className="text-5xl md:text-7xl font-black tracking-tight text-[#000223] mb-8 font-playfair">
+              {content.h1}
+            </h1>
+          </FadeInUp>
+          
+          <FadeInUp delay={0.3}>
+            <p className="text-xl text-slate-700 font-medium max-w-3xl mx-auto mb-10 leading-relaxed">
+              {content.intro}
+            </p>
+          </FadeInUp>
+          
+          <FadeInUp delay={0.4}>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link 
+                href="/packages" 
+                className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-[#FFA000] text-[#000223] font-black text-lg hover:bg-[#ffaa1a] active:scale-[0.98] transition-all shadow-lg"
+              >
+                Get Instant AI Quote & Book
+              </Link>
+              <Link 
+                href="/contact-us" 
+                className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white text-[#000223] border-2 border-slate-200 font-black text-lg hover:border-slate-300 active:scale-[0.98] transition-all"
+              >
+                Contact Our Specialists
+              </Link>
+            </div>
+          </FadeInUp>
+          
+          <FadeInUp delay={0.5}>
+            <div className="mt-12 flex flex-wrap justify-center gap-x-8 gap-y-4 text-sm font-bold text-slate-600">
+              <span className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-500" /> Fully Licensed & Insured</span>
+              <span className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-500" /> Since 1999</span>
+              <span className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-500" /> Serving {content.cityName}</span>
+            </div>
+          </FadeInUp>
+        </div>
+      </section>
+
+      {/* Trust & FAQ Section */}
+      <section className="py-24 bg-white relative z-10 flex-1">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-16 items-center mb-24">
+            <FadeInUp>
+              <div>
+                <h2 className="text-4xl font-black text-[#000223] mb-6">Why Choose Boston Legend for your {content.cityName} Event?</h2>
+                <div className="space-y-6">
+                  <div className="flex gap-4">
+                    <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
+                      <Star className="w-6 h-6 text-amber-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-black text-[#000223] mb-2">Premium Experience</h3>
+                      <p className="text-slate-600 font-medium leading-relaxed">Our pristine trucks and vans are fully stocked with a massive variety of premium ice cream. Our professional, uniformed staff handles everything.</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4">
+                    <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                      <ShieldCheck className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-black text-[#000223] mb-2">Safe, Clean & Insured</h3>
+                      <p className="text-slate-600 font-medium leading-relaxed">We are fully health-department inspected and carry complete liability insurance. Certificates of Insurance (COI) available upon request.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </FadeInUp>
+            <FadeInUp delay={0.2}>
+              <div className="relative h-[400px] rounded-3xl overflow-hidden shadow-2xl">
+                <img src="/images/og-image.jpg" alt={`Boston Legend Ice Cream Truck in ${content.cityName}`} className="w-full h-full object-cover" />
+              </div>
+            </FadeInUp>
+          </div>
+          
+          <FaqAccordion faqs={mapFaqs} />
+        </div>
+      </section>
+
       <SiteFooter />
     </div>
   );

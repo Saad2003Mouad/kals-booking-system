@@ -4,6 +4,7 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import Link from "next/link";
 import { Loader2, CheckCircle2 } from "lucide-react";
+import { FadeInUp } from "@/components/MotionWrapper";
 
 type Package = {
   id: string;
@@ -76,9 +77,9 @@ export default function PackagesPage() {
             <h1 className="h1-page-hed">
               <span className="page-titel-top">Boston Legend </span>
               <br />
-              Catering & Event 
+              AI Reservation 
               <br />
-              <span className="title-event">Packages</span>
+              <span className="title-event">System</span>
             </h1>
             <img 
               src="https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/681d4ed9eee047f1fa20bfc9_decore-line.avif" 
@@ -94,11 +95,17 @@ export default function PackagesPage() {
         <main className="pb-20 flex-1">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
-            <div className="text-center max-w-3xl mx-auto mt-6 mb-16 px-4">
-              <p className="text-lg text-gray-600 font-medium">
-                Choose the perfect ice cream truck or van package for your event. We bring premium flavors and unforgettable memories directly to you.
-              </p>
-            </div>
+            <FadeInUp>
+              <div className="text-center max-w-3xl mx-auto mt-6 mb-16 px-4">
+                <p className="text-lg text-gray-600 font-medium mb-4">
+                  The World's First AI-Powered Ice Cream Truck Reservation Platform.
+                  Experience Instant Pricing, Real-Time Availability, and Smart Scheduling for Automated Booking Online.
+                </p>
+                <p className="text-2xl font-black text-[#000223]">
+                  Book your ice cream truck in less than 3 minutes.
+                </p>
+              </div>
+            </FadeInUp>
 
             {loading ? (
               <div className="flex justify-center items-center h-64">
@@ -107,28 +114,32 @@ export default function PackagesPage() {
             ) : (
               <>
                 {/* Americano Truck Packages */}
-                <div className="mb-20">
-                  <div className="flex items-center gap-4 mb-8">
-                    <h2 className="text-3xl font-black text-[#000223]">Americano Ice Cream Truck</h2>
-                    <div className="h-1 flex-1 bg-gray-200 rounded-full"></div>
+                <FadeInUp delay={0.1}>
+                  <div className="mb-20">
+                    <div className="flex items-center gap-4 mb-8">
+                      <h2 className="text-3xl font-black text-[#000223]">Americano Ice Cream Truck</h2>
+                      <div className="h-1 flex-1 bg-gray-200 rounded-full"></div>
+                    </div>
+                    
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                      {trucks.map(pkg => <PackageCard key={pkg.id} pkg={pkg} />)}
+                    </div>
                   </div>
-                  
-                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {trucks.map(pkg => <PackageCard key={pkg.id} pkg={pkg} />)}
-                  </div>
-                </div>
+                </FadeInUp>
 
                 {/* Sprinter Van Packages */}
-                <div className="mb-20">
-                  <div className="flex items-center gap-4 mb-8">
-                    <h2 className="text-3xl font-black text-[#000223]">Sprinter / Dodge Van</h2>
-                    <div className="h-1 flex-1 bg-gray-200 rounded-full"></div>
+                <FadeInUp delay={0.2}>
+                  <div className="mb-20">
+                    <div className="flex items-center gap-4 mb-8">
+                      <h2 className="text-3xl font-black text-[#000223]">Sprinter / Dodge Van</h2>
+                      <div className="h-1 flex-1 bg-gray-200 rounded-full"></div>
+                    </div>
+                    
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                      {vans.map(pkg => <PackageCard key={pkg.id} pkg={pkg} />)}
+                    </div>
                   </div>
-                  
-                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {vans.map(pkg => <PackageCard key={pkg.id} pkg={pkg} />)}
-                  </div>
-                </div>
+                </FadeInUp>
 
                 {/* Large Events & Custom Quotes */}
                 {customs.length > 0 && (
