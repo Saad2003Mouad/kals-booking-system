@@ -1,7 +1,7 @@
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { notFound } from "next/navigation";
-import MotionWrapper from "@/components/MotionWrapper";
+import { FadeInUp } from "@/components/MotionWrapper";
 import Script from "next/script";
 
 // Define the content for all occasions
@@ -264,7 +264,7 @@ export default function OccasionPage({ params }: { params: { slug: string } }) {
       <div className="site-wrapper">
         <section className="page-head">
           <div className="w-layout-blockcontainer container w-container">
-            <MotionWrapper animation="fade-in-up">
+            <FadeInUp>
               <div className="w-embed">
                 <h1 className="h1-page-hed">
                   <span className="page-titel-top">Boston Legend</span>
@@ -282,7 +282,7 @@ export default function OccasionPage({ params }: { params: { slug: string } }) {
                 alt=""
                 className="h1-page-line"
               />
-            </MotionWrapper>
+            </FadeInUp>
           </div>
         </section>
 
@@ -352,10 +352,10 @@ export default function OccasionPage({ params }: { params: { slug: string } }) {
                       Reserve Now
                     </a>
                   </div>
-                </MotionWrapper>
+                </FadeInUp>
               </div>
               <div className="service-page-coll-img">
-                <MotionWrapper animation="fade-in-up" delay={0.2}>
+                <FadeInUp delay={0.2}>
                   <div className="service-min-img">
                     <img
                       src={data.image}
@@ -364,13 +364,13 @@ export default function OccasionPage({ params }: { params: { slug: string } }) {
                       className="servie-img"
                     />
                   </div>
-                </MotionWrapper>
+                </FadeInUp>
               </div>
             </div>
           </div>
 
           <div className="w-layout-blockcontainer container-w book w-container">
-            <MotionWrapper animation="fade-in-up">
+            <FadeInUp>
               <div className="book-row">
                 <div className="w-layout-hflex page-book-title">
                   <div className="h1-titel">
@@ -466,7 +466,7 @@ export default function OccasionPage({ params }: { params: { slug: string } }) {
                   </div>
                 </div>
               </div>
-            </MotionWrapper>
+            </FadeInUp>
           </div>
         </main>
 

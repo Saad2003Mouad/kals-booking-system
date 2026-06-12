@@ -1,7 +1,7 @@
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { notFound } from "next/navigation";
-import { cityContent } from "@/lib/cityContent";
+import { citiesData } from "@/lib/cityContent";
 import { FadeInUp } from "@/components/MotionWrapper";
 import Script from "next/script";
 
