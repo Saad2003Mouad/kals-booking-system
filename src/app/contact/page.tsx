@@ -83,7 +83,6 @@ export default function Page() {
                     id="wf-form-Contact-Form"
                     name="wf-form-Contact-Form"
                     data-name="Contact Form"
-                    redirect="/contact-thank-you"
                     data-redirect="/contact-thank-you"
                     method="get"
                     className="contact-form-border"
