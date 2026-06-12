@@ -8,11 +8,11 @@ export default async function CustomersPage() {
     include: {
       bookings: {
         include: { quote: true },
-        orderBy: { eventDate: 'desc' }
-      }
+        orderBy: { eventDate: "desc" },
+      },
     },
-    orderBy: { firstName: 'asc' },
-    take: 50
+    orderBy: { firstName: "asc" },
+    take: 50,
   });
 
   return <CustomersClient initialCustomers={customers as any} />;

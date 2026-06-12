@@ -15,7 +15,8 @@ import {
 } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 
-const LOGO = "https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/67e3936366827af4bed1d0d0_logo-boston-legend-ice-cream-truck.avif";
+const LOGO =
+  "https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/67e3936366827af4bed1d0d0_logo-boston-legend-ice-cream-truck.avif";
 
 type Step = "lookup" | "otp" | "success";
 
@@ -120,7 +121,10 @@ export default function ManageBookingPage() {
   };
 
   const handleOtpPaste = (e: React.ClipboardEvent) => {
-    const paste = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    const paste = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, 6);
     if (paste.length === 6) {
       const next = paste.split("");
       setOtp(next);
@@ -150,7 +154,10 @@ export default function ManageBookingPage() {
           router.push(data.customerPortalUrl);
         }, 1500);
       } else {
-        setError(data.message || "We couldn't verify this code. Please check and try again.");
+        setError(
+          data.message ||
+            "We couldn't verify this code. Please check and try again.",
+        );
         setOtp(["", "", "", "", "", ""]);
         otpRefs.current[0]?.focus();
       }
@@ -163,7 +170,6 @@ export default function ManageBookingPage() {
 
   return (
     <div className="page min-h-screen flex flex-col font-['Nunito',sans-serif] bg-transparent relative overflow-x-hidden">
-
       {/* Header */}
       <div className="relative z-30">
         <SiteHeader />
@@ -174,40 +180,36 @@ export default function ManageBookingPage() {
           <h1 className="h1-page-hed">
             <span className="page-titel-top">Boston Legend </span>
             <br />
-            Manage Your 
+            Manage Your
             <br />
             <span className="title-event">Booking</span>
           </h1>
-          <img 
-            src="https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/681d4ed9eee047f1fa20bfc9_decore-line.avif" 
-            loading="lazy" 
-            width="426" 
-            height="36" 
-            alt="" 
-            className="h1-page-line" 
+          <img
+            src="https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/681d4ed9eee047f1fa20bfc9_decore-line.avif"
+            loading="lazy"
+            width="426"
+            height="36"
+            alt=""
+            className="h1-page-line"
           />
         </div>
       </section>
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col items-center justify-start p-6">
-        
         <div className="w-full max-w-[460px] animate-in fade-in slide-in-from-bottom-4 duration-500">
-          
           <div className="text-center mt-4 mb-8">
             <p className="text-slate-500 font-bold text-sm sm:text-base max-w-[320px] mx-auto">
-              Securely access your event details, track status, and request modifications.
+              Securely access your event details, track status, and request
+              modifications.
             </p>
           </div>
 
           <div className="bg-white border border-slate-200 rounded-2xl p-8 sm:p-10 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
-            
             <div>
-              
               {/* ── STEP: LOOKUP ── */}
               {step === "lookup" && (
                 <form onSubmit={handleLookup} className="space-y-6">
-                  
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-black uppercase tracking-widest text-slate-500 ml-1">
                       Booking Number
@@ -220,7 +222,9 @@ export default function ManageBookingPage() {
                         type="text"
                         placeholder="e.g. BL-2024-001"
                         value={bookingNumber}
-                        onChange={(e) => setBookingNumber(e.target.value.toUpperCase())}
+                        onChange={(e) =>
+                          setBookingNumber(e.target.value.toUpperCase())
+                        }
                         required
                         className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border-2 border-slate-200 focus:border-[#000223] focus:bg-white rounded-xl text-base font-bold text-[#000223] placeholder:text-slate-300 outline-none transition-all"
                       />
@@ -259,16 +263,24 @@ export default function ManageBookingPage() {
                     className="w-full py-3.5 rounded-xl font-bold text-white bg-[#000223] hover:bg-[#FFA000] hover:text-[#000223] transition-all disabled:opacity-70 disabled:cursor-not-allowed text-base tracking-wide flex items-center justify-center gap-2 shadow-sm hover:shadow"
                   >
                     {loading ? (
-                      <><Loader2 className="w-5 h-5 animate-spin" /> Securing Connection...</>
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" /> Securing
+                        Connection...
+                      </>
                     ) : (
-                      <><ShieldCheck className="w-5 h-5" /> Authenticate Request</>
+                      <>
+                        <ShieldCheck className="w-5 h-5" /> Authenticate Request
+                      </>
                     )}
                   </button>
 
                   <div className="text-center pt-2">
                     <p className="text-sm font-bold text-slate-400">
                       Need a new booking?{" "}
-                      <Link href="/packages" className="text-[#FFA000] font-black hover:underline underline-offset-4">
+                      <Link
+                        href="/packages"
+                        className="text-[#FFA000] font-black hover:underline underline-offset-4"
+                      >
                         Start Here →
                       </Link>
                     </p>
@@ -283,25 +295,37 @@ export default function ManageBookingPage() {
                     <div className="w-14 h-14 rounded-full bg-amber-50 flex items-center justify-center mx-auto mb-4 border border-amber-200">
                       <Mail className="w-6 h-6 text-[#FFA000]" />
                     </div>
-                    <h2 className="text-2xl font-black text-[#000223] mb-2">Check Your Email</h2>
+                    <h2 className="text-2xl font-black text-[#000223] mb-2">
+                      Check Your Email
+                    </h2>
                     <p className="text-sm font-bold text-slate-500 leading-relaxed">
-                      We've sent a secure 6-digit code to:<br/>
+                      We've sent a secure 6-digit code to:
+                      <br />
                       <span className="text-[#000223] font-black">{email}</span>
                     </p>
                   </div>
 
                   {devCode && (
                     <div className="p-3 bg-blue-50 border border-blue-100 rounded-xl text-center">
-                      <p className="text-xs font-black text-blue-400 uppercase tracking-wider mb-1">Developer Mode</p>
-                      <p className="text-xl font-mono font-black text-blue-700 tracking-widest">{devCode}</p>
+                      <p className="text-xs font-black text-blue-400 uppercase tracking-wider mb-1">
+                        Developer Mode
+                      </p>
+                      <p className="text-xl font-mono font-black text-blue-700 tracking-widest">
+                        {devCode}
+                      </p>
                     </div>
                   )}
 
-                  <div className="flex justify-center gap-2 sm:gap-3" onPaste={handleOtpPaste}>
+                  <div
+                    className="flex justify-center gap-2 sm:gap-3"
+                    onPaste={handleOtpPaste}
+                  >
                     {otp.map((digit, i) => (
                       <input
                         key={i}
-                        ref={(el) => { otpRefs.current[i] = el; }}
+                        ref={(el) => {
+                          otpRefs.current[i] = el;
+                        }}
                         type="text"
                         inputMode="numeric"
                         maxLength={1}
@@ -310,9 +334,9 @@ export default function ManageBookingPage() {
                         onKeyDown={(e) => handleOtpKeyDown(i, e)}
                         autoFocus={i === 0}
                         className={`w-10 h-12 sm:w-12 sm:h-14 rounded-xl border-2 text-center text-xl sm:text-2xl font-black font-mono transition-all outline-none ${
-                          digit 
-                            ? 'border-[#000223] bg-slate-50 text-[#000223]' 
-                            : 'border-slate-200 bg-white text-[#000223] focus:border-[#FFA000] focus:bg-amber-50/10'
+                          digit
+                            ? "border-[#000223] bg-slate-50 text-[#000223]"
+                            : "border-slate-200 bg-white text-[#000223] focus:border-[#FFA000] focus:bg-amber-50/10"
                         }`}
                       />
                     ))}
@@ -342,16 +366,30 @@ export default function ManageBookingPage() {
 
                   <div className="text-center pt-2">
                     {countdown > 0 ? (
-                      <p className="text-xs font-bold text-slate-400">Resend available in <span className="text-slate-600">{countdown}s</span></p>
+                      <p className="text-xs font-bold text-slate-400">
+                        Resend available in{" "}
+                        <span className="text-slate-600">{countdown}s</span>
+                      </p>
                     ) : (
-                      <button onClick={handleResend} disabled={loading} className="text-xs font-black text-[#FFA000] hover:text-[#e69000] transition-colors flex items-center justify-center gap-1 mx-auto">
+                      <button
+                        onClick={handleResend}
+                        disabled={loading}
+                        className="text-xs font-black text-[#FFA000] hover:text-[#e69000] transition-colors flex items-center justify-center gap-1 mx-auto"
+                      >
                         <RotateCcw className="w-3.5 h-3.5" /> Resend Code
                       </button>
                     )}
                   </div>
 
                   <div className="pt-6 border-t border-slate-100 text-center">
-                    <button onClick={() => { setStep("lookup"); setError(""); setOtp(["", "", "", "", "", ""]); }} className="text-xs font-bold text-slate-400 hover:text-[#000223] transition-colors">
+                    <button
+                      onClick={() => {
+                        setStep("lookup");
+                        setError("");
+                        setOtp(["", "", "", "", "", ""]);
+                      }}
+                      className="text-xs font-bold text-slate-400 hover:text-[#000223] transition-colors"
+                    >
                       ← Use a different email
                     </button>
                   </div>
@@ -364,13 +402,15 @@ export default function ManageBookingPage() {
                   <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center mx-auto mb-6">
                     <CheckCircle2 className="w-8 h-8 text-emerald-500" />
                   </div>
-                  <h2 className="text-2xl font-black text-[#000223] mb-3">Verified!</h2>
+                  <h2 className="text-2xl font-black text-[#000223] mb-3">
+                    Verified!
+                  </h2>
                   <p className="text-sm font-bold text-slate-500 flex items-center justify-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin text-[#FFA000]" /> Opening your portal...
+                    <Loader2 className="w-4 h-4 animate-spin text-[#FFA000]" />{" "}
+                    Opening your portal...
                   </p>
                 </div>
               )}
-
             </div>
           </div>
         </div>

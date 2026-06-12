@@ -6,7 +6,14 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
-import { Calendar as CalendarIcon, MapPin, Phone, Mail, User, X } from "lucide-react";
+import {
+  Calendar as CalendarIcon,
+  MapPin,
+  Phone,
+  Mail,
+  User,
+  X,
+} from "lucide-react";
 import Link from "next/link";
 
 const FC_STYLES = `
@@ -26,13 +33,21 @@ export default function AdminCalendarPage() {
     const style = document.createElement("style");
     style.innerHTML = FC_STYLES;
     document.head.appendChild(style);
-    return () => { document.head.removeChild(style); };
+    return () => {
+      document.head.removeChild(style);
+    };
   }, []);
 
-  const fetchEvents = async (fetchInfo: any, successCallback: any, failureCallback: any) => {
+  const fetchEvents = async (
+    fetchInfo: any,
+    successCallback: any,
+    failureCallback: any,
+  ) => {
     try {
       const { startStr, endStr } = fetchInfo;
-      const res = await fetch(`/api/admin/calendar?start=${startStr}&end=${endStr}`);
+      const res = await fetch(
+        `/api/admin/calendar?start=${startStr}&end=${endStr}`,
+      );
       const json = await res.json();
       if (res.ok && json.success) {
         successCallback(json.data);
@@ -53,18 +68,25 @@ export default function AdminCalendarPage() {
             <CalendarIcon className="w-8 h-8 text-[#FFA000]" />
             Business Calendar
           </h1>
-          <p className="text-slate-500 mt-2 font-medium">View all confirmed and pending events across the organization.</p>
+          <p className="text-slate-500 mt-2 font-medium">
+            View all confirmed and pending events across the organization.
+          </p>
         </div>
       </div>
 
       <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200 relative z-0">
         <FullCalendar
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
+          plugins={[
+            dayGridPlugin,
+            timeGridPlugin,
+            interactionPlugin,
+            listPlugin,
+          ]}
           initialView="dayGridMonth"
           headerToolbar={{
             left: "prev,next today",
             center: "title",
-            right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek"
+            right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek",
           }}
           events={fetchEvents}
           eventClick={(info) => {
@@ -104,9 +126,14 @@ export default function AdminCalendarPage() {
                 <div>
                   <p className="text-sm font-bold text-slate-900">Event Time</p>
                   <p className="text-sm text-slate-600">
-                    {selectedEvent.start?.toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}
+                    {selectedEvent.start?.toLocaleString([], {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    })}
                     {" – "}
-                    {selectedEvent.end?.toLocaleTimeString([], { timeStyle: "short" })}
+                    {selectedEvent.end?.toLocaleTimeString([], {
+                      timeStyle: "short",
+                    })}
                   </p>
                 </div>
               </div>
@@ -115,7 +142,9 @@ export default function AdminCalendarPage() {
                 <MapPin className="w-5 h-5 text-[#FFA000] shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-bold text-slate-900">Location</p>
-                  <p className="text-sm text-slate-600">{selectedEvent.extendedProps.address}</p>
+                  <p className="text-sm text-slate-600">
+                    {selectedEvent.extendedProps.address}
+                  </p>
                 </div>
               </div>
 
@@ -123,7 +152,9 @@ export default function AdminCalendarPage() {
                 <User className="w-5 h-5 text-[#FFA000] shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-bold text-slate-900">Customer</p>
-                  <p className="text-sm text-slate-600">{selectedEvent.extendedProps.customerName}</p>
+                  <p className="text-sm text-slate-600">
+                    {selectedEvent.extendedProps.customerName}
+                  </p>
                 </div>
               </div>
 
@@ -131,7 +162,9 @@ export default function AdminCalendarPage() {
                 <Phone className="w-5 h-5 text-[#FFA000] shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-bold text-slate-900">Phone</p>
-                  <p className="text-sm text-slate-600">{selectedEvent.extendedProps.phone}</p>
+                  <p className="text-sm text-slate-600">
+                    {selectedEvent.extendedProps.phone}
+                  </p>
                 </div>
               </div>
 
@@ -139,7 +172,9 @@ export default function AdminCalendarPage() {
                 <Mail className="w-5 h-5 text-[#FFA000] shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-bold text-slate-900">Email</p>
-                  <p className="text-sm text-slate-600">{selectedEvent.extendedProps.email}</p>
+                  <p className="text-sm text-slate-600">
+                    {selectedEvent.extendedProps.email}
+                  </p>
                 </div>
               </div>
             </div>

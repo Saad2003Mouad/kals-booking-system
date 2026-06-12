@@ -1,252 +1,942 @@
-"use client";
-import { useEffect, useState } from "react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import Link from "next/link";
-import { Loader2, CheckCircle2 } from "lucide-react";
-import { FadeInUp } from "@/components/MotionWrapper";
 
-type Package = {
-  id: string;
-  name: string;
-  slug: string;
-  serviceType: string;
-  description: string;
-  servings: number;
-  price: number;
-  extraPiecePrice: number;
-  extraGuestPrice?: number;
-  durationMins?: number;
-  imageUrl: string;
-  badge: string;
-  features: string;
-};
-
-export default function PackagesPage() {
-  const [packages, setPackages] = useState<Package[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchPackages() {
-      try {
-        const res = await fetch("/api/packages");
-        const json = await res.json();
-        if (json.success && json.data) {
-          setPackages(json.data);
-        } else {
-          // Fallback if DB is offline, load the seed data directly as fallback
-          loadFallbackPackages();
-        }
-      } catch (err) {
-        console.error("Error fetching packages", err);
-        loadFallbackPackages();
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    function loadFallbackPackages() {
-      // Hardcoded fallback so the page doesn't look empty while DB is paused
-      setPackages([
-        { id: "1", name: "Starter Event", slug: "starter-event-truck", serviceType: "AMERICANO_TRUCK", description: "", servings: 30, price: 250, extraPiecePrice: 5, durationMins: 60, imageUrl: "/pkg_truck_classic.jpg", badge: "Perfect for Small Events", features: "" },
-        { id: "2", name: "Family Event", slug: "family-event-truck", serviceType: "AMERICANO_TRUCK", description: "", servings: 50, price: 340, extraPiecePrice: 5, durationMins: 90, imageUrl: "/pkg_truck_grand.jpg", badge: "", features: "" },
-        { id: "3", name: "Celebration Pack", slug: "celebration-pack-truck", serviceType: "AMERICANO_TRUCK", description: "", servings: 75, price: 425, extraPiecePrice: 5, durationMins: 120, imageUrl: "/pkg_truck_legend.jpg", badge: "Most Popular", features: "" },
-        { id: "4", name: "Starter Party", slug: "starter-party-van", serviceType: "SPRINTER_VAN", description: "", servings: 30, price: 190, extraPiecePrice: 4, durationMins: 60, imageUrl: "/pkg_van_starter.jpg", badge: "", features: "" },
-        { id: "5", name: "Celebration Pack", slug: "celebration-pack-van", serviceType: "SPRINTER_VAN", description: "", servings: 75, price: 365, extraPiecePrice: 4, durationMins: 120, imageUrl: "/pkg_van_gold.jpg", badge: "Most Popular", features: "" },
-        { id: "6", name: "School Festival Special", slug: "school-festival-van", serviceType: "SPRINTER_VAN", description: "", servings: 200, price: 825, extraPiecePrice: 4, durationMins: 180, imageUrl: "/pkg_van_school.jpg", badge: "Great for Schools", features: "" },
-        { id: "custom", name: "Custom Event Package", slug: "custom-event-package", serviceType: "CUSTOM", description: "Planning a larger celebration? Tell us about your event and our team will prepare a custom package and final quote for you.", servings: 201, price: 0, extraPiecePrice: 0, durationMins: 0, imageUrl: "/images/packages/custom-event.jpg", badge: "For 200+ guests", features: "" }
-      ]);
-    }
-
-    fetchPackages();
-  }, []);
-
-  const trucks = packages.filter(p => p.serviceType === "AMERICANO_TRUCK");
-  const vans = packages.filter(p => p.serviceType === "SPRINTER_VAN");
-  const customs = packages.filter(p => p.serviceType === "CUSTOM" || p.slug === "custom-event-package");
-
+export default function Page() {
   return (
-    <div className="page min-h-screen bg-transparent relative overflow-hidden">
-      <div className="relative z-10 flex flex-col min-h-screen">
-        <div style={{ position: "relative", zIndex: 25 }}>
-          <SiteHeader />
-        </div>
-
+    <>
+      <SiteHeader />
+      <div className="site-wrapper">
         <section className="page-head">
           <div className="w-layout-blockcontainer container w-container">
             <h1 className="h1-page-hed">
               <span className="page-titel-top">Boston Legend </span>
               <br />
-              AI Reservation 
-              <br />
-              <span className="title-event">System</span>
+              Menu
             </h1>
-            <img 
-              src="https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/681d4ed9eee047f1fa20bfc9_decore-line.avif" 
-              loading="lazy" 
-              width="426" 
-              height="36" 
-              alt="" 
-              className="h1-page-line" 
+            <img
+              src="https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/681d4ed9eee047f1fa20bfc9_decore-line.avif"
+              loading="lazy"
+              width="426"
+              height="36"
+              alt=""
+              className="h1-page-line"
             />
           </div>
         </section>
-
-        <main className="pb-20 flex-1">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            
-            <FadeInUp>
-              <div className="text-center max-w-3xl mx-auto mt-6 mb-16 px-4">
-                <p className="text-lg text-gray-600 font-medium mb-4">
-                  The World's First AI-Powered Ice Cream Truck Reservation Platform.
-                  Experience Instant Pricing, Real-Time Availability, and Smart Scheduling for Automated Booking Online.
-                </p>
-                <p className="text-2xl font-black text-[#000223]">
-                  Book your ice cream truck in less than 3 minutes.
-                </p>
+        <main className="main-2">
+          <div className="w-layout-blockcontainer container w-container">
+            <div className="menu-list w-dyn-list">
+              <div role="list" className="row w-dyn-items">
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dceb1770a22f0219b3c54_screamers-ice-cream-cup-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="screamers ice cream cup"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dceb1770a22f0219b3c54_screamers-ice-cream-cup-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dceb1770a22f0219b3c54_screamers-ice-cream-cup-boston-legend-ice-cream-truck-p-800.avif 800w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dceb1770a22f0219b3c54_screamers-ice-cream-cup-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">screamers ice cream cup</div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcea3ca12604cb4efac68_hoodsies-ice-cream-cups-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="hoodsies ice cream cups"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcea3ca12604cb4efac68_hoodsies-ice-cream-cups-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcea3ca12604cb4efac68_hoodsies-ice-cream-cups-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">hoodsies ice cream cups</div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dce9171b9adf6ee733de6_blue-bunny-ice-cream-malt-cup-chocolate-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="blue bunny Ice Cream Malt Cup Chocolate"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dce9171b9adf6ee733de6_blue-bunny-ice-cream-malt-cup-chocolate-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dce9171b9adf6ee733de6_blue-bunny-ice-cream-malt-cup-chocolate-boston-legend-ice-cream-truck.avif 786w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      blue bunny Ice Cream Malt Cup Chocolate
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dce53b747d6cf93b035c2_sour-wower-bar-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Sour WOWer Bar"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dce53b747d6cf93b035c2_sour-wower-bar-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dce53b747d6cf93b035c2_sour-wower-bar-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">Sour WOWer Bar</div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dce5bf8e5c481466fe6f3_twix-ice-cream-bar-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Twix Ice Cream Bar"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dce5bf8e5c481466fe6f3_twix-ice-cream-bar-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dce5bf8e5c481466fe6f3_twix-ice-cream-bar-boston-legend-ice-cream-truck.avif 900w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">Twix Ice Cream Bar</div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dce48d0d9e52f84911285_snickers-ice-cream-bars-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="SNICKERS Ice Cream Bars"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dce48d0d9e52f84911285_snickers-ice-cream-bars-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dce48d0d9e52f84911285_snickers-ice-cream-bars-boston-legend-ice-cream-truck-p-800.avif 800w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dce48d0d9e52f84911285_snickers-ice-cream-bars-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">SNICKERS Ice Cream Bars</div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dce3a10bdfea0eecb7cb7_Rosati-CRY-baby-watermelon-Sour-ice-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Rosati  CRY baby watermelon Sour ice"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dce3a10bdfea0eecb7cb7_Rosati-CRY-baby-watermelon-Sour-ice-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dce3a10bdfea0eecb7cb7_Rosati-CRY-baby-watermelon-Sour-ice-boston-legend-ice-cream-truck.avif 786w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Rosati CRY baby watermelon Sour ice
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dce2eb5f57ea58e9489d1_richie-super-premium-italian-ice-min-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Richie Super Premium ITALIAN ICE"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dce2eb5f57ea58e9489d1_richie-super-premium-italian-ice-min-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dce2eb5f57ea58e9489d1_richie-super-premium-italian-ice-min-boston-legend-ice-cream-truck.avif 786w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Richie Super Premium ITALIAN ICE
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcde940f4dd8798d019d2_popsicle-pop-shots-micro-sized-ice-beads-lemon-strawberry-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Popsicle  pop Shots Micro Sized Ice Beads Lemon &amp; Strawberry"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcde940f4dd8798d019d2_popsicle-pop-shots-micro-sized-ice-beads-lemon-strawberry-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcde940f4dd8798d019d2_popsicle-pop-shots-micro-sized-ice-beads-lemon-strawberry-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Popsicle pop Shots Micro Sized Ice Beads Lemon &amp;
+                      Strawberry
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dce217db51016898e5d8b_popsicle-shots-micro-sized-ice-beads-lemon-strawberry-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Popsicle  Shots Micro Sized Ice Beads Lemon &amp; Strawberry"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dce217db51016898e5d8b_popsicle-shots-micro-sized-ice-beads-lemon-strawberry-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dce217db51016898e5d8b_popsicle-shots-micro-sized-ice-beads-lemon-strawberry-boston-legend-ice-cream-truck-p-800.avif 800w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dce217db51016898e5d8b_popsicle-shots-micro-sized-ice-beads-lemon-strawberry-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Popsicle Shots Micro Sized Ice Beads Lemon &amp;
+                      Strawberry
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dce03fd5dc9845c9c371b_popsicle-spongebob-ice-cream-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Popsicle  Spongebob ICE Cream"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dce03fd5dc9845c9c371b_popsicle-spongebob-ice-cream-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dce03fd5dc9845c9c371b_popsicle-spongebob-ice-cream-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Popsicle Spongebob ICE Cream
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcdd9db2e74e2a333174a_popsicle-marvel-spider-man-bar-ice-cream-frozen-confection-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Popsicle  Marvel Spider Man Bar ICE CREAM Frozen Confection"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcdd9db2e74e2a333174a_popsicle-marvel-spider-man-bar-ice-cream-frozen-confection-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcdd9db2e74e2a333174a_popsicle-marvel-spider-man-bar-ice-cream-frozen-confection-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Popsicle Marvel Spider Man Bar ICE CREAM Frozen Confection
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcdd0fb75a434ff7f4f3c_popsicle-hello-kitty-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Popsicle  Hello Kitty"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcdd0fb75a434ff7f4f3c_popsicle-hello-kitty-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcdd0fb75a434ff7f4f3c_popsicle-hello-kitty-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">Popsicle Hello Kitty</div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcdbda36331be91574a14_popsicle-despicable-me-minions-bar-a-case-ice-cream-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Popsicle Despicable Me Minions Bar A Case Ice cream"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcdbda36331be91574a14_popsicle-despicable-me-minions-bar-a-case-ice-cream-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcdbda36331be91574a14_popsicle-despicable-me-minions-bar-a-case-ice-cream-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Popsicle Despicable Me Minions Bar A Case Ice cream
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcda60b5e391465a98599_Minion-Despicable-Me-Blue-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Minion Despicable Me Blue"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcda60b5e391465a98599_Minion-Despicable-Me-Blue-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcda60b5e391465a98599_Minion-Despicable-Me-Blue-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">Minion Despicable Me Blue</div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcdc7ba51b5a096532082_popsicle-cyclone-cherry-lemon-blue-raspberry-ice-pops-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Popsicle  Cyclone Cherry Lemon &amp; Blue Raspberry Ice Pops"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcdc7ba51b5a096532082_popsicle-cyclone-cherry-lemon-blue-raspberry-ice-pops-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcdc7ba51b5a096532082_popsicle-cyclone-cherry-lemon-blue-raspberry-ice-pops-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Popsicle Cyclone Cherry Lemon &amp; Blue Raspberry Ice
+                      Pops
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcd961049b2275432a2a4_looney-tunes-ice-pops-cup-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Looney Tunes Ice Pops Cup"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcd961049b2275432a2a4_looney-tunes-ice-pops-cup-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcd961049b2275432a2a4_looney-tunes-ice-pops-cup-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">Looney Tunes Ice Pops Cup</div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcd81e4efb42760eb5dd7_hood-ice-cream-sandwiches-vanilla-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Hood Ice Cream Sandwiches Vanilla"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcd81e4efb42760eb5dd7_hood-ice-cream-sandwiches-vanilla-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcd81e4efb42760eb5dd7_hood-ice-cream-sandwiches-vanilla-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Hood Ice Cream Sandwiches Vanilla
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcd700cc412ac7b6df35b_good-humor-toasted-almond-bar-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Good Humor Toasted Almond Bar"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcd700cc412ac7b6df35b_good-humor-toasted-almond-bar-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcd700cc412ac7b6df35b_good-humor-toasted-almond-bar-boston-legend-ice-cream-truck-p-800.avif 800w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcd700cc412ac7b6df35b_good-humor-toasted-almond-bar-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Good Humor Toasted Almond Bar
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcd4556b5a714d66f9827_good-humor-oreo-frozen-dessert-bar-cookies-n-ice-cream-bar-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="GOOD HUMOR  Oreo Frozen Dessert Bar Cookies N Ice Cream Bar"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcd4556b5a714d66f9827_good-humor-oreo-frozen-dessert-bar-cookies-n-ice-cream-bar-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcd4556b5a714d66f9827_good-humor-oreo-frozen-dessert-bar-cookies-n-ice-cream-bar-boston-legend-ice-cream-truck-p-800.avif 800w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcd4556b5a714d66f9827_good-humor-oreo-frozen-dessert-bar-cookies-n-ice-cream-bar-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      GOOD HUMOR Oreo Frozen Dessert Bar Cookies N Ice Cream Bar
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcd117db51016898da1e9_frozfruit-mango-min-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="FrozFruit Mango"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcd117db51016898da1e9_frozfruit-mango-min-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcd117db51016898da1e9_frozfruit-mango-min-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">FrozFruit Mango</div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcd5ef8e5c481466f3f9b_good-humor-reeses-peanut-butter-ice-cream-cups-min-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="GOOD HUMOR  Reeses Peanut Butter Ice Cream Cups"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      GOOD HUMOR Reeses Peanut Butter Ice Cream Cups
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcd33d4620d268ef1cef9_good-humor-birthday-cake-bar-ice-cream-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="GOOD HUMOR  Birthday Cake Bar Ice Cream"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcd33d4620d268ef1cef9_good-humor-birthday-cake-bar-ice-cream-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcd33d4620d268ef1cef9_good-humor-birthday-cake-bar-ice-cream-boston-legend-ice-cream-truck-p-800.avif 800w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcd33d4620d268ef1cef9_good-humor-birthday-cake-bar-ice-cream-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      GOOD HUMOR Birthday Cake Bar Ice Cream
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcc5fc8001e5220413dc0_blue-ribbon-vanilla-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Blue Ribbon  Classics Homemade Vanilla Bar"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcc5fc8001e5220413dc0_blue-ribbon-vanilla-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcc5fc8001e5220413dc0_blue-ribbon-vanilla-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Blue Ribbon Classics Homemade Vanilla Bar
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcd03ccaa4ae9485021f5_dove-ice-cream-bars-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="DOVE CHOCOLATE BARS"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcd03ccaa4ae9485021f5_dove-ice-cream-bars-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcd03ccaa4ae9485021f5_dove-ice-cream-bars-boston-legend-ice-cream-truck-p-800.avif 800w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcd03ccaa4ae9485021f5_dove-ice-cream-bars-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">DOVE CHOCOLATE BARS</div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcceb50a832b7a27052c8_cotton-candy-bar-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Cotton Candy Bar"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcceb50a832b7a27052c8_cotton-candy-bar-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcceb50a832b7a27052c8_cotton-candy-bar-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">Cotton Candy Bar</div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcce1999cfc750884fd47_bomb-pop-warheads-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Bomb Pop Warheads"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcce1999cfc750884fd47_bomb-pop-warheads-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcce1999cfc750884fd47_bomb-pop-warheads-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">Bomb Pop Warheads</div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dccba25b9714855e9692d_bomb-pop-the-original-cherry-lime-blue-raspberry-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Bomb Pop The Original Cherry Lime  Blue Raspberry King Size"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dccba25b9714855e9692d_bomb-pop-the-original-cherry-lime-blue-raspberry-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dccba25b9714855e9692d_bomb-pop-the-original-cherry-lime-blue-raspberry-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Bomb Pop The Original Cherry Lime Blue Raspberry King Size
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcc8f50a832b7a2701cbd_bomb-pop-jolly-ranchers-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Bomb Pop Jolly Ranchers"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcc8f50a832b7a2701cbd_bomb-pop-jolly-ranchers-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcc8f50a832b7a2701cbd_bomb-pop-jolly-ranchers-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">Bomb Pop Jolly Ranchers</div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dccba25b9714855e9692d_bomb-pop-the-original-cherry-lime-blue-raspberry-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Bomb Pop The Original Cherry Lime  Blue Raspberry"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dccba25b9714855e9692d_bomb-pop-the-original-cherry-lime-blue-raspberry-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dccba25b9714855e9692d_bomb-pop-the-original-cherry-lime-blue-raspberry-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Bomb Pop The Original Cherry Lime Blue Raspberry
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcc7816b1e2e6be16fbe3_bomb-pop-banana-fudge-chocolate-fudge-banana-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Bomb Pop Banana Fudge  Chocolate Fudge &amp; Banana"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcc7816b1e2e6be16fbe3_bomb-pop-banana-fudge-chocolate-fudge-banana-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcc7816b1e2e6be16fbe3_bomb-pop-banana-fudge-chocolate-fudge-banana-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Bomb Pop Banana Fudge Chocolate Fudge &amp; Banana
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcbeb1ca7c29db29b305f_blue-ribbon-classics-fudge-bar-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Blue Ribbon  Classics Fudge Bar"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcbeb1ca7c29db29b305f_blue-ribbon-classics-fudge-bar-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcbeb1ca7c29db29b305f_blue-ribbon-classics-fudge-bar-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Blue Ribbon Classics Fudge Bar
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcc697601418758126d0d_blue-ribbon-classics-orange-dream-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Blue Ribbon  Classics Orange Dream"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcc697601418758126d0d_blue-ribbon-classics-orange-dream-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcc697601418758126d0d_blue-ribbon-classics-orange-dream-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Blue Ribbon Classics Orange Dream
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcba82c8ff9f92b34768f_blue-bunny-vanilla-crunch-bar-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Blue Bunny  Vanilla Crunch Bar"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcba82c8ff9f92b34768f_blue-bunny-vanilla-crunch-bar-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcba82c8ff9f92b34768f_blue-bunny-vanilla-crunch-bar-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Blue Bunny Vanilla Crunch Bar
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcbdd01debeb53a362395_blue-ribbon-classics-root-beer-float-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Blue Ribbon Classics Root Beer Float"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcbdd01debeb53a362395_blue-ribbon-classics-root-beer-float-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcbdd01debeb53a362395_blue-ribbon-classics-root-beer-float-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Blue Ribbon Classics Root Beer Float
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcb89ca12604cb4ed95b4_blue-bunny-two-ball-screwball-blue-raspberry-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Blue Bunny  Two Ball Screwball Blue Raspberry"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcb89ca12604cb4ed95b4_blue-bunny-two-ball-screwball-blue-raspberry-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcb89ca12604cb4ed95b4_blue-bunny-two-ball-screwball-blue-raspberry-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Blue Bunny Two Ball Screwball Blue Raspberry
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcb4d6da9f7df492fc9ec_Blue-Bunny-Jolly-Rancher-Cool-Tubes-ICE-Cream-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Blue Bunny  Jolly Rancher Cool Tubes ICE Cream"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcb4d6da9f7df492fc9ec_Blue-Bunny-Jolly-Rancher-Cool-Tubes-ICE-Cream-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcb4d6da9f7df492fc9ec_Blue-Bunny-Jolly-Rancher-Cool-Tubes-ICE-Cream-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Blue Bunny Jolly Rancher Cool Tubes ICE Cream
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcb94ba704342ad620bb0_blue-bunny-two-ball-screwball-cherry-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Blue Bunny  Two Ball Screwball Cherry"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcb94ba704342ad620bb0_blue-bunny-two-ball-screwball-cherry-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcb94ba704342ad620bb0_blue-bunny-two-ball-screwball-cherry-boston-legend-ice-cream-truck.avif 786w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Blue Bunny Two Ball Screwball Cherry
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcb23cd05763e5b73dd80_blue-bunny-frozfruit-chunky-strawberry-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Blue Bunny  FROZFRUIT CHUNKY STRAWBERRY"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcb23cd05763e5b73dd80_blue-bunny-frozfruit-chunky-strawberry-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcb23cd05763e5b73dd80_blue-bunny-frozfruit-chunky-strawberry-boston-legend-ice-cream-truck-p-800.avif 800w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcb23cd05763e5b73dd80_blue-bunny-frozfruit-chunky-strawberry-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Blue Bunny FROZFRUIT CHUNKY STRAWBERRY
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcb70fa3b03f5c6346e8f_blue-bunny-ninja-turtle-bar-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Blue Bunny  Ninja Turtle Bar"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcb70fa3b03f5c6346e8f_blue-bunny-ninja-turtle-bar-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcb70fa3b03f5c6346e8f_blue-bunny-ninja-turtle-bar-boston-legend-ice-cream-truck.avif 800w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">Blue Bunny Ninja Turtle Bar</div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcb5e75363c37d4cd41c1_blue-bunny-looney-tunes-tweety-bird-rainbow-ice-cream-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Blue Bunny  Looney Tunes, (Tweety Bird) RAINBOW Ice cream"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcb5e75363c37d4cd41c1_blue-bunny-looney-tunes-tweety-bird-rainbow-ice-cream-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcb5e75363c37d4cd41c1_blue-bunny-looney-tunes-tweety-bird-rainbow-ice-cream-boston-legend-ice-cream-truck-p-800.avif 800w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcb5e75363c37d4cd41c1_blue-bunny-looney-tunes-tweety-bird-rainbow-ice-cream-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Blue Bunny Looney Tunes, (Tweety Bird) RAINBOW Ice cream
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcb2f574682726cb5e3ac_blue-bunny-frozfruit-gourmet-creamy-coconut-frozen-fruit-bar-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Blue Bunny  FROZFRUIT Gourmet, Creamy Coconut Frozen Fruit Bar"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcb2f574682726cb5e3ac_blue-bunny-frozfruit-gourmet-creamy-coconut-frozen-fruit-bar-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcb2f574682726cb5e3ac_blue-bunny-frozfruit-gourmet-creamy-coconut-frozen-fruit-bar-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Blue Bunny FROZFRUIT Gourmet, Creamy Coconut Frozen Fruit
+                      Bar
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcb03fa3b03f5c63412db_blue-bunny-dreamworks-shrek-with-gumball-eyes-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Blue Bunny  Dreamworks Shrek With Gumball Eyes"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcb03fa3b03f5c63412db_blue-bunny-dreamworks-shrek-with-gumball-eyes-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcb03fa3b03f5c63412db_blue-bunny-dreamworks-shrek-with-gumball-eyes-boston-legend-ice-cream-truck-p-800.avif 800w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcb03fa3b03f5c63412db_blue-bunny-dreamworks-shrek-with-gumball-eyes-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Blue Bunny Dreamworks Shrek With Gumball Eyes
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcad42b02bfb44d83ab7a_blue-bunny-chocolate-eclair-ice-cream-bar-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Blue Bunny  Chocolate Eclair Ice Cream Bar"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcad42b02bfb44d83ab7a_blue-bunny-chocolate-eclair-ice-cream-bar-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcad42b02bfb44d83ab7a_blue-bunny-chocolate-eclair-ice-cream-bar-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Blue Bunny Chocolate Eclair Ice Cream Bar
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcaec740f2ac581eb179f_blue-bunny-cookies-n-cream-ice-cream-sandwich-bar-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Blue Bunny  Cookies N Cream Ice Cream Sandwich Bar"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcaec740f2ac581eb179f_blue-bunny-cookies-n-cream-ice-cream-sandwich-bar-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcaec740f2ac581eb179f_blue-bunny-cookies-n-cream-ice-cream-sandwich-bar-boston-legend-ice-cream-truck.avif 786w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Blue Bunny Cookies N Cream Ice Cream Sandwich Bar
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcaac4788cab08f6bc390_blue-bunny-bubble-gum-snow-cone-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Blue Bunny  Bubble Gum Snow Cone"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcaac4788cab08f6bc390_blue-bunny-bubble-gum-snow-cone-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcaac4788cab08f6bc390_blue-bunny-bubble-gum-snow-cone-boston-legend-ice-cream-truck.avif 786w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Blue Bunny Bubble Gum Snow Cone
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca7fcf27a59d4327544b_Blue-Bunny-Bom-Pop-Tear-Jerkers-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Blue Bunny  Bom Pop Tear Jerkers"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca7fcf27a59d4327544b_Blue-Bunny-Bom-Pop-Tear-Jerkers-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca7fcf27a59d4327544b_Blue-Bunny-Bom-Pop-Tear-Jerkers-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Blue Bunny Bom Pop Tear Jerkers
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcaa55d7431af45110527_blue-bunny-bubble-gum-popsicle-bar-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Blue Bunny  Bubble Gum Popsicle Bar"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcaa55d7431af45110527_blue-bunny-bubble-gum-popsicle-bar-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dcaa55d7431af45110527_blue-bunny-bubble-gum-popsicle-bar-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Blue Bunny Bubble Gum Popsicle Bar
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca9528fd38a2b1c2be4f_blue-bunny-bratz-ice-cream-bar-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Blue Bunny  Bratz Ice Cream Bar"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca9528fd38a2b1c2be4f_blue-bunny-bratz-ice-cream-bar-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca9528fd38a2b1c2be4f_blue-bunny-bratz-ice-cream-bar-boston-legend-ice-cream-truck-p-800.avif 800w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca9528fd38a2b1c2be4f_blue-bunny-bratz-ice-cream-bar-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Blue Bunny Bratz Ice Cream Bar
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca62c276da2d63700be3_blue-bunny-big-mississippi-mud-ice-cream-sandwich-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Blue Bunny  Big Mississippi Mud Ice Cream Sandwich Bar, Fluid Ounce"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca62c276da2d63700be3_blue-bunny-big-mississippi-mud-ice-cream-sandwich-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca62c276da2d63700be3_blue-bunny-big-mississippi-mud-ice-cream-sandwich-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Blue Bunny Big Mississippi Mud Ice Cream Sandwich Bar,
+                      Fluid Ounce
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca47a36331be9154fea4_blue-bunny-big-dipper-vanilla-cone-ice-cream--boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Blue Bunny  Big Dipper Vanilla Cone Ice Cream"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca47a36331be9154fea4_blue-bunny-big-dipper-vanilla-cone-ice-cream--boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca47a36331be9154fea4_blue-bunny-big-dipper-vanilla-cone-ice-cream--boston-legend-ice-cream-truck-p-800.avif 800w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca47a36331be9154fea4_blue-bunny-big-dipper-vanilla-cone-ice-cream--boston-legend-ice-cream-truck-p-1080.avif 1080w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca47a36331be9154fea4_blue-bunny-big-dipper-vanilla-cone-ice-cream--boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Blue Bunny Big Dipper Vanilla Cone Ice Cream
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca3d55a1487af4d4cdaf_blue-bunny-big-dipper-cookies-n-cream-cone-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Blue Bunny  Big Dipper Cookies N Cream"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca3d55a1487af4d4cdaf_blue-bunny-big-dipper-cookies-n-cream-cone-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca3d55a1487af4d4cdaf_blue-bunny-big-dipper-cookies-n-cream-cone-boston-legend-ice-cream-truck.avif 786w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Blue Bunny Big Dipper Cookies N Cream
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca25fa3b03f5c6339fff_blue-bunny-big-dipper-chocolate-lovers-cone-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Blue Bunny  BIG DIPPER CHOCOLATE LOVERS CONE"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca25fa3b03f5c6339fff_blue-bunny-big-dipper-chocolate-lovers-cone-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca25fa3b03f5c6339fff_blue-bunny-big-dipper-chocolate-lovers-cone-boston-legend-ice-cream-truck-p-800.avif 800w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca25fa3b03f5c6339fff_blue-bunny-big-dipper-chocolate-lovers-cone-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Blue Bunny BIG DIPPER CHOCOLATE LOVERS CONE
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca303866726bc8181b4d_blue-bunny-big-dipper-strawberry-burst-cone-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Blue Bunny  BIG DIPPER STRAWBERRY BURST CONE"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca303866726bc8181b4d_blue-bunny-big-dipper-strawberry-burst-cone-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca303866726bc8181b4d_blue-bunny-big-dipper-strawberry-burst-cone-boston-legend-ice-cream-truck-p-800.avif 800w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca303866726bc8181b4d_blue-bunny-big-dipper-strawberry-burst-cone-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Blue Bunny BIG DIPPER STRAWBERRY BURST CONE
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca0ccd05763e5b731823_blue-bunny-sonic-hedgehog-bar-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Blue Bunny Sonic Hedgehog Bar"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca0ccd05763e5b731823_blue-bunny-sonic-hedgehog-bar-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca0ccd05763e5b731823_blue-bunny-sonic-hedgehog-bar-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Blue Bunny Sonic Hedgehog Bar
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca01eccf382ddb2c0d3c_blue-bunny-powerpuff-girls-bar-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Blue Bunny Powerpuff Girls Bar"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca01eccf382ddb2c0d3c_blue-bunny-powerpuff-girls-bar-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca01eccf382ddb2c0d3c_blue-bunny-powerpuff-girls-bar-boston-legend-ice-cream-truck-p-800.avif 800w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dca01eccf382ddb2c0d3c_blue-bunny-powerpuff-girls-bar-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Blue Bunny Powerpuff Girls Bar
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dc9e0cf2c9109e85285be_blue-bunny-bugs-bunny-bar-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Blue Bunny Bugs Bunny Bar"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dc9e0cf2c9109e85285be_blue-bunny-bugs-bunny-bar-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dc9e0cf2c9109e85285be_blue-bunny-bugs-bunny-bar-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">Blue Bunny Bugs Bunny Bar</div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dc7d5a36331be915367a9_avengers-captain-america-face-ice-cream-bar-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Avengers Captain America Face Ice Cream Bar"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dc7d5a36331be915367a9_avengers-captain-america-face-ice-cream-bar-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dc7d5a36331be915367a9_avengers-captain-america-face-ice-cream-bar-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Avengers Captain America Face Ice Cream Bar
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dc84fcd05763e5b71dd8f_blue-bunny-angry-bird-ice-cream-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Blue Bunny Angry Bird Ice Cream"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dc84fcd05763e5b71dd8f_blue-bunny-angry-bird-ice-cream-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dc84fcd05763e5b71dd8f_blue-bunny-angry-bird-ice-cream-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Blue Bunny Angry Bird Ice Cream
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dc9ae760141875810b9fa_blue-bunny-big-neapolitan-ice-cream-sandwiches-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Blue Bunny Big Neapolitan Ice Cream Sandwich Bar, Fluid Ounce"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dc9ae760141875810b9fa_blue-bunny-big-neapolitan-ice-cream-sandwiches-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dc9ae760141875810b9fa_blue-bunny-big-neapolitan-ice-cream-sandwiches-boston-legend-ice-cream-truck-p-800.avif 800w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dc9ae760141875810b9fa_blue-bunny-big-neapolitan-ice-cream-sandwiches-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Blue Bunny Big Neapolitan Ice Cream Sandwich Bar, Fluid
+                      Ounce
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dc98ce38abea81b7fe21e_blue-bunny-batman-ice-cream-pop-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="Blue Bunny Batman ice cream pop"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dc98ce38abea81b7fe21e_blue-bunny-batman-ice-cream-pop-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dc98ce38abea81b7fe21e_blue-bunny-batman-ice-cream-pop-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      Blue Bunny Batman ice cream pop
+                    </div>
+                  </div>
+                </div>
+                <div role="listitem" className="menu-item w-dyn-item">
+                  <div className="meu-block">
+                    <img
+                      src="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dc84665388c9dbe483cf8_blue-bunny-tweety-gumball-popsicles-boston-legend-ice-cream-truck.avif"
+                      loading="lazy"
+                      alt="BLUE BUNNY Tweety Gumball Popsicles"
+                      sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                      srcSet="https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dc84665388c9dbe483cf8_blue-bunny-tweety-gumball-popsicles-boston-legend-ice-cream-truck-p-500.avif 500w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dc84665388c9dbe483cf8_blue-bunny-tweety-gumball-popsicles-boston-legend-ice-cream-truck-p-800.avif 800w, https://cdn.prod.website-files.com/67e8ff4767b61ea98e97fe89/681dc84665388c9dbe483cf8_blue-bunny-tweety-gumball-popsicles-boston-legend-ice-cream-truck.avif 1237w"
+                      className="menu-img"
+                    />
+                    <div className="menu-name">
+                      BLUE BUNNY Tweety Gumball Popsicles
+                    </div>
+                  </div>
+                </div>
               </div>
-            </FadeInUp>
-
-            {loading ? (
-              <div className="flex justify-center items-center h-64">
-                <Loader2 className="w-10 h-10 animate-spin text-[#FFA000]" />
-              </div>
-            ) : (
-              <>
-                {/* Americano Truck Packages */}
-                <FadeInUp delay={0.1}>
-                  <div className="mb-20">
-                    <div className="flex items-center gap-4 mb-8">
-                      <h2 className="text-3xl font-black text-[#000223]">Americano Ice Cream Truck</h2>
-                      <div className="h-1 flex-1 bg-gray-200 rounded-full"></div>
-                    </div>
-                    
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                      {trucks.map(pkg => <PackageCard key={pkg.id} pkg={pkg} />)}
-                    </div>
-                  </div>
-                </FadeInUp>
-
-                {/* Sprinter Van Packages */}
-                <FadeInUp delay={0.2}>
-                  <div className="mb-20">
-                    <div className="flex items-center gap-4 mb-8">
-                      <h2 className="text-3xl font-black text-[#000223]">Sprinter / Dodge Van</h2>
-                      <div className="h-1 flex-1 bg-gray-200 rounded-full"></div>
-                    </div>
-                    
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                      {vans.map(pkg => <PackageCard key={pkg.id} pkg={pkg} />)}
-                    </div>
-                  </div>
-                </FadeInUp>
-
-                {/* Large Events & Custom Quotes */}
-                {customs.length > 0 && (
-                  <div>
-                    <div className="flex items-center gap-4 mb-8">
-                      <h2 className="text-3xl font-black text-[#000223]">Large Events & Custom Quote</h2>
-                      <div className="h-1 flex-1 bg-gray-200 rounded-full"></div>
-                    </div>
-                    
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                      {customs.map(pkg => <PackageCard key={pkg.id} pkg={pkg} />)}
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
-
+            </div>
           </div>
         </main>
-
-        <SiteFooter />
       </div>
-    </div>
-  );
-}
-
-function PackageCard({ pkg }: { pkg: Package }) {
-  const isCustom = pkg.slug === "custom-event-package";
-  return (
-    <div className="bg-white rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] transition-all duration-300 flex flex-col hover:-translate-y-1 relative group">
-      {pkg.badge && (
-        <div className="absolute top-4 right-4 z-10">
-          <span className="bg-[#000223] text-[#FFA000] text-xs font-black uppercase tracking-wider py-1.5 px-3 rounded-full shadow-lg border border-[#FFA000]/20">
-            {pkg.badge}
-          </span>
-        </div>
-      )}
-      
-      <div className="h-56 w-full relative overflow-hidden bg-gray-100">
-        {pkg.imageUrl ? (
-          <img src={pkg.imageUrl} alt={pkg.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-300">No Image</div>
-        )}
-      </div>
-
-      <div className="p-8 flex-1 flex flex-col">
-        <h3 className="text-2xl font-black text-[#000223] mb-2">{pkg.name}</h3>
-        
-        <div className="flex items-end gap-2 mb-6">
-          <span className="text-4xl font-black text-[#FFA000] leading-none">
-            {isCustom ? "Custom Quote" : `$${pkg.price}`}
-          </span>
-          {!isCustom && <span className="text-gray-500 font-medium mb-1">base price</span>}
-        </div>
-
-        {isCustom ? (
-          <div className="flex-1 flex flex-col justify-between">
-            <p className="text-gray-600 font-semibold mb-8 text-base leading-relaxed">
-              {pkg.description || "Planning a larger celebration? Tell us about your event and our team will prepare a custom package and final quote for you."}
-            </p>
-            <Link 
-              href={`/booking?packageId=${pkg.slug}`}
-              className="w-full py-4 rounded-2xl bg-[#000223] text-[#FFA000] font-black text-lg text-center hover:bg-[#FFA000] hover:text-[#000223] active:scale-[0.98] transition-all shadow-md mt-auto"
-            >
-              Request Custom Quote
-            </Link>
-          </div>
-        ) : (
-          <>
-            <ul className="space-y-3 mb-8 flex-1">
-              {pkg.durationMins && pkg.durationMins > 0 && (
-                <li className="flex items-center gap-3 font-medium">
-                  <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-black" style={{ background: 'rgba(255,160,0,0.12)', color: '#B45309' }}>
-                    ⏱️ {pkg.durationMins < 60
-                      ? `${pkg.durationMins} Minute Service`
-                      : pkg.durationMins === 60
-                      ? '1 Hour Service'
-                      : pkg.durationMins % 60 === 0
-                      ? `${pkg.durationMins / 60} Hour Service`
-                      : `${Math.floor(pkg.durationMins / 60)}h ${pkg.durationMins % 60}m Service`}
-                  </span>
-                </li>
-              )}
-              <li className="flex items-center gap-3 text-gray-700 font-medium">
-                <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
-                <span>Up to <strong>{pkg.servings} Servings</strong> included</span>
-              </li>
-              <li className="flex items-center gap-3 text-gray-700 font-medium">
-                <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
-                <span>Premium Ice Cream Selection</span>
-              </li>
-              <li className="flex items-center gap-3 text-gray-700 font-medium">
-                <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
-                <span>Extra guests at <strong>${pkg.extraGuestPrice ?? pkg.extraPiecePrice} each</strong></span>
-              </li>
-            </ul>
-
-            <Link 
-              href={`/booking?packageId=${pkg.slug}`}
-              className="w-full py-4 rounded-2xl bg-[#FFA000] text-[#000223] font-black text-lg text-center hover:bg-[#ffaa1a] active:scale-[0.98] transition-all shadow-md"
-            >
-              Book This Package
-            </Link>
-          </>
-        )}
-      </div>
-    </div>
+      <SiteFooter />
+    </>
   );
 }
