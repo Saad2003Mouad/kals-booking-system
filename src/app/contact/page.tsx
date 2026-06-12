@@ -95,7 +95,7 @@ export default function Page() {
                     </label>
                     <input
                       className="form-field no-border w-input"
-                      maxlength="256"
+                      maxLength={256}
                       name="name"
                       data-name="Name"
                       placeholder=""
@@ -107,26 +107,26 @@ export default function Page() {
                     </label>
                     <input
                       className="form-field no-border w-input"
-                      maxlength="256"
+                      maxLength={256}
                       name="email"
                       data-name="Email"
                       placeholder=""
                       type="email"
                       id="email"
-                      required=""
+                      required
                     />
                     <label htmlFor="Phone" className="contact-lable">
                       Phone
                     </label>
                     <input
                       className="form-field no-border w-input"
-                      maxlength="256"
+                      maxLength={256}
                       name="Phone"
                       data-name="Phone"
                       placeholder=""
                       type="tel"
                       id="Phone"
-                      required=""
+                      required
                     />
                     <label htmlFor="Message" className="contact-lable">
                       Message
@@ -134,7 +134,7 @@ export default function Page() {
                     <textarea
                       id="Message"
                       name="Message"
-                      maxlength="5000"
+                      maxLength={5000}
                       data-name="Message"
                       placeholder=""
                       className="form-field-area no-border w-input"
