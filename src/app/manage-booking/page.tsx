@@ -14,7 +14,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import Image from "next/image";
-import Navigation from "@/components/Navigation";
+import SiteHeader from "@/components/SiteHeader";
 
 const LOGO = "https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/67e3936366827af4bed1d0d0_logo-boston-legend-ice-cream-truck.avif";
 
@@ -167,7 +167,7 @@ export default function ManageBookingPage() {
 
       {/* Header */}
       <div className="relative z-30">
-        <Navigation portalType="public" />
+        <SiteHeader />
       </div>
 
       <section className="page-head">

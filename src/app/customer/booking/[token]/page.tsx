@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import Navigation from "@/components/Navigation";
 import Image from "next/image";
 import { 
   Clock, MapPin, Phone, Mail, Users, CheckCircle2, 
@@ -131,7 +130,6 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
   if (error || !booking) return (
     <div className="min-h-screen bg-[#FAF6EF] flex flex-col justify-between font-['Nunito',sans-serif]">
       <div style={{ position: "relative", zIndex: 9000 }}>
-        <Navigation portalType="customer" />
       </div>
 
       <main className="flex-grow flex items-center justify-center px-4 py-16">
@@ -279,7 +277,6 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
 
       {/* Navbar */}
       <div style={{ position: "relative", zIndex: 9000 }}>
-        <Navigation portalType="customer" />
       </div>      {/* Light Header Section */}
       <div className="bg-white border-b border-slate-200 py-10 px-6">
         <div className="max-w-4xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">

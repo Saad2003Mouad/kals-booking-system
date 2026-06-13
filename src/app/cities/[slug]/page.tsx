@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import Navigation from "@/components/Navigation";
+import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 
 interface PageProps {
@@ -139,7 +139,7 @@ export default function CityPage({ params }: PageProps) {
 
   return (
     <div className="site-wrapper">
-      <Navigation portalType="public" />
+      <SiteHeader />
       <div dangerouslySetInnerHTML={{ __html: data.contentHtml }} />
       <SiteFooter />
     </div>
