@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import SiteHeader from "@/components/SiteHeader";
+import Navigation from "@/components/Navigation";
 import SiteFooter from "@/components/SiteFooter";
 import Link from "next/link";
 import { Loader2, CheckCircle2 } from "lucide-react";
@@ -68,7 +68,7 @@ export default function PackagesPage() {
     <div className="page min-h-screen bg-transparent relative overflow-hidden">
       <div className="relative z-10 flex flex-col min-h-screen">
         <div style={{ position: "relative", zIndex: 25 }}>
-          <SiteHeader />
+          <Navigation portalType="public" />
         </div>
 
         <section className="page-head">

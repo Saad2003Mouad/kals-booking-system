@@ -1,11 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { googleCalendarService } from "@/lib/google-calendar";
+import { jwtVerify } from "jose";
 
 export const dynamic = "force-dynamic";
 
+async function verifyCustomerSession(req: NextRequest, targetBookingId: string) {
+  const authCookie = req.cookies.get("bl_customer_session")?.value;
+  if (!authCookie) return false;
+  try {
+    const secretKey = new TextEncoder().encode(process.env.NEXTAUTH_SECRET || "fallback_secret_for_dev_only");
+    const { payload } = await jwtVerify(authCookie, secretKey);
+    return payload.bookingId === targetBookingId;
+  } catch {
+    return false;
+  }
+}
+
 export async function GET(req: NextRequest, { params }: { params: { token: string } }) {
   try {
+    if (!(await verifyCustomerSession(req, params.token))) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const booking = await prisma.booking.findUnique({
       where: { id: params.token },
       include: {
@@ -28,6 +45,10 @@ export async function GET(req: NextRequest, { params }: { params: { token: strin
 
 export async function PATCH(req: NextRequest, { params }: { params: { token: string } }) {
   try {
+    if (!(await verifyCustomerSession(req, params.token))) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const booking = await prisma.booking.findUnique({
       where: { id: params.token },
       include: { customer: true }
@@ -92,6 +113,10 @@ export async function PATCH(req: NextRequest, { params }: { params: { token: str
 
 export async function POST(req: NextRequest, { params }: { params: { token: string } }) {
   try {
+    if (!(await verifyCustomerSession(req, params.token))) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const booking = await prisma.booking.findUnique({
       where: { id: params.token },
       include: { customer: true }

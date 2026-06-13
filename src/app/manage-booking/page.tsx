@@ -13,7 +13,8 @@ import {
   ArrowRight,
   ShieldCheck,
 } from "lucide-react";
-import SiteHeader from "@/components/SiteHeader";
+import Image from "next/image";
+import Navigation from "@/components/Navigation";
 
 const LOGO = "https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/67e3936366827af4bed1d0d0_logo-boston-legend-ice-cream-truck.avif";
 
@@ -166,7 +167,7 @@ export default function ManageBookingPage() {
 
       {/* Header */}
       <div className="relative z-30">
-        <SiteHeader />
+        <Navigation portalType="public" />
       </div>
 
       <section className="page-head">
@@ -178,11 +179,10 @@ export default function ManageBookingPage() {
             <br />
             <span className="title-event">Booking</span>
           </h1>
-          <img 
+          <Image 
             src="https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/681d4ed9eee047f1fa20bfc9_decore-line.avif" 
-            loading="lazy" 
-            width="426" 
-            height="36" 
+            width={426} 
+            height={36} 
             alt="" 
             className="h1-page-line" 
           />

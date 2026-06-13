@@ -4,7 +4,7 @@ import { signIn } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { Eye, EyeOff, ArrowRight, Loader2, ShieldAlert } from "lucide-react";
-import SiteHeader from "@/components/SiteHeader";
+import Navigation from "@/components/Navigation";
 
 export default function LoginPage() {
   const [email, setEmail]       = useState("");
@@ -36,7 +36,7 @@ export default function LoginPage() {
 
       {/* Nav */}
       <div style={{ position: "relative", zIndex: 25 }}>
-        <SiteHeader />
+        <Navigation portalType="public" />
       </div>
 
       {/* Page Hero Header — matching /about style */}

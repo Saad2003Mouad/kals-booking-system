@@ -100,15 +100,19 @@ export async function POST(req: NextRequest) {
     const normalizedEmail = email.trim().toLowerCase();
     const normalizedBookingNumber = String(bookingNumber).trim().toUpperCase();
 
-    // Cooldown check: prevent OTP spam (regardless of whether booking exists)
+    // Cooldown and Lock check
     const lastOtp = await prisma.otpCode.findFirst({
       where: { email: normalizedEmail },
       orderBy: { createdAt: "desc" },
     });
 
-    if (lastOtp && Date.now() - lastOtp.createdAt.getTime() < 60000) {
-      // Still generic — don't reveal cooldown to prevent enumeration
-      return NextResponse.json(GENERIC_RESPONSE);
+    if (lastOtp) {
+      if (lastOtp.lockedUntil && lastOtp.lockedUntil > new Date()) {
+        return NextResponse.json(GENERIC_RESPONSE);
+      }
+      if (Date.now() - lastOtp.createdAt.getTime() < 60000) {
+        return NextResponse.json(GENERIC_RESPONSE);
+      }
     }
 
     // Look up booking — match bookingNumber AND email (case-insensitive)
@@ -127,8 +131,16 @@ export async function POST(req: NextRequest) {
 
     // Even if no booking found, we don't reveal that. We just don't send an OTP.
     if (booking) {
-      // Invalidate previous unused OTPs for this email
-      await prisma.otpCode.deleteMany({ where: { email: normalizedEmail } });
+      // Invalidate previous unused OTPs for this email that are not locked
+      await prisma.otpCode.deleteMany({ 
+        where: { 
+          email: normalizedEmail,
+          OR: [
+            { lockedUntil: null },
+            { lockedUntil: { lte: new Date() } }
+          ]
+        } 
+      });
 
       const code = generateOtp();
       const expiresAt = new Date(Date.now() + OTP_TTL * 60 * 1000);
