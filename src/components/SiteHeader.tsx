@@ -85,7 +85,7 @@ export default function SiteHeader() {
           background: rgba(0,2,35,0.6);
           backdrop-filter: blur(4px);
           -webkit-backdrop-filter: blur(4px);
-          z-index: 9000;
+          z-index: 9998;
           opacity: 0; pointer-events: none;
           transition: opacity 0.3s ease;
         }
@@ -102,7 +102,7 @@ export default function SiteHeader() {
             top: 0 !important; right: 0 !important; bottom: 0 !important;
             width: min(85vw, 310px) !important;
             background: #000223 !important;
-            z-index: 9200 !important;
+            z-index: 10000 !important;
             overflow-y: auto !important;
             padding: 72px 0 40px !important;
             box-shadow: -8px 0 40px rgba(0,0,0,0.45) !important;
@@ -237,7 +237,7 @@ export default function SiteHeader() {
         aria-hidden="true"
       />
 
-      <header className="header" style={{ position: "relative", zIndex: 9100 }}>
+      <header id="react-site-header" className="header" style={{ position: "relative", zIndex: 9999 }}>
         <div
           data-animation="over-left"
           data-collapse="medium"
@@ -378,7 +378,7 @@ export default function SiteHeader() {
               role="button"
               aria-label="Toggle navigation menu"
               aria-expanded={mobileOpen}
-              style={{ position: "relative", zIndex: 9300 }}
+              style={{ position: "relative", zIndex: 9999 }}
             >
               <div className="icon w-icon-nav-menu" />
             </div>

@@ -34,9 +34,7 @@ export default function LoginPage() {
   return (
     <div className="page min-h-screen flex flex-col relative overflow-hidden bg-transparent">
 
-      <div style={{ position: "relative", zIndex: 25 }}>
-        <SiteHeader />
-      </div>
+      <SiteHeader />
 
       {/* Page Hero Header — matching /about style */}
       <section className="page-head">

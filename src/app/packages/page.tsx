@@ -67,9 +67,7 @@ export default function PackagesPage() {
   return (
     <div className="page min-h-screen bg-transparent relative overflow-hidden">
       <div className="relative z-10 flex flex-col min-h-screen">
-        <div style={{ position: "relative", zIndex: 25 }}>
-          <SiteHeader />
-        </div>
+        <SiteHeader />
 
         <section className="page-head">
           <div className="w-layout-blockcontainer container w-container">

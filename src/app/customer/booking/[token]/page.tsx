@@ -7,6 +7,8 @@ import {
 } from "lucide-react";
 
 const LOGO = "https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/67e3936366827af4bed1d0d0_logo-boston-legend-ice-cream-truck.avif";
+import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 
 const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string; border: string; icon: any; desc: string }> = {
   PENDING_REVIEW:  { label: "Under Review",    bg: "bg-amber-100",   border: "border-amber-300", text: "text-amber-800",  icon: Clock, desc: "Our team is reviewing your event details and will prepare your custom quote. We'll reach out via WhatsApp!" },
@@ -130,6 +132,7 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
   if (error || !booking) return (
     <div className="min-h-screen bg-[#FAF6EF] flex flex-col justify-between font-['Nunito',sans-serif]">
       <div style={{ position: "relative", zIndex: 9000 }}>
+        <SiteHeader />
       </div>
 
       <main className="flex-grow flex items-center justify-center px-4 py-16">
@@ -277,6 +280,7 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
 
       {/* Navbar */}
       <div style={{ position: "relative", zIndex: 9000 }}>
+        <SiteHeader />
       </div>      {/* Light Header Section */}
       <div className="bg-white border-b border-slate-200 py-10 px-6">
         <div className="max-w-4xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -716,6 +720,9 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
           </div>
         </div>
       )}
+      <div style={{ position: "relative", zIndex: 1 }}>
+        <SiteFooter />
+      </div>
     </div>
   );
 }

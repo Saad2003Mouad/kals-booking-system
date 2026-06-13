@@ -165,10 +165,7 @@ export default function ManageBookingPage() {
   return (
     <div className="page min-h-screen flex flex-col font-['Nunito',sans-serif] bg-transparent relative overflow-x-hidden">
 
-      {/* Header */}
-      <div className="relative z-30">
-        <SiteHeader />
-      </div>
+      <SiteHeader />
 
       <section className="page-head">
         <div className="w-layout-blockcontainer container w-container">

@@ -528,6 +528,9 @@
   }
 
   function fixMobileNav() {
+    // Abort if we are on a React page that has its own SiteHeader state
+    if (document.getElementById('react-site-header')) return;
+
     var btn = document.querySelector('.menu-button.w-nav-button');
     var menu = document.querySelector('.nav-menu.w-nav-menu');
     if (!btn || !menu) return;

@@ -13,9 +13,7 @@ export default function BookingPage() {
     <div className="page min-h-screen flex flex-col relative" style={{ fontFamily: "var(--font-sans), sans-serif" }}>
       
       <div className="relative w-full z-10 flex flex-col flex-grow">
-        <div style={{ position: "relative", zIndex: 25 }}>
-          <SiteHeader />
-        </div>
+        <SiteHeader />
 
         <section className="page-head">
           <div className="w-layout-blockcontainer container w-container">

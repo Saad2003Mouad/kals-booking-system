@@ -212,14 +212,6 @@ export default function SiteFooter() {
               </a>
             </div>
             <div>
-              <a href="tel:6179993803" className="footer-link w-inline-block">
-                <div className="footer-link-move">
-                  <div className="footer-link-w">617-999-3803</div>
-                  <div className="footer-link-o">617-999-3803</div>
-                </div>
-              </a>
-            </div>
-            <div>
               <a href="tel:6178662727" className="footer-link w-inline-block">
                 <div className="footer-link-move">
                   <div className="footer-link-w">617-866-2727</div>
