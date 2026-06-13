@@ -55,27 +55,6 @@ function genBookingNumber() {
   return `BL-${date}-${Math.floor(1000+Math.random()*9000)}`;
 }
 
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const status = searchParams.get("status");
-  const page   = parseInt(searchParams.get("page") ?? "1");
-  const limit  = 20;
-  const where: any = status ? { status } : {};
-
-  const [bookings, total] = await withRetry(() => Promise.all([
-    prisma.booking.findMany({
-      where,
-      include: { customer: true, vehicle: true },
-      orderBy: { createdAt: "desc" },
-      skip: (page-1) * limit,
-      take: limit,
-    }),
-    prisma.booking.count({ where }),
-  ]));
-
-  return NextResponse.json({ bookings, total, page, pages: Math.ceil(total/limit) });
-}
-
 import { verifyAndCalculateRoute } from "@/lib/locationVerification";
 
 export async function POST(req: NextRequest) {

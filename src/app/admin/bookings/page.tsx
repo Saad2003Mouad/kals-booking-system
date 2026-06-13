@@ -55,7 +55,11 @@ export default function AdminBookingsPage() {
 
   const confirmBooking = async (id: string) => {
     setUpdating(id);
-    await fetch(`/api/bookings/${id}/confirm`, { method: "PATCH" });
+    await fetch(`/api/admin/bookings/${id}/status`, { 
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "CONFIRMED" })
+    });
     await fetchBookings();
     setUpdating(null);
   };

@@ -2,34 +2,25 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import * as ics from "ics";
 
-export const dynamic = "force-dynamic";
-
 export async function GET(req: NextRequest, { params }: { params: { token: string } }) {
   try {
-    const booking = await prisma.booking.findFirst({
-      where: {
-        id: params.token,
-      },
-      include: {
-        package: true,
-        customer: true,
-      }
+    const booking = await prisma.booking.findUnique({
+      where: { id: params.token },
+      include: { customer: true, package: true }
     });
 
     if (!booking) {
       return new NextResponse("Booking not found", { status: 404 });
     }
 
-    if (booking.status !== "CONFIRMED" && booking.status !== "PENDING_PAYMENT") {
-      return new NextResponse("Booking not confirmed yet", { status: 400 });
+    if (booking.status !== "CONFIRMED") {
+      return new NextResponse("Booking is not confirmed yet", { status: 403 });
     }
 
     const eventDate = new Date(booking.eventDate);
     const [hours, minutes] = (booking.startTime || "12:00").split(":");
-    
-    // ics package expects [year, month, date, hours, minutes]
-    // Month is 1-indexed in ics (1-12)
-    const startArr: ics.DateArray = [
+
+    const start: [number, number, number, number, number] = [
       eventDate.getFullYear(),
       eventDate.getMonth() + 1,
       eventDate.getDate(),
@@ -37,42 +28,36 @@ export async function GET(req: NextRequest, { params }: { params: { token: strin
       parseInt(minutes, 10)
     ];
 
-    const event: ics.EventAttributes = {
-      title: `Boston Legend - ${booking.package?.name || "Ice Cream Event"}`,
-      description: `Your ice cream event is booked!
-      
-Booking ID: ${booking.bookingNumber}
-Package: ${booking.package?.name || "Custom"}
-Phone: 617-999-3803
-Email: support@bostonlegend.com
+    const description = `Customer: ${booking.customer.firstName} ${booking.customer.lastName}\nPhone: ${booking.customer.phone}\nEmail: ${booking.customer.email}\nPackage: ${booking.package?.name || "Custom"}\nNotes: ${booking.notes || "None"}\n\nThank you for choosing Boston Legend Ice Cream Truck!`;
 
-We look forward to serving you!`,
+    const event: ics.EventAttributes = {
+      start,
+      duration: { hours: Math.floor(booking.durationMins / 60), minutes: booking.durationMins % 60 },
+      title: `Boston Legend Ice Cream Truck Event - ${booking.customer.firstName}`,
+      description,
       location: `${booking.address}, ${booking.city}, MA ${booking.zip}`,
-      start: startArr,
-      duration: { minutes: booking.durationMins || 60 },
+      url: `https://bostonlegendicecreamtruck.com/customer/booking/${booking.id}`,
       status: 'CONFIRMED',
       busyStatus: 'BUSY',
-      organizer: { name: 'Boston Legend Ice Cream', email: 'support@bostonlegend.com' },
+      organizer: { name: 'Boston Legend', email: 'info@bostonlegendicecreamtruck.com' }
     };
 
-    return new Promise<NextResponse>((resolve) => {
-      ics.createEvent(event, (error, value) => {
-        if (error) {
-          console.error("ICS generation error:", error);
-          resolve(new NextResponse("Failed to generate calendar file", { status: 500 }));
-          return;
-        }
+    const { error, value } = ics.createEvent(event);
 
-        const headers = new Headers();
-        headers.set("Content-Type", "text/calendar; charset=utf-8");
-        headers.set("Content-Disposition", `attachment; filename="boston-legend-event-${booking.bookingNumber}.ics"`);
+    if (error || !value) {
+      console.error("ICS Generation Error:", error);
+      return new NextResponse("Failed to generate calendar file", { status: 500 });
+    }
 
-        resolve(new NextResponse(value, { headers, status: 200 }));
-      });
+    return new NextResponse(value, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/calendar; charset=utf-8',
+        'Content-Disposition': `attachment; filename="boston-legend-event-${booking.bookingNumber}.ics"`
+      }
     });
-
-  } catch (error) {
-    console.error("Calendar Generation API Error:", error);
+  } catch (error: any) {
+    console.error("ICS generation route error:", error);
     return new NextResponse("Internal server error", { status: 500 });
   }
 }

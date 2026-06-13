@@ -1,5 +1,5 @@
 import BookingForm from "@/components/booking/BookingForm";
-import SiteHeader from "@/components/SiteHeader";
+import Navigation from "@/components/Navigation";
 import SiteFooter from "@/components/SiteFooter";
 import { Suspense } from "react";
 
@@ -14,7 +14,7 @@ export default function BookingPage() {
       
       <div className="relative w-full z-10 flex flex-col flex-grow">
         <div style={{ position: "relative", zIndex: 25 }}>
-          <SiteHeader />
+          <Navigation portalType="public" />
         </div>
 
         <section className="page-head">

@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import Navigation from "@/components/Navigation";
 import Image from "next/image";
 import { 
   Clock, MapPin, Phone, Mail, Users, CheckCircle2, 
@@ -129,14 +130,9 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
 
   if (error || !booking) return (
     <div className="min-h-screen bg-[#FAF6EF] flex flex-col justify-between font-['Nunito',sans-serif]">
-      <header className="bg-[#000223] py-4 px-6 border-b border-white/10 shadow-lg">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <a href="/"><img src={LOGO} alt="Boston Legend" className="h-10 w-auto" /></a>
-          <a href="/packages" className="px-5 py-2.5 rounded-full font-black text-sm bg-[#FFA000] text-[#000223] hover:bg-white transition-all shadow-md">
-            Start Your Booking
-          </a>
-        </div>
-      </header>
+      <div style={{ position: "relative", zIndex: 9000 }}>
+        <Navigation portalType="customer" />
+      </div>
 
       <main className="flex-grow flex items-center justify-center px-4 py-16">
         <div className="max-w-xl w-full bg-white rounded-[32px] p-10 border border-slate-100 shadow-[0_20px_50px_rgba(0,2,35,0.06)] text-center relative overflow-hidden">
@@ -282,20 +278,9 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
       </div>
 
       {/* Navbar */}
-      <header className="relative z-30 print:hidden h-20 flex items-center">
-        <div className="w-full max-w-6xl mx-auto px-6 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <a href="/"><img src={LOGO} alt="Boston Legend" className="h-10 w-auto" /></a>
-            <div className="hidden sm:block h-6 w-px bg-[#000223]/20"></div>
-            <span className="hidden sm:block text-xs font-black text-[#000223] uppercase tracking-widest">Portal</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <a href="/packages" className="px-5 py-2.5 rounded-full font-black text-xs bg-[#000223] text-white hover:bg-[#FFA000] hover:text-[#000223] transition-all">
-              Book Another Event
-            </a>
-          </div>
-        </div>
-      </header>      {/* Light Header Section */}
+      <div style={{ position: "relative", zIndex: 9000 }}>
+        <Navigation portalType="customer" />
+      </div>      {/* Light Header Section */}
       <div className="bg-white border-b border-slate-200 py-10 px-6">
         <div className="max-w-4xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex-1">
