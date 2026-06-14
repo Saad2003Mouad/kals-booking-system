@@ -32,7 +32,7 @@ export default function AdminCalendarPage() {
   const fetchEvents = async (fetchInfo: any, successCallback: any, failureCallback: any) => {
     try {
       const { startStr, endStr } = fetchInfo;
-      const res = await fetch(`/api/admin/calendar?start=${startStr}&end=${endStr}`);
+      const res = await fetch(`/api/admin/calendar?start=${encodeURIComponent(startStr)}&end=${encodeURIComponent(endStr)}&t=${Date.now()}`, { cache: "no-store" });
       const json = await res.json();
       if (res.ok && json.success) {
         successCallback(json.data);
