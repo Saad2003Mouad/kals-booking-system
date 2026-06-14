@@ -23,9 +23,15 @@ export async function GET(req: NextRequest) {
     };
 
     if (startStr && endStr) {
+      const startDate = new Date(startStr);
+      startDate.setDate(startDate.getDate() - 1);
+      
+      const endDate = new Date(endStr);
+      endDate.setDate(endDate.getDate() + 1);
+
       whereClause.eventDate = {
-        gte: new Date(startStr),
-        lte: new Date(endStr)
+        gte: startDate,
+        lte: endDate
       };
     }
 
