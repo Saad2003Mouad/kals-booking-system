@@ -47,7 +47,7 @@ export default function AdminStaffPage() {
   // Modal State
   const [showModal, setShowModal] = useState(false);
   const [editingStaff, setEditingStaff] = useState<Staff | null>(null);
-  const [formData, setFormData] = useState({ name: "", email: "", password: "", role: "SUPPORT" });
+  const [formData, setFormData] = useState({ name: "", email: "", password: "", role: "SUPPORT", customPermissions: "" });
   const [saving, setSaving] = useState(false);
 
   const loggedInRole = (session?.user as any)?.role || "DRIVER";
@@ -80,13 +80,15 @@ export default function AdminStaffPage() {
 
   const openAdd = () => {
     setEditingStaff(null);
-    setFormData({ name: "", email: "", password: "", role: "SUPPORT" });
+    setFormData({ name: "", email: "", password: "", role: "SUPPORT", customPermissions: "" });
     setShowModal(true);
   };
 
   const openEdit = (s: Staff) => {
     setEditingStaff(s);
-    setFormData({ name: s.name, email: s.email, password: "", role: s.role });
+    const defaultPerms = ROLE_PERMISSIONS_DISPLAY[s.role] || [];
+    const customPerms = s.permissions ? s.permissions.filter(p => !defaultPerms.includes(p)).join(", ") : "";
+    setFormData({ name: s.name, email: s.email, password: "", role: s.role, customPermissions: customPerms });
     setShowModal(true);
   };
 
@@ -97,9 +99,10 @@ export default function AdminStaffPage() {
       const url = editingStaff ? `/api/admin/users/${editingStaff.id}` : `/api/admin/users`;
       const method = editingStaff ? "PATCH" : "POST";
       
-      // When saving/updating, permissions are derived directly from the role server-side.
-      // We pass the role. If we want legacy compatibility, we pass the role's default list.
-      const rolePermissions = ROLE_PERMISSIONS_DISPLAY[formData.role] || [];
+      const defaultPerms = ROLE_PERMISSIONS_DISPLAY[formData.role] || [];
+      const additionalPerms = formData.customPermissions.split(",").map(p => p.trim()).filter(p => p);
+      const rolePermissions = Array.from(new Set([...defaultPerms, ...additionalPerms]));
+      
       const body = editingStaff ? { role: formData.role, permissions: rolePermissions } : { ...formData, permissions: rolePermissions };
       
       const res = await fetch(url, {
@@ -276,6 +279,11 @@ export default function AdminStaffPage() {
                     })}
                   </select>
                 </div>
+                <div>
+                  <label className="label-premium">Custom/Technical Permissions (Comma separated)</label>
+                  <input value={formData.customPermissions} onChange={e=>setFormData({...formData, customPermissions:e.target.value})} className="input-premium py-2.5 font-mono text-sm" placeholder="google.connect, settings.update" />
+                  <p className="text-[10px] text-slate-400 mt-1">Allows assigning specific technical permissions outside the predefined profile.</p>
+                </div>
               </div>
 
               <div className="border-t border-slate-100 pt-4">
@@ -285,6 +293,12 @@ export default function AdminStaffPage() {
                     <div key={p} className="flex items-center gap-2 text-xs font-semibold text-slate-600">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
                       {p}
+                    </div>
+                  ))}
+                  {formData.customPermissions.split(",").map(p => p.trim()).filter(p => p).map(p => (
+                    <div key={p} className="flex items-center gap-2 text-xs font-semibold text-blue-600">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
+                      {p} (Custom)
                     </div>
                   ))}
                 </div>

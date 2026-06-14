@@ -35,7 +35,8 @@ export type Permission =
   | "roles.update"
   | "ai.view"
   | "ai.use"
-  | "notifications.view";
+  | "notifications.view"
+  | "google.connect";
 
 export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
   OWNER: [
@@ -45,7 +46,7 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     "customers.view", "customers.update", "drivers.view", "drivers.assign",
     "settings.view", "settings.update", "users.view", "users.create", "users.update", "users.delete",
     "roles.view", "roles.update", "ai.view", "ai.use", "notifications.view",
-    "driver.jobs.view", "driver.jobs.updateStatus"
+    "driver.jobs.view", "driver.jobs.updateStatus", "google.connect"
   ],
   ADMIN: [
     "dashboard.view", "bookings.view", "bookings.create", "bookings.update", "bookings.approve", "bookings.reject", "bookings.assign",
@@ -53,7 +54,7 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     "serviceAreas.view", "serviceAreas.create", "serviceAreas.update",
     "customers.view", "customers.update", "drivers.view", "drivers.assign",
     "settings.view", "ai.view", "ai.use", "notifications.view",
-    "driver.jobs.view", "driver.jobs.updateStatus"
+    "driver.jobs.view", "driver.jobs.updateStatus", "google.connect"
   ],
   DISPATCHER: [
     "dashboard.view", "bookings.view", "bookings.update", "bookings.assign",
@@ -70,7 +71,10 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
   ]
 };
 
-export function hasPermission(role: string, permission: string): boolean {
+export function hasPermission(role: string, permission: string, userPermissions?: string[]): boolean {
+  if (role === "OWNER") return true;
+  if (userPermissions && userPermissions.includes(permission)) return true;
+
   const perms = ROLE_PERMISSIONS[role] || [];
   if (perms.includes(permission as Permission)) return true;
 
@@ -106,14 +110,15 @@ export async function getSessionUser(req: NextRequest | Request) {
   return {
     id: token.id as string,
     email: token.email as string,
-    role: token.role as string
+    role: token.role as string,
+    permissions: (token.permissions as string[]) || []
   };
 }
 
 export async function checkPermission(req: NextRequest | Request, requiredPermission: string): Promise<boolean> {
   const user = await getSessionUser(req);
   if (!user) return false;
-  return hasPermission(user.role, requiredPermission);
+  return hasPermission(user.role, requiredPermission, user.permissions);
 }
 
 export async function requirePermission(req: NextRequest | Request, permission: string) {
@@ -121,7 +126,7 @@ export async function requirePermission(req: NextRequest | Request, permission: 
   if (!user) {
     return { success: false, status: 401, error: "Unauthenticated access: Please log in." as string, user: null };
   }
-  if (!hasPermission(user.role, permission)) {
+  if (!hasPermission(user.role, permission, user.permissions)) {
     return { success: false, status: 403, error: "Unauthorized access: You lack the required permissions." as string, user };
   }
   return { success: true, status: 200, error: null, user };

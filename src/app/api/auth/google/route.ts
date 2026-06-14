@@ -4,7 +4,7 @@ import { getOAuth2Client } from "@/lib/google-calendar";
 
 export async function GET(req: Request) {
   try {
-    const auth = await requirePermission(req, "settings.update");
+    const auth = await requirePermission(req, "google.connect");
     if (!auth.success) {
       return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
     }
