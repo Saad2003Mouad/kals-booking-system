@@ -28,6 +28,7 @@ async function sendBookingLookupOtp(
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
+      tls: { rejectUnauthorized: false },
     });
 
     const OTP_TTL_MINUTES = OTP_TTL;
@@ -82,7 +83,7 @@ async function sendBookingLookupOtp(
 
     return true;
   } catch (err) {
-    console.error("[Booking Lookup OTP Email Error]", err);
+    console.error("[Booking Lookup OTP Email Error]", (err as Error)?.message || err);
     return false;
   }
 }

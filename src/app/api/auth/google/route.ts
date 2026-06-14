@@ -9,9 +9,15 @@ export async function GET(req: Request) {
       return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
     }
 
-    const client = getOAuth2Client(req.url);
-    
-    // Generate an OAuth URL
+    // Guard: ensure all required credentials are present
+    if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET || !process.env.GOOGLE_REDIRECT_URI) {
+      console.error("[Google OAuth] Missing required env vars: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, or GOOGLE_REDIRECT_URI");
+      return NextResponse.redirect(new URL("/admin/settings?error=MissingGoogleConfig", req.url));
+    }
+
+    const client = getOAuth2Client();
+
+    // Generate an OAuth URL — redirect_uri comes from GOOGLE_REDIRECT_URI env var
     const url = client.generateAuthUrl({
       access_type: "offline",
       scope: [

@@ -87,7 +87,10 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       where: { id: params.id },
       data: updateData,
       include: {
-        customer: true
+        customer: true,
+        package: true,
+        quote: true,
+        stops: { orderBy: { stopOrder: "asc" } },
       }
     });
 

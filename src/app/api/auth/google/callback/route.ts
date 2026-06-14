@@ -11,7 +11,7 @@ export async function GET(req: Request) {
       return NextResponse.redirect(new URL("/admin/settings?error=NoCode", req.url));
     }
 
-    const client = getOAuth2Client(req.url);
+    const client = getOAuth2Client();
     const { tokens } = await client.getToken(code);
 
     if (tokens.refresh_token) {

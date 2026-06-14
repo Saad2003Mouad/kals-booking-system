@@ -21,6 +21,7 @@ export async function sendOtpEmail(to: string, otp: string, firstName?: string):
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS, // Gmail App Password
       },
+      tls: { rejectUnauthorized: false },
     });
 
     const html = `

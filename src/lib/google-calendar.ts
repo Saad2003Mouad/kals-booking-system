@@ -1,22 +1,10 @@
 import { google, calendar_v3 } from "googleapis";
 import { prisma } from "@/lib/prisma";
 
-export function getOAuth2Client(reqUrl?: string) {
+export function getOAuth2Client() {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-  
-  // Use a base URL from environment or fallback to request origin
-  // In a real deployed app, NEXT_PUBLIC_BASE_URL or VERCEL_URL should be used.
-  let redirectUri = "http://localhost:3000/api/auth/google/callback";
-  
-  if (process.env.NEXT_PUBLIC_BASE_URL) {
-    redirectUri = `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/google/callback`;
-  } else if (process.env.VERCEL_URL) {
-    redirectUri = `https://${process.env.VERCEL_URL}/api/auth/google/callback`;
-  } else if (reqUrl) {
-    const url = new URL(reqUrl);
-    redirectUri = `${url.origin}/api/auth/google/callback`;
-  }
+  const redirectUri = process.env.GOOGLE_REDIRECT_URI;
 
   return new google.auth.OAuth2(
     clientId,
