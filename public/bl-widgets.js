@@ -651,7 +651,7 @@
   }
 
   /* ─────────────────────────────────────────────
-     5. INIT — Bulletproof retry mechanism
+     5. INIT — Maximum resilience
   ───────────────────────────────────────────── */
   function init() {
     injectNavButtons();
@@ -661,24 +661,48 @@
     fixMobileNav();
   }
 
-  // Try immediately if DOM is ready
+  // Attempt 1: Run immediately
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
     init();
   }
 
-  // Fallback retries: chat widget MUST appear regardless of page type
-  // This handles Webflow interference, Next.js hydration, and timing issues
+  // Attempt 2: After window fully loads (images, Webflow scripts, etc.)
+  window.addEventListener('load', function() {
+    if (!document.getElementById('bl-chat-root')) {
+      buildChatWidget();
+    }
+    injectNavButtons();
+    injectManageBookingLink();
+  });
+
+  // Attempt 3: Timed retries every 600ms for 6 seconds
   var retryCount = 0;
   var retryInterval = setInterval(function() {
     retryCount++;
     if (!document.getElementById('bl-chat-root')) {
       buildChatWidget();
     }
-    if (retryCount >= 5 || document.getElementById('bl-chat-root')) {
+    if (retryCount >= 10) {
       clearInterval(retryInterval);
     }
-  }, 800);
+  }, 600);
+
+  // Attempt 4: MutationObserver — if Webflow removes #bl-chat-root, re-inject it
+  var bodyObserver = new MutationObserver(function() {
+    if (!document.getElementById('bl-chat-root')) {
+      buildChatWidget();
+    }
+  });
+  // Start observing body for child additions/removals
+  if (document.body) {
+    bodyObserver.observe(document.body, { childList: true, subtree: false });
+  } else {
+    document.addEventListener('DOMContentLoaded', function() {
+      bodyObserver.observe(document.body, { childList: true, subtree: false });
+    });
+  }
 
 })();
+
