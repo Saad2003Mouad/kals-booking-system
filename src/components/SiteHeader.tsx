@@ -255,7 +255,7 @@ export default function SiteHeader() {
         >
           <div className="container menu w-container">
             {/* Logo */}
-            <Link href="/" className="brand w-nav-brand" onClick={closeAll}>
+            <a href="/" className="brand w-nav-brand" onClick={closeAll}>
               <img
                 src="https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/67e3936366827af4bed1d0d0_logo-boston-legend-ice-cream-truck.avif"
                 loading="lazy"
@@ -264,7 +264,7 @@ export default function SiteHeader() {
                 alt="Boston Legend ice cream truck logo"
                 className="logo"
               />
-            </Link>
+            </a>
 
             {/* ── NAV DRAWER ── */}
             <nav
@@ -299,9 +299,9 @@ export default function SiteHeader() {
               </button>
 
               {/* ── Standard links ── */}
-              <Link href="/" className="nav-link w-nav-link" onClick={closeAll}>Home</Link>
-              <Link href="/about" className="nav-link w-nav-link" onClick={closeAll}>About</Link>
-              <Link href="/menu" className="nav-link w-nav-link" onClick={closeAll}>Menu</Link>
+              <a href="/" className="nav-link w-nav-link" onClick={closeAll}>Home</a>
+              <a href="/about" className="nav-link w-nav-link" onClick={closeAll}>About</a>
+              <a href="/menu" className="nav-link w-nav-link" onClick={closeAll}>Menu</a>
 
               {/* ── Occasions — desktop dropdown (hover) / mobile accordion ── */}
               <div
@@ -335,7 +335,7 @@ export default function SiteHeader() {
                     <div role="list" className="w-dyn-items">
                       {OCCASIONS.map(([slug, label]) => (
                         <div key={slug} role="listitem" className="drop-meu-item w-dyn-item">
-                          <Link
+                          <a
                             href={`/occasions/${slug}`}
                             className="dropdown-link w-inline-block"
                             onClick={closeAll}
@@ -344,7 +344,7 @@ export default function SiteHeader() {
                               <div className="dorp-down-b">{label}</div>
                               <div className="dropdown-o">{label}</div>
                             </div>
-                          </Link>
+                          </a>
                         </div>
                       ))}
                     </div>
@@ -354,32 +354,32 @@ export default function SiteHeader() {
                 {/* ── Mobile accordion panel ── */}
                 <div className={`bl-occasions-panel${occasionsOpen ? " open" : ""}`}>
                   {OCCASIONS.map(([slug, label]) => (
-                    <Link
+                    <a
                       key={slug}
                       href={`/occasions/${slug}`}
                       onClick={closeAll}
                     >
                       {label}
-                    </Link>
+                    </a>
                   ))}
                 </div>
               </div>
 
-              <Link href="/packages" className="nav-link w-nav-link" onClick={closeAll}>Packages</Link>
-              <Link href="/manage-booking" className="nav-link w-nav-link" onClick={closeAll}>Manage Booking</Link>
-              <Link href="/contact-us" className="nav-link w-nav-link" onClick={closeAll}>Contact</Link>
+              <a href="/packages" className="nav-link w-nav-link" onClick={closeAll}>Packages</a>
+              <a href="/manage-booking" className="nav-link w-nav-link" onClick={closeAll}>Manage Booking</a>
+              <a href="/contact-us" className="nav-link w-nav-link" onClick={closeAll}>Contact</a>
 
               {/* Mobile-only Sign In CTA */}
-              <Link href="/login" className="bl-mob-signin" onClick={closeAll}>
+              <a href="/login" className="bl-mob-signin" onClick={closeAll}>
                 Sign In or Sign Up
-              </Link>
+              </a>
             </nav>
 
             {/* Desktop Sign-In CTA */}
             <div className="right-menu-links">
-              <Link href="/login" className="link-bt menu-bt">
+              <a href="/login" className="link-bt menu-bt">
                 Sign In or Sign Up
-              </Link>
+              </a>
             </div>
 
             {/* Hamburger */}
