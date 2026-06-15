@@ -35,17 +35,17 @@ export default function robots(): MetadataRoute.Robots {
       // Allow AI search engine crawlers (for AI Search Optimization)
       {
         userAgent: "GPTBot",
-        allow: ["/", "/faq/", "/services/", "/packages", "/cities/"],
+        allow: ["/", "/packages", "/cities/"],
         disallow: ["/admin/", "/driver/", "/customer/", "/api/"],
       },
       {
         userAgent: "PerplexityBot",
-        allow: ["/", "/faq/", "/services/", "/packages", "/cities/"],
+        allow: ["/", "/packages", "/cities/"],
         disallow: ["/admin/", "/driver/", "/customer/", "/api/"],
       },
       {
         userAgent: "Claude-Web",
-        allow: ["/", "/faq/", "/services/", "/packages", "/cities/"],
+        allow: ["/", "/packages", "/cities/"],
         disallow: ["/admin/", "/driver/", "/customer/", "/api/"],
       },
     ],
