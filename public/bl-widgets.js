@@ -120,7 +120,7 @@
       
       
       #bl-chat-bubble {
-        position: fixed; bottom: 28px; right: 28px; z-index: 9999;
+        position: fixed; bottom: 28px; right: 28px; z-index: 2147483647; /* MAX Z-INDEX */
         width: 65px; height: 65px; border-radius: 50%;
         background: linear-gradient(135deg, ${GOLD}, #FFB300);
         border: 3px solid white; cursor: pointer;
@@ -141,7 +141,7 @@
       }
 
       #bl-chat-window {
-        position: fixed; bottom: 105px; right: 28px; z-index: 9998;
+        position: fixed; bottom: 105px; right: 28px; z-index: 2147483646;
         width: 400px; max-width: calc(100vw - 40px);
         height: 560px; max-height: calc(100vh - 140px);
         background: white; border-radius: 24px;
