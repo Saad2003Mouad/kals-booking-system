@@ -170,6 +170,22 @@ export default function SiteFooter() {
               </Link>
             </div>
             <div>
+              <Link href="/services" className="footer-link w-inline-block">
+                <div className="footer-link-move">
+                  <div className="footer-link-w">Services</div>
+                  <div className="footer-link-o">Services</div>
+                </div>
+              </Link>
+            </div>
+            <div>
+              <Link href="/faq" className="footer-link w-inline-block">
+                <div className="footer-link-move">
+                  <div className="footer-link-w">FAQ</div>
+                  <div className="footer-link-o">FAQ</div>
+                </div>
+              </Link>
+            </div>
+            <div>
               <Link href="/packages" className="footer-link w-inline-block">
                 <div className="footer-link-move">
                   <div className="footer-link-w">Products</div>

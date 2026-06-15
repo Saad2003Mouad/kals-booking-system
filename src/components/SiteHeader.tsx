@@ -296,6 +296,8 @@ export default function SiteHeader() {
               <Link href="/" className="nav-link w-nav-link" onClick={closeAll}>Home</Link>
               <Link href="/about" className="nav-link w-nav-link" onClick={closeAll}>About</Link>
               <Link href="/menu" className="nav-link w-nav-link" onClick={closeAll}>Menu</Link>
+              <Link href="/services" className="nav-link w-nav-link" onClick={closeAll}>Services</Link>
+              <Link href="/faq" className="nav-link w-nav-link" onClick={closeAll}>FAQ</Link>
 
               {/* ── Occasions — desktop dropdown / mobile accordion ── */}
               <div className="w-dropdown" style={{ position: "relative" }}>
