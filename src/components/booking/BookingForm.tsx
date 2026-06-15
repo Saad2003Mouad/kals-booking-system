@@ -1510,6 +1510,19 @@ export default function BookingForm() {
                   return null;
                 })()}
 
+                {/* Multiple Trucks Notice */}
+                <div className="md:col-span-2 bg-purple-50/70 border-2 border-purple-200 rounded-3xl p-6 flex items-center gap-4.5 shadow-sm">
+                  <span className="text-3xl">🚐</span>
+                  <div>
+                    <p className="font-black text-[#000223] text-lg sm:text-xl">
+                      Multiple Trucks Notice
+                    </p>
+                    <p className="text-base font-bold text-slate-700 mt-1">
+                      If you require more than one truck for your event within the same package, an additional <strong>$200 preparation fee</strong> applies for each extra truck.
+                    </p>
+                  </div>
+                </div>
+
                 {/* Package duration info banner */}
                 <div className="md:col-span-2 bg-amber-50/70 border-2 border-amber-200 rounded-3xl p-6 flex items-center gap-4.5 shadow-sm">
                   <span className="text-3xl">⏱️</span>

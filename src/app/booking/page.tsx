@@ -10,9 +10,9 @@ export const metadata = {
 
 export default function BookingPage() {
   return (
-    <div className="page min-h-screen flex flex-col relative" style={{ fontFamily: "var(--font-sans), sans-serif" }}>
+    <div className="page min-h-screen flex flex-col relative overflow-x-hidden" style={{ fontFamily: "var(--font-sans), sans-serif" }}>
       
-      <div className="relative w-full z-10 flex flex-col flex-grow">
+      <div className="relative w-full z-10 flex flex-col flex-grow max-w-[100vw]">
         <SiteHeader />
 
         <section className="page-head">
