@@ -11,8 +11,27 @@ const nextConfig = {
   async rewrites() {
     return {
       beforeFiles: [],
-      afterFiles: [],
-      fallback: []
+      afterFiles: [
+        { source: "/about", destination: "/about.html" },
+        { source: "/menu", destination: "/menu.html" },
+        { source: "/contact-us", destination: "/contact-us.html" },
+        { source: "/blog", destination: "/blog.html" },
+        { source: "/occasions/birthday-parties", destination: "/birthday-parties.html" },
+        { source: "/occasions/block-parties", destination: "/block-parties.html" },
+        { source: "/occasions/corporate-parties", destination: "/corporate-parties.html" },
+        { source: "/occasions/fundraisers", destination: "/fundraisers.html" },
+        { source: "/occasions/launch-parties", destination: "/launch-parties.html" },
+        { source: "/occasions/marketing-events", destination: "/marketing-events.html" },
+        { source: "/occasions/movie-rental", destination: "/movie-rental.html" },
+        { source: "/occasions/photo-sessions", destination: "/photo-sessions.html" },
+        { source: "/occasions/reunions", destination: "/reunions.html" },
+        { source: "/occasions/school-occasions", destination: "/school-occasions.html" },
+        { source: "/occasions/sports-occasions", destination: "/sports-occasions.html" },
+        { source: "/occasions/wedding-receptions", destination: "/wedding-receptions.html" },
+      ],
+      fallback: [
+        { source: "/:path*", destination: "/:path*.html" },
+      ]
     };
   },
   async redirects() {

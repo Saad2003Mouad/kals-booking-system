@@ -227,6 +227,12 @@ export default function SiteHeader() {
           .menu-button.w-nav-button {
             display: none !important;
           }
+          /* Desktop dropdown: show when w--open class present */
+          .w-dropdown-list.w--open {
+            display: block !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+          }
         }
       ` }} />
 
@@ -297,10 +303,16 @@ export default function SiteHeader() {
               <Link href="/about" className="nav-link w-nav-link" onClick={closeAll}>About</Link>
               <Link href="/menu" className="nav-link w-nav-link" onClick={closeAll}>Menu</Link>
 
-              {/* ── Occasions — desktop dropdown / mobile accordion ── */}
-              <div className="w-dropdown" style={{ position: "relative" }}>
-                {/* Desktop toggle (hover-driven by Webflow CSS) */}
-                <div className="nav-link dropdown w-dropdown-toggle"
+              {/* ── Occasions — desktop dropdown (hover) / mobile accordion ── */}
+              <div
+                className="w-dropdown"
+                style={{ position: "relative" }}
+                onMouseEnter={() => setOccasionsOpen(true)}
+                onMouseLeave={() => setOccasionsOpen(false)}
+              >
+                {/* Toggle label */}
+                <div
+                  className="nav-link dropdown w-dropdown-toggle"
                   onClick={() => setOccasionsOpen((p) => !p)}
                   role="button"
                   aria-expanded={occasionsOpen}
@@ -317,8 +329,8 @@ export default function SiteHeader() {
                   </span>
                 </div>
 
-                {/* ── Desktop dropdown (Webflow-handled) ── */}
-                <nav className="dropdown-list w-dropdown-list">
+                {/* ── Desktop dropdown — shown on hover via React state ── */}
+                <nav className={`dropdown-list w-dropdown-list${occasionsOpen ? " w--open" : ""}`}>
                   <div className="w-dyn-list">
                     <div role="list" className="w-dyn-items">
                       {OCCASIONS.map(([slug, label]) => (
