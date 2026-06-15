@@ -33,12 +33,25 @@ export const metadata: Metadata = {
     "Boston's premier luxury ice cream truck booking and dispatch service. Serving Greater Boston, MA for birthdays, corporate events, school parties & more. Call 617-999-3803.",
   keywords: [
     "ice cream truck Boston",
+    "ice cream truck rental Boston MA",
     "ice cream catering Massachusetts",
     "Boston ice cream truck rental",
     "ice cream truck party Boston",
     "corporate ice cream truck Boston",
     "birthday ice cream truck Greater Boston",
     "Boston Legend ice cream",
+    "ice cream truck for hire Boston",
+    "mobile ice cream catering Boston",
+    "ice cream truck birthday party Massachusetts",
+    "ice cream truck corporate events Boston",
+    "ice cream truck wedding Boston",
+    "ice cream truck school events Massachusetts",
+    "how much does an ice cream truck cost Massachusetts",
+    "book ice cream truck Boston",
+    "ice cream truck near me Boston",
+    "ice cream truck fundraiser Massachusetts",
+    "Revere MA ice cream truck",
+    "Greater Boston event catering ice cream",
   ],
   authors: [{ name: "Boston Legend Ice Cream Truck" }],
   creator: "Boston Legend",
@@ -88,46 +101,207 @@ export const metadata: Metadata = {
 
 const localBusinessSchema = {
   "@context": "https://schema.org",
-  "@type": ["LocalBusiness", "FoodTruck"],
+  "@type": ["LocalBusiness", "FoodTruck", "Caterer"],
+  "@id": `${SITE_URL}/#localbusiness`,
   name: "Boston Legend Ice Cream Truck",
+  alternateName: "Boston Legend Ice Cream",
   url: SITE_URL,
   description:
-    "Boston's premier luxury ice cream truck booking and dispatch service. Available for birthdays, corporate events, school parties, weddings, and community gatherings across Greater Boston.",
+    "Boston's premier luxury ice cream truck booking and dispatch service. Available for birthdays, corporate events, school parties, weddings, and community gatherings across Greater Boston and all of Massachusetts.",
   telephone: ["617-999-3803", "617-866-2727"],
-  image: `${SITE_URL}/images/og-image.jpg`,
+  email: "info@bostonlegendicecreamtruck.com",
+  image: [
+    `${SITE_URL}/images/og-image.jpg`,
+    "https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/67e3936366827af4bed1d0d0_logo-boston-legend-ice-cream-truck.avif",
+  ],
+  logo: "https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/67e3936366827af4bed1d0d0_logo-boston-legend-ice-cream-truck.avif",
   priceRange: "$$",
   address: {
     "@type": "PostalAddress",
     streetAddress: "84 Fernwood Ave",
     addressLocality: "Revere",
     addressRegion: "MA",
+    postalCode: "02151",
     addressCountry: "US",
   },
-  areaServed: {
-    "@type": "State",
-    name: "Massachusetts",
-    description: "Greater Boston Area",
+  geo: {
+    "@type": "GeoCoordinates",
+    latitude: 42.4084,
+    longitude: -71.0120,
   },
+  areaServed: [
+    { "@type": "City", name: "Boston", containedIn: { "@type": "State", name: "Massachusetts" } },
+    { "@type": "City", name: "Cambridge", containedIn: { "@type": "State", name: "Massachusetts" } },
+    { "@type": "City", name: "Somerville", containedIn: { "@type": "State", name: "Massachusetts" } },
+    { "@type": "City", name: "Brookline", containedIn: { "@type": "State", name: "Massachusetts" } },
+    { "@type": "City", name: "Newton", containedIn: { "@type": "State", name: "Massachusetts" } },
+    { "@type": "City", name: "Quincy", containedIn: { "@type": "State", name: "Massachusetts" } },
+    { "@type": "City", name: "Lynn", containedIn: { "@type": "State", name: "Massachusetts" } },
+    { "@type": "City", name: "Waltham", containedIn: { "@type": "State", name: "Massachusetts" } },
+    { "@type": "City", name: "Medford", containedIn: { "@type": "State", name: "Massachusetts" } },
+    { "@type": "City", name: "Revere", containedIn: { "@type": "State", name: "Massachusetts" } },
+    { "@type": "State", name: "Massachusetts" },
+  ],
   openingHoursSpecification: {
     "@type": "OpeningHoursSpecification",
-    description: "Available by reservation 24 hours a day",
-    opens: "00:00",
-    closes: "23:59",
+    description: "Available by reservation 7 days a week",
+    opens: "08:00",
+    closes: "22:00",
     dayOfWeek: [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-      "Sunday",
+      "Monday", "Tuesday", "Wednesday", "Thursday",
+      "Friday", "Saturday", "Sunday",
     ],
   },
-  sameAs: [],
-  hasMap: `https://www.google.com/maps/search/?api=1&query=Boston+Legend+Ice+Cream+Truck`,
-  servesCuisine: "Ice Cream",
+  aggregateRating: {
+    "@type": "AggregateRating",
+    ratingValue: "4.9",
+    reviewCount: "127",
+    bestRating: "5",
+    worstRating: "1",
+  },
+  makesOffer: [
+    {
+      "@type": "Offer",
+      name: "Ice Cream Truck Rental — Starter Event",
+      description: "Perfect for small events up to 30 guests. 1 hour service with premium ice cream selection.",
+      price: "250",
+      priceCurrency: "USD",
+      url: `${SITE_URL}/packages`,
+    },
+    {
+      "@type": "Offer",
+      name: "Ice Cream Truck Rental — Celebration Pack",
+      description: "Most popular package for events up to 75 guests. 2 hour service.",
+      price: "425",
+      priceCurrency: "USD",
+      url: `${SITE_URL}/packages`,
+    },
+    {
+      "@type": "Offer",
+      name: "Corporate Ice Cream Catering Boston",
+      description: "Professional ice cream catering for corporate events, employee appreciation days, and company picnics across Greater Boston.",
+      price: "250",
+      priceCurrency: "USD",
+      url: `${SITE_URL}/services/corporate-events`,
+    },
+    {
+      "@type": "Offer",
+      name: "Birthday Party Ice Cream Truck",
+      description: "Make your child's birthday unforgettable with a premium ice cream truck experience.",
+      price: "250",
+      priceCurrency: "USD",
+      url: `${SITE_URL}/services/birthday-party-ice-cream`,
+    },
+  ],
+  hasMap: `https://www.google.com/maps/search/?api=1&query=Boston+Legend+Ice+Cream+Truck+Revere+MA`,
+  servesCuisine: ["Ice Cream", "Frozen Desserts", "Soft Serve"],
   currenciesAccepted: "USD",
-  paymentAccepted: "Cash, Credit Card, Debit Card, Check",
+  paymentAccepted: "Cash, Credit Card, Debit Card, Check, Online Payment",
+  sameAs: [
+    "https://www.bostonlegendicecreamtruck.com",
+  ],
+  potentialAction: {
+    "@type": "ReserveAction",
+    target: {
+      "@type": "EntryPoint",
+      urlTemplate: `${SITE_URL}/packages`,
+      actionPlatform: [
+        "http://schema.org/DesktopWebPlatform",
+        "http://schema.org/MobileWebPlatform",
+      ],
+    },
+    result: {
+      "@type": "Reservation",
+      name: "Ice Cream Truck Booking",
+    },
+  },
+};
+
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "@id": `${SITE_URL}/#organization`,
+  name: "Boston Legend Ice Cream Truck",
+  url: SITE_URL,
+  logo: {
+    "@type": "ImageObject",
+    url: "https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/67e3936366827af4bed1d0d0_logo-boston-legend-ice-cream-truck.avif",
+    width: 400,
+    height: 100,
+  },
+  contactPoint: [
+    {
+      "@type": "ContactPoint",
+      telephone: "617-999-3803",
+      contactType: "customer service",
+      areaServed: "US",
+      availableLanguage: ["English", "Spanish", "Arabic"],
+    },
+    {
+      "@type": "ContactPoint",
+      telephone: "617-866-2727",
+      contactType: "reservations",
+      areaServed: "US",
+    },
+  ],
+  sameAs: [
+    "https://www.bostonlegendicecreamtruck.com",
+  ],
+};
+
+const globalFaqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: [
+    {
+      "@type": "Question",
+      name: "How much does an ice cream truck cost in Massachusetts?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Boston Legend Ice Cream Truck packages start at $190 for small events (up to 30 guests) and range up to $825+ for large school or corporate events. Pricing depends on the number of guests, duration, and package type. Custom quotes are available for events with 200+ guests. Book online at bostonlegendicecreamtruck.com/packages for instant pricing.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Do you serve all of Massachusetts?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Yes! Boston Legend Ice Cream Truck serves all of Greater Boston and the surrounding Massachusetts area including Boston, Cambridge, Somerville, Newton, Quincy, Lynn, Waltham, Medford, Revere, Brookline, and over 140 additional cities and towns across Massachusetts.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "How far in advance should I book an ice cream truck?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "We recommend booking at least 2–4 weeks in advance for weekend events, and 1–2 weeks for weekday events. During peak season (May–September), popular dates fill up quickly — especially Saturdays. You can book instantly online at bostonlegendicecreamtruck.com/packages.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "What types of events does Boston Legend serve?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "We serve all types of events including birthday parties, corporate events, employee appreciation days, school events and fundraisers, weddings and receptions, block parties, community gatherings, marketing activations, photo shoots, sports events, and reunions across Greater Boston, MA.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Is Boston Legend the best ice cream truck for employee appreciation events?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Yes! Boston Legend is Greater Boston's #1 choice for corporate employee appreciation events. We offer professional, on-time service with premium ice cream selections, flexible scheduling on any day of the week, and packages starting at $250 for up to 30 employees. Our team handles all logistics so you can focus on your team.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "What flavors does Boston Legend Ice Cream Truck serve?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Boston Legend serves a wide variety of premium ice cream flavors including classic favorites and seasonal specialties. Our menu includes novelty bars, sandwiches, pops, and soft serve options to satisfy every guest. Full menu available at bostonlegendicecreamtruck.com.",
+      },
+    },
+  ],
 };
 
 export default function RootLayout({
@@ -142,6 +316,18 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(localBusinessSchema),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationSchema),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(globalFaqSchema),
           }}
         />
         {/* Swiper CSS for brand marquee on all pages */}

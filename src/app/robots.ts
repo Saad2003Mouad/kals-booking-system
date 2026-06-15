@@ -6,11 +6,50 @@ const SITE_URL =
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: {
-      userAgent: "*",
-      allow: "/",
-      disallow: ["/admin", "/driver", "/customer/booking", "/api", "/login"],
-    },
+    rules: [
+      {
+        userAgent: "*",
+        allow: "/",
+        disallow: [
+          "/admin",
+          "/admin/",
+          "/driver",
+          "/driver/",
+          "/customer/",
+          "/api/",
+          "/login",
+          "/checkout",
+        ],
+      },
+      // Allow major search engine crawlers full access
+      {
+        userAgent: "Googlebot",
+        allow: "/",
+        disallow: ["/admin/", "/driver/", "/customer/", "/api/"],
+      },
+      {
+        userAgent: "Bingbot",
+        allow: "/",
+        disallow: ["/admin/", "/driver/", "/customer/", "/api/"],
+      },
+      // Allow AI search engine crawlers (for AI Search Optimization)
+      {
+        userAgent: "GPTBot",
+        allow: ["/", "/faq/", "/services/", "/packages", "/cities/"],
+        disallow: ["/admin/", "/driver/", "/customer/", "/api/"],
+      },
+      {
+        userAgent: "PerplexityBot",
+        allow: ["/", "/faq/", "/services/", "/packages", "/cities/"],
+        disallow: ["/admin/", "/driver/", "/customer/", "/api/"],
+      },
+      {
+        userAgent: "Claude-Web",
+        allow: ["/", "/faq/", "/services/", "/packages", "/cities/"],
+        disallow: ["/admin/", "/driver/", "/customer/", "/api/"],
+      },
+    ],
     sitemap: `${SITE_URL}/sitemap.xml`,
+    host: SITE_URL,
   };
 }
