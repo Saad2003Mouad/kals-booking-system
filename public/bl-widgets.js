@@ -106,8 +106,9 @@
   ───────────────────────────────────────────── */
   function buildChatWidget() {
     // Hide chat entirely from /admin and /login routes
-    if (window.location.pathname.startsWith('/admin') || window.location.pathname.startsWith('/login')) return;
+    if (window.location.pathname.includes('/admin') || window.location.pathname.includes('/login')) return;
     if (document.getElementById('bl-chat-root')) return;
+    console.log("Boston Legend: Initializing Chat Widget...");
 
     const NAVY  = '#000223';
     const GOLD  = '#FFA000';
@@ -120,14 +121,14 @@
       
       
       #bl-chat-bubble {
-        position: fixed; bottom: 28px; right: 28px; z-index: 2147483647; /* MAX Z-INDEX */
-        width: 65px; height: 65px; border-radius: 50%;
-        background: linear-gradient(135deg, ${GOLD}, #FFB300);
-        border: 3px solid white; cursor: pointer;
-        display: flex; align-items: center; justify-content: center;
-        box-shadow: 0 10px 30px rgba(255,160,0,.45);
-        transition: transform .25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow .25s ease;
-        animation: bl-pulse 2s infinite;
+        position: fixed !important; bottom: 28px !important; right: 28px !important; z-index: 2147483647 !important; /* MAX Z-INDEX */
+        width: 65px !important; height: 65px !important; border-radius: 50% !important;
+        background: linear-gradient(135deg, ${GOLD}, #FFB300) !important;
+        border: 3px solid white !important; cursor: pointer !important;
+        display: flex !important; align-items: center !important; justify-content: center !important;
+        box-shadow: 0 10px 30px rgba(255,160,0,.45) !important;
+        transition: transform .25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow .25s ease !important;
+        animation: bl-pulse 2s infinite !important;
       }
       #bl-chat-bubble:hover {
         transform: scale(1.08) rotate(5deg);
@@ -654,11 +655,12 @@
      5. INIT — Maximum resilience
   ───────────────────────────────────────────── */
   function init() {
-    injectNavButtons();
-    injectManageBookingLink();
-    buildChatWidget();
-    initSwipers();
-    fixMobileNav();
+    console.log("Boston Legend: init() called");
+    try { injectNavButtons(); } catch(e) { console.error("Nav buttons error:", e); }
+    try { injectManageBookingLink(); } catch(e) { console.error("Manage booking error:", e); }
+    try { buildChatWidget(); } catch(e) { console.error("Chat widget error:", e); }
+    try { initSwipers(); } catch(e) { console.error("Swipers error:", e); }
+    try { fixMobileNav(); } catch(e) { console.error("Mobile nav error:", e); }
   }
 
   // Attempt 1: Run immediately
