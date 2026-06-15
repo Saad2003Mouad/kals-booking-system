@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+export const dynamic = 'force-dynamic';
 import { requirePermission } from "@/lib/rbac";
 import { getOAuth2Client } from "@/lib/google-calendar";
 

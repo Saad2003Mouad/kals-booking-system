@@ -313,6 +313,7 @@ export default function ServicesIndexPage() {
                 style={{ textDecoration: "none" }}
               >
                 <div
+                  className="hover:-translate-y-[6px] hover:shadow-[0_16px_48px_rgba(0,0,0,0.12)]"
                   style={{
                     background: "#ffffff",
                     borderRadius: "20px",
@@ -323,14 +324,6 @@ export default function ServicesIndexPage() {
                     height: "100%",
                     display: "flex",
                     flexDirection: "column",
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLDivElement).style.transform = "translateY(-6px)";
-                    (e.currentTarget as HTMLDivElement).style.boxShadow = "0 16px 48px rgba(0,0,0,0.12)";
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
-                    (e.currentTarget as HTMLDivElement).style.boxShadow = "0 4px 20px rgba(0,0,0,0.05)";
                   }}
                 >
                   {/* Card header */}
