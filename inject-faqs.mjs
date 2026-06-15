@@ -134,6 +134,16 @@ const FAQS = {
       { q: "How much notice do you need for a photo session booking?", a: "We recommend at least 2 weeks notice for photo sessions. For larger productions with specific timing requirements, 3–4 weeks is preferable to ensure full availability." },
     ]
   },
+  "general": {
+    title: "Boston Legend General FAQ",
+    items: [
+      { q: "How much does it cost to rent an ice cream truck in Massachusetts?", a: "Our packages start at $190 for up to 30 guests. Pricing depends on your guest count, event location, and duration. For large events of 200+ guests, we provide custom quotes." },
+      { q: "What areas in Massachusetts do you serve?", a: "We serve 140+ cities across Greater Boston and Massachusetts, including Boston, Cambridge, Somerville, Newton, Brookline, Revere, Quincy, Lynn, and many more." },
+      { q: "What types of events do you cater?", a: "We cater all types of occasions! Birthdays, corporate events, weddings, school field days, block parties, fundraisers, sports tournaments, and photo shoots." },
+      { q: "What ice cream flavors do you serve?", a: "We offer a premium selection of classic and seasonal flavors. Our menu includes novelty bars, ice cream sandwiches, fruit pops, and soft serve options that guests of all ages love." },
+      { q: "How far in advance should I book my event?", a: "For peak season (May to September), we highly recommend booking 2-4 weeks in advance, especially for weekends. Weekday events can usually be accommodated with 1-2 weeks notice." },
+    ]
+  }
 };
 
 /* ─── Build FAQ HTML block ─── */
@@ -202,7 +212,7 @@ function buildFaqHtml(slug) {
     <div class="bl-faq-cta">
       <p>Have more questions? We&rsquo;re happy to help!</p>
       <div class="bl-faq-btns">
-        <a href="/packages" class="bl-faq-btn-p">Book Now &#127846;</a>
+        <a href="/booking" class="bl-faq-btn-p">Book Now &#127846;</a>
         <a href="tel:6179993803" class="bl-faq-btn-s">&#128222; 617-999-3803</a>
       </div>
     </div>
@@ -213,6 +223,10 @@ function buildFaqHtml(slug) {
 
 /* ─── Inject into each file ─── */
 const FILES = {
+  "index.html":              "general",
+  "about.html":              "general",
+  "menu.html":               "general",
+  "packages.html":           "general",
   "birthday-parties.html":   "birthday-parties",
   "block-parties.html":      "block-parties",
   "corporate-parties.html":  "corporate-parties",
