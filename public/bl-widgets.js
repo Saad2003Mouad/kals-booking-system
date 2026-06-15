@@ -651,7 +651,7 @@
   }
 
   /* ─────────────────────────────────────────────
-     5. INIT
+     5. INIT — Bulletproof retry mechanism
   ───────────────────────────────────────────── */
   function init() {
     injectNavButtons();
@@ -661,9 +661,24 @@
     fixMobileNav();
   }
 
+  // Try immediately if DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
     init();
   }
+
+  // Fallback retries: chat widget MUST appear regardless of page type
+  // This handles Webflow interference, Next.js hydration, and timing issues
+  var retryCount = 0;
+  var retryInterval = setInterval(function() {
+    retryCount++;
+    if (!document.getElementById('bl-chat-root')) {
+      buildChatWidget();
+    }
+    if (retryCount >= 5 || document.getElementById('bl-chat-root')) {
+      clearInterval(retryInterval);
+    }
+  }, 800);
+
 })();
