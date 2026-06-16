@@ -73,44 +73,7 @@ fs-list
   });
 </script>
 
-<script>
-(function(){
-  function initNav(){
-    var btn = document.querySelector('.menu-button.w-nav-button');
-    var menu = document.querySelector('.nav-menu.w-nav-menu');
-    if(!btn || !menu) return;
-    if(btn.dataset.mobileInit) return;
-    btn.dataset.mobileInit = '1';
-    btn.addEventListener('click', function(e){
-      e.stopPropagation();
-      var isOpen = btn.classList.contains('w--open');
-      if(isOpen){
-        btn.classList.remove('w--open');
-        menu.classList.remove('w--open');
-        menu.style.display = '';
-        document.body.style.overflow = '';
-      } else {
-        btn.classList.add('w--open');
-        menu.classList.add('w--open');
-        menu.style.display = 'flex';
-        menu.style.flexDirection = 'column';
-        document.body.style.overflow = 'hidden';
-      }
-    });
-    document.addEventListener('click', function(e){
-      if(!btn.contains(e.target) && !menu.contains(e.target)){
-        btn.classList.remove('w--open');
-        menu.classList.remove('w--open');
-        menu.style.display = '';
-        document.body.style.overflow = '';
-      }
-    });
-  }
-  if(document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initNav); }
-  else { initNav(); }
-  setTimeout(initNav, 500);
-})();
-</script>
+
 
 <script src="/bl-widgets.js?v=7" async></script>
 </body></html>
