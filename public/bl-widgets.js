@@ -398,23 +398,32 @@
     var style = document.createElement('style');
     style.id = 'bl-mobile-nav-styles';
     style.textContent = [
-      '.bl-mob-backdrop{position:fixed;inset:0;background:rgba(0,2,35,0.6);backdrop-filter:blur(4px);z-index:9000;opacity:0;pointer-events:none;transition:opacity .3s ease;}',
+      /* Backdrop - NO backdrop-filter/blur, only a dark overlay */
+      '.bl-mob-backdrop{position:fixed;inset:0;background:rgba(0,2,35,0.72);z-index:9000;opacity:0;pointer-events:none;transition:opacity .3s ease;}',
       '.bl-mob-backdrop.open{opacity:1;pointer-events:auto;}',
       '@media(max-width:991px){',
-        '.nav-menu.w-nav-menu{display:flex!important;flex-direction:column!important;position:fixed!important;top:0!important;right:0!important;bottom:0!important;width:min(85vw,310px)!important;background:#000223!important;z-index:9200!important;overflow-y:auto!important;padding:72px 0 40px!important;box-shadow:-8px 0 40px rgba(0,0,0,.45)!important;transform:translateX(110%)!important;transition:transform .38s cubic-bezier(.4,0,.2,1)!important;}',
+        /* Nav Drawer - isolation:isolate prevents blur from bleeding in */
+        '.nav-menu.w-nav-menu{display:flex!important;flex-direction:column!important;position:fixed!important;top:0!important;right:0!important;bottom:0!important;width:min(85vw,310px)!important;background:#000223!important;z-index:9200!important;overflow-y:auto!important;padding:72px 0 40px!important;box-shadow:-12px 0 50px rgba(0,0,0,.6)!important;transform:translateX(110%)!important;transition:transform .38s cubic-bezier(.4,0,.2,1)!important;isolation:isolate!important;filter:none!important;-webkit-filter:none!important;}',
         '.nav-menu.w-nav-menu.w--open{transform:translateX(0)!important;}',
-        '.nav-menu.w-nav-menu .nav-link.w-nav-link,.nav-menu.w-nav-menu .nav-link.dropdown.w-dropdown-toggle{color:#fff!important;font-weight:800!important;font-size:17px!important;padding:14px 24px!important;border-bottom:1px solid rgba(255,255,255,.07)!important;display:flex!important;align-items:center!important;justify-content:space-between!important;width:100%!important;box-sizing:border-box!important;cursor:pointer!important;text-decoration:none!important;}',
+        /* Nav links - fully opaque white, high contrast */
+        '.nav-menu.w-nav-menu .nav-link.w-nav-link,.nav-menu.w-nav-menu .nav-link.dropdown.w-dropdown-toggle{color:#ffffff!important;font-weight:800!important;font-size:17px!important;padding:14px 24px!important;border-bottom:1px solid rgba(255,255,255,.1)!important;display:flex!important;align-items:center!important;justify-content:space-between!important;width:100%!important;box-sizing:border-box!important;cursor:pointer!important;text-decoration:none!important;opacity:1!important;filter:none!important;text-shadow:none!important;}',
+        '.nav-menu.w-nav-menu .nav-link.w-nav-link:hover,.nav-menu.w-nav-menu .nav-link.dropdown.w-dropdown-toggle:hover{color:#FFA000!important;background:rgba(255,160,0,.08)!important;}',
+        /* Hide Webflow's default dropdown */
         '.nav-menu.w-nav-menu .dropdown-list.w-dropdown-list{display:none!important;}',
         '.nav-menu.w-nav-menu .w-icon-dropdown-toggle{display:none!important;}',
         '.nav-menu.w-nav-menu .w-dropdown{position:static!important;}',
-        '.bl-mob-signin{display:block;margin:20px 16px 0;padding:13px 24px;background:#FFA000;color:#000223!important;font-weight:900;font-size:15px;border-radius:50px;text-align:center;text-decoration:none;}',
-        '.bl-mob-close-btn{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.12);border:none;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:18px;z-index:10;}',
-        '.bl-occasions-arrow{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.1);transition:transform .28s ease;flex-shrink:0;}',
-        '.bl-occasions-arrow.open{transform:rotate(180deg);background:rgba(255,160,0,.2);}',
-        '.bl-occasions-panel{overflow:hidden;max-height:0;transition:max-height .38s cubic-bezier(.4,0,.2,1);background:rgba(255,255,255,.04);}',
+        /* Sign-in button */
+        '.bl-mob-signin{display:block;margin:20px 16px 0;padding:13px 24px;background:#FFA000;color:#000223!important;font-weight:900;font-size:15px;border-radius:50px;text-align:center;text-decoration:none;opacity:1!important;}',
+        /* Close button */
+        '.bl-mob-close-btn{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.15);border:none;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff!important;font-size:18px;z-index:10;opacity:1!important;}',
+        /* Occasions accordion */
+        '.bl-occasions-arrow{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.15);transition:transform .28s ease;flex-shrink:0;color:#fff!important;opacity:1!important;}',
+        '.bl-occasions-arrow.open{transform:rotate(180deg);background:rgba(255,160,0,.25);}',
+        '.bl-occasions-panel{overflow:hidden;max-height:0;transition:max-height .38s cubic-bezier(.4,0,.2,1);background:rgba(0,0,0,.2);}',
         '.bl-occasions-panel.open{max-height:700px;}',
-        '.bl-occasions-panel a{display:block;color:rgba(255,255,255,.82)!important;font-size:14.5px!important;font-weight:700!important;padding:11px 24px 11px 36px!important;border-bottom:1px solid rgba(255,255,255,.04)!important;text-decoration:none!important;}',
-        '.bl-occasions-panel a:hover{color:#FFA000!important;background:rgba(255,160,0,.07)!important;}',
+        /* Occasions panel links - fully visible */
+        '.bl-occasions-panel a{display:block;color:#e0e0e0!important;font-size:14.5px!important;font-weight:700!important;padding:11px 24px 11px 36px!important;border-bottom:1px solid rgba(255,255,255,.06)!important;text-decoration:none!important;opacity:1!important;}',
+        '.bl-occasions-panel a:hover{color:#FFA000!important;background:rgba(255,160,0,.08)!important;}',
         '.right-menu-links{display:none!important;}',
         '.menu-button.w-nav-button{display:flex!important;}',
       '}',
