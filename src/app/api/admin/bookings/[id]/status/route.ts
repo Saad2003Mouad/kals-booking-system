@@ -142,9 +142,28 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     // Google Calendar Sync
     try {
       if (status === "CONFIRMED" || status === "PENDING_PAYMENT") {
-        await googleCalendarService.updateBookingEvent(booking);
+        // Re-fetch with all relations needed for calendar
+        const bookingForCal = await prisma.booking.findUnique({
+          where: { id: params.id },
+          include: { customer: true, package: true },
+        });
+        if (bookingForCal) {
+          if (bookingForCal.googleEventId) {
+            console.log(`[Google Calendar] Updating event ${bookingForCal.googleEventId} for booking ${bookingForCal.bookingNumber}`);
+            await googleCalendarService.updateBookingEvent(bookingForCal);
+          } else {
+            console.log(`[Google Calendar] No existing event, creating new event for booking ${bookingForCal.bookingNumber}`);
+            const eventId = await googleCalendarService.createBookingEvent(bookingForCal);
+            console.log(`[Google Calendar] Created event: ${eventId} for booking ${bookingForCal.bookingNumber}`);
+          }
+        }
       } else if (status === "CANCELLED" || status === "REJECTED") {
-        await googleCalendarService.deleteBookingEvent(booking.googleEventId);
+        if (booking.googleEventId) {
+          console.log(`[Google Calendar] Deleting event ${booking.googleEventId} for cancelled/rejected booking ${booking.bookingNumber}`);
+          await googleCalendarService.deleteBookingEvent(booking.googleEventId);
+        } else {
+          console.log(`[Google Calendar] No event to delete for booking ${booking.bookingNumber}`);
+        }
       }
     } catch (gcalErr) {
       console.error("[Google Calendar Sync Error]", gcalErr);

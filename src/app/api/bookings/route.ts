@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { evaluateBooking } from "@/lib/aiEngine";
 import { sendBookingPendingEmail, sendBookingApprovedEmail, sendBookingPendingReviewEmail, sendCustomQuoteEmail } from "@/lib/email";
 import { calculateQuote } from "@/lib/pricing";
+import { googleCalendarService } from "@/lib/google-calendar";
 import { z } from "zod";
 
 async function withRetry<T>(fn: () => Promise<T>, retries = 2): Promise<T> {
@@ -386,7 +387,26 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // ── 7. Send Emails ────────────────────────────────────────
+    // ── 7.5. Google Calendar Event Creation ──────────────────
+    // Only create a calendar event for immediately CONFIRMED bookings
+    if (status === "CONFIRMED") {
+      try {
+        const bookingWithCustomer = await prisma.booking.findUnique({
+          where: { id: booking.id },
+          include: { customer: true, package: true },
+        });
+        if (bookingWithCustomer) {
+          const gcalEventId = await googleCalendarService.createBookingEvent(bookingWithCustomer);
+          console.log(`[Google Calendar] Event created for booking ${booking.bookingNumber}: eventId=${gcalEventId}`);
+        }
+      } catch (gcalErr) {
+        console.error("[Google Calendar] Error creating event on booking creation:", gcalErr);
+      }
+    } else {
+      console.log(`[Google Calendar] Skipping event creation for status=${status} (will be created on CONFIRM action)`);
+    }
+
+    // ── 8. Send Emails ────────────────────────────────────────
     try {
       if (isCustomPackage) {
         await sendCustomQuoteEmail(
