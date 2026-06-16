@@ -425,7 +425,8 @@
         '.bl-occasions-panel a{display:block;color:#e0e0e0!important;font-size:14.5px!important;font-weight:700!important;padding:11px 24px 11px 36px!important;border-bottom:1px solid rgba(255,255,255,.06)!important;text-decoration:none!important;opacity:1!important;}',
         '.bl-occasions-panel a:hover{color:#FFA000!important;background:rgba(255,160,0,.08)!important;}',
         '.right-menu-links{display:none!important;}',
-        '.menu-button.w-nav-button{display:flex!important;}',
+        '.navbar.w-nav{position:relative!important;}',
+        '.menu-button.w-nav-button{display:flex!important;position:absolute!important;top:18px!important;right:18px!important;z-index:9100!important;}',
       '}',
       '@media(min-width:992px){',
         '.bl-mob-close-btn,.bl-mob-signin,.bl-occasions-panel,.bl-occasions-arrow{display:none!important;}',
@@ -479,7 +480,12 @@
         var a = document.createElement('a');
         a.href = item[0];
         a.textContent = item[1];
-        a.addEventListener('click', closeNav);
+        a.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          closeNav();
+          setTimeout(function() { window.location.href = a.href; }, 50);
+        });
         panel.appendChild(a);
       });
       occasionsWrapper.appendChild(panel);
@@ -525,7 +531,15 @@
     backdrop.addEventListener('click', closeNav);
 
     menu.querySelectorAll('.nav-link.w-nav-link, .bl-mob-signin').forEach(function(link) {
-      link.addEventListener('click', closeNav);
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        closeNav();
+        var href = link.getAttribute('href');
+        if (href && href !== '#' && href !== '') {
+          setTimeout(function() { window.location.href = href; }, 50);
+        }
+      });
     });
   }
 
