@@ -33,6 +33,10 @@ function getCityData(slug: string) {
                     html.match(/<meta\s+content="([^"]*)"\s+name="description"/i);
   const description = descMatch ? descMatch[1] : "";
 
+  // Decode HTML entities safely for Next.js metadata strings
+  const cleanTitle = title.replace(/&#x27;/g, "'").replace(/&quot;/g, '"');
+  const cleanDesc = description.replace(/&#x27;/g, "'").replace(/&quot;/g, '"');
+
   // Extract content between </header> and the start of the footer
   const contentStart = html.indexOf("</header>");
   const contentEnd = html.indexOf("<footer");
@@ -99,9 +103,10 @@ function getCityData(slug: string) {
   });
 
   return {
-    title,
-    description,
+    title: cleanTitle,
+    description: cleanDesc,
     contentHtml,
+    slug: cleanSlug,
   };
 }
 
@@ -110,9 +115,26 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!data) {
     return {};
   }
+  
+  const cityUrl = `https://www.bostonlegendicecreamtruck.com/cities/${data.slug}`;
+
   return {
     title: data.title,
     description: data.description,
+    alternates: {
+      canonical: cityUrl,
+    },
+    openGraph: {
+      title: data.title,
+      description: data.description,
+      url: cityUrl,
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: data.title,
+      description: data.description,
+    }
   };
 }
 
@@ -137,9 +159,38 @@ export default function CityPage({ params }: PageProps) {
     notFound();
   }
 
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://www.bostonlegendicecreamtruck.com"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Cities",
+        "item": "https://www.bostonlegendicecreamtruck.com/cities"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": data.title,
+        "item": `https://www.bostonlegendicecreamtruck.com/cities/${data.slug}`
+      }
+    ]
+  };
+
   return (
     <div className="site-wrapper">
       <SiteHeader />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
       <div dangerouslySetInnerHTML={{ __html: data.contentHtml }} />
       <SiteFooter />
     </div>
