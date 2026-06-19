@@ -481,12 +481,9 @@
         a.href = item[0];
         a.textContent = item[1];
         a.addEventListener('click', function(e) {
-          e.preventDefault();
           e.stopImmediatePropagation();
           e.stopPropagation();
-          var dest = a.href;
           closeNav();
-          setTimeout(function() { window.location.href = dest; }, 80);
         }, true);
         panel.appendChild(a);
       });
@@ -522,12 +519,17 @@
       }
     }
 
-    // Hamburger — capture phase beats Webflow.js
-    btn.addEventListener('click', function(e) {
-      e.stopImmediatePropagation();
-      e.stopPropagation();
-      if (btn.classList.contains('w--open')) { closeNav(); } else { openNav(); }
-    }, true);
+    // Hamburger — block ALL events from reaching Webflow.js
+    var blockEvents = ['click', 'mousedown', 'mouseup', 'touchstart', 'touchend', 'pointerdown', 'pointerup'];
+    blockEvents.forEach(function(evt) {
+      btn.addEventListener(evt, function(e) {
+        e.stopImmediatePropagation();
+        e.stopPropagation();
+        if (evt === 'click') {
+          if (btn.classList.contains('w--open')) { closeNav(); } else { openNav(); }
+        }
+      }, { capture: true, passive: false });
+    });
 
     closeBtnEl.addEventListener('click', function(e) {
       e.stopImmediatePropagation();
@@ -538,30 +540,21 @@
     backdrop.addEventListener('click', closeNav);
 
     // Nav links — capture phase + stopImmediatePropagation ensures we beat Webflow.js
-    // on ALL static Webflow pages (index.html, about.html, cities/*, blog/*, etc.)
+    // DO NOT preventDefault! Let the browser natively navigate.
     menu.querySelectorAll('.nav-link.w-nav-link, .bl-mob-signin').forEach(function(link) {
-      // Click handler (desktop + Android)
       link.addEventListener('click', function(e) {
-        e.preventDefault();
         e.stopImmediatePropagation();
         e.stopPropagation();
-        var href = link.getAttribute('href');
         closeNav();
-        if (href && href !== '#' && href !== '') {
-          setTimeout(function() { window.location.href = href; }, 80);
-        }
-      }, true); // capture=true — fires BEFORE Webflow.js bubble handlers
+      }, true);
 
-      // touchend handler for iOS Safari (prevents ghost-click issues)
-      link.addEventListener('touchend', function(e) {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        var href = link.getAttribute('href');
-        closeNav();
-        if (href && href !== '#' && href !== '') {
-          setTimeout(function() { window.location.href = href; }, 80);
-        }
-      }, { capture: true, passive: false });
+      // Also stop Webflow from preventing default via touchstart/pointerdown
+      ['touchstart', 'pointerdown'].forEach(function(evt) {
+        link.addEventListener(evt, function(e) {
+          e.stopImmediatePropagation();
+          e.stopPropagation();
+        }, { capture: true, passive: true });
+      });
     });
   }
 
