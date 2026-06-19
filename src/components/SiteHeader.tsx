@@ -22,7 +22,7 @@ export default function SiteHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [occasionsOpen, setOccasionsOpen] = useState(false);
   const drawerRef = useRef<HTMLElement>(null);
-  const hamburgerRef = useRef<HTMLDivElement>(null);
+  const hamburgerRef = useRef<HTMLButtonElement>(null);
 
   // Navigate and close the mobile drawer safely
   const handleNavTo = useCallback((href: string) => {
