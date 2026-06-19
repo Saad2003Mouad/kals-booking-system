@@ -154,7 +154,7 @@ export default function SiteFooter() {
           <div className="footer-col-s">
             <div className="footer-titel">Ice Cream Event Catering</div>
             <div>
-              <Link href="/" className="footer-link w-inline-block">
+              <Link href="/" aria-current="page" className="footer-link w-inline-block w--current">
                 <div className="footer-link-move">
                   <div className="footer-link-w">Home</div>
                   <div className="footer-link-o">Home</div>
@@ -162,7 +162,7 @@ export default function SiteFooter() {
               </Link>
             </div>
             <div>
-              <Link href="/menu" className="footer-link w-inline-block">
+              <Link href="/packages" className="footer-link w-inline-block">
                 <div className="footer-link-move">
                   <div className="footer-link-w">Menu</div>
                   <div className="footer-link-o">Menu</div>
@@ -188,16 +188,8 @@ export default function SiteFooter() {
             <div>
               <Link href="/contact-us" className="footer-link w-inline-block">
                 <div className="footer-link-move">
-                  <div className="footer-link-w">Contact Us</div>
+                  <div className="footer-link-w">Contact Us<br/></div>
                   <div className="footer-link-o">Contact Us</div>
-                </div>
-              </Link>
-            </div>
-            <div>
-              <Link href="/manage-booking" className="footer-link w-inline-block">
-                <div className="footer-link-move">
-                  <div className="footer-link-w">Manage Booking</div>
-                  <div className="footer-link-o">Manage Booking</div>
                 </div>
               </Link>
             </div>

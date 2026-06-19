@@ -482,25 +482,11 @@
         a.href = item[0];
         a.textContent = item[1];
         a.addEventListener('click', function(e) {
-          e.stopImmediatePropagation();
-          e.stopPropagation();
-          e.preventDefault();
-          
-          var href = a.getAttribute('href');
-          
-          // 1. Close the menu
+          // Just close the nav visually. DO NOT prevent default.
           closeNav();
-          
-          // 2, 3, 4, 5. Enforce cleanup (closeNav handles overflow and classes, we add extra safety)
           document.body.style.overflow = '';
           document.body.style.position = '';
-          
-          if (href && href !== '#') {
-            setTimeout(function() {
-              window.location.assign(href);
-            }, 50);
-          }
-        }, true);
+        });
         panel.appendChild(a);
       });
       occasionsWrapper.appendChild(panel);
@@ -555,36 +541,18 @@
 
     backdrop.addEventListener('click', closeNav);
 
-    // Nav links — capture phase + stopImmediatePropagation ensures we beat Webflow.js
-    // DO NOT preventDefault! Let the browser natively navigate.
-    menu.querySelectorAll('.nav-link.w-nav-link, .bl-mob-signin').forEach(function(link) {
-      link.addEventListener('click', function(e) {
-        e.stopImmediatePropagation();
-        e.stopPropagation();
-        e.preventDefault();
-        
-        var targetHref = link.getAttribute('href');
-        
-        // 1. Close the menu
+    // Nav links — let the browser natively navigate! We just close the menu.
+    // Clone the nodes to remove Webflow's event listeners which call preventDefault()
+    var links = menu.querySelectorAll('.nav-link.w-nav-link, .bl-mob-signin');
+    links.forEach(function(link) {
+      var clone = link.cloneNode(true);
+      link.parentNode.replaceChild(clone, link);
+      
+      clone.addEventListener('click', function(e) {
+        // Just close the nav visually. DO NOT prevent default.
         closeNav();
-        
-        // 2, 3, 4, 5. Enforce cleanup for native scroll and fixed states
         document.body.style.overflow = '';
         document.body.style.position = '';
-        
-        if (targetHref && targetHref !== '#') {
-          setTimeout(function() {
-            window.location.assign(targetHref);
-          }, 50);
-        }
-      }, true);
-
-      // Also stop Webflow from preventing default via touchstart/pointerdown
-      ['touchstart', 'pointerdown'].forEach(function(evt) {
-        link.addEventListener(evt, function(e) {
-          e.stopImmediatePropagation();
-          e.stopPropagation();
-        }, { capture: true, passive: true });
       });
     });
   }

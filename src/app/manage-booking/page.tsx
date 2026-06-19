@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 
 const LOGO = "https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/67e3936366827af4bed1d0d0_logo-boston-legend-ice-cream-truck.avif";
 
@@ -372,6 +373,8 @@ export default function ManageBookingPage() {
           </div>
         </div>
       </main>
+
+      <SiteFooter />
     </div>
   );
 }

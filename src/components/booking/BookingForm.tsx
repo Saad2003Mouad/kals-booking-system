@@ -1252,7 +1252,7 @@ export default function BookingForm() {
                     <p className="font-bold text-base sm:text-lg">Loading premium catering packages…</p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="flex flex-wrap justify-center gap-6">
                     {listPkgs.map((p: any) => {
                       const isSelected = sel?.id === p.id;
                       return (
@@ -1260,7 +1260,7 @@ export default function BookingForm() {
                           key={p.id}
                           onClick={() => setSel(p)}
                           type="button"
-                          className="w-full text-left transition-all duration-300 group focus:outline-none"
+                          className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] max-w-sm text-left transition-all duration-300 group focus:outline-none"
                         >
                           <div
                             className="relative flex flex-col h-full bg-white rounded-3xl overflow-hidden border-2 transition-all duration-300 hover:shadow-lg"
@@ -1345,7 +1345,7 @@ export default function BookingForm() {
 
                     {/* Custom Event Package — premium distinct full-width card in grid */}
                     {customPkg && (
-                      <div className="col-span-1 md:col-span-2 lg:col-span-3 mt-4">
+                      <div className="w-full mt-4">
                         {/* Section divider */}
                         <div className="flex items-center gap-3 mb-6">
                           <div className="h-px flex-1 bg-slate-200/80" />
