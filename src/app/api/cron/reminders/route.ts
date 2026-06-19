@@ -17,7 +17,7 @@ export async function GET(request: Request) {
   try {
     const now = Date.now();
     const twentyFourHours = 24 * 60 * 60 * 1000;
-    const twentyFiveHours = 25 * 60 * 60 * 1000;
+    const thirtyTwoHours = 32 * 60 * 60 * 1000; // wider window since cron runs once daily
 
     // Fetch bookings that are confirmed or pending
     // We only want upcoming events that haven't been canceled/rejected.
@@ -54,8 +54,8 @@ export async function GET(request: Request) {
           eventDateObj.setHours(hours, mins, 0, 0);
           const timeUntilEvent = eventDateObj.getTime() - now;
 
-          // If event is exactly between 24 and 25 hours away
-          if (timeUntilEvent >= twentyFourHours && timeUntilEvent <= twentyFiveHours) {
+          // If event is between 24 and 32 hours away (daily cron window)
+          if (timeUntilEvent >= twentyFourHours && timeUntilEvent <= thirtyTwoHours) {
             await sendOwnerEventReminderEmail(booking);
 
             // Record the audit log so we don't send again
