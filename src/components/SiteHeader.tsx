@@ -28,13 +28,35 @@ export default function SiteHeader() {
   const handleNavTo = useCallback((href: string) => {
     return (e: React.MouseEvent | React.TouchEvent) => {
       e.preventDefault();
+      
+      // 1. Close menu
       setMobileOpen(false);
       setOccasionsOpen(false);
-      // Use router.push for internal Next.js routes, window.location for static HTML pages
-      if (href.startsWith('/') || href.startsWith('#')) {
+      
+      // 2. Remove overflow:hidden from body
+      document.body.style.overflow = "";
+      
+      // 3. Remove any position:fixed or pointer-events styles
+      document.body.style.position = "";
+      
+      // 4. Remove any overlay manually if still stuck
+      const backdrop = document.querySelector('.bl-mob-backdrop');
+      if (backdrop) backdrop.classList.remove('open');
+      
+      // Use router.push for internal Next.js routes, window.location.assign for static HTML pages
+      const nextJsRoutes = [
+        "/admin", "/booking", "/checkout", "/cities", "/customer", 
+        "/driver", "/faq", "/login", "/manage-booking", "/menu", 
+        "/packages", "/services"
+      ];
+      
+      const isNextRoute = href === "/" || nextJsRoutes.some(route => href.startsWith(route));
+
+      if (isNextRoute) {
         router.push(href);
       } else {
-        window.location.href = href;
+        // 5. Navigate to the link using assign
+        window.location.assign(href);
       }
     };
   }, [router]);

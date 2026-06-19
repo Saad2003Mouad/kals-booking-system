@@ -484,7 +484,22 @@
         a.addEventListener('click', function(e) {
           e.stopImmediatePropagation();
           e.stopPropagation();
+          e.preventDefault();
+          
+          var href = a.getAttribute('href');
+          
+          // 1. Close the menu
           closeNav();
+          
+          // 2, 3, 4, 5. Enforce cleanup (closeNav handles overflow and classes, we add extra safety)
+          document.body.style.overflow = '';
+          document.body.style.position = '';
+          
+          if (href && href !== '#') {
+            setTimeout(function() {
+              window.location.assign(href);
+            }, 50);
+          }
         }, true);
         panel.appendChild(a);
       });
@@ -546,7 +561,22 @@
       link.addEventListener('click', function(e) {
         e.stopImmediatePropagation();
         e.stopPropagation();
+        e.preventDefault();
+        
+        var targetHref = link.getAttribute('href');
+        
+        // 1. Close the menu
         closeNav();
+        
+        // 2, 3, 4, 5. Enforce cleanup for native scroll and fixed states
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        
+        if (targetHref && targetHref !== '#') {
+          setTimeout(function() {
+            window.location.assign(targetHref);
+          }, 50);
+        }
       }, true);
 
       // Also stop Webflow from preventing default via touchstart/pointerdown

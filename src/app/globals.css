@@ -237,7 +237,7 @@ html, body {
 @media screen and (max-width: 767px) {
   /* Prevent horizontal elastic scroll */
   body {
-    overscroll-behavior-y: none;
+    /* Removed overscroll-behavior-y: none; to fix iOS Safari scroll lock */
   }
   
   /* Ensure touch targets are at least 44x44px for WCAG/Google UX */
