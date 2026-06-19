@@ -1,6 +1,6 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import React, { useEffect, useRef, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 
 const OCCASIONS = [
   ["birthday-parties", "Birthday Parties"],
@@ -18,11 +18,26 @@ const OCCASIONS = [
 ] as const;
 
 export default function SiteHeader() {
+  const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [occasionsOpen, setOccasionsOpen] = useState(false);
   const drawerRef = useRef<HTMLElement>(null);
   const hamburgerRef = useRef<HTMLDivElement>(null);
 
+  // Navigate and close the mobile drawer
+  const handleNavTo = useCallback((href: string) => {
+    return (e: React.MouseEvent | React.TouchEvent) => {
+      e.preventDefault();
+      setMobileOpen(false);
+      setOccasionsOpen(false);
+      // Use router.push for internal Next.js routes, window.location for static HTML pages
+      if (href.startsWith('/') || href.startsWith('#')) {
+        router.push(href);
+      } else {
+        window.location.href = href;
+      }
+    };
+  }, [router]);
   // Close drawer on outside click (touch + mouse)
   useEffect(() => {
     function handlePointer(e: MouseEvent | TouchEvent) {
@@ -213,6 +228,10 @@ export default function SiteHeader() {
           }
           .menu-button.w-nav-button {
             display: flex !important;
+            position: absolute !important;
+            top: 18px !important;
+            right: 18px !important;
+            z-index: 9999 !important;
           }
         }
 
@@ -255,7 +274,7 @@ export default function SiteHeader() {
         >
           <div className="container menu w-container">
             {/* Logo */}
-            <a href="/" className="brand w-nav-brand" onClick={closeAll}>
+            <a href="/" className="brand w-nav-brand" onClick={handleNavTo('/')}>
               <img
                 src="https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/67e3936366827af4bed1d0d0_logo-boston-legend-ice-cream-truck.avif"
                 loading="lazy"
@@ -299,9 +318,9 @@ export default function SiteHeader() {
               </button>
 
               {/* ── Standard links ── */}
-              <a href="/" className="nav-link w-nav-link" onClick={closeAll}>Home</a>
-              <a href="/about" className="nav-link w-nav-link" onClick={closeAll}>About</a>
-              <a href="/menu" className="nav-link w-nav-link" onClick={closeAll}>Menu</a>
+              <a href="/" className="nav-link w-nav-link" onClick={handleNavTo('/')}>Home</a>
+              <a href="/about" className="nav-link w-nav-link" onClick={handleNavTo('/about')}>About</a>
+              <a href="/menu" className="nav-link w-nav-link" onClick={handleNavTo('/menu')}>Menu</a>
 
               {/* ── Occasions — desktop dropdown (hover) / mobile accordion ── */}
               <div
@@ -338,7 +357,7 @@ export default function SiteHeader() {
                           <a
                             href={`/occasions/${slug}`}
                             className="dropdown-link w-inline-block"
-                            onClick={closeAll}
+                            onClick={handleNavTo(`/occasions/${slug}`)}
                           >
                             <div className="dorpdown-move">
                               <div className="dorp-down-b">{label}</div>
@@ -357,7 +376,7 @@ export default function SiteHeader() {
                     <a
                       key={slug}
                       href={`/occasions/${slug}`}
-                      onClick={closeAll}
+                      onClick={handleNavTo(`/occasions/${slug}`)}
                     >
                       {label}
                     </a>
@@ -365,12 +384,12 @@ export default function SiteHeader() {
                 </div>
               </div>
 
-              <a href="/packages" className="nav-link w-nav-link" onClick={closeAll}>Packages</a>
-              <a href="/manage-booking" className="nav-link w-nav-link" onClick={closeAll}>Manage Booking</a>
-              <a href="/contact-us" className="nav-link w-nav-link" onClick={closeAll}>Contact</a>
+              <a href="/packages" className="nav-link w-nav-link" onClick={handleNavTo('/packages')}>Packages</a>
+              <a href="/manage-booking" className="nav-link w-nav-link" onClick={handleNavTo('/manage-booking')}>Manage Booking</a>
+              <a href="/contact-us" className="nav-link w-nav-link" onClick={handleNavTo('/contact-us')}>Contact</a>
 
               {/* Mobile-only Sign In CTA */}
-              <a href="/login" className="bl-mob-signin" onClick={closeAll}>
+              <a href="/login" className="bl-mob-signin" onClick={handleNavTo('/login')}>
                 Sign In or Sign Up
               </a>
             </nav>

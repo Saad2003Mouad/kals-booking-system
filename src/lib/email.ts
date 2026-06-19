@@ -561,4 +561,132 @@ export async function sendCustomQuoteEmail(
   return sendEmail({ to, subject: `Custom Quote Request Received — Boston Legend`, html });
 }
 
+// ─── OWNER NOTIFICATIONS ─────────────────────────────────────────
 
+function formatEventDate(dateObj: Date | string | null | undefined) {
+  if (!dateObj) return "";
+  try {
+    const d = new Date(dateObj);
+    return d.toLocaleDateString("en-US", { month: 'long', day: 'numeric', year: 'numeric' });
+  } catch {
+    return String(dateObj);
+  }
+}
+
+export async function sendOwnerNewBookingEmail(booking: any) {
+  const to = "info@bostonlegendicecreamtruck.com";
+  const portalUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.bostonlegendicecreamtruck.com'}/admin/bookings/${booking.id}`;
+  const dateStr = formatEventDate(booking.eventDate);
+  const subject = `New Booking Received – ${booking.customer?.firstName} ${booking.customer?.lastName} – ${dateStr}`;
+
+  // Calculate end time simply by adding duration to start time (if parsable)
+  let endTime = "";
+  try {
+    const startMatch = booking.startTime?.match(/(\d+):(\d+)\s*(AM|PM)/i);
+    if (startMatch) {
+      let hours = parseInt(startMatch[1]);
+      const mins = parseInt(startMatch[2]);
+      const ampm = startMatch[3].toUpperCase();
+      if (ampm === "PM" && hours < 12) hours += 12;
+      if (ampm === "AM" && hours === 12) hours = 0;
+      const d = new Date();
+      d.setHours(hours, mins + (booking.durationMins || 60));
+      let eHours = d.getHours();
+      const eMins = String(d.getMinutes()).padStart(2, "0");
+      const eAmpm = eHours >= 12 ? "PM" : "AM";
+      if (eHours > 12) eHours -= 12;
+      if (eHours === 0) eHours = 12;
+      endTime = `${eHours}:${eMins} ${eAmpm}`;
+    }
+  } catch (e) {}
+
+  const html = `
+    <h2 style="color:${BRAND_NAVY};margin-top:0;">New Booking Received</h2>
+    <table width="100%" cellpadding="10" cellspacing="0" style="border-collapse:collapse;font-size:15px;color:#374151;">
+      <tr><td width="35%" style="font-weight:bold;border-bottom:1px solid #E5E7EB;">Customer Name</td><td style="border-bottom:1px solid #E5E7EB;">${booking.customer?.firstName} ${booking.customer?.lastName}</td></tr>
+      <tr><td style="font-weight:bold;border-bottom:1px solid #E5E7EB;">Phone Number</td><td style="border-bottom:1px solid #E5E7EB;">${booking.customer?.phone || 'N/A'}</td></tr>
+      <tr><td style="font-weight:bold;border-bottom:1px solid #E5E7EB;">Email Address</td><td style="border-bottom:1px solid #E5E7EB;">${booking.customer?.email || 'N/A'}</td></tr>
+      <tr><td style="font-weight:bold;border-bottom:1px solid #E5E7EB;">Event Date</td><td style="border-bottom:1px solid #E5E7EB;">${dateStr}</td></tr>
+      <tr><td style="font-weight:bold;border-bottom:1px solid #E5E7EB;">Start Time</td><td style="border-bottom:1px solid #E5E7EB;">${booking.startTime}</td></tr>
+      <tr><td style="font-weight:bold;border-bottom:1px solid #E5E7EB;">End Time</td><td style="border-bottom:1px solid #E5E7EB;">${endTime || (booking.durationMins + ' mins')}</td></tr>
+      <tr><td style="font-weight:bold;border-bottom:1px solid #E5E7EB;">Package Selected</td><td style="border-bottom:1px solid #E5E7EB;">${booking.package?.name || 'Custom Package'}</td></tr>
+      <tr><td style="font-weight:bold;border-bottom:1px solid #E5E7EB;">Location</td><td style="border-bottom:1px solid #E5E7EB;">${booking.address}, ${booking.city} ${booking.zip}</td></tr>
+      <tr><td style="font-weight:bold;border-bottom:1px solid #E5E7EB;">Guest Count</td><td style="border-bottom:1px solid #E5E7EB;">${booking.guests}</td></tr>
+      <tr><td style="font-weight:bold;border-bottom:1px solid #E5E7EB;">Booking Status</td><td style="border-bottom:1px solid #E5E7EB;">${booking.status}</td></tr>
+      <tr><td style="font-weight:bold;border-bottom:1px solid #E5E7EB;">Special Requests</td><td style="border-bottom:1px solid #E5E7EB;">${booking.notes || 'None'}</td></tr>
+    </table>
+    <br/>
+    <div style="text-align:center;">
+      <a href="${portalUrl}" style="display:inline-block;background:${BRAND_NAVY};color:${BRAND_GOLD};padding:14px 24px;border-radius:8px;text-decoration:none;font-weight:bold;">View Booking</a>
+    </div>
+  `;
+  return sendEmail({ to, subject, html });
+}
+
+export async function sendOwnerRequiresApprovalEmail(booking: any) {
+  const to = "info@bostonlegendicecreamtruck.com";
+  const portalUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.bostonlegendicecreamtruck.com'}/admin/bookings/${booking.id}`;
+  const subject = `Booking Awaiting Approval`;
+  const html = `
+    <h2 style="color:${BRAND_NAVY};margin-top:0;">Booking Awaiting Approval</h2>
+    <p>The following booking requires manual approval:</p>
+    <table width="100%" cellpadding="8" cellspacing="0" style="border-collapse:collapse;font-size:15px;color:#374151;">
+      <tr><td width="35%" style="font-weight:bold;border-bottom:1px solid #E5E7EB;">Customer Name</td><td style="border-bottom:1px solid #E5E7EB;">${booking.customer?.firstName} ${booking.customer?.lastName}</td></tr>
+      <tr><td style="font-weight:bold;border-bottom:1px solid #E5E7EB;">Date</td><td style="border-bottom:1px solid #E5E7EB;">${formatEventDate(booking.eventDate)}</td></tr>
+      <tr><td style="font-weight:bold;border-bottom:1px solid #E5E7EB;">Time</td><td style="border-bottom:1px solid #E5E7EB;">${booking.startTime}</td></tr>
+      <tr><td style="font-weight:bold;border-bottom:1px solid #E5E7EB;">Package</td><td style="border-bottom:1px solid #E5E7EB;">${booking.package?.name || 'Custom Package'}</td></tr>
+      <tr><td style="font-weight:bold;border-bottom:1px solid #E5E7EB;">Booking ID</td><td style="border-bottom:1px solid #E5E7EB;">${booking.bookingNumber}</td></tr>
+    </table>
+    <br/>
+    <div style="text-align:center;">
+      <a href="${portalUrl}" style="display:inline-block;background:${BRAND_NAVY};color:${BRAND_GOLD};padding:14px 24px;border-radius:8px;text-decoration:none;font-weight:bold;">Approve Booking</a>
+    </div>
+  `;
+  return sendEmail({ to, subject, html });
+}
+
+export async function sendOwnerLateBookingAlert(booking: any) {
+  const to = "info@bostonlegendicecreamtruck.com";
+  const portalUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.bostonlegendicecreamtruck.com'}/admin/bookings/${booking.id}`;
+  const subject = `URGENT – Last Minute Booking`;
+  const html = `
+    <h2 style="color:#DC2626;margin-top:0;">⚠️ URGENT – Last Minute Booking</h2>
+    <p>A booking was just created for an event starting in less than 24 hours.</p>
+    <table width="100%" cellpadding="10" cellspacing="0" style="border-collapse:collapse;font-size:15px;color:#374151;">
+      <tr><td width="35%" style="font-weight:bold;border-bottom:1px solid #E5E7EB;">Customer Name</td><td style="border-bottom:1px solid #E5E7EB;">${booking.customer?.firstName} ${booking.customer?.lastName}</td></tr>
+      <tr><td style="font-weight:bold;border-bottom:1px solid #E5E7EB;">Event Date</td><td style="border-bottom:1px solid #E5E7EB;">${formatEventDate(booking.eventDate)}</td></tr>
+      <tr><td style="font-weight:bold;border-bottom:1px solid #E5E7EB;">Start Time</td><td style="border-bottom:1px solid #E5E7EB;">${booking.startTime}</td></tr>
+      <tr><td style="font-weight:bold;border-bottom:1px solid #E5E7EB;">Location</td><td style="border-bottom:1px solid #E5E7EB;">${booking.address}, ${booking.city} ${booking.zip}</td></tr>
+      <tr><td style="font-weight:bold;border-bottom:1px solid #E5E7EB;">Package</td><td style="border-bottom:1px solid #E5E7EB;">${booking.package?.name || 'Custom Package'}</td></tr>
+      <tr><td style="font-weight:bold;border-bottom:1px solid #E5E7EB;">Booking ID</td><td style="border-bottom:1px solid #E5E7EB;">${booking.bookingNumber}</td></tr>
+      <tr><td style="font-weight:bold;border-bottom:1px solid #E5E7EB;">Status</td><td style="border-bottom:1px solid #E5E7EB;">${booking.status}</td></tr>
+    </table>
+    <br/>
+    <div style="text-align:center;">
+      <a href="${portalUrl}" style="display:inline-block;background:#DC2626;color:#FFFFFF;padding:14px 24px;border-radius:8px;text-decoration:none;font-weight:bold;">View Urgent Booking</a>
+    </div>
+  `;
+  return sendEmail({ to, subject, html });
+}
+
+export async function sendOwnerEventReminderEmail(booking: any) {
+  const to = "info@bostonlegendicecreamtruck.com";
+  const portalUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.bostonlegendicecreamtruck.com'}/admin/bookings/${booking.id}`;
+  const subject = `Upcoming Event Tomorrow`;
+  const html = `
+    <h2 style="color:${BRAND_NAVY};margin-top:0;">Upcoming Event Tomorrow</h2>
+    <p>This is a 24-hour reminder for the following upcoming event:</p>
+    <table width="100%" cellpadding="8" cellspacing="0" style="border-collapse:collapse;font-size:15px;color:#374151;">
+      <tr><td width="35%" style="font-weight:bold;border-bottom:1px solid #E5E7EB;">Customer Name</td><td style="border-bottom:1px solid #E5E7EB;">${booking.customer?.firstName} ${booking.customer?.lastName}</td></tr>
+      <tr><td style="font-weight:bold;border-bottom:1px solid #E5E7EB;">Date</td><td style="border-bottom:1px solid #E5E7EB;">${formatEventDate(booking.eventDate)}</td></tr>
+      <tr><td style="font-weight:bold;border-bottom:1px solid #E5E7EB;">Time</td><td style="border-bottom:1px solid #E5E7EB;">${booking.startTime}</td></tr>
+      <tr><td style="font-weight:bold;border-bottom:1px solid #E5E7EB;">Address</td><td style="border-bottom:1px solid #E5E7EB;">${booking.address}, ${booking.city} ${booking.zip}</td></tr>
+      <tr><td style="font-weight:bold;border-bottom:1px solid #E5E7EB;">Package</td><td style="border-bottom:1px solid #E5E7EB;">${booking.package?.name || 'Custom Package'}</td></tr>
+    </table>
+    <br/>
+    <div style="text-align:center;">
+      <a href="${portalUrl}" style="display:inline-block;background:${BRAND_NAVY};color:${BRAND_GOLD};padding:14px 24px;border-radius:8px;text-decoration:none;font-weight:bold;">Review Booking Details</a>
+    </div>
+  `;
+  return sendEmail({ to, subject, html });
+}

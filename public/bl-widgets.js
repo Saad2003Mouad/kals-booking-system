@@ -1,5 +1,5 @@
 /**
- * Boston Legend – Shared Widget Injector v6
+ * Boston Legend – Shared Widget Injector v8
  * Injects: Sign In button into the Webflow nav + AI Chat Concierge widget
  * Loaded by all static public HTML pages
  */
@@ -482,20 +482,24 @@
         a.textContent = item[1];
         a.addEventListener('click', function(e) {
           e.preventDefault();
+          e.stopImmediatePropagation();
           e.stopPropagation();
+          var dest = a.href;
           closeNav();
-          setTimeout(function() { window.location.href = a.href; }, 50);
-        });
+          setTimeout(function() { window.location.href = dest; }, 80);
+        }, true);
         panel.appendChild(a);
       });
       occasionsWrapper.appendChild(panel);
 
       occasionsToggle.addEventListener('click', function(e) {
+        e.stopImmediatePropagation();
         e.stopPropagation();
+        if (window.innerWidth >= 992) return;
         var open = panel.classList.contains('open');
         panel.classList.toggle('open', !open);
         arrow.classList.toggle('open', !open);
-      });
+      }, true);
     }
 
     function openNav() {
@@ -518,28 +522,46 @@
       }
     }
 
+    // Hamburger — capture phase beats Webflow.js
     btn.addEventListener('click', function(e) {
+      e.stopImmediatePropagation();
       e.stopPropagation();
       if (btn.classList.contains('w--open')) { closeNav(); } else { openNav(); }
     }, true);
 
     closeBtnEl.addEventListener('click', function(e) {
+      e.stopImmediatePropagation();
       e.stopPropagation();
       closeNav();
-    });
+    }, true);
 
     backdrop.addEventListener('click', closeNav);
 
+    // Nav links — capture phase + stopImmediatePropagation ensures we beat Webflow.js
+    // on ALL static Webflow pages (index.html, about.html, cities/*, blog/*, etc.)
     menu.querySelectorAll('.nav-link.w-nav-link, .bl-mob-signin').forEach(function(link) {
+      // Click handler (desktop + Android)
       link.addEventListener('click', function(e) {
         e.preventDefault();
+        e.stopImmediatePropagation();
         e.stopPropagation();
-        closeNav();
         var href = link.getAttribute('href');
+        closeNav();
         if (href && href !== '#' && href !== '') {
-          setTimeout(function() { window.location.href = href; }, 50);
+          setTimeout(function() { window.location.href = href; }, 80);
         }
-      });
+      }, true); // capture=true — fires BEFORE Webflow.js bubble handlers
+
+      // touchend handler for iOS Safari (prevents ghost-click issues)
+      link.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        var href = link.getAttribute('href');
+        closeNav();
+        if (href && href !== '#' && href !== '') {
+          setTimeout(function() { window.location.href = href; }, 80);
+        }
+      }, { capture: true, passive: false });
     });
   }
 

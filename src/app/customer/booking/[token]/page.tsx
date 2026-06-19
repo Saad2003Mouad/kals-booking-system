@@ -621,7 +621,7 @@ export default function CustomerBookingPortal({ params }: { params: { token: str
               <p className="text-xs font-bold text-white/80 mb-2 leading-relaxed">Our team will reach out via WhatsApp to finalize your custom quote:</p>
               {[
                 { num: "617-999-3803", wa: "16179993803" },
-                { num: "617-866-2727", wa: "16178662727" }
+                { num: "617-999-3803", wa: "16179993803" }
               ].map(({ num, wa }) => (
                 <a key={wa} href={getWhatsAppUrl(wa)} target="_blank" rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg font-bold text-sm text-[#000223] bg-white hover:bg-[#FFA000] transition-all shadow-sm">

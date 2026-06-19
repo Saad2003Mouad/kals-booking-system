@@ -1,7 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { evaluateBooking } from "@/lib/aiEngine";
-import { sendBookingPendingEmail, sendBookingApprovedEmail, sendBookingPendingReviewEmail, sendCustomQuoteEmail } from "@/lib/email";
+import { 
+  sendBookingPendingEmail, 
+  sendBookingApprovedEmail, 
+  sendBookingPendingReviewEmail, 
+  sendCustomQuoteEmail,
+  sendOwnerNewBookingEmail,
+  sendOwnerRequiresApprovalEmail,
+  sendOwnerLateBookingAlert
+} from "@/lib/email";
 import { calculateQuote } from "@/lib/pricing";
 import { googleCalendarService } from "@/lib/google-calendar";
 import { z } from "zod";
@@ -429,6 +437,48 @@ export async function POST(req: NextRequest) {
       }
     } catch (emailErr) {
       console.error("[Email Send Error]", emailErr);
+    }
+
+    // ── 9. Send Owner Notifications ───────────────────────────
+    try {
+      const fullBookingForOwner = await prisma.booking.findUnique({
+        where: { id: booking.id },
+        include: { customer: true, package: true, quote: true, stops: true },
+      });
+      if (fullBookingForOwner) {
+        // A) New Booking Created
+        await sendOwnerNewBookingEmail(fullBookingForOwner);
+
+        // B) Booking Requires Owner Approval
+        if (status === "PENDING_REVIEW" || status === "PENDING" || isCustomPackage) {
+          await sendOwnerRequiresApprovalEmail(fullBookingForOwner);
+        }
+
+        // D) Late Booking Alert
+        try {
+          const eventDateObj = new Date(fullBookingForOwner.eventDate);
+          const startMatch = fullBookingForOwner.startTime?.match(/(\d+):(\d+)\s*(AM|PM)/i);
+          if (startMatch) {
+            let hours = parseInt(startMatch[1]);
+            const mins = parseInt(startMatch[2]);
+            const ampm = startMatch[3].toUpperCase();
+            if (ampm === "PM" && hours < 12) hours += 12;
+            if (ampm === "AM" && hours === 12) hours = 0;
+            
+            // Set the time on the event date
+            eventDateObj.setHours(hours, mins, 0, 0);
+            
+            const hoursUntilEvent = (eventDateObj.getTime() - Date.now()) / (1000 * 60 * 60);
+            if (hoursUntilEvent < 24 && hoursUntilEvent > 0) {
+              await sendOwnerLateBookingAlert(fullBookingForOwner);
+            }
+          }
+        } catch (timeErr) {
+          console.error("[Owner Email] Time parse error for late booking alert:", timeErr);
+        }
+      }
+    } catch (ownerEmailErr) {
+      console.error("[Owner Email Send Error]", ownerEmailErr);
     }
 
     return NextResponse.json({
