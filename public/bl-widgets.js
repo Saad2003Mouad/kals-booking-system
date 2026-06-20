@@ -541,18 +541,25 @@
 
     backdrop.addEventListener('click', closeNav);
 
-    // Nav links — let the browser natively navigate! We just close the menu.
-    // Clone the nodes to remove Webflow's event listeners which call preventDefault()
-    var links = menu.querySelectorAll('.nav-link.w-nav-link, .bl-mob-signin');
+    // Nav links — Force navigation via JS to bypass Webflow preventDefault
+    var links = menu.querySelectorAll('.nav-link.w-nav-link, .bl-mob-signin, .bl-occasions-panel a');
     links.forEach(function(link) {
       var clone = link.cloneNode(true);
       link.parentNode.replaceChild(clone, link);
       
       clone.addEventListener('click', function(e) {
-        // Just close the nav visually. DO NOT prevent default.
+        e.preventDefault();
+        e.stopImmediatePropagation();
         closeNav();
         document.body.style.overflow = '';
         document.body.style.position = '';
+        
+        var href = clone.getAttribute('href');
+        if (href && href !== '#' && href !== '') {
+          setTimeout(function() {
+            window.location.assign(href);
+          }, 50);
+        }
       });
     });
   }

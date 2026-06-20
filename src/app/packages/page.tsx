@@ -156,7 +156,7 @@ export default function PackagesPage() {
 function PackageCard({ pkg }: { pkg: Package }) {
   const isCustom = pkg.slug === "custom-event-package";
   return (
-    <div className="bg-white rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] transition-all duration-300 flex flex-col hover:-translate-y-1 relative group">
+    <div className="bg-white rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] transition-all duration-300 flex flex-col hover:-translate-y-1 relative group w-full mx-auto max-w-[400px] md:max-w-none">
       {pkg.badge && (
         <div className="absolute top-4 right-4 z-10">
           <span className="bg-[#000223] text-[#FFA000] text-xs font-black uppercase tracking-wider py-1.5 px-3 rounded-full shadow-lg border border-[#FFA000]/20">

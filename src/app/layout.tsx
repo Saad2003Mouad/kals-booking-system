@@ -332,6 +332,8 @@ export default function RootLayout({
         />
         {/* Swiper CSS for brand marquee on all pages */}
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+        {/* Webflow Global Shared CSS to fix missing footer and layout styling on Next.js routes */}
+        <link rel="stylesheet" href="https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/css/boston-legend.webflow.shared.fe0e6a837.min.css" />
       </head>
       <body
         className={`${sans.variable} ${playfair.variable} antialiased font-sans bg-amber-50 page`}
