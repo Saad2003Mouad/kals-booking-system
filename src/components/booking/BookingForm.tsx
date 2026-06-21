@@ -56,7 +56,6 @@ const F_SERIF = "var(--font-playfair), 'Playfair Display', serif";
 
 // ─── Shared Premium UI Components ─────────────────────────────────────────────
 
-/** Floating label input field — modern underline style */
 function PremiumInput({
   label,
   value,
@@ -83,31 +82,29 @@ function PremiumInput({
 
   return (
     <div className="relative w-full group">
-      {/* Floating container */}
       <div
         className="relative w-full transition-all duration-300"
         style={{
           background: focused
             ? "rgba(255,255,255,0.97)"
             : error
-            ? "rgba(255,240,240,0.90)"
-            : "rgba(255,255,255,0.82)",
+              ? "rgba(255,240,240,0.90)"
+              : "rgba(255,255,255,0.82)",
           borderRadius: 18,
           border: focused
             ? `2px solid ${GOLD}`
             : error
-            ? "2px solid rgba(220,38,38,0.5)"
-            : "2px solid rgba(0,2,35,0.10)",
+              ? "2px solid rgba(220,38,38,0.5)"
+              : "2px solid rgba(0,2,35,0.10)",
           boxShadow: focused
             ? `0 0 0 5px rgba(255,160,0,0.13), 0 8px 32px rgba(0,0,0,0.05)`
             : error
-            ? "0 0 0 4px rgba(220,38,38,0.07)"
-            : "0 2px 10px rgba(0,0,0,0.04)",
+              ? "0 0 0 4px rgba(220,38,38,0.07)"
+              : "0 2px 10px rgba(0,0,0,0.04)",
           backdropFilter: "blur(16px)",
           transition: "all 0.25s cubic-bezier(.4,0,.2,1)"
         }}
       >
-        {/* Icon */}
         {Icon && (
           <div
             className="absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none transition-all duration-300"
@@ -116,7 +113,6 @@ function PremiumInput({
             <Icon className="w-5 h-5" />
           </div>
         )}
-        {/* Floating Label */}
         <label
           className="absolute pointer-events-none font-black tracking-wide transition-all duration-200 select-none"
           style={{
@@ -133,7 +129,6 @@ function PremiumInput({
         >
           {label}
         </label>
-        {/* Actual Input */}
         <input
           type={type}
           value={value}
@@ -158,7 +153,6 @@ function PremiumInput({
           autoComplete="off"
         />
       </div>
-      {/* Helper / Error */}
       {error ? (
         <p className="flex items-center gap-1.5 mt-2 ml-1 text-red-700 font-bold text-sm" style={{ fontFamily: FN }}>
           <AlertCircle className="w-4 h-4 shrink-0" /> {error}
@@ -172,7 +166,6 @@ function PremiumInput({
   );
 }
 
-/** Floating label select — matching style */
 function PremiumSelect({
   label,
   value,
@@ -203,19 +196,19 @@ function PremiumSelect({
           background: focused
             ? "rgba(255,255,255,0.97)"
             : error
-            ? "rgba(255,240,240,0.90)"
-            : "rgba(255,255,255,0.82)",
+              ? "rgba(255,240,240,0.90)"
+              : "rgba(255,255,255,0.82)",
           borderRadius: 18,
           border: focused
             ? `2px solid ${GOLD}`
             : error
-            ? "2px solid rgba(220,38,38,0.5)"
-            : "2px solid rgba(0,2,35,0.10)",
+              ? "2px solid rgba(220,38,38,0.5)"
+              : "2px solid rgba(0,2,35,0.10)",
           boxShadow: focused
             ? `0 0 0 5px rgba(255,160,0,0.13), 0 8px 32px rgba(0,0,0,0.05)`
             : error
-            ? "0 0 0 4px rgba(220,38,38,0.07)"
-            : "0 2px 10px rgba(0,0,0,0.04)",
+              ? "0 0 0 4px rgba(220,38,38,0.07)"
+              : "0 2px 10px rgba(0,0,0,0.04)",
           backdropFilter: "blur(16px)",
           transition: "all 0.25s cubic-bezier(.4,0,.2,1)"
         }}
@@ -228,7 +221,6 @@ function PremiumSelect({
             <Icon className="w-5 h-5" />
           </div>
         )}
-        {/* Floating Label */}
         <label
           className="absolute pointer-events-none font-black tracking-wide transition-all duration-200 select-none"
           style={{
@@ -270,13 +262,12 @@ function PremiumSelect({
             </option>
           ))}
         </select>
-        {/* Custom chevron */}
         <div
           className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none transition-transform duration-300"
           style={{ transform: focused ? "translateY(-50%) rotate(180deg)" : "translateY(-50%)" }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={focused ? GOLD : error ? "#EF4444" : "#94A3B8"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="6 9 12 15 18 9"/>
+            <polyline points="6 9 12 15 18 9" />
           </svg>
         </div>
       </div>
@@ -298,10 +289,10 @@ function PackageCardHeader({ imageUrl, serviceType, name }: { imageUrl?: string 
 
   if (imageUrl && !imgErr) {
     return (
-      <div className="h-44 w-full relative overflow-hidden bg-slate-100">
-        <img 
-          src={imageUrl} 
-          alt={name} 
+      <div className="h-40 sm:h-44 w-full relative overflow-hidden bg-slate-100">
+        <img
+          src={imageUrl}
+          alt={name}
           onError={() => setImgErr(true)}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
@@ -311,8 +302,8 @@ function PackageCardHeader({ imageUrl, serviceType, name }: { imageUrl?: string 
   }
 
   return (
-    <div 
-      className="h-44 w-full relative overflow-hidden flex flex-col justify-between p-5"
+    <div
+      className="h-40 sm:h-44 w-full relative overflow-hidden flex flex-col justify-between p-4 sm:p-5"
       style={{
         background: "linear-gradient(135deg, #000223 0%, #17193d 100%)",
       }}
@@ -320,20 +311,20 @@ function PackageCardHeader({ imageUrl, serviceType, name }: { imageUrl?: string 
       <div className="absolute inset-0 opacity-15 pointer-events-none overflow-hidden">
         <div className="absolute -top-10 -right-10 w-36 h-36 rounded-full border-[5px] border-[#FFA000] opacity-35" />
         <div className="absolute -bottom-8 -left-8 w-24 h-24 rounded-full border-[3px] border-[#FFA000] opacity-25" />
-        <div 
-          className="absolute inset-0" 
+        <div
+          className="absolute inset-0"
           style={{
             backgroundImage: "radial-gradient(#FFA000 1.5px, transparent 1.5px)",
             backgroundSize: "14px 14px",
             opacity: 0.20
-          }} 
+          }}
         />
       </div>
-      
-      <div className="flex justify-between items-start relative z-10">
-        <span className="text-4xl filter drop-shadow-md select-none">{icon}</span>
-        <span 
-          className="text-[9px] font-black tracking-widest uppercase py-1 px-2.5 rounded-full border"
+
+      <div className="flex justify-between items-start relative z-10 gap-2">
+        <span className="text-3xl sm:text-4xl filter drop-shadow-md select-none">{icon}</span>
+        <span
+          className="text-[8px] sm:text-[9px] font-black tracking-widest uppercase py-1 px-2 rounded-full border text-center leading-tight"
           style={{
             borderColor: "rgba(255, 160, 0, 0.4)",
             background: "rgba(0, 2, 35, 0.65)",
@@ -345,44 +336,9 @@ function PackageCardHeader({ imageUrl, serviceType, name }: { imageUrl?: string 
       </div>
 
       <div className="relative z-10">
-        <p className="text-white/40 text-[9px] font-black uppercase tracking-wider mb-0.5">Boston Legend Experience</p>
-        <h4 className="text-white text-base font-black tracking-tight" style={{ fontFamily: F_SERIF }}>{name}</h4>
+        <p className="text-white/40 text-[8px] sm:text-[9px] font-black uppercase tracking-wider mb-0.5">Boston Legend</p>
+        <h4 className="text-white text-sm sm:text-base font-black tracking-tight leading-tight line-clamp-1" style={{ fontFamily: F_SERIF }}>{name}</h4>
       </div>
-    </div>
-  );
-}
-
-/** Legacy wrapper — kept to avoid refactoring all call sites */
-function Field({
-  label,
-  helper,
-  error,
-  children
-}: {
-  label: string;
-  helper?: string;
-  error?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex flex-col gap-2 w-full">
-      <label
-        className="block text-xs font-black uppercase tracking-[0.18em]"
-        style={{ color: NAVY, opacity: 0.7, fontFamily: FN }}
-      >
-        {label}
-      </label>
-      {children}
-      {error && (
-        <p className="text-red-700 text-sm font-bold flex items-center gap-1.5 mt-1">
-          <AlertCircle className="w-4 h-4" /> {error}
-        </p>
-      )}
-      {!error && helper && (
-        <p className="text-sm font-semibold leading-relaxed text-slate-500 mt-1" style={{ fontFamily: FN }}>
-          {helper}
-        </p>
-      )}
     </div>
   );
 }
@@ -445,7 +401,6 @@ const EVENT_TYPES = [
   "Other"
 ];
 const STEPS = ["Package", "Event Details", "Contact", "Verify", "Review"];
-const STEP_ICONS = ["🎁", "📅", "👤", "🔐", "✅"];
 
 export default function BookingForm() {
   const wizardTopRef = useRef<HTMLDivElement>(null);
@@ -470,7 +425,7 @@ export default function BookingForm() {
     TRUCK: [],
     VAN: []
   });
-  const [pkgTab, setPkgTab] = useState<"TRUCK"|"VAN">("TRUCK");
+  const [pkgTab, setPkgTab] = useState<"TRUCK" | "VAN">("TRUCK");
   const [sel, setSel] = useState<Pkg | null>(null);
   const [eventDate, setEventDate] = useState("");
   const [startTime, setStartTime] = useState("");
@@ -482,7 +437,6 @@ export default function BookingForm() {
   const [city, setCity] = useState("");
   const [cityErr, setCityErr] = useState("");
   const [notes, setNotes] = useState("");
-  const extraServings = "0"; // legacy — extra guests handled by extraGuestPrice from package
   const [firstName, setFirst] = useState("");
   const [lastName, setLast] = useState("");
   const [email, setEmail] = useState("");
@@ -508,7 +462,6 @@ export default function BookingForm() {
   const [emailErr, setEmailErr] = useState("");
   const [serviceZones, setServiceZones] = useState<{ zip: string; city: string }[]>([]);
   const [phoneFocused, setPhoneFocused] = useState(false);
-  const [hasMultipleLocations, setHasMultipleLocations] = useState(false);
   const [extraServiceMins, setExtraServiceMins] = useState(0);
   const [customPkg, setCustomPkg] = useState<Pkg | null>(null);
   const [customGuestCount, setCustomGuestCount] = useState<number | "">(250);
@@ -520,11 +473,11 @@ export default function BookingForm() {
     const guestNum = b ? ((b as any).guests || customGuestCount || 201) : (customGuestCount || 201);
     const duration = sel?.slug === "custom-event-package" ? "Flexible/Custom" : `${(sel as any)?.durationMins ?? sel?.includedMinutes ?? 60} mins`;
     const primaryAddr = primaryLoc.formattedAddress || `${address}, ${primaryLoc.city}, MA ${primaryLoc.zipCode}`;
-    const stopsList = bookingStops.length > 0 
-      ? bookingStops.map((s: any, i: number) => `Stop ${i+2}: ${s.formattedAddress || s.street}`).join(", ")
+    const stopsList = bookingStops.length > 0
+      ? bookingStops.map((s: any, i: number) => `Stop ${i + 2}: ${s.formattedAddress || s.street}`).join(", ")
       : "None";
     const travelDist = drivingMiles ? `${drivingMiles.toFixed(1)} miles` : "Calculating...";
-    
+
     const msg = `Hello! I just submitted a Custom Quote request. Here are the event details:
 - Name: ${firstName} ${lastName}
 - Email: ${email}
@@ -621,7 +574,7 @@ export default function BookingForm() {
     setDMiles(totalDist);
     setMapFee(fee);
   }, [primaryLoc, bookingStops, locationMode]);
- 
+
   useEffect(() => {
     fetch("/api/packages")
       .then((r) => r.json())
@@ -654,7 +607,7 @@ export default function BookingForm() {
         if (d?.data?.length)
           setServiceZones(d.data.map((z: any) => ({ zip: z.zip, city: z.city })));
       })
-      .catch(() => {});
+      .catch(() => { });
   }, [packageParamId]);
 
   useEffect(() => {
@@ -668,7 +621,6 @@ export default function BookingForm() {
     setCity(c);
     if (z) setLocationErr("");
     if (c) setCityErr("");
-    // Sync to primaryLoc as well to avoid duplicates
     setPrimaryLoc((prev: any) => ({ ...prev, zipCode: z, city: c }));
   }, []);
 
@@ -710,7 +662,6 @@ export default function BookingForm() {
     setQuoting(true);
     setQuoteErr("");
 
-    // Custom Event Package: validate and skip quote API, go straight to contact step
     const isCustom = sel?.slug === "custom-event-package" || (sel as any)?.serviceType === "CUSTOM";
     if (isCustom) {
       if (customGuestCount === "" || customGuestCount <= 200) {
@@ -724,14 +675,13 @@ export default function BookingForm() {
       return;
     }
 
-    // Duration comes from the package, NOT from user input
     const pkgDuration = (sel as any)?.durationMins ?? sel?.includedMinutes ?? 60;
     const payload = {
       packageId: sel?.id,
       zip: primaryLoc.zipCode,
       address: primaryLoc.street || address,
       city: primaryLoc.city || city,
-      guests: additionalGuests,           // only extra guests beyond included
+      guests: additionalGuests,
       durationMins: pkgDuration,
       distanceMiles: drivingMiles,
       additionalStops: bookingStops.length,
@@ -779,7 +729,7 @@ export default function BookingForm() {
       setSubmitting(false);
       return;
     }
-    
+
     if (locationMode !== "SINGLE_LOCATION" && bookingStops.length > 0) {
       for (let i = 0; i < bookingStops.length; i++) {
         const stop = bookingStops[i];
@@ -807,7 +757,7 @@ export default function BookingForm() {
     const cleanPhone = toEnNum(phone).replace(/[^\d+\-\s()]/g, "");
     const pkgDuration = isCustom ? 30 : ((sel as any)?.durationMins ?? sel?.includedMinutes ?? 60);
     const payload = {
-      packageId: sel?.slug ?? sel?.id,   // send slug to allow server OR lookup by id/slug
+      packageId: sel?.slug ?? sel?.id,
       eventDate: toEnNum(eventDate),
       startTime: toEnNum(startTime),
       durationMins: pkgDuration,
@@ -905,7 +855,6 @@ export default function BookingForm() {
         <div className="min-h-[60vh] flex items-center justify-center py-16 px-6" style={{ fontFamily: FN }}>
           <div className="max-w-lg w-full">
             <div className="rounded-3xl border-2 border-amber-300/60 overflow-hidden" style={{ background: "rgba(255,255,255,0.90)", backdropFilter: "blur(24px)" }}>
-              {/* Top Banner */}
               <div className="px-5 py-6 sm:px-8 sm:py-7" style={{ background: isCustomQuoteResult ? "linear-gradient(135deg, #000223 0%, #001a4c 100%)" : "linear-gradient(135deg, #FF8C00 0%, #FFA500 100%)" }}>
                 <div className="flex items-center justify-between">
                   <div>
@@ -976,8 +925,6 @@ export default function BookingForm() {
       <div className="min-h-[60vh] flex items-center justify-center py-16 px-4 sm:px-6" style={{ fontFamily: FN }}>
         <div className="max-w-lg w-full">
           <div className="rounded-3xl overflow-hidden" style={{ boxShadow: "0 32px 80px rgba(0,0,0,0.12), 0 4px 20px rgba(0,0,0,0.06)" }}>
-
-            {/* —— Top Ticket Header —— */}
             <div style={{ background: `linear-gradient(135deg, ${NAVY} 0%, #001060 100%)`, padding: "2.5rem 2rem 2rem" }}>
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -985,22 +932,18 @@ export default function BookingForm() {
                     <CheckCircle2 className="w-5 h-5" style={{ color: GOLD }} />
                     <span className="font-black text-xs uppercase tracking-[0.22em]" style={{ color: GOLD }}>Booking Confirmed</span>
                   </div>
-                  <h2 className="text-3xl sm:text-4xl font-black text-white leading-tight" style={{ fontFamily: F_SERIF }}>Your Experience<br/>is Reserved 🍦</h2>
+                  <h2 className="text-3xl sm:text-4xl font-black text-white leading-tight" style={{ fontFamily: F_SERIF }}>Your Experience<br />is Reserved 🍦</h2>
                 </div>
                 <div className="text-5xl sm:text-6xl">🎉</div>
               </div>
             </div>
 
-            {/* —— Booking Number Strip —— */}
             <div className="flex items-center justify-between px-6 py-4" style={{ background: GOLD }}>
               <span className="font-black text-xs uppercase tracking-[0.2em]" style={{ color: NAVY }}>Booking Reference</span>
               <span className="font-mono font-black text-lg" style={{ color: NAVY }}>#{booking?.bookingNumber}</span>
             </div>
 
-            {/* —— Card Body —— */}
             <div className="p-4 sm:p-8" style={{ background: "rgba(255,255,255,0.97)" }}>
-
-              {/* Amount Row */}
               <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between p-4 sm:p-5 rounded-2xl mb-5" style={{ background: "rgba(0,2,35,0.03)", border: "2px solid rgba(0,2,35,0.07)" }}>
                 <div>
                   <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-400 mb-1">Estimated Total</p>
@@ -1013,7 +956,6 @@ export default function BookingForm() {
                 </div>
               </div>
 
-              {/* Details Grid */}
               <div className="grid grid-cols-2 gap-3 mb-5">
                 {[
                   { label: "Event Date", value: eventDate ? formatEnDate(eventDate) : "—" },
@@ -1028,7 +970,6 @@ export default function BookingForm() {
                 ))}
               </div>
 
-              {/* Steps */}
               <div className="space-y-3 mb-6">
                 {[
                   { emoji: "📧", title: "Confirmation Email Sent", sub: email },
@@ -1046,7 +987,6 @@ export default function BookingForm() {
                 ))}
               </div>
 
-              {/* CTA */}
               <a
                 href={result?.customerPortalUrl ?? `/customer/booking/${booking?.id}`}
                 className="flex items-center justify-center gap-2.5 w-full py-5 rounded-2xl font-black text-lg shadow-2xl hover:-translate-y-1 transition-all duration-300"
@@ -1075,15 +1015,12 @@ export default function BookingForm() {
 
   return (
     <div className="booking-wrapper w-full relative" style={{ fontFamily: FN }}>
-      {/* Scroll anchor */}
       <div ref={wizardTopRef} style={{ scrollMarginTop: "80px" }} />
       <div className="w-full relative z-10">
         <div className="backdrop-blur-2xl bg-white/75 border-2 border-white/60 shadow-2xl rounded-3xl p-4 sm:p-12 transition-all duration-300">
-          
+
           {/* ── PREMIUM STEPPER ── */}
           <div className="mb-10 sm:mb-14">
-
-            {/* Mobile stepper — progress capsule */}
             <div className="sm:hidden mb-8 bg-slate-50 border border-slate-200/60 rounded-2xl p-4 shadow-[inset_0_2px_4px_rgba(0,0,0,0.01)]">
               <div className="flex items-center justify-between mb-3.5">
                 <div className="flex items-center gap-2.5">
@@ -1114,12 +1051,10 @@ export default function BookingForm() {
               </div>
             </div>
 
-            {/* Desktop stepper — luxury horizontal journey rail */}
             <div className="hidden sm:flex items-center justify-between bg-slate-50/80 border border-slate-200/50 rounded-2xl p-2.5 w-full relative mb-2 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]">
               {STEPS.map((s, i) => {
                 const isActive = i === step;
                 const isCompleted = i < step;
-                
                 let stepIcon = "🍦";
                 if (i === 0) stepIcon = "🍦";
                 else if (i === 1) stepIcon = "📅";
@@ -1129,32 +1064,32 @@ export default function BookingForm() {
 
                 return (
                   <div key={i} className="flex-1 flex items-center relative">
-                    <div 
+                    <div
                       className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300"
                       style={
-                        isActive 
+                        isActive
                           ? {
-                              background: "white",
-                              boxShadow: "0 10px 25px -5px rgba(0,2,35,0.08), 0 8px 10px -6px rgba(0,2,35,0.05)",
-                              border: "1px solid rgba(0,2,35,0.06)",
-                            }
+                            background: "white",
+                            boxShadow: "0 10px 25px -5px rgba(0,2,35,0.08), 0 8px 10px -6px rgba(0,2,35,0.05)",
+                            border: "1px solid rgba(0,2,35,0.06)",
+                          }
                           : {}
                       }
                     >
-                      <div 
+                      <div
                         className="w-10 h-10 rounded-lg flex items-center justify-center text-lg transition-all duration-300 relative"
                         style={{
-                          background: isActive 
+                          background: isActive
                             ? "linear-gradient(135deg, #000223 0%, #1e214a 100%)"
-                            : isCompleted 
-                            ? "#ECFDF5" 
-                            : "rgba(0,2,35,0.03)",
+                            : isCompleted
+                              ? "#ECFDF5"
+                              : "rgba(0,2,35,0.03)",
                           color: isActive ? GOLD : isCompleted ? "#059669" : "#94A3B8"
                         }}
                       >
                         {isCompleted ? "✓" : stepIcon}
                         {isActive && (
-                          <span 
+                          <span
                             className="absolute -inset-1 rounded-lg animate-ping opacity-15"
                             style={{ background: GOLD }}
                           />
@@ -1162,7 +1097,7 @@ export default function BookingForm() {
                       </div>
 
                       <div className="flex flex-col">
-                        <span 
+                        <span
                           className="text-[8px] font-black uppercase tracking-widest"
                           style={{
                             color: isActive ? GOLD : isCompleted ? "#059669" : "#94A3B8"
@@ -1170,7 +1105,7 @@ export default function BookingForm() {
                         >
                           {isCompleted ? "Completed" : isActive ? "Active Step" : `Step 0${i + 1}`}
                         </span>
-                        <span 
+                        <span
                           className="text-xs font-black tracking-tight"
                           style={{
                             color: isActive ? NAVY : isCompleted ? "#10B981" : "#475569",
@@ -1209,42 +1144,40 @@ export default function BookingForm() {
                 </p>
               </div>
 
-              {/* Vehicle Type Tabs — premium pill switcher */}
-              <div className="grid grid-cols-2 gap-3 mb-10">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-8 sm:mb-10">
                 {(["TRUCK", "VAN"] as const).map((t) => (
                   <button
                     key={t}
                     onClick={() => { setPkgTab(t); setSel(null); }}
-                    className="relative py-4 sm:py-5 rounded-2xl font-black text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2 overflow-hidden"
+                    className="relative py-3 sm:py-5 px-2 sm:px-4 rounded-2xl font-black text-[11px] sm:text-base transition-all duration-300 flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 overflow-hidden"
                     style={
                       pkgTab === t
                         ? {
-                            background: `linear-gradient(135deg, ${NAVY} 0%, #001a4c 100%)`,
-                            color: GOLD,
-                            boxShadow: `0 10px 30px rgba(0,2,35,0.25), 0 0 0 3px rgba(255,160,0,0.25)`,
-                            border: `2px solid ${GOLD}`
-                          }
+                          background: `linear-gradient(135deg, ${NAVY} 0%, #001a4c 100%)`,
+                          color: GOLD,
+                          boxShadow: `0 10px 30px rgba(0,2,35,0.25), 0 0 0 3px rgba(255,160,0,0.25)`,
+                          border: `2px solid ${GOLD}`
+                        }
                         : {
-                            background: "rgba(255,255,255,0.8)",
-                            color: NAVY,
-                            border: "2px solid rgba(0,2,35,0.10)",
-                            boxShadow: "0 2px 8px rgba(0,0,0,0.04)"
-                          }
+                          background: "rgba(255,255,255,0.8)",
+                          color: NAVY,
+                          border: "2px solid rgba(0,2,35,0.10)",
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.04)"
+                        }
                     }
                   >
                     {pkgTab === t && (
                       <span className="absolute inset-0 opacity-10" style={{ background: "radial-gradient(circle at 30% 50%, #FFA000 0%, transparent 60%)" }} />
                     )}
-                    <span className="text-xl">{t === "TRUCK" ? "🚐" : "🚌"}</span>
-                    <span>{t === "TRUCK" ? "Americano Truck" : "Sprinter Van"}</span>
+                    <span className="text-2xl sm:text-xl">{t === "TRUCK" ? "🚐" : "🚌"}</span>
+                    <span className="text-center leading-tight">{t === "TRUCK" ? "Americano Truck" : "Sprinter Van"}</span>
                     {pkgTab === t && (
-                      <CheckCircle2 className="w-4 h-4 absolute top-2 right-2" style={{ color: GOLD, opacity: 0.8 }} />
+                      <CheckCircle2 className="w-4 h-4 absolute top-2 right-2 hidden sm:block" style={{ color: GOLD, opacity: 0.8 }} />
                     )}
                   </button>
                 ))}
               </div>
 
-              {/* Package Cards List */}
               <div className="mb-10">
                 {listPkgs.length === 0 ? (
                   <div className="text-center py-20 text-slate-400 bg-white/50 border-2 border-dashed border-slate-200 rounded-3xl">
@@ -1252,7 +1185,7 @@ export default function BookingForm() {
                     <p className="font-bold text-base sm:text-lg">Loading premium catering packages…</p>
                   </div>
                 ) : (
-                  <div className="flex flex-wrap justify-center gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 w-full">
                     {listPkgs.map((p: any) => {
                       const isSelected = sel?.id === p.id;
                       return (
@@ -1260,10 +1193,10 @@ export default function BookingForm() {
                           key={p.id}
                           onClick={() => setSel(p)}
                           type="button"
-                          className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] max-w-sm text-left transition-all duration-300 group focus:outline-none"
+                          className="w-full text-left transition-all duration-300 group focus:outline-none flex flex-col h-full"
                         >
                           <div
-                            className="relative flex flex-col h-full bg-white rounded-3xl overflow-hidden border-2 transition-all duration-300 hover:shadow-lg"
+                            className="w-full flex-1 flex flex-col bg-white rounded-3xl overflow-hidden border-2 transition-all duration-300 hover:shadow-lg relative"
                             style={{
                               borderColor: isSelected ? GOLD : "rgba(0, 2, 35, 0.08)",
                               boxShadow: isSelected
@@ -1272,7 +1205,6 @@ export default function BookingForm() {
                               transform: isSelected ? "translateY(-4px)" : "translateY(0)"
                             }}
                           >
-                            {/* Selected gold top strip */}
                             {isSelected && (
                               <div
                                 className="absolute top-0 left-0 right-0 h-1 z-20"
@@ -1280,7 +1212,6 @@ export default function BookingForm() {
                               />
                             )}
 
-                            {/* Badge Overlay */}
                             {p.badge && (
                               <div className="absolute top-4 right-4 z-10">
                                 <span className="bg-[#000223] text-[#FFA000] text-[9px] font-black uppercase tracking-wider py-1 px-2.5 rounded-full shadow border border-[#FFA000]/20">
@@ -1289,13 +1220,11 @@ export default function BookingForm() {
                               </div>
                             )}
 
-                            {/* Premium Header/Image with fallback */}
                             <PackageCardHeader imageUrl={p.imageUrl} serviceType={p.serviceType || p.type} name={p.name} />
 
-                            {/* Content body */}
-                            <div className="p-5 flex-1 flex flex-col justify-between">
+                            <div className="p-4 sm:p-5 flex-1 flex flex-col w-full">
                               <div>
-                                <h3 className="text-xl font-black text-[#000223] mb-3 leading-tight" style={{ fontFamily: F_SERIF }}>
+                                <h3 className="text-lg sm:text-xl font-black text-[#000223] mb-3 leading-tight" style={{ fontFamily: F_SERIF }}>
                                   {p.name}
                                 </h3>
 
@@ -1311,23 +1240,23 @@ export default function BookingForm() {
                                 </div>
                               </div>
 
-                              <div>
+                              <div className="mt-auto pt-4">
                                 <div className="mb-4">
                                   <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-50 border text-slate-500">
                                     ★ Extra guest: ${p.extraGuestPrice ?? p.extraPiecePrice ?? 5} / person
                                   </span>
                                 </div>
 
-                                <div className="pt-4 border-t border-dashed border-slate-100 flex items-center justify-between">
+                                <div className="pt-4 border-t border-dashed border-slate-100 flex flex-row items-center justify-between gap-2">
                                   <div>
-                                    <span className="text-2xl font-black text-[#000223]" style={{ fontFamily: F_SERIF }}>
+                                    <span className="text-xl sm:text-2xl font-black text-[#000223]" style={{ fontFamily: F_SERIF }}>
                                       ${p.basePrice || p.price}
                                     </span>
                                     <span className="text-[10px] text-slate-400 font-bold block leading-none mt-0.5">base price</span>
                                   </div>
 
-                                  <span 
-                                    className="px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all"
+                                  <span
+                                    className="px-3 sm:px-4 py-2 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-wider text-center transition-all min-w-[90px] sm:min-w-[100px]"
                                     style={{
                                       background: isSelected ? "#000223" : "rgba(0, 2, 35, 0.04)",
                                       color: isSelected ? GOLD : "#000223"
@@ -1342,100 +1271,94 @@ export default function BookingForm() {
                         </button>
                       );
                     })}
+                  </div>
+                )}
 
-                    {/* Custom Event Package — premium distinct full-width card in grid */}
-                    {customPkg && (
-                      <div className="w-full mt-4">
-                        {/* Section divider */}
-                        <div className="flex items-center gap-3 mb-6">
-                          <div className="h-px flex-1 bg-slate-200/80" />
-                          <span className="text-xs font-black uppercase tracking-[0.2em] px-4 py-1.5 rounded-full bg-slate-100 text-slate-500" style={{ fontFamily: FN }}>
-                            Large Events — 200+ Guests
-                          </span>
-                          <div className="h-px flex-1 bg-slate-200/80" />
+                {customPkg && (
+                  <div className="w-full mt-6 sm:mt-8">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="h-px flex-1 bg-slate-200/80" />
+                      <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] px-3 sm:px-4 py-1.5 rounded-full bg-slate-100 text-slate-500 text-center" style={{ fontFamily: FN }}>
+                        Large Events — 200+ Guests
+                      </span>
+                      <div className="h-px flex-1 bg-slate-200/80" />
+                    </div>
+
+                    <button
+                      onClick={() => setSel(customPkg)}
+                      type="button"
+                      className="w-full text-left transition-all duration-300 focus:outline-none"
+                    >
+                      <div
+                        className="relative flex flex-col md:flex-row rounded-3xl border-2 overflow-hidden transition-all duration-300 hover:shadow-lg w-full"
+                        style={{
+                          borderColor: sel?.id === customPkg.id ? GOLD : "rgba(0,2,35,0.12)",
+                          background: sel?.id === customPkg.id
+                            ? `linear-gradient(135deg, ${NAVY} 0%, #17193d 100%)`
+                            : `linear-gradient(135deg, rgba(0,2,35,0.02) 0%, rgba(255,253,245,0.8) 100%)`,
+                          boxShadow: sel?.id === customPkg.id
+                            ? `0 0 0 4px rgba(255,160,0,0.15), 0 16px 36px rgba(0,0,0,0.12)`
+                            : "0 4px 18px rgba(0,0,0,0.03)",
+                        }}
+                      >
+                        {sel?.id === customPkg.id && (
+                          <div
+                            className="absolute top-0 left-0 right-0 h-1 md:h-full md:w-1 z-20"
+                            style={{ background: `linear-gradient(90deg, ${GOLD}, #FFB800, ${GOLD})` }}
+                          />
+                        )}
+
+                        <div className="w-full md:w-80 shrink-0">
+                          <PackageCardHeader imageUrl={customPkg.imageUrl} serviceType="CUSTOM" name={customPkg.name} />
                         </div>
 
-                        <button
-                          onClick={() => setSel(customPkg)}
-                          type="button"
-                          className="w-full text-left transition-all duration-300 focus:outline-none"
-                        >
-                          <div
-                            className="relative flex flex-col md:flex-row rounded-3xl border-2 overflow-hidden transition-all duration-300 hover:shadow-lg"
-                            style={{
-                              borderColor: sel?.id === customPkg.id ? GOLD : "rgba(0,2,35,0.12)",
-                              background: sel?.id === customPkg.id
-                                ? `linear-gradient(135deg, ${NAVY} 0%, #17193d 100%)`
-                                : `linear-gradient(135deg, rgba(0,2,35,0.02) 0%, rgba(255,253,245,0.8) 100%)`,
-                              boxShadow: sel?.id === customPkg.id
-                                ? `0 0 0 4px rgba(255,160,0,0.15), 0 16px 36px rgba(0,0,0,0.12)`
-                                : "0 4px 18px rgba(0,0,0,0.03)",
-                            }}
-                          >
-                            {/* Selected top/left stripe */}
-                            {sel?.id === customPkg.id && (
-                              <div
-                                className="absolute top-0 left-0 right-0 h-1 md:h-full md:w-1 z-20"
-                                style={{ background: `linear-gradient(90deg, ${GOLD}, #FFB800, ${GOLD})` }}
-                              />
-                            )}
-
-                            {/* Left/Top header visual */}
-                            <div className="w-full md:w-80 shrink-0">
-                              <PackageCardHeader imageUrl={customPkg.imageUrl} serviceType="CUSTOM" name={customPkg.name} />
+                        <div className="flex-1 p-5 sm:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-5 sm:gap-6 w-full">
+                          <div className="space-y-3.5 flex-1 w-full">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3 className="text-lg sm:text-xl font-black tracking-tight" style={{ color: sel?.id === customPkg.id ? "white" : NAVY, fontFamily: F_SERIF }}>
+                                {customPkg.name}
+                              </h3>
+                              <span className="px-2.5 py-1 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider whitespace-nowrap" style={{ background: sel?.id === customPkg.id ? "rgba(255,160,0,0.2)" : "rgba(255,160,0,0.1)", color: sel?.id === customPkg.id ? GOLD : "#B45309" }}>
+                                200+ Guests
+                              </span>
                             </div>
-
-                            {/* Details (Right Side) */}
-                            <div className="flex-1 p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                              <div className="space-y-3.5 flex-1">
-                                <div className="flex items-center gap-2">
-                                  <h3 className="text-xl font-black tracking-tight" style={{ color: sel?.id === customPkg.id ? "white" : NAVY, fontFamily: F_SERIF }}>
-                                    {customPkg.name}
-                                  </h3>
-                                  <span className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider" style={{ background: sel?.id === customPkg.id ? "rgba(255,160,0,0.2)" : "rgba(255,160,0,0.1)", color: sel?.id === customPkg.id ? GOLD : "#B45309" }}>
-                                    200+ Guests
-                                  </span>
-                                </div>
-                                <p className="text-xs font-bold leading-relaxed max-w-lg" style={{ color: sel?.id === customPkg.id ? "rgba(255,255,255,0.7)" : "#475569" }}>
-                                  {customPkg.description || "Planning a larger celebration? Tell us about your event and our team will prepare a custom package and final quote for you."}
-                                </p>
-                                <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-xs font-bold" style={{ color: sel?.id === customPkg.id ? "rgba(255,255,255,0.6)" : "#64748B" }}>
-                                  <span className="flex items-center gap-1.5">👥 For large gatherings</span>
-                                  <span className="flex items-center gap-1.5">📋 Personal team review</span>
-                                  <span className="flex items-center gap-1.5">💬 WhatsApp chat quote</span>
-                                </div>
-                              </div>
-
-                              <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-4 border-t md:border-t-0 border-dashed w-full md:w-auto pt-4 md:pt-0" style={{ borderColor: sel?.id === customPkg.id ? "rgba(255,255,255,0.15)" : "rgba(0,2,35,0.1)" }}>
-                                <div className="text-left md:text-right">
-                                  <span className="block text-2.5xl font-black tracking-tight" style={{ color: sel?.id === customPkg.id ? GOLD : NAVY, fontFamily: F_SERIF }}>
-                                    Custom
-                                  </span>
-                                  <span className="block text-[10px] font-bold" style={{ color: sel?.id === customPkg.id ? "rgba(255,255,255,0.5)" : "#94A3B8" }}>
-                                    Pricing Quote
-                                  </span>
-                                </div>
-                                <span 
-                                  className="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all"
-                                  style={{
-                                    background: sel?.id === customPkg.id ? GOLD : "#000223",
-                                    color: sel?.id === customPkg.id ? NAVY : GOLD,
-                                  }}
-                                >
-                                  {sel?.id === customPkg.id ? "✓ Selected" : "Request Quote"}
-                                </span>
-                              </div>
+                            <p className="text-xs sm:text-sm font-bold leading-relaxed max-w-lg" style={{ color: sel?.id === customPkg.id ? "rgba(255,255,255,0.7)" : "#475569" }}>
+                              {customPkg.description || "Planning a larger celebration? Tell us about your event and our team will prepare a custom package and final quote for you."}
+                            </p>
+                            <div className="flex flex-wrap gap-x-4 sm:gap-x-5 gap-y-2 text-xs font-bold" style={{ color: sel?.id === customPkg.id ? "rgba(255,255,255,0.6)" : "#64748B" }}>
+                              <span className="flex items-center gap-1.5">👥 For large gatherings</span>
+                              <span className="flex items-center gap-1.5">📋 Personal team review</span>
+                              <span className="flex items-center gap-1.5">💬 WhatsApp chat quote</span>
                             </div>
                           </div>
-                        </button>
+
+                          <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto pt-4 sm:pt-0 border-t border-dashed sm:border-0" style={{ borderColor: sel?.id === customPkg.id ? "rgba(255,255,255,0.15)" : "rgba(0,2,35,0.1)" }}>
+                            <div className="text-left sm:text-right">
+                              <span className="block text-xl sm:text-2xl font-black tracking-tight" style={{ color: sel?.id === customPkg.id ? GOLD : NAVY, fontFamily: F_SERIF }}>
+                                Custom
+                              </span>
+                              <span className="block text-[10px] font-bold" style={{ color: sel?.id === customPkg.id ? "rgba(255,255,255,0.5)" : "#94A3B8" }}>
+                                Pricing Quote
+                              </span>
+                            </div>
+                            <span
+                              className="px-4 py-2 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-wider transition-all text-center min-w-[110px]"
+                              style={{
+                                background: sel?.id === customPkg.id ? GOLD : "#000223",
+                                color: sel?.id === customPkg.id ? NAVY : GOLD,
+                              }}
+                            >
+                              {sel?.id === customPkg.id ? "✓ Selected" : "Request Quote"}
+                            </span>
+                          </div>
+                        </div>
                       </div>
-                    )}
+                    </button>
                   </div>
                 )}
               </div>
 
-              {/* Action */}
-              <div className="flex justify-end">
+              <div className="flex justify-end mt-8">
                 <button
                   onClick={() => setStep(1)}
                   disabled={!sel}
@@ -1486,7 +1409,6 @@ export default function BookingForm() {
                   error={startTimeErr}
                 />
 
-                {/* Weekend Notice */}
                 {(() => {
                   if (!eventDate) return null;
                   const date = new Date(eventDate + "T12:00:00");
@@ -1510,7 +1432,6 @@ export default function BookingForm() {
                   return null;
                 })()}
 
-                {/* Multiple Trucks Notice */}
                 <div className="md:col-span-2 bg-purple-50/70 border-2 border-purple-200 rounded-3xl p-6 flex items-center gap-4.5 shadow-sm">
                   <span className="text-3xl">🚐</span>
                   <div>
@@ -1523,7 +1444,6 @@ export default function BookingForm() {
                   </div>
                 </div>
 
-                {/* Package duration info banner */}
                 <div className="md:col-span-2 bg-amber-50/70 border-2 border-amber-200 rounded-3xl p-6 flex items-center gap-4.5 shadow-sm">
                   <span className="text-3xl">⏱️</span>
                   <div>
@@ -1536,7 +1456,6 @@ export default function BookingForm() {
                   </div>
                 </div>
 
-                {/* Optional Additional Guests stepper OR Custom Guest Count Input */}
                 <div className="md:col-span-2">
                   {isCustom ? (
                     <div>
@@ -1569,7 +1488,6 @@ export default function BookingForm() {
                         )}
                       </div>
 
-                      {/* Preferred Vehicle Type dropdown */}
                       <div className="mt-6">
                         <PremiumSelect
                           label="Preferred Vehicle Type"
@@ -1621,7 +1539,6 @@ export default function BookingForm() {
                   )}
                 </div>
 
-                {/* Additional Service Time selector */}
                 <div className="md:col-span-2">
                   <label className="block text-base font-black uppercase tracking-[0.18em] mb-1.5" style={{ color: NAVY, opacity: 0.95, fontFamily: FN }}>
                     Additional Service Time (Optional)
@@ -1674,8 +1591,6 @@ export default function BookingForm() {
                   />
                 </div>
 
-                
-
                 <div className="md:col-span-2">
                   <LocationVerificationWidget
                     label="Primary Event Setup Location"
@@ -1685,7 +1600,6 @@ export default function BookingForm() {
                   />
                 </div>
 
-                {/* Travel Distance Card / Notice */}
                 <div className="md:col-span-2 mt-2">
                   {primaryLoc.latitude !== null && primaryLoc.longitude !== null ? (
                     <div
@@ -1739,12 +1653,10 @@ export default function BookingForm() {
                   )}
                 </div>
 
-                {/* ─── Multi-Stop Section ─── */}
                 <div className="md:col-span-2 border-t-2 border-slate-200/50 pt-8 mt-6">
                   <label className="block text-base font-black text-[#000223] mb-2">
                     Will this event include more than one location?
                   </label>
-                  {/* $50/stop fee notice */}
                   <div className="flex items-start gap-3 p-4 rounded-2xl mb-5 border-2" style={{ background: "rgba(255,160,0,0.07)", borderColor: "rgba(255,160,0,0.35)" }}>
                     <span className="text-2xl shrink-0">💰</span>
                     <div>
@@ -1755,7 +1667,7 @@ export default function BookingForm() {
                   <p className="text-sm sm:text-base font-bold text-slate-600 mb-5">
                     Select a multi-location routing mode if you need catering services across multiple spots.
                   </p>
-                  
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                     {[
                       { mode: "SINGLE_LOCATION", title: "Single Location", desc: "No, one location only" },
@@ -1788,11 +1700,10 @@ export default function BookingForm() {
                               }]);
                             }
                           }}
-                          className={`p-5 rounded-2xl border-2 text-left transition-all backdrop-blur-sm ${
-                            isSel
+                          className={`p-5 rounded-2xl border-2 text-left transition-all backdrop-blur-sm ${isSel
                               ? "bg-amber-50/60 border-[#FFA000] shadow-md ring-2 ring-amber-100"
                               : "bg-white/60 border-slate-200 hover:bg-slate-50/60"
-                          }`}
+                            }`}
                         >
                           <div className="font-black text-base text-[#000223] mb-1">{opt.title}</div>
                           <div className="text-xs sm:text-sm text-slate-600 font-bold">{opt.desc}</div>
@@ -1815,7 +1726,7 @@ export default function BookingForm() {
                               Remove Stop
                             </button>
                           </div>
-                          
+
                           <LocationVerificationWidget
                             label={`Stop #${idx + 1} Address Details`}
                             value={stop}
@@ -1825,7 +1736,7 @@ export default function BookingForm() {
                               setBookingStops(newStops);
                             }}
                           />
-                          
+
                           <div>
                             <label className="block text-sm font-black text-slate-700 mb-1.5 uppercase tracking-wide">Stop Notes (Optional)</label>
                             <input
@@ -1901,21 +1812,21 @@ export default function BookingForm() {
                 <button
                   onClick={() => {
                     let hasErr = false;
-                    
+
                     if (!eventDate) {
                       setEventDateErr("Event date is required.");
                       hasErr = true;
                     } else {
                       setEventDateErr("");
                     }
-                    
+
                     if (!startTime) {
                       setStartTimeErr("Start time is required.");
                       hasErr = true;
                     } else {
                       setStartTimeErr("");
                     }
-                    
+
                     if (!eventType) {
                       setEventTypeErr("Event type is required.");
                       hasErr = true;
@@ -1951,7 +1862,6 @@ export default function BookingForm() {
                     }
 
                     if (hasErr) {
-                      // Show validation summary banner and scroll to it
                       setQuoteErr((prev) => prev || "Please complete the required fields before continuing.");
                       setTimeout(() => {
                         if (quoteValidationRef.current) {
@@ -2072,94 +1982,93 @@ export default function BookingForm() {
                   error={emailErr}
                 />
 
-              <div className="relative w-full">
-                <div
-                  className="relative w-full transition-all duration-300"
-                  style={{
-                    background: phoneFocused
-                      ? "rgba(255,255,255,0.97)"
-                      : phoneErr
-                      ? "rgba(255,240,240,0.90)"
-                      : "rgba(255,255,255,0.82)",
-                    borderRadius: 18,
-                    border: phoneFocused
-                      ? `2px solid ${GOLD}`
-                      : phoneErr
-                      ? "2px solid rgba(220,38,38,0.5)"
-                      : "2px solid rgba(0,2,35,0.10)",
-                    boxShadow: phoneFocused
-                      ? `0 0 0 5px rgba(255,160,0,0.13), 0 8px 32px rgba(0,0,0,0.05)`
-                      : phoneErr
-                      ? "0 0 0 4px rgba(220,38,38,0.07)"
-                      : "0 2px 10px rgba(0,0,0,0.04)",
-                    backdropFilter: "blur(16px)",
-                    transition: "all 0.25s cubic-bezier(.4,0,.2,1)"
-                  }}
-                >
+                <div className="relative w-full">
                   <div
-                    className="absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors duration-300"
-                    style={{ color: phoneFocused ? GOLD : phoneErr ? "#EF4444" : "#94A3B8" }}
+                    className="relative w-full transition-all duration-300"
+                    style={{
+                      background: phoneFocused
+                        ? "rgba(255,255,255,0.97)"
+                        : phoneErr
+                          ? "rgba(255,240,240,0.90)"
+                          : "rgba(255,255,255,0.82)",
+                      borderRadius: 18,
+                      border: phoneFocused
+                        ? `2px solid ${GOLD}`
+                        : phoneErr
+                          ? "2px solid rgba(220,38,38,0.5)"
+                          : "2px solid rgba(0,2,35,0.10)",
+                      boxShadow: phoneFocused
+                        ? `0 0 0 5px rgba(255,160,0,0.13), 0 8px 32px rgba(0,0,0,0.05)`
+                        : phoneErr
+                          ? "0 0 0 4px rgba(220,38,38,0.07)"
+                          : "0 2px 10px rgba(0,0,0,0.04)",
+                      backdropFilter: "blur(16px)",
+                      transition: "all 0.25s cubic-bezier(.4,0,.2,1)"
+                    }}
                   >
-                    <Phone className="w-5 h-5" />
+                    <div
+                      className="absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors duration-300"
+                      style={{ color: phoneFocused ? GOLD : phoneErr ? "#EF4444" : "#94A3B8" }}
+                    >
+                      <Phone className="w-5 h-5" />
+                    </div>
+                    <label
+                      className="absolute pointer-events-none font-black tracking-wide transition-all duration-200 select-none"
+                      style={{
+                        left: "3.0rem",
+                        top: (phoneFocused || phone) ? "0.5rem" : "50%",
+                        transform: (phoneFocused || phone) ? "none" : "translateY(-50%)",
+                        fontSize: (phoneFocused || phone) ? "10px" : "16px",
+                        letterSpacing: (phoneFocused || phone) ? "0.16em" : "0.01em",
+                        textTransform: (phoneFocused || phone) ? "uppercase" : "none",
+                        color: phoneFocused ? GOLD : phoneErr ? "#DC2626" : "#94A3B8",
+                        fontFamily: FN,
+                        zIndex: 1
+                      }}
+                    >
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => {
+                        setPhone(toEnNum(e.target.value));
+                        if (phoneErr) setPhoneErr("");
+                      }}
+                      onFocus={() => setPhoneFocused(true)}
+                      onBlur={() => {
+                        setPhoneFocused(false);
+                        const err = validatePhone(phone);
+                        setPhoneErr(err);
+                      }}
+                      placeholder=""
+                      className="w-full outline-none bg-transparent font-bold"
+                      style={{
+                        fontFamily: FN,
+                        fontSize: "1.2rem",
+                        lineHeight: 1.4,
+                        paddingTop: "1.65rem",
+                        paddingBottom: "0.75rem",
+                        paddingLeft: "3.0rem",
+                        paddingRight: "1.1rem",
+                        color: NAVY,
+                        caretColor: GOLD
+                      }}
+                      autoComplete="tel"
+                    />
                   </div>
-                  <label
-                    className="absolute pointer-events-none font-black tracking-wide transition-all duration-200 select-none"
-                    style={{
-                      left: "3.0rem",
-                      top: (phoneFocused || phone) ? "0.5rem" : "50%",
-                      transform: (phoneFocused || phone) ? "none" : "translateY(-50%)",
-                      fontSize: (phoneFocused || phone) ? "10px" : "16px",
-                      letterSpacing: (phoneFocused || phone) ? "0.16em" : "0.01em",
-                      textTransform: (phoneFocused || phone) ? "uppercase" : "none",
-                      color: phoneFocused ? GOLD : phoneErr ? "#DC2626" : "#94A3B8",
-                      fontFamily: FN,
-                      zIndex: 1
-                    }}
-                  >
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => {
-                      setPhone(toEnNum(e.target.value));
-                      if (phoneErr) setPhoneErr("");
-                    }}
-                    onFocus={() => setPhoneFocused(true)}
-                    onBlur={() => {
-                      setPhoneFocused(false);
-                      const err = validatePhone(phone);
-                      setPhoneErr(err);
-                    }}
-                    placeholder=""
-                    className="w-full outline-none bg-transparent font-bold"
-                    style={{
-                      fontFamily: FN,
-                      fontSize: "1.2rem",
-                      lineHeight: 1.4,
-                      paddingTop: "1.65rem",
-                      paddingBottom: "0.75rem",
-                      paddingLeft: "3.0rem",
-                      paddingRight: "1.1rem",
-                      color: NAVY,
-                      caretColor: GOLD
-                    }}
-                    autoComplete="tel"
-                  />
+                  {phoneErr ? (
+                    <p className="flex items-center gap-1.5 mt-2 ml-1 text-red-700 font-bold text-sm" style={{ fontFamily: FN }}>
+                      <AlertCircle className="w-4 h-4 shrink-0" /> {phoneErr}
+                    </p>
+                  ) : (
+                    <p className="mt-2 ml-1 text-slate-500 font-semibold text-sm" style={{ fontFamily: FN }}>
+                      US phone number preferred for catering dispatch
+                    </p>
+                  )}
                 </div>
-                {phoneErr ? (
-                  <p className="flex items-center gap-1.5 mt-2 ml-1 text-red-700 font-bold text-sm" style={{ fontFamily: FN }}>
-                    <AlertCircle className="w-4 h-4 shrink-0" /> {phoneErr}
-                  </p>
-                ) : (
-                  <p className="mt-2 ml-1 text-slate-500 font-semibold text-sm" style={{ fontFamily: FN }}>
-                    US phone number preferred for catering dispatch
-                  </p>
-                )}
-              </div>
               </div>
 
-              {/* Trust Note Card */}
               <div className="flex items-center gap-4.5 p-6 rounded-3xl border-2 border-slate-200 mt-10 bg-white/60 backdrop-blur-md shadow-sm">
                 <Shield className="w-7 h-7 shrink-0 text-[#FFA000]" />
                 <p className="text-sm sm:text-base font-bold leading-relaxed text-slate-600">
@@ -2206,11 +2115,11 @@ export default function BookingForm() {
                     } else {
                       setPhoneErr("");
                     }
-                    
+
                     if (hasErr) {
                       return;
                     }
-                    
+
                     setStep(3);
                   }}
                   className="inline-flex items-center justify-center gap-3 px-12 py-5.5 rounded-full font-black text-lg sm:text-xl shadow-2xl hover:-translate-y-1 active:translate-y-0 transition-all duration-300 w-full sm:w-auto justify-center"
@@ -2294,12 +2203,11 @@ export default function BookingForm() {
               )}
 
               <div className="space-y-6 sm:space-y-8 mb-10">
-                {/* Package Summary Card */}
                 <div className="rounded-2xl border-2 border-slate-200/80 bg-white/70 backdrop-blur-md overflow-hidden shadow-md">
                   <div className="px-6 py-4 bg-slate-100/80 border-b-2 border-slate-200/80 flex items-center gap-2.5 font-black text-[#000223] text-base sm:text-lg">
                     <span className="text-base sm:text-lg">Catering Package</span>
                   </div>
-                  <div className="px-6 py-6 flex items-center justify-between gap-4">
+                  <div className="px-6 py-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div className="min-w-0">
                       <span className="font-black text-xl block text-[#000223]">{sel?.name}</span>
                       {(sel?.slug === "custom-event-package" || (sel as any)?.serviceType === "CUSTOM") ? (
@@ -2318,7 +2226,6 @@ export default function BookingForm() {
                   </div>
                 </div>
 
-                {/* Event Details Summary Card */}
                 <div className="rounded-2xl border-2 border-slate-200/80 bg-white/70 backdrop-blur-md overflow-hidden shadow-md">
                   <div className="px-6 py-4 bg-slate-100/80 border-b-2 border-slate-200/80 flex items-center gap-2.5 font-black text-[#000223] text-base sm:text-lg">
                     <span className="text-base sm:text-lg">Scheduling Details</span>
@@ -2331,11 +2238,11 @@ export default function BookingForm() {
                       ...((sel?.slug === "custom-event-package" || (sel as any)?.serviceType === "CUSTOM")
                         ? [["Guest Count", `${customGuestCount}+ guests (custom event)`]] as [string, string][]
                         : [
-                            ["Included Service Time", `${(sel as any)?.durationMins ?? sel?.includedMinutes ?? 60} minutes`],
-                            ["Included Guests", `${sel?.servings ?? sel?.includedQty ?? 50} guests`],
-                            ...(additionalGuests > 0 ? [["Additional Guests", `+${additionalGuests} guests`]] as [string, string][] : []),
-                            ...(extraServiceMins > 0 ? [["Additional Service Time", `+${extraServiceMins} mins`]] as [string, string][] : []),
-                          ]),
+                          ["Included Service Time", `${(sel as any)?.durationMins ?? sel?.includedMinutes ?? 60} minutes`],
+                          ["Included Guests", `${sel?.servings ?? sel?.includedQty ?? 50} guests`],
+                          ...(additionalGuests > 0 ? [["Additional Guests", `+${additionalGuests} guests`]] as [string, string][] : []),
+                          ...(extraServiceMins > 0 ? [["Additional Service Time", `+${extraServiceMins} mins`]] as [string, string][] : []),
+                        ]),
                       ["Location", `${primaryLoc.formattedAddress || `${address}, ${primaryLoc.city} ${primaryLoc.zipCode}`}`],
                       ...(bookingStops.length > 0 ? [["Stops", `${bookingStops.length} additional stop(s)`]] as [string, string][] : []),
                       ["Garage Origin", "Boston Revere — 84 Fernwood Ave"],
@@ -2346,9 +2253,9 @@ export default function BookingForm() {
                         ["Travel Fee", quote.travelFee > 0 ? `$${quote.travelFee.toFixed(2)}` : "Free ($0.00)"]
                       ] as [string, string][] : [])
                     ].map(([l, v]) => (
-                      <div key={l} className="flex justify-between items-center px-6 py-4 text-sm sm:text-base">
+                      <div key={l} className="flex flex-col sm:flex-row sm:justify-between sm:items-center px-6 py-4 text-sm sm:text-base gap-1">
                         <span className="font-bold text-slate-600">{l}</span>
-                        <span className="font-black text-[#000223] text-right max-w-[65%]">
+                        <span className="font-black text-[#000223] sm:text-right max-w-[85%] sm:max-w-[65%]">
                           {v}
                         </span>
                       </div>
@@ -2356,7 +2263,6 @@ export default function BookingForm() {
                   </div>
                 </div>
 
-                {/* Customer Contact Summary Card */}
                 <div className="rounded-2xl border-2 border-slate-200/80 bg-white/70 backdrop-blur-md overflow-hidden shadow-md">
                   <div className="px-6 py-4 bg-slate-100/80 border-b-2 border-slate-200/80 flex items-center gap-2.5 font-black text-[#000223] text-base sm:text-lg">
                     <span className="text-base sm:text-lg">Customer Contact Info</span>
@@ -2367,7 +2273,7 @@ export default function BookingForm() {
                       ["Email", email],
                       ["Phone", phone]
                     ].map(([l, v]) => (
-                      <div key={l} className="flex justify-between items-center px-6 py-4 text-sm sm:text-base">
+                      <div key={l} className="flex flex-col sm:flex-row sm:justify-between sm:items-center px-6 py-4 text-sm sm:text-base gap-1">
                         <span className="font-bold text-slate-600">{l}</span>
                         <span className="font-black text-[#000223]">
                           {v}
@@ -2377,15 +2283,13 @@ export default function BookingForm() {
                   </div>
                 </div>
 
-                {/* Pricing breakdown details */}
                 {(sel?.slug === "custom-event-package" || (sel as any)?.serviceType === "CUSTOM") ? (
                   <div className="rounded-2xl border-2 border-blue-200 bg-blue-50/70 p-4 sm:p-8 shadow-md">
                     <div className="flex items-center gap-2.5 mb-5 border-b-2 border-blue-100 pb-3">
                       <span className="text-xl">📋</span>
                       <span className="text-base sm:text-lg font-black text-blue-900">Custom Quote Details</span>
                     </div>
-                    
-                    {/* Estimated Review Summary */}
+
                     <div className="rounded-xl bg-white/80 border border-blue-200 p-5 mb-5">
                       <h4 className="font-black text-blue-955 text-sm mb-3 uppercase tracking-wider">Estimated Review Summary</h4>
                       <div className="space-y-2.5 text-xs sm:text-sm font-semibold text-slate-700">
@@ -2408,7 +2312,6 @@ export default function BookingForm() {
                       </div>
                     </div>
 
-                    {/* Pricing Policy Summary */}
                     <div className="rounded-xl bg-white/80 border border-blue-200 p-5 mb-5">
                       <h4 className="font-black text-blue-955 text-sm mb-3 uppercase tracking-wider">Pricing Policy Summary</h4>
                       <ul className="list-disc list-inside space-y-1.5 text-xs sm:text-sm font-semibold text-slate-650">
@@ -2477,18 +2380,17 @@ export default function BookingForm() {
                       }
                       return null;
                     })()}
-                    <div className="border-t-2 border-slate-200 pt-5 flex justify-between items-center gap-2">
+                    <div className="border-t-2 border-slate-200 pt-5 flex flex-col sm:flex-row justify-between items-center sm:items-end gap-2">
                       <span className="font-black text-sm sm:text-xl text-[#000223]">Estimated Total Amount</span>
-                      <span className="text-2xl sm:text-4xl font-black tracking-tight text-[#FFA000] shrink-0">
+                      <span className="text-3xl sm:text-4xl font-black tracking-tight text-[#FFA000] shrink-0">
                         ${(quote?.totalAmount ?? 0).toFixed(2)}
                       </span>
                     </div>
                   </div>
                 )}
 
-                {/* Cash Policy Banner */}
                 <div
-                  className="flex items-start gap-5 p-6 sm:p-8 rounded-3xl border-2 border-emerald-250 bg-emerald-50/40 shadow-sm"
+                  className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5 p-6 sm:p-8 rounded-3xl border-2 border-emerald-250 bg-emerald-50/40 shadow-sm text-center sm:text-left"
                 >
                   <div className="w-14 h-14 rounded-2xl bg-emerald-100 flex items-center justify-center shrink-0 shadow-sm border border-emerald-200">
                     <DollarSign className="w-7 h-7 text-emerald-600" />
