@@ -402,7 +402,7 @@
       '@media (max-width: 991px) {',
       '  .nav-menu.w-nav-menu { display: none !important; }',
       '  .menu-button.w-nav-button { display: none !important; }',
-      '  #bl-signin-btn { display: none !important; }',
+      '  #bl-signin-btn, .right-menu-links { display: none !important; }',
       '}',
       
       /* ── Backdrop ── */

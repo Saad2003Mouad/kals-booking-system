@@ -95,13 +95,13 @@ export default function SiteFooter() {
           margin-bottom: 18px;
         }
         .bl-footer-col-subtitle {
-          font-size: 11px;
-          font-weight: 800;
-          letter-spacing: 0.1em;
+          font-size: 16px;
+          font-weight: 900;
+          letter-spacing: 0.05em;
           text-transform: uppercase;
-          color: rgba(255,255,255,0.45);
-          margin-top: 24px;
-          margin-bottom: 10px;
+          color: #FFA000;
+          margin-top: 32px;
+          margin-bottom: 12px;
         }
         .bl-footer-link {
           display: block;
@@ -207,7 +207,7 @@ export default function SiteFooter() {
 
           {/* Column 3 — Site Links, Call, Hours */}
           <div>
-            <div className="bl-footer-col-title">Quick Links</div>
+            <div className="bl-footer-col-title">Ice Cream Event Catering</div>
             <Link href="/" className="bl-footer-link">Home</Link>
             <Link href="/menu" className="bl-footer-link">Menu</Link>
             <Link href="/packages" className="bl-footer-link">Packages</Link>

@@ -52,21 +52,22 @@ export default function ContactUsPage() {
     <>
       <style dangerouslySetInnerHTML={{ __html: `
         .contact-hero {
-          background: linear-gradient(135deg, #000223 0%, #050b40 100%);
+          background: linear-gradient(135deg, rgba(255, 160, 0, 0.12) 0%, rgba(243, 145, 189, 0.1) 100%);
           padding: 120px 24px 60px;
           text-align: center;
-          color: white;
+          color: #000223;
           font-family: 'Plus Jakarta Sans', sans-serif;
+          border-bottom: 1px solid rgba(255,160,0,0.15);
         }
         .contact-hero-title {
-          font-size: 42px;
-          font-weight: 800;
+          font-size: 48px;
+          font-weight: 900;
           margin-bottom: 16px;
-          color: #FFA000;
+          color: #000223;
         }
         .contact-hero-subtitle {
           font-size: 18px;
-          color: rgba(255,255,255,0.8);
+          color: #4b5563;
           max-width: 600px;
           margin: 0 auto;
           line-height: 1.6;
