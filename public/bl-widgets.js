@@ -398,10 +398,11 @@
     var style = document.createElement('style');
     style.id = 'bl-mobile-nav-styles';
     style.textContent = [
-      /* Hide Webflow's native mobile nav components */
+      /* Hide Webflow's native mobile nav components and the injected signin button */
       '@media (max-width: 991px) {',
       '  .nav-menu.w-nav-menu { display: none !important; }',
       '  .menu-button.w-nav-button { display: none !important; }',
+      '  #bl-signin-btn { display: none !important; }',
       '}',
       
       /* ── Backdrop ── */

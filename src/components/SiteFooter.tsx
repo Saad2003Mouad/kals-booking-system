@@ -53,7 +53,7 @@ export default function SiteFooter() {
         }
         .bl-footer-desc {
           color: rgba(255,255,255,0.65);
-          font-size: 14.5px;
+          font-size: 15.5px;
           line-height: 1.7;
           margin-bottom: 22px;
         }
@@ -106,7 +106,7 @@ export default function SiteFooter() {
         .bl-footer-link {
           display: block;
           color: rgba(255,255,255,0.7) !important;
-          font-size: 14px;
+          font-size: 15px;
           font-weight: 600;
           text-decoration: none;
           padding: 5px 0;
@@ -117,7 +117,7 @@ export default function SiteFooter() {
         }
         .bl-footer-text {
           color: rgba(255,255,255,0.6);
-          font-size: 14px;
+          font-size: 15px;
           padding: 5px 0;
           line-height: 1.5;
         }
@@ -219,8 +219,8 @@ export default function SiteFooter() {
             <a href="tel:6178662727" className="bl-footer-link">617-866-2727</a>
 
             <div className="bl-footer-col-subtitle">Work Hours</div>
-            <div className="bl-footer-text">Mon–Fri: 8:00AM – 10:00PM</div>
-            <div className="bl-footer-text">Sat–Sun: 9:00AM – 10:00PM</div>
+            <div className="bl-footer-text">Open 24 Hours for Scheduled Events</div>
+            <div className="bl-footer-text">Available 24 hours by reservation</div>
           </div>
         </div>
 
