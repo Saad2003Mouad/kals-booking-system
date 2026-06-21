@@ -956,7 +956,7 @@ export default function BookingForm() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 mb-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
                 {[
                   { label: "Event Date", value: eventDate ? formatEnDate(eventDate) : "—" },
                   { label: "Start Time", value: startTime ? formatEnTime(startTime) : "—" },
@@ -1144,7 +1144,7 @@ export default function BookingForm() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-8 sm:mb-10">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-8 sm:mb-10">
                 {(["TRUCK", "VAN"] as const).map((t) => (
                   <button
                     key={t}
@@ -1508,7 +1508,7 @@ export default function BookingForm() {
                       <p className="text-sm sm:text-base font-bold text-slate-700 mb-5 leading-relaxed">
                         Only enter guests <strong style={{ color: NAVY }}>beyond the included package amount</strong>. Extra guests are billed at ${(sel as any)?.extraGuestPrice ?? sel?.extraPiecePrice ?? 5}/person.
                       </p>
-                      <div className="flex items-center gap-6 bg-white/40 backdrop-blur-md border-2 border-slate-200/80 rounded-3xl p-5 shadow-sm">
+                      <div className="flex items-center gap-3 sm:gap-6 bg-white/40 backdrop-blur-md border-2 border-slate-200/80 rounded-3xl p-4 sm:p-5 shadow-sm">
                         <button
                           type="button"
                           onClick={() => setAdditionalGuests(Math.max(0, additionalGuests - 1))}
@@ -1618,7 +1618,7 @@ export default function BookingForm() {
                         <span className="text-3xl">📍</span>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-6 border-t-2 border-dashed border-slate-200/80 pt-5 text-sm font-bold text-slate-700">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 border-t-2 border-dashed border-slate-200/80 pt-5 text-sm font-bold text-slate-700">
                         <div>
                           <span className="text-slate-500 block">First 10.0 miles:</span>
                           <span className="text-emerald-700 font-extrabold text-base">FREE (Included)</span>

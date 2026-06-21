@@ -323,7 +323,7 @@ export default function LocationVerificationWidget({
       )}
 
       {/* Tabs */}
-      <div className="grid grid-cols-3 gap-1.5 sm:gap-3 mb-5">
+      <div className="grid grid-cols-1 min-[400px]:grid-cols-3 gap-2 sm:gap-3 mb-5">
         {(["search", "manual", "map"] as const).map((tab) => {
           const icons = { search: <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />, manual: <Navigation className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />, map: <Map className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" /> };
           const labels = { search: "Search", manual: "Manual", map: "Map Pin" };
@@ -465,7 +465,7 @@ export default function LocationVerificationWidget({
           </div>
 
           {/* City + ZIP side by side */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* City */}
             <div>
               <label className="block text-sm font-black text-slate-700 mb-1.5 uppercase tracking-wide">City</label>

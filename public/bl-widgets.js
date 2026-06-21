@@ -391,170 +391,282 @@
   }
 
   /* ─────────────────────────────────────────────
-     4. PREMIUM MOBILE NAV
+     4. PREMIUM MOBILE NAV (Identical to SiteHeader.tsx)
   ───────────────────────────────────────────── */
   function injectMobileNavStyles() {
     if (document.getElementById('bl-mobile-nav-styles')) return;
     var style = document.createElement('style');
     style.id = 'bl-mobile-nav-styles';
     style.textContent = [
-      /* Backdrop - With blur */
-      '.bl-mob-backdrop{position:fixed;inset:0;background:rgba(0,2,35,0.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:9998;opacity:0;pointer-events:none;transition:opacity .3s ease;}',
-      '.bl-mob-backdrop.open{opacity:1;pointer-events:auto;}',
-      '@media(max-width:991px){',
-        /* Nav Drawer */
-        '.nav-menu.w-nav-menu{display:flex!important;flex-direction:column!important;position:fixed!important;top:0!important;right:0!important;bottom:0!important;width:min(85vw,310px)!important;background:#000223!important;z-index:10000!important;overflow-y:auto!important;padding:72px 0 40px!important;box-shadow:-8px 0 40px rgba(0,0,0,0.45)!important;transform:translateX(110%)!important;transition:transform .38s cubic-bezier(.4,0,.2,1)!important;filter:none!important;-webkit-filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;isolation:isolate!important;}',
-        '.nav-menu.w-nav-menu.w--open{transform:translateX(0)!important;}',
-        /* Nav links - fully opaque white, high contrast */
-        '.nav-menu.w-nav-menu .nav-link.w-nav-link,.nav-menu.w-nav-menu .nav-link.dropdown.w-dropdown-toggle{color:#ffffff!important;font-weight:800!important;font-size:17px!important;padding:14px 24px!important;border-bottom:1px solid rgba(255,255,255,.1)!important;display:flex!important;align-items:center!important;justify-content:space-between!important;width:100%!important;box-sizing:border-box!important;cursor:pointer!important;text-decoration:none!important;opacity:1!important;filter:none!important;text-shadow:none!important;}',
-        '.nav-menu.w-nav-menu .nav-link.w-nav-link:hover,.nav-menu.w-nav-menu .nav-link.dropdown.w-dropdown-toggle:hover{color:#FFA000!important;background:rgba(255,160,0,.08)!important;}',
-        /* Hide Webflow's default dropdown */
-        '.nav-menu.w-nav-menu .dropdown-list.w-dropdown-list{display:none!important;}',
-        '.nav-menu.w-nav-menu .w-icon-dropdown-toggle{display:none!important;}',
-        '.nav-menu.w-nav-menu .w-dropdown{position:static!important;}',
-        /* Sign-in button */
-        '.bl-mob-signin{display:block;margin:20px 16px 0;padding:13px 24px;background:#FFA000;color:#000223!important;font-weight:900;font-size:15px;border-radius:50px;text-align:center;text-decoration:none;box-shadow:0 6px 18px rgba(255,160,0,.35);}',
-        '.bl-mob-signin:hover{background:#FFB300;}',
-        /* Close button */
-        '.bl-mob-close-btn{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.12);border:none;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff!important;font-size:18px;line-height:1;z-index:10001;}',
-        /* Occasions accordion */
-        '.bl-occasions-arrow{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.1);transition:transform .28s ease,background .2s ease;flex-shrink:0;color:#fff!important;}',
-        '.bl-occasions-arrow.open{transform:rotate(180deg);background:rgba(255,160,0,.2);}',
-        '.bl-occasions-panel{overflow:hidden;max-height:0;transition:max-height .38s cubic-bezier(.4,0,.2,1);background:rgba(255,255,255,.04);}',
-        '.bl-occasions-panel.open{max-height:600px;}',
-        /* Occasions panel links - fully visible */
-        '.bl-occasions-panel a{display:block;color:rgba(255,255,255,.82)!important;font-size:14.5px!important;font-weight:700!important;padding:11px 24px 11px 36px!important;border-bottom:1px solid rgba(255,255,255,.04)!important;text-decoration:none!important;transition:color .18s,background .18s;}',
-        '.bl-occasions-panel a:hover{color:#FFA000!important;background:rgba(255,160,0,.07)!important;}',
-        '.right-menu-links{display:none!important;}',
-        '.navbar.w-nav{position:relative!important;}',
-        '.menu-button.w-nav-button{display:flex!important;position:absolute!important;top:18px!important;right:18px!important;z-index:9100!important;}',
+      /* Hide Webflow's native mobile nav components */
+      '@media (max-width: 991px) {',
+      '  .nav-menu.w-nav-menu { display: none !important; }',
+      '  .menu-button.w-nav-button { display: none !important; }',
       '}',
-      '@media(min-width:992px){',
-        '.bl-mob-close-btn,.bl-mob-signin,.bl-occasions-panel,.bl-occasions-arrow{display:none!important;}',
-        '.right-menu-links{display:flex!important;}',
-        '.menu-button.w-nav-button{display:none!important;}',
+      
+      /* ── Backdrop ── */
+      '.bl-custom-backdrop {',
+      '  position: fixed; inset: 0;',
+      '  background: rgba(0,2,35,0.6);',
+      '  backdrop-filter: blur(4px);',
+      '  -webkit-backdrop-filter: blur(4px);',
+      '  z-index: 9998;',
+      '  opacity: 0; pointer-events: none;',
+      '  transition: opacity 0.3s ease;',
       '}',
-    ].join('');
+      '.bl-custom-backdrop.open {',
+      '  opacity: 1; pointer-events: auto;',
+      '}',
+
+      /* ── Drawer ── */
+      '.bl-custom-mobile-menu {',
+      '  display: flex;',
+      '  flex-direction: column;',
+      '  position: fixed;',
+      '  top: 0; right: 0; bottom: 0;',
+      '  width: min(85vw, 310px);',
+      '  background: #000223;',
+      '  z-index: 10000;',
+      '  overflow-y: auto;',
+      '  padding: 72px 0 40px;',
+      '  box-shadow: -8px 0 40px rgba(0,0,0,0.45);',
+      '  transform: translateX(110%);',
+      '  transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);',
+      '}',
+      '.bl-custom-mobile-menu.open {',
+      '  transform: translateX(0);',
+      '}',
+
+      /* Nav links in drawer */
+      '.bl-custom-mobile-menu a.nav-link,',
+      '.bl-custom-mobile-menu .occasions-toggle {',
+      '  color: #fff;',
+      '  font-weight: 800;',
+      '  font-size: 17px;',
+      '  padding: 14px 24px;',
+      '  border-bottom: 1px solid rgba(255,255,255,0.07);',
+      '  display: flex;',
+      '  align-items: center;',
+      '  justify-content: space-between;',
+      '  width: 100%;',
+      '  box-sizing: border-box;',
+      '  cursor: pointer;',
+      '  text-decoration: none;',
+      '  font-family: "Nunito", sans-serif;',
+      '}',
+      '.bl-custom-mobile-menu a.nav-link:hover,',
+      '.bl-custom-mobile-menu .occasions-toggle:hover {',
+      '  color: #FFA000;',
+      '  background: rgba(255,160,0,0.07);',
+      '}',
+
+      /* Sign-in mobile link */
+      '.bl-custom-signin {',
+      '  display: block;',
+      '  margin: 20px 16px 0;',
+      '  padding: 13px 24px;',
+      '  background: #FFA000;',
+      '  color: #000223 !important;',
+      '  font-weight: 900;',
+      '  font-size: 15px;',
+      '  border-radius: 50px;',
+      '  text-align: center;',
+      '  text-decoration: none;',
+      '  box-shadow: 0 6px 18px rgba(255,160,0,0.35);',
+      '  font-family: "Nunito", sans-serif;',
+      '}',
+      '.bl-custom-signin:hover {',
+      '  background: #FFB300;',
+      '}',
+
+      /* Occasions accordion */
+      '.bl-custom-arrow {',
+      '  display: inline-flex;',
+      '  align-items: center;',
+      '  justify-content: center;',
+      '  width: 28px; height: 28px;',
+      '  border-radius: 50%;',
+      '  background: rgba(255,255,255,0.1);',
+      '  transition: transform 0.28s ease, background 0.2s ease;',
+      '  flex-shrink: 0;',
+      '}',
+      '.bl-custom-arrow.open {',
+      '  transform: rotate(180deg);',
+      '  background: rgba(255,160,0,0.2);',
+      '}',
+
+      '.bl-custom-panel {',
+      '  overflow: hidden;',
+      '  max-height: 0;',
+      '  transition: max-height 0.38s cubic-bezier(0.4, 0, 0.2, 1);',
+      '  background: rgba(255,255,255,0.04);',
+      '}',
+      '.bl-custom-panel.open {',
+      '  max-height: 600px;',
+      '}',
+      '.bl-custom-panel a {',
+      '  display: block;',
+      '  color: rgba(255,255,255,0.82) !important;',
+      '  font-size: 14.5px !important;',
+      '  font-weight: 700 !important;',
+      '  padding: 11px 24px 11px 36px !important;',
+      '  border-bottom: 1px solid rgba(255,255,255,0.04) !important;',
+      '  text-decoration: none;',
+      '  transition: color 0.18s, background 0.18s;',
+      '  font-family: "Nunito", sans-serif;',
+      '}',
+      '.bl-custom-panel a:hover {',
+      '  color: #FFA000 !important;',
+      '  background: rgba(255,160,0,0.07) !important;',
+      '}',
+
+      /* Custom Hamburger */
+      '.bl-custom-hamburger {',
+      '  display: flex;',
+      '  flex-direction: column;',
+      '  justify-content: center;',
+      '  align-items: center;',
+      '  gap: 6px;',
+      '  width: 44px;',
+      '  height: 44px;',
+      '  background: transparent;',
+      '  border: none;',
+      '  cursor: pointer;',
+      '  position: absolute;',
+      '  top: 18px;',
+      '  right: 18px;',
+      '  z-index: 9999;',
+      '  padding: 8px;',
+      '}',
+      '.bl-custom-hamburger span {',
+      '  display: block;',
+      '  width: 24px;',
+      '  height: 2px;',
+      '  background: #000223;',
+      '  border-radius: 2px;',
+      '  transition: 0.3s;',
+      '}',
+
+      '@media (min-width: 992px) {',
+      '  .bl-custom-mobile-menu, .bl-custom-backdrop, .bl-custom-hamburger {',
+      '    display: none !important;',
+      '  }',
+      '}'
+    ].join(' ');
     document.head.appendChild(style);
   }
 
   function fixMobileNav() {
-    if (document.getElementById('react-site-header')) return;
-    var btn = document.querySelector('.menu-button.w-nav-button');
-    var menu = document.querySelector('.nav-menu.w-nav-menu');
-    if (!btn || !menu) return;
-    if (btn.dataset.blNavFixed) return;
-    btn.dataset.blNavFixed = '1';
+    if (document.getElementById('react-site-header')) return; // React handles it
+    if (document.querySelector('.bl-custom-hamburger')) return; // Already injected
+
+    // Only inject if there's a Webflow nav to replace
+    var webflowNavbar = document.querySelector('.navbar.w-nav');
+    if (!webflowNavbar) return;
 
     injectMobileNavStyles();
 
+    // 1. Backdrop
     var backdrop = document.createElement('div');
-    backdrop.className = 'bl-mob-backdrop';
-    document.body.insertBefore(backdrop, document.body.firstChild);
+    backdrop.className = 'bl-custom-backdrop';
+    document.body.appendChild(backdrop);
 
+    // 2. Hamburger Button
+    var hamburger = document.createElement('button');
+    hamburger.className = 'bl-custom-hamburger';
+    hamburger.setAttribute('aria-label', 'Toggle navigation menu');
+    hamburger.innerHTML = '<span></span><span></span><span></span>';
+    webflowNavbar.appendChild(hamburger);
+
+    // 3. Drawer
+    var drawer = document.createElement('nav');
+    drawer.className = 'bl-custom-mobile-menu';
+
+    // Close button
     var closeBtnEl = document.createElement('button');
-    closeBtnEl.className = 'bl-mob-close-btn';
-    closeBtnEl.setAttribute('aria-label', 'Close navigation menu');
-    closeBtnEl.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
-    menu.insertBefore(closeBtnEl, menu.firstChild);
+    closeBtnEl.setAttribute('aria-label', 'Close menu');
+    closeBtnEl.style.cssText = 'position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.12);border:none;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;font-size:18px;line-height:1;';
+    closeBtnEl.innerHTML = '✕';
+    drawer.appendChild(closeBtnEl);
 
-    if (!menu.querySelector('.bl-mob-signin')) {
-      var signinMob = document.createElement('a');
-      signinMob.href = '/login';
-      signinMob.className = 'bl-mob-signin';
-      signinMob.textContent = 'Sign In or Sign Up';
-      menu.appendChild(signinMob);
-    }
+    // Core Links
+    var linksHTML = [
+      '<a href="/" class="nav-link">Home</a>',
+      '<a href="/about" class="nav-link">About</a>',
+      '<a href="/menu" class="nav-link">Menu</a>',
+      '<div>',
+      '  <div class="occasions-toggle" role="button">',
+      '    <div>Occasions</div>',
+      '    <span class="bl-custom-arrow"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>',
+      '  </div>',
+      '  <div class="bl-custom-panel">'
+    ];
 
-    var occasionsToggle = menu.querySelector('.nav-link.dropdown.w-dropdown-toggle');
-    var occasionsWrapper = menu.querySelector('.w-dropdown');
+    OCCASIONS_LIST.forEach(function(item) {
+      linksHTML.push('<a href="' + item[0] + '">' + item[1] + '</a>');
+    });
 
-    if (occasionsToggle && occasionsWrapper) {
-      var arrow = document.createElement('span');
-      arrow.className = 'bl-occasions-arrow';
-      arrow.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-      occasionsToggle.appendChild(arrow);
+    linksHTML.push(
+      '  </div>',
+      '</div>',
+      '<a href="/packages" class="nav-link">Packages</a>',
+      '<a href="/manage-booking" class="nav-link">Manage Booking</a>',
+      '<a href="/contact-us" class="nav-link">Contact</a>',
+      '<a href="/login" class="bl-custom-signin">Sign In or Sign Up</a>'
+    );
 
-      var panel = document.createElement('div');
-      panel.className = 'bl-occasions-panel';
-      OCCASIONS_LIST.forEach(function(item) {
-        var a = document.createElement('a');
-        a.href = item[0];
-        a.textContent = item[1];
-        a.addEventListener('click', function(e) {
-          // Just close the nav visually. DO NOT prevent default.
-          closeNav();
-          document.body.style.overflow = '';
-          document.body.style.position = '';
-        });
-        panel.appendChild(a);
-      });
-      occasionsWrapper.appendChild(panel);
+    drawer.innerHTML += linksHTML.join('');
+    document.body.appendChild(drawer);
 
-      occasionsToggle.addEventListener('click', function(e) {
-        e.stopImmediatePropagation();
-        e.stopPropagation();
-        if (window.innerWidth >= 992) return;
-        var open = panel.classList.contains('open');
-        panel.classList.toggle('open', !open);
-        arrow.classList.toggle('open', !open);
-      }, true);
-    }
+    // 4. Logic
+    var isOpen = false;
+    var occasionsToggle = drawer.querySelector('.occasions-toggle');
+    var occasionsPanel = drawer.querySelector('.bl-custom-panel');
+    var occasionsArrow = drawer.querySelector('.bl-custom-arrow');
 
-    function openNav() {
-      btn.classList.add('w--open');
-      menu.classList.add('w--open');
-      backdrop.classList.add('open');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeNav() {
-      btn.classList.remove('w--open');
-      menu.classList.remove('w--open');
-      backdrop.classList.remove('open');
-      document.body.style.overflow = '';
-      if (occasionsWrapper) {
-        var p = occasionsWrapper.querySelector('.bl-occasions-panel');
-        var ar = occasionsWrapper.querySelector('.bl-occasions-arrow');
-        if (p) p.classList.remove('open');
-        if (ar) ar.classList.remove('open');
+    function toggleNav(e) {
+      if (e) { e.preventDefault(); e.stopPropagation(); }
+      isOpen = !isOpen;
+      if (isOpen) {
+        drawer.classList.add('open');
+        backdrop.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      } else {
+        drawer.classList.remove('open');
+        backdrop.classList.remove('open');
+        document.body.style.overflow = '';
+        // close occasions when closing nav
+        if (occasionsPanel) {
+            occasionsPanel.classList.remove('open');
+            occasionsArrow.classList.remove('open');
+        }
       }
     }
 
-    // Hamburger — block ALL events from reaching Webflow.js
-    var blockEvents = ['click', 'mousedown', 'mouseup', 'touchstart', 'touchend', 'pointerdown', 'pointerup'];
-    blockEvents.forEach(function(evt) {
-      btn.addEventListener(evt, function(e) {
-        e.stopImmediatePropagation();
-        e.stopPropagation();
-        if (evt === 'click') {
-          if (btn.classList.contains('w--open')) { closeNav(); } else { openNav(); }
-        }
-      }, { capture: true, passive: false });
-    });
+    function closeNav() {
+      if (isOpen) toggleNav();
+    }
 
-    closeBtnEl.addEventListener('click', function(e) {
-      e.stopImmediatePropagation();
-      e.stopPropagation();
-      closeNav();
-    }, true);
-
+    hamburger.addEventListener('click', toggleNav);
+    closeBtnEl.addEventListener('click', closeNav);
     backdrop.addEventListener('click', closeNav);
 
-    // Nav links — Force navigation via JS to bypass Webflow preventDefault
-    var links = menu.querySelectorAll('.nav-link.w-nav-link, .bl-mob-signin, .bl-occasions-panel a');
-    links.forEach(function(link) {
-      var clone = link.cloneNode(true);
-      link.parentNode.replaceChild(clone, link);
-      
-      clone.addEventListener('click', function(e) {
+    if (occasionsToggle) {
+      occasionsToggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var pOpen = occasionsPanel.classList.contains('open');
+        occasionsPanel.classList.toggle('open', !pOpen);
+        occasionsArrow.classList.toggle('open', !pOpen);
+      });
+    }
+
+    var navLinks = drawer.querySelectorAll('a');
+    navLinks.forEach(function(a) {
+      a.addEventListener('click', function(e) {
         e.preventDefault();
-        e.stopImmediatePropagation();
+        e.stopPropagation();
         closeNav();
-        document.body.style.overflow = '';
-        document.body.style.position = '';
-        
-        var href = clone.getAttribute('href');
+        var href = a.getAttribute('href');
         if (href && href !== '#' && href !== '') {
           setTimeout(function() {
             window.location.assign(href);
