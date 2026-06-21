@@ -273,9 +273,15 @@ export default function SiteHeader() {
             display: flex !important;
             align-items: center;
           }
+          .sign-in-desktop-only {
+            display: flex !important;
+          }
         }
         @media (max-width: 991px) {
           .desktop-nav-menu {
+            display: none !important;
+          }
+          .sign-in-desktop-only {
             display: none !important;
           }
         }
@@ -354,7 +360,7 @@ export default function SiteHeader() {
               <a href="/contact-us" className="nav-link w-nav-link" onClick={handleNavTo('/contact-us')}>Contact</a>
             </nav>
 
-            <div className="right-menu-links desktop-nav-menu">
+            <div className="right-menu-links desktop-nav-menu sign-in-desktop-only">
               <a href="/login" className="link-bt menu-bt" onClick={handleNavTo('/login')}>
                 Sign In or Sign Up
               </a>

@@ -19,26 +19,158 @@ const OCCASIONS_LIST = [
 
 export default function SiteFooter() {
   return (
-    <footer className="footer">
-      <div className="w-layout-blockcontainer container w-container">
-        <div className="row">
-          {/* العمود الأول */}
-          <div className="footer-col-l">
+    <>
+      <style dangerouslySetInnerHTML={{ __html: `
+        .bl-footer {
+          background-color: #000223;
+          color: #fff;
+          padding: 60px 0 0;
+          font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif);
+        }
+        .bl-footer .bl-footer-inner {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 0 24px;
+          display: grid;
+          grid-template-columns: 1.6fr 1fr 1fr;
+          gap: 48px;
+        }
+        @media (max-width: 900px) {
+          .bl-footer .bl-footer-inner {
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+          }
+        }
+        @media (max-width: 580px) {
+          .bl-footer .bl-footer-inner {
+            grid-template-columns: 1fr;
+            gap: 28px;
+          }
+        }
+        .bl-footer-logo {
+          margin-bottom: 18px;
+          display: block;
+        }
+        .bl-footer-desc {
+          color: rgba(255,255,255,0.65);
+          font-size: 14.5px;
+          line-height: 1.7;
+          margin-bottom: 22px;
+        }
+        .bl-footer-reserve-btn {
+          display: inline-block;
+          background: #FFA000;
+          color: #000223 !important;
+          font-weight: 800;
+          font-size: 14px;
+          padding: 12px 28px;
+          border-radius: 50px;
+          text-decoration: none;
+          letter-spacing: 0.03em;
+          transition: background 0.2s ease;
+          margin-bottom: 24px;
+        }
+        .bl-footer-reserve-btn:hover {
+          background: #FFB300;
+        }
+        .bl-footer-social {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+        }
+        .bl-footer-social img {
+          opacity: 0.8;
+          transition: opacity 0.2s;
+          cursor: pointer;
+        }
+        .bl-footer-social img:hover {
+          opacity: 1;
+        }
+        .bl-footer-col-title {
+          font-size: 12px;
+          font-weight: 800;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: #FFA000;
+          margin-bottom: 18px;
+        }
+        .bl-footer-col-subtitle {
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: rgba(255,255,255,0.45);
+          margin-top: 24px;
+          margin-bottom: 10px;
+        }
+        .bl-footer-link {
+          display: block;
+          color: rgba(255,255,255,0.7) !important;
+          font-size: 14px;
+          font-weight: 600;
+          text-decoration: none;
+          padding: 5px 0;
+          transition: color 0.18s ease;
+        }
+        .bl-footer-link:hover {
+          color: #FFA000 !important;
+        }
+        .bl-footer-text {
+          color: rgba(255,255,255,0.6);
+          font-size: 14px;
+          padding: 5px 0;
+          line-height: 1.5;
+        }
+        .bl-footer-copyright {
+          margin-top: 48px;
+          padding: 20px 24px;
+          border-top: 1px solid rgba(255,255,255,0.08);
+          max-width: 1200px;
+          margin-left: auto;
+          margin-right: auto;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+        .bl-footer-copyright-bar {
+          background-color: #000223;
+          padding-bottom: 20px;
+        }
+        .bl-footer-copyright-text {
+          color: rgba(255,255,255,0.4);
+          font-size: 13px;
+        }
+        .bl-footer-copyright a {
+          color: #FFA000;
+          text-decoration: none;
+        }
+        .bl-footer-copyright a:hover {
+          text-decoration: underline;
+        }
+      `}} />
+
+      <footer className="bl-footer">
+        <div className="bl-footer-inner">
+          {/* Column 1 — Brand */}
+          <div>
             <img
               src="https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/67e3936366827af4bed1d0d0_logo-boston-legend-ice-cream-truck.avif"
               loading="lazy"
               width={165}
               height={63}
               alt="Boston legend ice cream truck logo"
+              className="bl-footer-logo"
             />
-            <p className="footer-p">
-              Make your events extra special with our ice cream truck catering! From birthdays to weddings and everything in between, we bring premium flavors and smiles right to your celebration. Serving Greater Boston, we’re here to sweeten every moment.
+            <p className="bl-footer-desc">
+              Make your events extra special with our ice cream truck catering! From birthdays to weddings and everything in between, we bring premium flavors and smiles right to your celebration. Serving Greater Boston, we&apos;re here to sweeten every moment.
             </p>
-            <Link href="/packages" className="link-bt">
+            <Link href="/packages" className="bl-footer-reserve-btn">
               Reserve Now
             </Link>
 
-            <div className="w-layout-hflex social-row">
+            <div className="bl-footer-social">
               <img
                 src="https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/681bd97f9407e01489f8f216_boston-legend-ice-cream-truck-facebook.png"
                 loading="lazy"
@@ -51,124 +183,59 @@ export default function SiteFooter() {
                 loading="lazy"
                 width={33}
                 height={33}
-                alt="instagram for Boston Legend ice cream truck"
+                alt="Instagram for Boston Legend ice cream truck"
               />
               <img
                 src="https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/681bd97f48b5da6eaf60bedd_boston-legend-ice-cream-truck-tiktok.png"
                 loading="lazy"
                 width={30}
                 height={34}
-                alt="Tiktok for Boston Legend ice cream truck"
+                alt="TikTok for Boston Legend ice cream truck"
               />
             </div>
           </div>
 
-          {/* العمود الثاني: 12 Occasions */}
-          <div className="footer-col-s">
-            <div className="footer-titel">Ice Cream Event Catering</div>
-            <div className="w-dyn-list">
-              <div role="list" className="w-dyn-items">
-                {OCCASIONS_LIST.map((item) => (
-                  <div role="listitem" className="w-dyn-item" key={item.slug}>
-                    <Link href={`/occasions/${item.slug}`} className="footer-link w-inline-block">
-                      <div className="footer-link-move">
-                        <div className="footer-link-w">{item.name}</div>
-                        <div className="footer-link-o">{item.name}</div>
-                      </div>
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            </div>
+          {/* Column 2 — Occasions */}
+          <div>
+            <div className="bl-footer-col-title">Ice Cream Event Catering</div>
+            {OCCASIONS_LIST.map((item) => (
+              <Link key={item.slug} href={`/occasions/${item.slug}`} className="bl-footer-link">
+                {item.name}
+              </Link>
+            ))}
           </div>
 
-          {/* العمود الثالث: Site Links, Call Us, Work Hours */}
-          <div className="footer-col-s">
-            <div className="footer-titel">Ice Cream Event Catering</div>
+          {/* Column 3 — Site Links, Call, Hours */}
+          <div>
+            <div className="bl-footer-col-title">Quick Links</div>
+            <Link href="/" className="bl-footer-link">Home</Link>
+            <Link href="/menu" className="bl-footer-link">Menu</Link>
+            <Link href="/packages" className="bl-footer-link">Packages</Link>
+            <Link href="/blog" className="bl-footer-link">Blog</Link>
+            <Link href="/contact-us" className="bl-footer-link">Contact Us</Link>
 
-            <div>
-              <Link href="/" aria-current="page" className="footer-link w-inline-block w--current">
-                <div className="footer-link-move">
-                  <div className="footer-link-w">Home</div>
-                  <div className="footer-link-o">Home</div>
-                </div>
-              </Link>
-            </div>
+            <div className="bl-footer-col-subtitle">Call Us</div>
+            <a href="tel:6179993803" className="bl-footer-link">617-999-3803</a>
+            <a href="tel:6178662727" className="bl-footer-link">617-866-2727</a>
 
-            <div>
-              <Link href="/about" className="footer-link w-inline-block">
-                <div className="footer-link-move">
-                  <div className="footer-link-w">Menu</div>
-                  <div className="footer-link-o">Menu</div>
-                </div>
-              </Link>
-            </div>
-
-            <div>
-              <Link href="/menu" className="footer-link w-inline-block">
-                <div className="footer-link-move">
-                  <div className="footer-link-w">Products</div>
-                  <div className="footer-link-o">Products</div>
-                </div>
-              </Link>
-            </div>
-
-            <div>
-              <Link href="/blog" className="footer-link w-inline-block">
-                <div className="footer-link-move">
-                  <div className="footer-link-w">Blog</div>
-                  <div className="footer-link-o">Blog</div>
-                </div>
-              </Link>
-            </div>
-
-            <div>
-              <Link href="/contact-us" className="footer-link w-inline-block">
-                <div className="footer-link-move">
-                  <div className="footer-link-w">Contact Us</div>
-                  <div className="footer-link-o">Contact Us</div>
-                </div>
-              </Link>
-            </div>
-
-            <div className="footer-titel-s">Call Us</div>
-            <div>
-              <a href="tel:6179993803" className="footer-link w-inline-block">
-                <div className="footer-link-move">
-                  <div className="footer-link-w">617-999-3803</div>
-                  <div className="footer-link-o">617-999-3803</div>
-                </div>
-              </a>
-            </div>
-
-            <div>
-              <a href="tel:+16179993803" className="footer-link w-inline-block">
-                <div className="footer-link-move">
-                  <div className="footer-link-w">617-999-3803</div>
-                  <div className="footer-link-o">617-999-3803</div>
-                </div>
-              </a>
-            </div>
-
-            <div className="footer-titel-s">Work Hours</div>
-            <div>Mon-Fri: 8:00AM - 10:00PM</div>
-            <div>Sat-Sun: 9:00AM - 10:00PM</div>
-          </div>
-
-        </div>
-      </div>
-
-      {/* شريط حقوق الملكية */}
-      <div className="copyright">
-        <div className="w-layout-blockcontainer container w-container">
-          <div className="w-layout-hflex copy-flex">
-            <div>Boston Legend Copyright © {new Date().getFullYear()}, All rights reserved.</div>
-            <div>
-              Powered by <a href="https://www.dvyns.com/" target="_blank" rel="noreferrer" className="blue-link">DVYNS</a>
-            </div>
+            <div className="bl-footer-col-subtitle">Work Hours</div>
+            <div className="bl-footer-text">Mon–Fri: 8:00AM – 10:00PM</div>
+            <div className="bl-footer-text">Sat–Sun: 9:00AM – 10:00PM</div>
           </div>
         </div>
-      </div>
-    </footer>
+
+        {/* Copyright Bar */}
+        <div className="bl-footer-copyright-bar">
+          <div className="bl-footer-copyright">
+            <span className="bl-footer-copyright-text">
+              Boston Legend Copyright © {new Date().getFullYear()}, All rights reserved.
+            </span>
+            <span className="bl-footer-copyright-text">
+              Powered by <a href="https://www.dvyns.com/" target="_blank" rel="noreferrer">DVYNS</a>
+            </span>
+          </div>
+        </div>
+      </footer>
+    </>
   );
 }
