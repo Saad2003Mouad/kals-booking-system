@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import Link from "next/link";
-import Image from "next/image";
 import { Loader2, CheckCircle2 } from "lucide-react";
 
 type Package = {
@@ -168,7 +167,12 @@ function PackageCard({ pkg }: { pkg: Package }) {
       
       <div className="h-56 w-full relative overflow-hidden bg-gray-100">
         {pkg.imageUrl ? (
-          <Image src={pkg.imageUrl} alt={pkg.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+          <img
+            src={pkg.imageUrl}
+            alt={pkg.name}
+            loading="lazy"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-300">No Image</div>
         )}
