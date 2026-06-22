@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 import { orchestrateAI } from "@/lib/ai/orchestrator";
+import { sendChatEscalationOwnerEmail } from "@/lib/email";
+
+const OWNER_EMAIL = "info@bostonlegendicecreamtruck.com";
 
 export async function POST(req: Request) {
   try {
-    const { messages, currentPage } = await req.json();
+    const body = await req.json();
+    const { messages, currentPage, customerInfo } = body;
 
     if (!process.env.GROQ_API_KEY && !process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
       return NextResponse.json({ 
@@ -12,72 +16,85 @@ export async function POST(req: Request) {
         tool_calls: [],
         data: {},
         final_response: "Welcome! For booking inquiries, please visit our [Booking Page](/booking) or call us at **617-999-3803**.",
-        reply: "Welcome! For booking inquiries, please visit our [Booking Page](/booking) or call us at **617-999-3803**." // legacy support
+        reply: "Welcome! For booking inquiries, please visit our [Booking Page](/booking) or call us at **617-999-3803**."
       });
     }
 
     const lastUserMsg = messages.filter((m: any) => m.role === "user").pop()?.content || "";
     const lowerMsg = lastUserMsg.toLowerCase();
     
-    // Escalation Triggers
-    const needsHuman = ["human", "talk to someone", "call me", "speak to", "agent", "manager", "payment issue"].some(t => lowerMsg.includes(t));
+    // Escalation Triggers — keyword detection
+    const needsHuman = ["human", "talk to someone", "talk to human", "call me", "speak to",
+      "agent", "manager", "payment issue", "need help", "representative"].some(t => lowerMsg.includes(t));
     
     if (needsHuman) {
+      // If customerInfo not yet provided, ask the widget to collect it first
+      if (!customerInfo?.email) {
+        return NextResponse.json({
+          intent: "COLLECT_INFO",
+          tool_calls: [],
+          data: {},
+          final_response: "I'd love to connect you with our team! Please share your contact information so we can follow up with you directly.",
+          reply: "I'd love to connect you with our team! Please share your contact information so we can follow up with you directly.",
+          requiresInfo: true,
+        });
+      }
+
       const { prisma } = await import("@/lib/prisma");
 
+      // Build a clean conversation transcript for the notes field
+      const transcript = messages.map((m: any) => `${m.role === "user" ? "Customer" : "AI"}: ${m.content}`).join("\n");
+      
+      // Create inquiry with real customer info
       const inquiry = await prisma.inquiry.create({
         data: {
-          name: "Anonymous Chat User",
-          email: "Not provided",
-          notes: `[CHAT_ESCALATION] Customer requested human help.\nPage URL: ${currentPage || req.url}\nLast Msg: ${lastUserMsg}\n\nChat Context:\n${messages.map((m: any) => m.role + ": " + m.content).join("\n")}`,
+          name: customerInfo.name || "Chat User",
+          email: customerInfo.email,
+          phone: customerInfo.phone || null,
+          notes: `[CHAT_ESCALATION] Customer requested human help.\nPage URL: ${currentPage || "Unknown"}\n\n--- Chat Transcript ---\n${transcript}`,
           status: "NEW",
+          priority: "HIGH",
+          source: "CHAT_WIDGET",
+          pageUrl: currentPage || null,
         }
       });
 
-      // Try auto-linking
-      const { autoLinkInquiry } = await import("@/lib/autoLinker");
-      await autoLinkInquiry(inquiry.id);
-
-      // Send email alert to Admin
-      if (process.env.SMTP_USER && process.env.SMTP_PASS) {
-        try {
-          const setting = await prisma.setting.findUnique({ where: { key: "ADMIN_ALERT_EMAIL" } });
-          const adminEmail = setting?.value || process.env.SMTP_USER;
-
-          const nodemailer = await import("nodemailer");
-          const transport = nodemailer.createTransport({
-            service: "gmail",
-            auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-          });
-          await transport.sendMail({
-            from: `"Boston Legend AI" <${process.env.SMTP_USER}>`,
-            to: adminEmail,
-            subject: "🚨 New Chat Escalation: Human Help Needed",
-            html: `<p>A customer requested human assistance via the AI Chat Widget.</p>
-                   <p><strong>Page:</strong> ${req.url}</p>
-                   <p><strong>Last Message:</strong> ${lastUserMsg}</p>
-                   <p><a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.bostonlegendicecreamtruck.com'}/admin/inquiries">View Inquiry in Dashboard</a></p>`,
-          });
-        } catch (e) {
-          console.error("Failed to send escalation email", e);
-        }
+      // Try auto-linking to existing customer by email
+      try {
+        const { autoLinkInquiry } = await import("@/lib/autoLinker");
+        await autoLinkInquiry(inquiry.id);
+      } catch (e) {
+        console.error("[Chat] Auto-link failed:", e);
       }
 
-      const reply = "I’ve alerted our team. Someone from Boston Legend will review this and follow up shortly.";
+      // Send branded owner email — always to info@bostonlegendicecreamtruck.com
+      try {
+        await sendChatEscalationOwnerEmail({
+          id: inquiry.id,
+          name: inquiry.name,
+          email: inquiry.email,
+          phone: inquiry.phone,
+          notes: inquiry.notes,
+          pageUrl: inquiry.pageUrl,
+          createdAt: inquiry.createdAt,
+        });
+      } catch (e) {
+        console.error("[Chat] Failed to send escalation email to owner:", e);
+        // Don't fail the request if email fails — inquiry is already saved
+      }
+
+      const reply = `Thanks ${customerInfo.name?.split(" ")[0] || ""}! 🙌 We've received your request and our team at Boston Legend will reach out to **${customerInfo.email}** shortly. You can also call us directly at **617-999-3803**.`;
       return NextResponse.json({
         intent: "ESCALATION",
         tool_calls: [],
-        data: {},
+        data: { inquiryId: inquiry.id },
         final_response: reply,
-        reply
+        reply,
       });
     }
 
     const aiResponse = await orchestrateAI("customer", messages);
 
-    // Return the required structured response
-    // Also include `reply` to maintain backward compatibility with existing frontends 
-    // that haven't been fully migrated to read `final_response` yet.
     return NextResponse.json({
       intent: aiResponse.intent,
       tool_calls: aiResponse.tool_calls,
@@ -87,14 +104,14 @@ export async function POST(req: Request) {
     });
 
   } catch (error: any) {
-    console.error("Groq AI Route Error:", error?.stack || error);
+    console.error("Chat Route Error:", error?.stack || error);
     
     return NextResponse.json({ 
       intent: "ERROR",
       tool_calls: [],
       data: {},
-      final_response: "Sorry, I’m having trouble right now. Please try again or request a human.",
-      reply: "Sorry, I’m having trouble right now. Please try again or request a human."
+      final_response: "Sorry, I'm having trouble right now. Please try again or call us at **617-999-3803**.",
+      reply: "Sorry, I'm having trouble right now. Please try again or call us at **617-999-3803**."
     }, { status: 500 });
   }
 }

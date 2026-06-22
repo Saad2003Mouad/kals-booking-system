@@ -690,3 +690,78 @@ export async function sendOwnerEventReminderEmail(booking: any) {
   `;
   return sendEmail({ to, subject, html });
 }
+
+// ─── CHAT ESCALATION ──────────────────────────────────────────
+
+export async function sendChatEscalationOwnerEmail(inquiry: {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string | null;
+  notes?: string | null;
+  pageUrl?: string | null;
+  createdAt?: Date | string;
+}) {
+  const OWNER_EMAIL = "info@bostonlegendicecreamtruck.com";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.bostonlegendicecreamtruck.com';
+  const inquiryUrl = `${siteUrl}/admin/inquiries`;
+  const timestamp = inquiry.createdAt
+    ? new Date(inquiry.createdAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })
+    : new Date().toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
+
+  const html = `
+    <div style="text-align:center;padding:24px 0 20px;">
+      <div style="width:72px;height:72px;border-radius:50%;background:#FEF2F2;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;">
+        <span style="font-size:32px;">🚨</span>
+      </div>
+      <h2 style="margin:0 0 8px;color:${BRAND_NAVY};font-size:26px;font-weight:900;">Human Support Requested</h2>
+      <p style="margin:0;color:#6B7280;font-size:15px;font-weight:600;">A customer needs live assistance via the AI Chat Widget.</p>
+    </div>
+
+    <table width="100%" cellpadding="12" cellspacing="0" style="font-size:15px;color:#374151;border-collapse:collapse;margin-bottom:24px;background:#F8F9FC;border-radius:12px;">
+      <tr>
+        <td width="35%" style="font-weight:800;color:${BRAND_NAVY};border-bottom:1px solid #E5E7EB;">Customer Name</td>
+        <td style="border-bottom:1px solid #E5E7EB;font-weight:600;">${inquiry.name}</td>
+      </tr>
+      <tr>
+        <td style="font-weight:800;color:${BRAND_NAVY};border-bottom:1px solid #E5E7EB;">Email</td>
+        <td style="border-bottom:1px solid #E5E7EB;font-weight:600;">
+          <a href="mailto:${inquiry.email}" style="color:${BRAND_NAVY};font-weight:700;">${inquiry.email}</a>
+        </td>
+      </tr>
+      <tr>
+        <td style="font-weight:800;color:${BRAND_NAVY};border-bottom:1px solid #E5E7EB;">Phone</td>
+        <td style="border-bottom:1px solid #E5E7EB;font-weight:600;">${inquiry.phone || 'Not provided'}</td>
+      </tr>
+      <tr>
+        <td style="font-weight:800;color:${BRAND_NAVY};border-bottom:1px solid #E5E7EB;">Page URL</td>
+        <td style="border-bottom:1px solid #E5E7EB;font-weight:600;word-break:break-all;font-size:13px;">${inquiry.pageUrl || 'Unknown'}</td>
+      </tr>
+      <tr>
+        <td style="font-weight:800;color:${BRAND_NAVY};">Timestamp</td>
+        <td style="font-weight:600;">${timestamp}</td>
+      </tr>
+    </table>
+
+    ${inquiry.notes ? `
+    <div style="background:#FFFBEB;border:1px solid ${BRAND_GOLD};border-radius:12px;padding:16px 20px;margin-bottom:24px;">
+      <p style="margin:0 0 8px;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:#92400E;">Chat Context / Last Message</p>
+      <p style="margin:0;color:#374151;font-size:14px;font-weight:600;white-space:pre-wrap;">${inquiry.notes}</p>
+    </div>
+    ` : ''}
+
+    <div style="text-align:center;margin-top:16px;">
+      <a href="${inquiryUrl}" style="display:block;width:100%;box-sizing:border-box;background:${BRAND_NAVY};color:${BRAND_GOLD};padding:18px 24px;border-radius:12px;text-decoration:none;font-weight:900;font-size:16px;text-transform:uppercase;box-shadow:0 10px 20px rgba(0,2,35,0.2);">
+        View Conversation in Admin Inbox
+      </a>
+    </div>
+  `;
+
+  return sendEmail({
+    to: OWNER_EMAIL,
+    subject: `🚨 Human Support Requested — ${inquiry.name}`,
+    html,
+    title: "Human Support Requested",
+  });
+}
+

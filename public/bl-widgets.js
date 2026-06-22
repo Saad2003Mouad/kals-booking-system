@@ -205,6 +205,14 @@
       '.bl-suggest-btn { background: #000223; color: #FFA000; border: 1.5px solid #FFA000; border-radius: 20px; padding: 7px 14px; font-size: 12.5px; font-weight: 800; cursor: pointer; white-space: nowrap; }',
       '.bl-suggest-btn:hover { background: #FFA000; color: #000223; }',
 
+      '.bl-info-form { background: #FFFBEB; border: 2px solid #FFA000; border-radius: 16px; padding: 16px; margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }',
+      '.bl-info-form-title { font-size: 13px; font-weight: 900; color: #000223; margin: 0 0 6px; }',
+      '.bl-info-input { border: 1.5px solid #E5E7EB; border-radius: 10px; padding: 10px 14px; font-size: 14px; font-weight: 600; font-family: inherit; outline: none; color: #000223; width: 100%; transition: border-color .2s; }',
+      '.bl-info-input:focus { border-color: #FFA000; box-shadow: 0 0 0 3px rgba(255,160,0,0.15); }',
+      '.bl-info-submit { background: #000223; color: #FFA000; border: none; border-radius: 10px; padding: 11px; font-size: 14px; font-weight: 900; cursor: pointer; font-family: inherit; transition: background .2s; }',
+      '.bl-info-submit:hover { background: #050b40; }',
+      '.bl-info-submit:disabled { opacity: 0.6; cursor: not-allowed; }',
+
       '@media (max-width: 480px) {',
       '  #bl-chat-window { bottom: 85px; right: 16px; width: calc(100vw - 32px); height: calc(100vh - 120px); }',
       '  #bl-chat-bubble { bottom: 16px !important; right: 16px !important; width: 55px !important; height: 55px !important; }',
@@ -261,6 +269,7 @@
     var msgs     = document.getElementById('bl-chat-messages');
     var history  = [];
     var isOpen   = false;
+    var customerInfo = null; // stores { name, email, phone } once collected
 
     function toggleChat() {
       isOpen = !isOpen;
@@ -331,12 +340,25 @@
       fetch(API_BASE + '/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: history, currentPage: window.location.href }),
+        body: JSON.stringify({
+          messages: history,
+          currentPage: window.location.href,
+          customerInfo: customerInfo,
+        }),
       })
       .then(function(res) {
         return res.json().then(function(data) {
           removeTyping();
           var reply = data.reply || data.final_response || 'For booking assistance, please visit our <a href="' + BOOKING_URL + '">Packages Page</a> or call <strong>617-999-3803</strong>.';
+          
+          // Handle COLLECT_INFO intent — show inline form
+          if (data.intent === 'COLLECT_INFO' || data.requiresInfo) {
+            appendMsg('bot', md2html(reply));
+            history.push({ role: 'assistant', content: reply });
+            showInfoCollectionForm();
+            return;
+          }
+          
           appendMsg('bot', md2html(reply));
           history.push({ role: 'assistant', content: reply });
         });
@@ -344,7 +366,63 @@
       .catch(function(err) {
         console.error('[BostonLegend] Chat error:', err);
         removeTyping();
-        appendMsg('bot', '<span style="color:#DC2626;font-weight:bold;">\u26A0\uFE0F Network Error</span><br>Sorry, I\'m having trouble connecting. Please call us at <strong>617-999-3803</strong> or <a href="' + BOOKING_URL + '">book online</a>.');
+        appendMsg('bot', '<span style="color:#DC2626;font-weight:bold;">&#9888;&#65039; Network Error</span><br>Sorry, I\'m having trouble connecting. Please call us at <strong>617-999-3803</strong> or <a href="' + BOOKING_URL + '">book online</a>.');
+      });
+    }
+
+    function showInfoCollectionForm() {
+      var formDiv = document.createElement('div');
+      formDiv.className = 'bl-msg bot';
+      formDiv.id = 'bl-info-form-wrapper';
+      var iceSVG = '<div class="bl-msg-avatar">' + iceCreamSVG + '</div>';
+      formDiv.innerHTML = iceSVG + '<div class="bl-msg-bubble"><form class="bl-info-form" id="bl-info-collect-form">' +
+        '<p class="bl-info-form-title">&#128274; To connect you with our team, please share your details:</p>' +
+        '<input id="bl-info-name" class="bl-info-input" type="text" placeholder="Full Name *" required />' +
+        '<input id="bl-info-email" class="bl-info-input" type="email" placeholder="Email Address *" required />' +
+        '<input id="bl-info-phone" class="bl-info-input" type="tel" placeholder="Phone Number (optional)" />' +
+        '<button type="submit" class="bl-info-submit">&#128172; Connect Me with the Team</button>' +
+        '</form></div>';
+      msgs.appendChild(formDiv);
+      msgs.scrollTop = msgs.scrollHeight;
+
+      document.getElementById('bl-info-collect-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var name = document.getElementById('bl-info-name').value.trim();
+        var email = document.getElementById('bl-info-email').value.trim();
+        var phone = document.getElementById('bl-info-phone').value.trim();
+        if (!name || !email) return;
+
+        customerInfo = { name: name, email: email, phone: phone || null };
+
+        // Remove the form
+        formDiv.remove();
+
+        // Send a trigger message with the info now set
+        var confirmMsg = 'I need human support — my name is ' + name + ' and my email is ' + email;
+        appendMsg('user', 'My name is ' + name + ' (' + email + ')');
+        history.push({ role: 'user', content: confirmMsg });
+        showTyping();
+
+        fetch(API_BASE + '/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: history,
+            currentPage: window.location.href,
+            customerInfo: customerInfo,
+          }),
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          removeTyping();
+          var reply = data.reply || data.final_response || 'Our team will reach out to you shortly!';
+          appendMsg('bot', md2html(reply));
+          history.push({ role: 'assistant', content: reply });
+        })
+        .catch(function() {
+          removeTyping();
+          appendMsg('bot', 'Request received! Our team will contact you at <strong>' + email + '</strong> shortly.');
+        });
       });
     }
   }

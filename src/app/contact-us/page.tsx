@@ -51,39 +51,11 @@ export default function ContactUsPage() {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
-        .contact-hero {
-          background: linear-gradient(135deg, rgba(255, 160, 0, 0.12) 0%, rgba(243, 145, 189, 0.1) 100%);
-          padding: 120px 24px 60px;
-          text-align: center;
-          color: #000223;
-          font-family: 'Plus Jakarta Sans', sans-serif;
-          border-bottom: 1px solid rgba(255,160,0,0.15);
-        }
-        .contact-hero-title {
-          font-size: 48px;
-          font-weight: 900;
-          margin-bottom: 16px;
-          color: #000223;
-        }
-        .contact-hero-subtitle {
-          font-size: 18px;
-          color: #4b5563;
-          max-width: 600px;
-          margin: 0 auto;
-          line-height: 1.6;
-        }
-        
-        .contact-main {
-          background-color: #f9fafb;
-          padding: 80px 24px;
-          font-family: 'Plus Jakarta Sans', sans-serif;
-        }
         .contact-container {
-          max-width: 1100px;
-          margin: 0 auto;
           display: grid;
           grid-template-columns: 1fr 1.5fr;
           gap: 40px;
+          padding: 60px 0;
         }
         @media (max-width: 850px) {
           .contact-container {
@@ -257,15 +229,22 @@ export default function ContactUsPage() {
 
       <SiteHeader />
 
-      <section className="contact-hero">
-        <h1 className="contact-hero-title">Get In Touch</h1>
-        <p className="contact-hero-subtitle">
-          Have a question about our ice cream truck catering or want to discuss a custom event? Send us a message and our team will get back to you shortly.
-        </p>
+      <section className="page-head">
+        <div className="w-layout-blockcontainer container w-container">
+          <h1 className="h1-page-hed">
+            <span className="page-titel-top">Contact Us</span><br/>
+            Boston Legend <br/>
+            <span className="title-event">Ice Cream truck</span>
+          </h1>
+          <img src="https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/681d4ed9eee047f1fa20bfc9_decore-line.avif" loading="lazy" width="426" height="36" alt="" className="h1-page-line"/>
+        </div>
       </section>
 
-      <main className="contact-main">
-        <div className="contact-container">
+      <main className="main">
+        <div className="w-layout-blockcontainer container w-container">
+          <div className="border-titel mb-0">Get In Touch</div>
+          
+          <div className="contact-container">
           
           {/* Contact Information */}
           <div className="contact-info-card">
@@ -407,7 +386,7 @@ export default function ContactUsPage() {
               </button>
             </form>
           </div>
-
+          </div>
         </div>
       </main>
 
