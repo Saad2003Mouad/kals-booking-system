@@ -17,6 +17,19 @@ const OCCASIONS_LIST = [
   { slug: "wedding-receptions", name: "Wedding Receptions" }
 ];
 
+const TOP_CITIES = [
+  { slug: "boston", name: "Boston" },
+  { slug: "cambridge", name: "Cambridge" },
+  { slug: "somerville", name: "Somerville" },
+  { slug: "brookline", name: "Brookline" },
+  { slug: "newton", name: "Newton" },
+  { slug: "quincy", name: "Quincy" },
+  { slug: "medford", name: "Medford" },
+  { slug: "revere", name: "Revere" },
+  { slug: "lynn", name: "Lynn" },
+  { slug: "waltham", name: "Waltham" },
+];
+
 export default function SiteFooter() {
   return (
     <>
@@ -32,8 +45,8 @@ export default function SiteFooter() {
           margin: 0 auto;
           padding: 0 24px;
           display: grid;
-          grid-template-columns: 1.6fr 1fr 1fr;
-          gap: 48px;
+          grid-template-columns: 1.6fr 1fr 1fr 1fr;
+          gap: 40px;
         }
         @media (max-width: 900px) {
           .bl-footer .bl-footer-inner {
@@ -207,7 +220,7 @@ export default function SiteFooter() {
 
           {/* Column 3 — Site Links, Call, Hours */}
           <div>
-            <div className="bl-footer-col-title">Ice Cream Event Catering</div>
+            <div className="bl-footer-col-title">Quick Links</div>
             <Link href="/" className="bl-footer-link">Home</Link>
             <Link href="/menu" className="bl-footer-link">Menu</Link>
             <Link href="/packages" className="bl-footer-link">Packages</Link>
@@ -221,6 +234,16 @@ export default function SiteFooter() {
             <div className="bl-footer-col-subtitle">Work Hours</div>
             <div className="bl-footer-text">Open 24 Hours for Scheduled Events</div>
             <div className="bl-footer-text">Available 24 hours by reservation</div>
+          </div>
+
+          {/* Column 4 — Service Areas */}
+          <div>
+            <div className="bl-footer-col-title">Service Areas</div>
+            {TOP_CITIES.map((city) => (
+              <Link key={city.slug} href={`/cities/${city.slug}`} className="bl-footer-link">
+                {city.name}, MA
+              </Link>
+            ))}
           </div>
         </div>
 

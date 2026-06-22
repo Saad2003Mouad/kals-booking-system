@@ -94,8 +94,7 @@ export const metadata: Metadata = {
     canonical: SITE_URL,
   },
   verification: {
-    // Add Google Search Console verification token here when available:
-    // google: "your-verification-token",
+    google: "AOQxUMJbpioWMH3CUbkkCBM5_j-CFhDFurpxaxJKOl4",
   },
 };
 
@@ -108,7 +107,7 @@ const localBusinessSchema = {
   url: SITE_URL,
   description:
     "Boston's premier luxury ice cream truck booking and dispatch service. Available for birthdays, corporate events, school parties, weddings, and community gatherings across Greater Boston and all of Massachusetts.",
-  telephone: ["617-999-3803", "617-999-3803"],
+  telephone: ["617-999-3803", "617-866-2727"],
   email: "info@bostonlegendicecreamtruck.com",
   image: [
     `${SITE_URL}/images/og-image.jpg`,
@@ -239,13 +238,16 @@ const organizationSchema = {
     },
     {
       "@type": "ContactPoint",
-      telephone: "617-999-3803",
+      telephone: "617-866-2727",
       contactType: "reservations",
       areaServed: "US",
     },
   ],
   sameAs: [
     "https://www.bostonlegendicecreamtruck.com",
+    "https://www.facebook.com/bostonlegendicecream",
+    "https://www.instagram.com/bostonlegendicecream",
+    "https://www.tiktok.com/@bostonlegendicecream",
   ],
 };
 

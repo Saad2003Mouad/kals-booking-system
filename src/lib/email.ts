@@ -765,3 +765,67 @@ export async function sendChatEscalationOwnerEmail(inquiry: {
   });
 }
 
+// ─── GOOGLE REVIEW REQUEST ────────────────────────
+// Sent automatically 24h after an event is COMPLETED.
+// Encourages customers to leave a 5-star Google review.
+const GOOGLE_REVIEW_URL = "https://g.page/r/CbKfNOSC6LMREBM/review";
+
+export async function sendGoogleReviewRequestEmail(booking: {
+  id: string;
+  bookingNumber: string;
+  eventDate: Date;
+  eventType: string;
+  customer: { firstName: string; lastName: string; email: string };
+  package?: { name: string } | null;
+}) {
+  const customerName = `${booking.customer.firstName}`;
+  const packageName = booking.package?.name ?? "Ice Cream Truck";
+  const eventDate = new Date(booking.eventDate).toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  const html = `
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="font-size:56px;line-height:1;margin-bottom:16px;">🍦⭐</div>
+      <h1 style="font-size:26px;font-weight:900;color:${BRAND_NAVY};margin:0 0 8px;">Thank You, ${customerName}!</h1>
+      <p style="font-size:15px;color:#6B7280;font-weight:600;margin:0;">We hope your event was absolutely delicious.</p>
+    </div>
+
+    <div style="background:#FFFBEB;border:2px solid #FEF3C7;border-radius:16px;padding:24px;margin-bottom:24px;text-align:center;">
+      <p style="font-size:15px;color:#92400E;font-weight:700;margin:0 0 4px;">Your recent event</p>
+      <p style="font-size:20px;font-weight:900;color:${BRAND_NAVY};margin:0;">${packageName} — ${eventDate}</p>
+    </div>
+
+    <p style="font-size:16px;color:#374151;font-weight:600;line-height:1.7;margin-bottom:20px;">
+      It was a pleasure serving your event! If you enjoyed your Boston Legend experience, 
+      we'd be incredibly grateful if you could take 30 seconds to leave us a review on Google. 
+      It really helps other families and businesses discover us!
+    </p>
+
+    <div style="text-align:center;margin:28px 0;">
+      <a href="${GOOGLE_REVIEW_URL}" 
+         style="display:inline-block;background:${BRAND_GOLD};color:${BRAND_NAVY};padding:18px 40px;border-radius:50px;text-decoration:none;font-weight:900;font-size:17px;box-shadow:0 8px 20px rgba(255,160,0,0.35);letter-spacing:0.02em;">
+        ⭐ Leave a Google Review
+      </a>
+    </div>
+
+    <p style="font-size:13px;color:#9CA3AF;font-weight:600;text-align:center;margin-top:20px;">
+      Takes less than 30 seconds — and it means the world to our small business! 🙏
+    </p>
+
+    <div style="margin-top:24px;padding:16px;background:#F9FAFB;border-radius:12px;text-align:center;">
+      <p style="font-size:13px;color:#6B7280;font-weight:600;margin:0 0 4px;">Need anything else?</p>
+      <a href="https://www.bostonlegendicecreamtruck.com/packages" style="color:${BRAND_GOLD};font-weight:800;font-size:14px;">Book your next event →</a>
+    </div>
+  `;
+
+  return sendEmail({
+    to: booking.customer.email,
+    subject: `${customerName}, thank you for choosing Boston Legend! ⭐`,
+    html,
+    title: "Thank You — Boston Legend Ice Cream Truck",
+  });
+}
