@@ -1,5 +1,4 @@
-import { sendEmail, sendBookingApprovedEmail, sendBookingPendingEmail, sendBookingRejectedEmail, sendBookingPendingReviewEmail, sendCustomQuoteEmail, sendOwnerNewBookingEmail, sendOwnerRequiresApprovalEmail, sendOwnerLateBookingAlert, sendOwnerEventReminderEmail } from "../src/lib/email";
-import { sendOtpEmail } from "../src/lib/otp";
+import { sendEmail, sendBookingApprovedEmail, sendBookingPendingEmail, sendBookingRejectedEmail, sendBookingPendingReviewEmail, sendCustomQuoteEmail, sendOwnerNewBookingEmail, sendOwnerRequiresApprovalEmail, sendOwnerLateBookingAlert, sendOwnerEventReminderEmail, sendOtpEmail } from "../src/lib/email";
 import { loadEnvConfig } from "@next/env";
 
 const projectDir = process.cwd();

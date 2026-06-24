@@ -19,29 +19,22 @@ export async function GET(request: Request) {
 
   try {
     const now = new Date();
-    // Window: events completed between 20–32 hours ago (gives a reliable daily cron window)
-    const windowStart = new Date(now.getTime() - 32 * 60 * 60 * 1000);
-    const windowEnd   = new Date(now.getTime() - 20 * 60 * 60 * 1000);
+    // 30-day lookback: catches any missed bookings during Vercel downtime.
+    // AuditLog (action: "REVIEW_REQUEST_SENT") prevents double-sends.
+    const windowStart = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-    // Find all COMPLETED bookings whose eventDate falls in the window
+    // Find all COMPLETED bookings whose eventDate is in the past 30 days
     // AND where we haven't sent a review request yet (no REVIEW_REQUEST_SENT audit log)
     const bookings = await prisma.booking.findMany({
       where: {
         status: "COMPLETED",
-        eventDate: {
-          gte: windowStart,
-          lte: windowEnd,
-        },
-        auditLogs: {
-          none: { action: "REVIEW_REQUEST_SENT" },
-        },
+        eventDate: { gte: windowStart, lte: now },
+        auditLogs: { none: { action: "REVIEW_REQUEST_SENT" } },
       },
       include: {
         customer: true,
         package: true,
-        auditLogs: {
-          where: { action: "REVIEW_REQUEST_SENT" },
-        },
+        auditLogs: { where: { action: "REVIEW_REQUEST_SENT" } },
       },
     });
 
@@ -50,6 +43,15 @@ export async function GET(request: Request) {
 
     for (const booking of bookings) {
       try {
+        // Calculate: eventEndTime + 24h
+        const durationMs = (booking.durationMins || 60) * 60 * 1000;
+        const eventEndTime = new Date(booking.eventDate.getTime() + durationMs);
+        const targetTime = new Date(eventEndTime.getTime() + 24 * 60 * 60 * 1000);
+
+        if (now < targetTime) {
+          continue; // Not yet 24h since the event ended
+        }
+
         // Double-check the customer has an email
         if (!booking.customer?.email) {
           console.warn(`[ReviewCron] Booking ${booking.bookingNumber} has no customer email — skipping.`);

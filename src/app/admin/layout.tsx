@@ -27,7 +27,6 @@ function isRouteAllowed(role: string, href: string): boolean {
       "/admin/customers",
       "/admin/inquiries",
       "/admin/vehicles",
-      "/admin/drivers",
     ].includes(href);
   }
   if (role === "SUPPORT") {
@@ -78,7 +77,6 @@ const NAV_GROUPS: NavGroup[] = [
     title: "Fleet",
     items: [
       { href: "/admin/vehicles",   label: "Fleet",        icon: Truck },
-      { href: "/admin/drivers",    label: "Drivers",      icon: UserCircle },
     ]
   },
   {

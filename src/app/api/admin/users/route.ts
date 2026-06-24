@@ -19,6 +19,7 @@ export async function GET(req: NextRequest) {
         email: true,
         role: true,
         permissions: true,
+        active: true,
         createdAt: true,
       }
     });

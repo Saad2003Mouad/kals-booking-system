@@ -16,6 +16,7 @@ model User {
   role         String    @default("DRIVER") // "OWNER" | "ADMIN" | "DISPATCHER" | "DRIVER" | "ACCOUNTING" | "SUPPORT"
   permissions  String[]  @default([])
   name         String
+  active       Boolean   @default(true)
   createdAt    DateTime  @default(now())
 
   driver            Driver?
@@ -297,11 +298,14 @@ model OtpCode {
   id          String    @id @default(cuid())
   email       String
   code        String
+  purpose     String    @default("BOOKING") // BOOKING | PORTAL | PASSWORD_RESET | EMAIL_CHANGE | SETTINGS | STAFF_INVITE | GENERAL
   expiresAt   DateTime
   verified    Boolean   @default(false)
   attempts    Int       @default(0)
   lockedUntil DateTime?
   createdAt   DateTime  @default(now())
+
+  @@index([email, purpose])
 }
 
 // ─── SERVICE ZIP CODES (Massachusetts) ───────────────
@@ -315,3 +319,16 @@ model ServiceZipCode {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+// ─── STAFF INVITATIONS ────────────────────────────
+model StaffInvite {
+  id          String    @id @default(cuid())
+  email       String    @unique
+  role        String    @default("SUPPORT")
+  token       String    @unique
+  invitedById String?
+  accepted    Boolean   @default(false)
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+}
+

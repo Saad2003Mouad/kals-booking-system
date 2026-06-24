@@ -26,7 +26,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     }
 
     const body = await req.json();
-    const { role, permissions } = body;
+    const { role, permissions, active } = body;
 
     // Double check: if attempting to change target user to OWNER or from OWNER and logged in user is not OWNER, block
     if ((role === "OWNER" || targetUser.role === "OWNER") && loggedInUser.role !== "OWNER") {
@@ -36,11 +36,12 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     const data: any = {};
     if (role !== undefined) data.role = role;
     if (permissions !== undefined) data.permissions = permissions;
+    if (active !== undefined) data.active = active;
 
     const updatedUser = await prisma.user.update({
       where: { id: params.id },
       data,
-      select: { id: true, name: true, email: true, role: true, permissions: true }
+      select: { id: true, name: true, email: true, role: true, permissions: true, active: true }
     });
 
     await prisma.auditLog.create({

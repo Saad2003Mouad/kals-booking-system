@@ -45,7 +45,7 @@ export default function SiteFooter() {
           margin: 0 auto;
           padding: 0 24px;
           display: grid;
-          grid-template-columns: 1.6fr 1fr 1fr 1fr;
+          grid-template-columns: 2fr 1fr 1fr;
           gap: 40px;
         }
         @media (max-width: 900px) {
@@ -236,15 +236,7 @@ export default function SiteFooter() {
             <div className="bl-footer-text">Available 24 hours by reservation</div>
           </div>
 
-          {/* Column 4 — Service Areas */}
-          <div>
-            <div className="bl-footer-col-title">Service Areas</div>
-            {TOP_CITIES.map((city) => (
-              <Link key={city.slug} href={`/cities/${city.slug}`} className="bl-footer-link">
-                {city.name}, MA
-              </Link>
-            ))}
-          </div>
+
         </div>
 
         {/* Copyright Bar */}

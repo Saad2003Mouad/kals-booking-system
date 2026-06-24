@@ -132,12 +132,16 @@ export default function LoginPage() {
             </form>
           </div>
 
-          {/* Back Link */}
-          <div className="mt-6 text-center">
-            <Link href="/" className="text-xs font-bold text-slate-500 hover:text-[#FFA000] transition-colors">
+          {/* Links */}
+          <div className="mt-6 text-center flex flex-col gap-2">
+            <a href="/forgot-password" className="text-xs font-bold text-slate-400 hover:text-[#FFA000] transition-colors">
+              Forgot your password?
+            </a>
+            <a href="/" className="text-xs font-bold text-slate-500 hover:text-[#FFA000] transition-colors">
               ← Return to Homepage
-            </Link>
+            </a>
           </div>
+
         </div>
       </main>
     </div>

@@ -165,9 +165,16 @@ export default function AdminTasksPage() {
         </div>
         
         {loading ? (
-          <div className="p-20 flex justify-center"><Loader2 className="w-8 h-8 animate-spin text-[#FFA000]" /></div>
+          <div className="py-24 flex flex-col items-center justify-center bg-slate-50/50">
+            <Loader2 className="w-10 h-10 animate-spin text-indigo-500 mb-4" />
+            <p className="text-sm font-bold text-slate-500">Loading tasks...</p>
+          </div>
         ) : filtered.length === 0 ? (
-          <div className="p-20 text-center font-bold text-slate-500">No tasks found.</div>
+          <div className="py-24 text-center bg-slate-50/50">
+            <CheckSquare className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+            <h3 className="text-lg font-black text-slate-700">No tasks found</h3>
+            <p className="text-sm font-semibold text-slate-500 mt-1">Try adjusting your filters or create a new task.</p>
+          </div>
         ) : (
           <div className="divide-y divide-slate-100">
             {filtered.map(t => (
