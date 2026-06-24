@@ -3,7 +3,7 @@ import Script from "next/script";
 import { Plus_Jakarta_Sans, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
-
+import { SpeedInsights } from "@vercel/speed-insights/next";
 const sans = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-sans",
@@ -348,6 +348,7 @@ export default function RootLayout({
           src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"
           strategy="afterInteractive"
         />
+        <SpeedInsights />
       </body>
     </html>
   );
