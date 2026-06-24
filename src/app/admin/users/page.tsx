@@ -13,17 +13,17 @@ type Staff = {
   createdAt: string;
 };
 
-const ROLES = ["OWNER", "ADMIN", "DISPATCHER", "DRIVER", "SUPPORT", "VIEWER"];
+const ROLES = ["OWNER", "ADMIN", "DISPATCHER", "SUPPORT", "VIEWER"];
 
 const PERMISSION_MATRIX = {
   "Bookings": ["bookings.view", "bookings.create", "bookings.update", "bookings.delete", "bookings.export"],
   "Customers & Users": ["users.view", "users.create", "users.update", "users.delete"],
   "Packages": ["packages.view", "packages.create", "packages.update", "packages.delete"],
   "Service Areas": ["serviceAreas.view", "serviceAreas.create", "serviceAreas.update", "serviceAreas.delete"],
-  "Fleet & Drivers": ["drivers.view", "drivers.assign"],
   "Settings": ["settings.view", "settings.update"],
   "Other": ["notifications.view", "ai.view"]
 };
+
 
 export default function AdminStaffPage() {
   const { data: session } = useSession();

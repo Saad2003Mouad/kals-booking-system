@@ -700,7 +700,7 @@ export async function sendChatEscalationOwnerEmail(inquiry: { id: string; name: 
 }
 
 // ─── GOOGLE REVIEW REQUEST ────────────────────────────────────
-const GOOGLE_REVIEW_URL = "https://g.page/r/CbKfNOSC6LMREBM/review";
+const GOOGLE_REVIEW_URL = "https://g.page/r/CWDhxc3sMbFAEAI/review";
 
 export async function sendGoogleReviewRequestEmail(booking: { id: string; bookingNumber: string; eventDate: Date; eventType: string; customer: { firstName: string; lastName: string; email: string }; package?: { name: string } | null; }) {
   const customerName = `${booking.customer.firstName}`;

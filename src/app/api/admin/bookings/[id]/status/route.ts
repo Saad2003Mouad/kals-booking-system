@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { sendBookingApprovedEmail, sendBookingRejectedEmail, sendBookingPendingReviewEmail } from "@/lib/email";
+import { sendBookingApprovedEmail, sendBookingRejectedEmail, sendBookingPendingReviewEmail, sendGoogleReviewRequestEmail } from "@/lib/email";
 import { getSessionUser, hasPermission, unauthenticated, unauthorized } from "@/lib/rbac";
 import { googleCalendarService } from "@/lib/google-calendar";
+
 
 export const dynamic = "force-dynamic";
 
@@ -134,7 +135,53 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
           internalNote || "Thank you for choosing Boston Legend. We reviewed your request and it needs a quick adjustment before we can confirm it.",
           booking.id
         );
+      } else if (status === "COMPLETED") {
+        // Event-driven review request: schedule email 24h after event end
+        const hasReviewLog = await prisma.auditLog.findFirst({
+          where: { bookingId: booking.id, action: "REVIEW_REQUEST_SENT" },
+        });
+        if (!hasReviewLog && booking.customer?.email) {
+          const durationMs = ((booking as any).durationMins || 60) * 60 * 1000;
+          const eventEndTime = new Date(booking.eventDate.getTime() + durationMs);
+          const delayMs = Math.max(0, eventEndTime.getTime() + 24 * 60 * 60 * 1000 - Date.now());
+          // Schedule non-blocking (fire and forget after delay)
+          const scheduleReview = async () => {
+            try {
+              await sendGoogleReviewRequestEmail({
+                id: booking.id,
+                bookingNumber: booking.bookingNumber,
+                eventDate: booking.eventDate,
+                eventType: booking.eventType,
+                customer: {
+                  firstName: booking.customer.firstName,
+                  lastName: booking.customer.lastName,
+                  email: booking.customer.email,
+                },
+                package: booking.package ? { name: booking.package.name } : null,
+              });
+              await prisma.auditLog.create({
+                data: {
+                  entityType: "BOOKING",
+                  entityId: booking.id,
+                  bookingId: booking.id,
+                  action: "REVIEW_REQUEST_SENT",
+                  metadataJson: JSON.stringify({ sentAt: new Date().toISOString(), trigger: "EVENT_DRIVEN", customerEmail: booking.customer.email }),
+                },
+              });
+              console.log(`[ReviewRequest] ✅ Sent review email for ${booking.bookingNumber} after ${delayMs}ms delay`);
+            } catch (err) {
+              console.error(`[ReviewRequest] ❌ Failed for ${booking.bookingNumber}:`, err);
+            }
+          };
+          if (delayMs <= 0) {
+            scheduleReview(); // Event already passed, send immediately
+          } else {
+            setTimeout(scheduleReview, delayMs); // Schedule for 24h after event end
+            console.log(`[ReviewRequest] ⏰ Scheduled review email for ${booking.bookingNumber} in ${Math.round(delayMs / 3600000)}h`);
+          }
+        }
       }
+
     } catch (emailErr) {
       console.error("[Email Dispatch Error inside Status Update]", emailErr);
     }

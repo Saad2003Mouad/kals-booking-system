@@ -312,6 +312,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "";
+  const AW_ID = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID || "";
+
   return (
     <html lang="en">
       <head>
@@ -337,6 +340,29 @@ export default function RootLayout({
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
         {/* Webflow Global Shared CSS to fix missing footer and layout styling on Next.js routes */}
         <link rel="stylesheet" href="https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/css/boston-legend.webflow.shared.fe0e6a837.min.css" />
+
+        {/* ── Google Analytics 4 + Google Ads ── */}
+        {GA_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script
+              id="gtag-init"
+              strategy="afterInteractive"
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', '${GA_ID}', { page_path: window.location.pathname });
+                  ${AW_ID ? `gtag('config', '${AW_ID}');` : ""}
+                `,
+              }}
+            />
+          </>
+        )}
       </head>
       <body
         className={`${sans.variable} ${playfair.variable} antialiased font-sans bg-amber-50 page`}
@@ -354,4 +380,4 @@ export default function RootLayout({
       </body>
     </html>
   );
-}
+}
