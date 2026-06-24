@@ -30,6 +30,7 @@ export async function POST(req: NextRequest) {
       where: {
         email: normalizedEmail,
         verified: false,
+        purpose: "PORTAL",
       },
       orderBy: { createdAt: "desc" },
     });

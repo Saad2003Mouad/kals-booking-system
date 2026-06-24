@@ -4,6 +4,7 @@ import { Plus_Jakarta_Sans, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/next";
 const sans = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-sans",
@@ -349,6 +350,7 @@ export default function RootLayout({
           strategy="afterInteractive"
         />
         <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );
