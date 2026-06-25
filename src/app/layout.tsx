@@ -342,10 +342,10 @@ export default function RootLayout({
         <link rel="stylesheet" href="https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/css/boston-legend.webflow.shared.fe0e6a837.min.css" />
 
         {/* ── Google Analytics 4 + Google Ads ── */}
-        {(GA_ID || AW_ID) && (
+        {(GA_ID || "AW-18270235015") && (
           <>
             <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID || AW_ID}`}
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID || "AW-18270235015"}`}
               strategy="afterInteractive"
             />
             <Script
@@ -357,7 +357,7 @@ export default function RootLayout({
                   function gtag(){dataLayer.push(arguments);}
                   gtag('js', new Date());
                   ${GA_ID ? `gtag('config', '${GA_ID}', { page_path: window.location.pathname });` : ""}
-                  ${AW_ID ? `gtag('config', '${AW_ID}');` : ""}
+                  gtag('config', 'AW-18270235015');
                 `,
               }}
             />
