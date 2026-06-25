@@ -125,7 +125,7 @@ function getCityData(slug: string) {
         <h3 style="font-size: 1.2rem; color: #000223; font-weight: 900; margin-bottom: 12px;">🗺️ We Also Serve These Nearby Cities</h3>
         <div style="display: flex; flex-wrap: wrap; gap: 10px;">
             ${seoData.nearbyCities.map((c: {slug: string; name: string}) => `<a href="/cities/${c.slug}" style="background: white; border: 1px solid #E5E7EB; color: #000223; padding: 8px 18px; border-radius: 50px; font-weight: 700; font-size: 14px; text-decoration: none; transition: all 0.2s;">Ice Cream Truck in ${c.name}</a>`).join('')}
-            <a href="/service-areas" style="background: #000223; color: #FFA000; padding: 8px 18px; border-radius: 50px; font-weight: 700; font-size: 14px; text-decoration: none;">View All Service Areas →</a>
+            <a href="/packages" style="background: #000223; color: #FFA000; padding: 8px 18px; border-radius: 50px; font-weight: 700; font-size: 14px; text-decoration: none;">View Our Packages →</a>
         </div>
     </div>
 
@@ -174,7 +174,7 @@ function getCityData(slug: string) {
   Object.entries(validOccasions).forEach(([legacySlug, correctSlug]) => {
     // Matches /occasion/legacySlug optionally followed by any -city suffix
     const regex = new RegExp(`href="\\/occasion\\/${legacySlug}(?:-[a-z-]+)?"`, 'g');
-    contentHtml = contentHtml.replace(regex, `href="/occasions/${correctSlug}"`);
+    contentHtml = contentHtml.replace(regex, 'href="/packages"');
   });
 
   return {
