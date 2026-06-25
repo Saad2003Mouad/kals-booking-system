@@ -8,71 +8,63 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-// ─── AUTH ───────────────────────────────────────
 model User {
-  id           String    @id @default(cuid())
-  email        String    @unique
-  passwordHash String
-  role         String    @default("DRIVER") // "OWNER" | "ADMIN" | "DISPATCHER" | "DRIVER" | "ACCOUNTING" | "SUPPORT"
-  permissions  String[]  @default([])
-  name         String
-  active       Boolean   @default(true)
-  createdAt    DateTime  @default(now())
-
-  driver            Driver?
+  id                String     @id @default(cuid())
+  email             String     @unique
+  passwordHash      String
+  role              String     @default("DRIVER")
+  name              String
+  createdAt         DateTime   @default(now())
+  permissions       String[]   @default([])
+  active            Boolean    @default(true)
   auditLogs         AuditLog[]
+  driver            Driver?
   assignedInquiries Inquiry[]
   assignedTasks     Task[]
 }
 
-// ─── FLEET ──────────────────────────────────────
 model Vehicle {
-  id     String  @id @default(cuid())
-  code   String  @unique
-  name   String
-  type   String  // "TRUCK" | "VAN"
-  status String  @default("AVAILABLE")
-
-  bookings           Booking[]
+  id                 String              @id @default(cuid())
+  code               String              @unique
+  name               String
+  type               String
+  status             String              @default("AVAILABLE")
   availabilityBlocks AvailabilityBlock[]
+  bookings           Booking[]
   assignments        VehicleAssignment[]
 }
 
 model Driver {
-  id          String  @id @default(cuid())
-  userId      String  @unique
-  user        User    @relation(fields: [userId], references: [id])
+  id          String              @id @default(cuid())
+  userId      String              @unique
   displayName String
   phone       String?
-  active      Boolean @default(true)
-
+  active      Boolean             @default(true)
+  user        User                @relation(fields: [userId], references: [id])
   assignments VehicleAssignment[]
 }
 
-// ─── PACKAGES ────────────────────────────────────
 model Package {
-  id              String  @id @default(cuid())
+  id              String    @id @default(cuid())
   name            String
-  slug            String  @unique
-  serviceType     String  // "AMERICANO_TRUCK" | "SPRINTER_VAN"
+  slug            String    @unique
+  serviceType     String
   description     String?
   servings        Int
   price           Float
   extraPiecePrice Float
-  extraGuestPrice Float   @default(5)
-  durationMins    Int     @default(60)
   imageUrl        String?
   badge           String?
   features        String?
-  isActive        Boolean @default(true)
-  sortOrder       Int     @default(0)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  bookings Booking[]
+  isActive        Boolean   @default(true)
+  sortOrder       Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  extraGuestPrice Float     @default(5)
+  durationMins    Int       @default(60)
+  bookings        Booking[]
 }
 
-// ─── BOOKINGS ────────────────────────────────────
 model Customer {
   id        String    @id @default(cuid())
   firstName String
@@ -83,134 +75,127 @@ model Customer {
   city      String?
   zip       String?
   createdAt DateTime  @default(now())
-
-  bookings Booking[]
-  tasks    Task[]
+  bookings  Booking[]
   inquiries Inquiry[]
+  tasks     Task[]
 }
 
 model Booking {
-  id            String    @id @default(cuid())
-  bookingNumber String    @unique
-  customerId    String
-  customer      Customer  @relation(fields: [customerId], references: [id])
-  packageId     String?
-  package       Package?  @relation(fields: [packageId], references: [id])
-  vehicleId     String?
-  vehicle       Vehicle?  @relation(fields: [vehicleId], references: [id])
-
-  status              String   @default("PENDING") // PENDING|PENDING_REVIEW|PENDING_PAYMENT|CONFIRMED|ASSIGNED|IN_PROGRESS|COMPLETED|CANCELLED|REJECTED
-  eventDate           DateTime
-  startTime           String
-  durationMins        Int
-  address             String
-  city                String
-  zip                 String
-  guests              Int
-  eventType           String
-  notes               String?
-  additionalStops     Int      @default(0)
-  additionalStopsFee  Float    @default(0)
-  totalAmount         Float    @default(0)
-  internalNote        String?
-  googleEventId       String?
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-
-  quote       Quote?
-  stops       BookingStop[]
-  items       BookingItem[]
-  payments    Payment[]
-  assignment  VehicleAssignment?
-  auditLogs   AuditLog[]
-  tasks       Task[]
-  inquiries   Inquiry[]
+  id                 String             @id @default(cuid())
+  bookingNumber      String             @unique
+  customerId         String
+  packageId          String?
+  vehicleId          String?
+  status             String             @default("PENDING")
+  eventDate          DateTime
+  startTime          String
+  durationMins       Int
+  address            String
+  city               String
+  zip                String
+  guests             Int
+  eventType          String
+  notes              String?
+  totalAmount        Float              @default(0)
+  internalNote       String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  additionalStops    Int                @default(0)
+  additionalStopsFee Float              @default(0)
+  googleEventId      String?
+  auditLogs          AuditLog[]
+  customer           Customer           @relation(fields: [customerId], references: [id])
+  package            Package?           @relation(fields: [packageId], references: [id])
+  vehicle            Vehicle?           @relation(fields: [vehicleId], references: [id])
+  items              BookingItem[]
+  stops              BookingStop[]
+  inquiries          Inquiry[]
+  payments           Payment[]
+  quote              Quote?
+  tasks              Task[]
+  assignment         VehicleAssignment?
 }
 
 model BookingItem {
   id          String  @id @default(cuid())
   bookingId   String
-  booking     Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   lineType    String
   description String
   quantity    Int     @default(1)
   unitPrice   Float
   totalPrice  Float
+  booking     Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
 }
 
 model BookingStop {
-  id          String   @id @default(cuid())
-  bookingId   String
-  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-
-  stopOrder   Int
-  label       String?
-  street      String
-  city        String
-  state       String   @default("MA")
-  zipCode     String
-  latitude    Float?
-  longitude   Float?
-  notes       String?
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  bookingId String
+  stopOrder Int
+  label     String?
+  street    String
+  city      String
+  state     String   @default("MA")
+  zipCode   String
+  latitude  Float?
+  longitude Float?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
 
   @@index([bookingId])
   @@index([zipCode])
 }
 
 model Quote {
-  id            String  @id @default(cuid())
-  bookingId     String  @unique
-  booking       Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  id            String   @id @default(cuid())
+  bookingId     String   @unique
   basePrice     Float
-  distanceMiles Float   @default(0)
-  travelFee     Float   @default(0)
-  overtimeFee   Float   @default(0)
+  distanceMiles Float    @default(0)
+  travelFee     Float    @default(0)
+  overtimeFee   Float    @default(0)
   totalAmount   Float
   snapshotJson  String
-  version       Int     @default(1)
+  version       Int      @default(1)
   createdAt     DateTime @default(now())
+  booking       Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
 }
 
 model AvailabilityBlock {
   id        String   @id @default(cuid())
   vehicleId String
-  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
-  blockType String   // "BLACKOUT" | "MAINTENANCE" | "MANUAL_HOLD"
+  blockType String
   startsAt  DateTime
   endsAt    DateTime
   reason    String?
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
 }
 
 model VehicleAssignment {
   id         String   @id @default(cuid())
   bookingId  String   @unique
-  booking    Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   vehicleId  String
-  vehicle    Vehicle  @relation(fields: [vehicleId], references: [id])
   driverId   String?
-  driver     Driver?  @relation(fields: [driverId], references: [id])
   assignedAt DateTime @default(now())
-  jobStatus  String   @default("PENDING") // PENDING|ON_THE_WAY|ARRIVED|COMPLETED
+  jobStatus  String   @default("PENDING")
   driverNote String?
+  booking    Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  driver     Driver?  @relation(fields: [driverId], references: [id])
+  vehicle    Vehicle  @relation(fields: [vehicleId], references: [id])
 }
 
-// ─── PAYMENTS ────────────────────────────────────
 model Payment {
   id             String   @id @default(cuid())
   bookingId      String
-  booking        Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   gateway        String   @default("STRIPE")
   intentId       String?  @unique
   amount         Float
   refundedAmount Float    @default(0)
   status         String
   createdAt      DateTime @default(now())
+  booking        Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
 }
 
-// ─── AI LEADS & INQUIRIES ─────────────────────────
 model Inquiry {
   id           String    @id @default(cuid())
   name         String
@@ -220,23 +205,18 @@ model Inquiry {
   eventDate    DateTime?
   guestCount   Int?
   notes        String?
-  internalNote String?
-  status       String    @default("NEW") // NEW | IN_PROGRESS | RESOLVED | CLOSED
-  priority     String    @default("MEDIUM") // LOW | MEDIUM | HIGH | URGENT
-  source       String    @default("CHAT_WIDGET") // CHAT_WIDGET | CONTACT_FORM | BOOKING | EMAIL
-  pageUrl      String?
-  
-  assignedToId String?
-  assignedTo   User?     @relation(fields: [assignedToId], references: [id])
-
-  customerId   String?
-  customer     Customer? @relation(fields: [customerId], references: [id])
-
-  bookingId    String?
-  booking      Booking?  @relation(fields: [bookingId], references: [id])
-
+  status       String    @default("NEW")
   createdAt    DateTime  @default(now())
-
+  assignedToId String?
+  internalNote String?
+  pageUrl      String?
+  priority     String    @default("MEDIUM")
+  source       String    @default("CHAT_WIDGET")
+  bookingId    String?
+  customerId   String?
+  assignedTo   User?     @relation(fields: [assignedToId], references: [id])
+  booking      Booking?  @relation(fields: [bookingId], references: [id])
+  customer     Customer? @relation(fields: [customerId], references: [id])
   tasks        Task[]
 }
 
@@ -248,67 +228,56 @@ model AssistantMessage {
   createdAt DateTime @default(now())
 }
 
-// ─── TASKS ───────────────────────────────────────
 model Task {
   id           String    @id @default(cuid())
   title        String
   description  String?
   dueDate      DateTime?
-  priority     String    @default("MEDIUM") // LOW | MEDIUM | HIGH | URGENT
-  status       String    @default("TODO")   // TODO | IN_PROGRESS | DONE | BLOCKED
-  
-  assignedToId String?
-  assignedTo   User?     @relation(fields: [assignedToId], references: [id])
-
-  inquiryId    String?
-  inquiry      Inquiry?  @relation(fields: [inquiryId], references: [id])
-
-  bookingId    String?
-  booking      Booking?  @relation(fields: [bookingId], references: [id])
-
-  customerId   String?
-  customer     Customer? @relation(fields: [customerId], references: [id])
-
+  priority     String    @default("MEDIUM")
+  status       String    @default("TODO")
   createdAt    DateTime  @default(now())
+  assignedToId String?
+  bookingId    String?
+  customerId   String?
+  inquiryId    String?
+  assignedTo   User?     @relation(fields: [assignedToId], references: [id])
+  booking      Booking?  @relation(fields: [bookingId], references: [id])
+  customer     Customer? @relation(fields: [customerId], references: [id])
+  inquiry      Inquiry?  @relation(fields: [inquiryId], references: [id])
 }
 
-// ─── AUDIT ───────────────────────────────────────
 model AuditLog {
   id           String   @id @default(cuid())
   entityType   String
   entityId     String
   action       String
   actorId      String?
-  user         User?    @relation(fields: [actorId], references: [id])
   metadataJson String
   createdAt    DateTime @default(now())
-
   bookingId    String?
+  user         User?    @relation(fields: [actorId], references: [id])
   booking      Booking? @relation(fields: [bookingId], references: [id])
 }
 
-// ─── SETTINGS ────────────────────────────────────
 model Setting {
   key   String @id
   value String
 }
 
-// ─── OTP VERIFICATION ────────────────────────────────
 model OtpCode {
   id          String    @id @default(cuid())
   email       String
   code        String
-  purpose     String    @default("BOOKING") // BOOKING | PORTAL | PASSWORD_RESET | EMAIL_CHANGE | SETTINGS | STAFF_INVITE | GENERAL
   expiresAt   DateTime
   verified    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
   attempts    Int       @default(0)
   lockedUntil DateTime?
-  createdAt   DateTime  @default(now())
+  purpose     String    @default("BOOKING")
 
   @@index([email, purpose])
 }
 
-// ─── SERVICE ZIP CODES (Massachusetts) ───────────────
 model ServiceZipCode {
   id        String   @id @default(cuid())
   zip       String   @unique
@@ -320,15 +289,13 @@ model ServiceZipCode {
   updatedAt DateTime @updatedAt
 }
 
-// ─── STAFF INVITATIONS ────────────────────────────
 model StaffInvite {
-  id          String    @id @default(cuid())
-  email       String    @unique
-  role        String    @default("SUPPORT")
-  token       String    @unique
+  id          String   @id @default(cuid())
+  email       String   @unique
+  role        String   @default("SUPPORT")
+  token       String   @unique
   invitedById String?
-  accepted    Boolean   @default(false)
+  accepted    Boolean  @default(false)
   expiresAt   DateTime
-  createdAt   DateTime  @default(now())
+  createdAt   DateTime @default(now())
 }
-
