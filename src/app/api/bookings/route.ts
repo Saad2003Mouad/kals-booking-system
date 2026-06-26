@@ -13,6 +13,7 @@ import {
 import { calculateQuote } from "@/lib/pricing";
 import { googleCalendarService } from "@/lib/google-calendar";
 import { z } from "zod";
+import { SignJWT } from "jose";
 
 async function withRetry<T>(fn: () => Promise<T>, retries = 2): Promise<T> {
   let lastError: unknown;
@@ -481,7 +482,18 @@ export async function POST(req: NextRequest) {
       console.error("[Owner Email Send Error]", ownerEmailErr);
     }
 
-    return NextResponse.json({
+    const secretKey = new TextEncoder().encode(process.env.NEXTAUTH_SECRET || "fallback_secret_for_dev_only");
+    const jwt = await new SignJWT({
+      bookingId: booking.id,
+      customerId: booking.customerId,
+      role: "CUSTOMER"
+    })
+      .setProtectedHeader({ alg: "HS256" })
+      .setIssuedAt()
+      .setExpirationTime("7d")
+      .sign(secretKey);
+
+    const response = NextResponse.json({
       booking,
       decision: aiDecision,
       paymentUrl: null,
@@ -489,6 +501,16 @@ export async function POST(req: NextRequest) {
       status,
       customerPortalUrl: `/customer/booking/${booking.id}`
     }, { status: 201 });
+
+    response.cookies.set("bl_customer_session", jwt, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60,
+    });
+
+    return response;
 
   } catch (err) {
     console.error("[Booking API Error]", err);
