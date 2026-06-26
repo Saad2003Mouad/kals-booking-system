@@ -241,12 +241,9 @@ export default function SiteFooter() {
 
         {/* Copyright Bar */}
         <div className="bl-footer-copyright-bar">
-          <div className="bl-footer-copyright">
-            <span className="bl-footer-copyright-text">
+          <div className="bl-footer-copyright flex justify-center w-full">
+            <span className="bl-footer-copyright-text text-center w-full block">
               Boston Legend Copyright © {new Date().getFullYear()}, All rights reserved.
-            </span>
-            <span className="bl-footer-copyright-text">
-              Powered by <a href="https://www.dvyns.com/" target="_blank" rel="noreferrer">DVYNS</a>
             </span>
           </div>
         </div>
