@@ -32,7 +32,9 @@ const nextConfig = {
   },
   async rewrites() {
     return {
-      beforeFiles: [],
+      beforeFiles: [
+        { source: "/", destination: "/index.html" }
+      ],
       afterFiles: [
         { source: "/about", destination: "/about.html" },
         { source: "/menu", destination: "/menu.html" },
@@ -94,31 +96,31 @@ const nextConfig = {
   async redirects() {
     return [
       // Legacy routes
-      { source: '/products', destination: '/packages', permanent: true },
-      { source: '/reserve', destination: '/packages', permanent: true },
-      { source: '/book-now', destination: '/packages', permanent: true },
+      { source: '/products', destination: '/packages', statusCode: 301 },
+      { source: '/reserve', destination: '/packages', statusCode: 301 },
+      { source: '/book-now', destination: '/packages', statusCode: 301 },
       
       // Explicit .html to clean routes based on requests
-      { source: '/boston.html', destination: '/cities/boston', permanent: true },
-      { source: '/abington.html', destination: '/cities/abington', permanent: true },
-      { source: '/school-occasions.html', destination: '/occasions/school-occasions', permanent: true },
+      { source: '/boston.html', destination: '/cities/boston', statusCode: 301 },
+      { source: '/abington.html', destination: '/cities/abington', statusCode: 301 },
+      { source: '/school-occasions.html', destination: '/occasions/school-occasions', statusCode: 301 },
 
       // Singular /occasion/ routes with optional city suffixes mapping to correct plural occasions
-      { source: '/occasion/birthday-parties:path*', destination: '/occasions/birthday-parties', permanent: true },
-      { source: '/occasion/block-parties:path*', destination: '/occasions/block-parties', permanent: true },
-      { source: '/occasion/corporate-parties:path*', destination: '/occasions/corporate-parties', permanent: true },
-      { source: '/occasion/fundraisers:path*', destination: '/occasions/fundraisers', permanent: true },
-      { source: '/occasion/launch-parties:path*', destination: '/occasions/launch-parties', permanent: true },
-      { source: '/occasion/marketing-events:path*', destination: '/occasions/marketing-events', permanent: true },
-      { source: '/occasion/movie-rental:path*', destination: '/occasions/movie-rental', permanent: true },
-      { source: '/occasion/photo-shoots:path*', destination: '/occasions/photo-sessions', permanent: true },
-      { source: '/occasion/reunions:path*', destination: '/occasions/reunions', permanent: true },
-      { source: '/occasion/school-events:path*', destination: '/occasions/school-occasions', permanent: true },
-      { source: '/occasion/sporting-events:path*', destination: '/occasions/sports-occasions', permanent: true },
-      { source: '/occasion/wedding-receptions:path*', destination: '/occasions/wedding-receptions', permanent: true },
+      { source: '/occasion/birthday-parties:path*', destination: '/occasions/birthday-parties', statusCode: 301 },
+      { source: '/occasion/block-parties:path*', destination: '/occasions/block-parties', statusCode: 301 },
+      { source: '/occasion/corporate-parties:path*', destination: '/occasions/corporate-parties', statusCode: 301 },
+      { source: '/occasion/fundraisers:path*', destination: '/occasions/fundraisers', statusCode: 301 },
+      { source: '/occasion/launch-parties:path*', destination: '/occasions/launch-parties', statusCode: 301 },
+      { source: '/occasion/marketing-events:path*', destination: '/occasions/marketing-events', statusCode: 301 },
+      { source: '/occasion/movie-rental:path*', destination: '/occasions/movie-rental', statusCode: 301 },
+      { source: '/occasion/photo-shoots:path*', destination: '/occasions/photo-sessions', statusCode: 301 },
+      { source: '/occasion/reunions:path*', destination: '/occasions/reunions', statusCode: 301 },
+      { source: '/occasion/school-events:path*', destination: '/occasions/school-occasions', statusCode: 301 },
+      { source: '/occasion/sporting-events:path*', destination: '/occasions/sports-occasions', statusCode: 301 },
+      { source: '/occasion/wedding-receptions:path*', destination: '/occasions/wedding-receptions', statusCode: 301 },
       
       // Fallback for any unknown /occasion/* -> /packages
-      { source: '/occasion/:path*', destination: '/packages', permanent: true },
+      { source: '/occasion/:path*', destination: '/packages', statusCode: 301 },
     ];
   },
 };
