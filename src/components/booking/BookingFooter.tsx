@@ -81,9 +81,12 @@ export default function BookingFooter() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-white/5 flex items-center justify-center">
-          <div className="text-[11px] font-bold text-white/20 uppercase tracking-widest text-center">
+        <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="text-[11px] font-bold text-white/20 uppercase tracking-widest">
             © {new Date().getFullYear()} Boston Legend Ice Cream Truck. All rights reserved.
+          </div>
+          <div className="text-[11px] font-bold text-white/20 uppercase tracking-widest flex items-center gap-1">
+            Powered by <span className="text-[#FFA000]">DVYNS</span>
           </div>
         </div>
       </div>
