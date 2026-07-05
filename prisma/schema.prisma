@@ -12,7 +12,7 @@ model User {
   id                String     @id @default(cuid())
   email             String     @unique
   passwordHash      String
-  role              String     @default("DRIVER")
+  role              String     
   name              String
   createdAt         DateTime   @default(now())
   permissions       String[]   @default([])
