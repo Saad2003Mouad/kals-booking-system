@@ -103,6 +103,13 @@ model Booking {
   additionalStops    Int                @default(0)
   additionalStopsFee Float              @default(0)
   googleEventId      String?
+  deletedAt          DateTime?
+  deletedBy          String?
+  deletedReason      String?
+  cancellationReason String?
+  cancelledAt        DateTime?
+  cancelledBy        String?
+  adminNote          String?
   auditLogs          AuditLog[]
   customer           Customer           @relation(fields: [customerId], references: [id])
   package            Package?           @relation(fields: [packageId], references: [id])
@@ -114,6 +121,10 @@ model Booking {
   quote              Quote?
   tasks              Task[]
   assignment         VehicleAssignment?
+
+  @@index([status])
+  @@index([deletedAt])
+  @@index([cancelledAt])
 }
 
 model BookingItem {
@@ -248,15 +259,20 @@ model Task {
 
 model AuditLog {
   id           String   @id @default(cuid())
-  entityType   String
-  entityId     String
-  action       String
-  actorId      String?
-  metadataJson String
-  createdAt    DateTime @default(now())
-  bookingId    String?
-  user         User?    @relation(fields: [actorId], references: [id])
-  booking      Booking? @relation(fields: [bookingId], references: [id])
+  entityType     String
+  entityId       String
+  action         String
+  actorId        String?
+  actorRole      String?
+  metadataJson   String
+  previousValues String?
+  newValues      String?
+  ipAddress      String?
+  userAgent      String?
+  createdAt      DateTime @default(now())
+  bookingId      String?
+  user           User?    @relation(fields: [actorId], references: [id])
+  booking        Booking? @relation(fields: [bookingId], references: [id])
 }
 
 model Setting {

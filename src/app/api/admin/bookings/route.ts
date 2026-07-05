@@ -20,8 +20,15 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get("status");
     const search = searchParams.get("search");
 
-    const where: any = {};
-    if (status) where.status = status;
+    const where: any = { deletedAt: null };
+    if (status) {
+      if (status === "ARCHIVED") {
+        delete where.deletedAt;
+        where.deletedAt = { not: null };
+      } else {
+        where.status = status;
+      }
+    }
     
     // Enforce DRIVER role assigned-only filtering
     if (user.role === "DRIVER" || (!canViewAll && canViewAssigned)) {

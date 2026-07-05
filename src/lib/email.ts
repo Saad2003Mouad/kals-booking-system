@@ -731,3 +731,71 @@ export async function sendGoogleReviewRequestEmail(booking: { id: string; bookin
   `;
   return sendEmail({ to: booking.customer.email, subject: `${customerName}, thank you for choosing Boston Legend! ⭐`, html, title: "Thank You — Boston Legend Ice Cream Truck" });
 }
+
+// ─── CANCELLATION APPROVED EMAIL ───────────────────────────────
+export async function sendCancellationApprovedEmail(
+  to: string,
+  firstName: string,
+  bookingNumber: string,
+  adminNote: string,
+  bookingId: string
+) {
+  const html = `
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="font-size:48px;margin-bottom:12px;">😔🍦</div>
+      <h1 style="font-size:24px;font-weight:900;color:${BRAND_NAVY};margin:0 0 8px;">Cancellation Confirmed</h1>
+      <p style="font-size:15px;color:#6B7280;font-weight:600;margin:0;">Hi ${firstName}, your cancellation request has been approved.</p>
+    </div>
+    <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:14px;padding:20px;margin-bottom:24px;">
+      <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#B91C1C;text-transform:uppercase;letter-spacing:1px;">Booking Cancelled</p>
+      <p style="margin:0;font-size:20px;font-weight:900;color:${BRAND_NAVY};">${bookingNumber}</p>
+    </div>
+    ${adminNote ? `
+    <div style="background:#F9FAFB;border-radius:12px;padding:18px;margin-bottom:24px;">
+      <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#6B7280;text-transform:uppercase;">Note from our team</p>
+      <p style="margin:0;font-size:15px;color:#374151;font-weight:600;line-height:1.6;">${adminNote}</p>
+    </div>` : ""}
+    <p style="font-size:15px;color:#374151;line-height:1.7;font-weight:600;">
+      We're sorry to see you go! If you'd like to book a future event, we'd love to serve you again.
+    </p>
+    <div style="text-align:center;margin:28px 0;">
+      <a href="${process.env.NEXTAUTH_URL || "https://www.bostonlegendicecreamtruck.com"}/packages" style="display:inline-block;background:${BRAND_GOLD};color:${BRAND_NAVY};padding:16px 36px;border-radius:50px;text-decoration:none;font-weight:900;font-size:16px;">Book a Future Event →</a>
+    </div>
+  `;
+  return sendEmail({ to, subject: `Booking ${bookingNumber} — Cancellation Confirmed`, html, title: "Booking Cancellation — Boston Legend Ice Cream Truck" });
+}
+
+// ─── CANCELLATION REJECTED EMAIL ───────────────────────────────
+export async function sendCancellationRejectedEmail(
+  to: string,
+  firstName: string,
+  bookingNumber: string,
+  adminNote: string,
+  bookingId: string
+) {
+  const portalUrl = `${process.env.NEXTAUTH_URL || "https://www.bostonlegendicecreamtruck.com"}/customer/booking/${bookingId}`;
+  const html = `
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="font-size:48px;margin-bottom:12px;">🍦✅</div>
+      <h1 style="font-size:24px;font-weight:900;color:${BRAND_NAVY};margin:0 0 8px;">Cancellation Request Declined</h1>
+      <p style="font-size:15px;color:#6B7280;font-weight:600;margin:0;">Hi ${firstName}, your booking is still active.</p>
+    </div>
+    <div style="background:#ECFDF5;border:1px solid #A7F3D0;border-radius:14px;padding:20px;margin-bottom:24px;">
+      <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#065F46;text-transform:uppercase;letter-spacing:1px;">Booking Still Active</p>
+      <p style="margin:0;font-size:20px;font-weight:900;color:${BRAND_NAVY};">${bookingNumber}</p>
+    </div>
+    ${adminNote ? `
+    <div style="background:#F9FAFB;border-radius:12px;padding:18px;margin-bottom:24px;">
+      <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#6B7280;text-transform:uppercase;">Message from our team</p>
+      <p style="margin:0;font-size:15px;color:#374151;font-weight:600;line-height:1.6;">${adminNote}</p>
+    </div>` : ""}
+    <p style="font-size:15px;color:#374151;line-height:1.7;font-weight:600;">
+      We were unable to process your cancellation at this time. If you have questions, please contact us directly.
+    </p>
+    <div style="text-align:center;margin:28px 0;">
+      <a href="${portalUrl}" style="display:inline-block;background:${BRAND_GOLD};color:${BRAND_NAVY};padding:16px 36px;border-radius:50px;text-decoration:none;font-weight:900;font-size:16px;">View My Booking →</a>
+    </div>
+  `;
+  return sendEmail({ to, subject: `Booking ${bookingNumber} — Cancellation Request Declined`, html, title: "Cancellation Request Declined — Boston Legend" });
+}
+

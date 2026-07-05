@@ -32,6 +32,12 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       return NextResponse.json({ success: false, error: "Booking not found" }, { status: 404 });
     }
 
+    if (booking.deletedAt) {
+      if (user.role !== "ADMIN" && user.role !== "OWNER") {
+        return unauthorized();
+      }
+    }
+
     // If driver, check that they are actually assigned to this booking
     if (user.role === "DRIVER" || (!canViewAll && canViewAssigned)) {
       const isAssigned = booking.assignment?.driver?.userId === user.id;

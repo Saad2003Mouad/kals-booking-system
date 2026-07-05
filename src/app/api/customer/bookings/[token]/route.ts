@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { googleCalendarService } from "@/lib/google-calendar";
 import { jwtVerify } from "jose";
+import { createAuditLog } from "@/lib/audit";
 
 export const dynamic = "force-dynamic";
 
@@ -23,8 +24,8 @@ export async function GET(req: NextRequest, { params }: { params: { token: strin
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const booking = await prisma.booking.findUnique({
-      where: { id: params.token },
+    const booking = await prisma.booking.findFirst({
+      where: { id: params.token, deletedAt: null },
       include: {
         customer: true,
         package: true,
@@ -80,15 +81,12 @@ export async function PATCH(req: NextRequest, { params }: { params: { token: str
       });
     }
 
-    // Write audit log
-    await prisma.auditLog.create({
-      data: {
-        entityType: "BOOKING",
-        entityId: booking.id,
-        bookingId: booking.id,
-        action: "CUSTOMER_SELF_SERVICE_UPDATE",
-        metadataJson: JSON.stringify({ email, phone, notes })
-      }
+    await createAuditLog({
+      entityType: "BOOKING",
+      entityId: booking.id,
+      bookingId: booking.id,
+      action: "CUSTOMER_SELF_SERVICE_UPDATE",
+      metadata: { email, phone, notes },
     });
 
     const updatedBooking = await prisma.booking.findUnique({
@@ -117,8 +115,8 @@ export async function POST(req: NextRequest, { params }: { params: { token: stri
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const booking = await prisma.booking.findUnique({
-      where: { id: params.token },
+    const booking = await prisma.booking.findFirst({
+      where: { id: params.token, deletedAt: null },
       include: { customer: true }
     });
 
@@ -126,10 +124,27 @@ export async function POST(req: NextRequest, { params }: { params: { token: stri
       return NextResponse.json({ error: "Booking not found" }, { status: 404 });
     }
 
-    const { requestType, reason } = await req.json();
+    const body = await req.json().catch(() => ({}));
+    const { requestType, reason } = body as { requestType?: string; reason?: string };
 
     if (!requestType || !["CHANGE", "CANCEL"].includes(requestType)) {
       return NextResponse.json({ error: "Invalid request type" }, { status: 400 });
+    }
+
+    // Prevent duplicate cancellation requests
+    if (requestType === "CANCEL" && booking.status === "CANCELLATION_REQUESTED") {
+      return NextResponse.json({ error: "A cancellation request is already pending" }, { status: 409 });
+    }
+
+    // For cancellations: update booking status so admin sees it immediately
+    if (requestType === "CANCEL") {
+      await prisma.booking.update({
+        where: { id: booking.id },
+        data: {
+          status: "CANCELLATION_REQUESTED",
+          cancellationReason: reason || "No reason provided",
+        },
+      });
     }
 
     const title = requestType === "CANCEL"
@@ -150,15 +165,14 @@ export async function POST(req: NextRequest, { params }: { params: { token: stri
       }
     });
 
-    // Write audit log
-    await prisma.auditLog.create({
-      data: {
-        entityType: "BOOKING",
-        entityId: booking.id,
-        bookingId: booking.id,
-        action: `CUSTOMER_${requestType}_REQUESTED`,
-        metadataJson: JSON.stringify({ reason, taskId: task.id })
-      }
+    await createAuditLog({
+      entityType: "BOOKING",
+      entityId: booking.id,
+      bookingId: booking.id,
+      action: `CUSTOMER_${requestType}_REQUESTED`,
+      metadata: { reason, taskId: task.id },
+      previousValues: { status: booking.status },
+      newValues: requestType === "CANCEL" ? { status: "CANCELLATION_REQUESTED" } : undefined,
     });
 
     return NextResponse.json({ success: true, message: "Request submitted successfully" });

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { sendBookingApprovedEmail, sendBookingRejectedEmail, sendBookingPendingReviewEmail, sendGoogleReviewRequestEmail } from "@/lib/email";
 import { getSessionUser, hasPermission, unauthenticated, unauthorized } from "@/lib/rbac";
 import { googleCalendarService } from "@/lib/google-calendar";
+import { createAuditLog } from "@/lib/audit";
 
 
 export const dynamic = "force-dynamic";
@@ -95,16 +96,16 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       }
     });
 
-    // Write audit log
-    await prisma.auditLog.create({
-      data: {
-        entityType: "BOOKING",
-        entityId: booking.id,
-        bookingId: booking.id,
-        action: `STATUS_CHANGED_TO_${targetStatus}`,
-        metadataJson: JSON.stringify({ previousStatus: "UNKNOWN", newStatus: targetStatus, internalNote }),
-        actorId: user.id
-      }
+    await createAuditLog({
+      entityType: "BOOKING",
+      entityId: booking.id,
+      bookingId: booking.id,
+      action: `STATUS_CHANGED_TO_${targetStatus}`,
+      metadata: { internalNote },
+      previousValues: { status: booking.status },
+      newValues: { status: targetStatus },
+      actorId: user.id,
+      actorRole: user.role
     });
 
     // Send emails on status change
