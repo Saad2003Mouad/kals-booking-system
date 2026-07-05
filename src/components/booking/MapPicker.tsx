@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { MapPin, Navigation, Loader2 } from "lucide-react";
 import { calcDistance } from "@/lib/maps";
 
-import PremiumMap from "./PremiumMap";
+const PremiumMap = dynamic(() => import("./PremiumMap"), { ssr: false });
 
 interface MapPickerProps {
   lat: number | null;
