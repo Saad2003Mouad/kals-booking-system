@@ -91,9 +91,7 @@ export const metadata: Metadata = {
       "Boston's premier luxury ice cream truck for birthdays, corporate events, and school parties. Serving Greater Boston, MA.",
     images: [`${SITE_URL}/images/og-image.jpg`],
   },
-  alternates: {
-    canonical: SITE_URL,
-  },
+  alternates: {},
   verification: {
     google: "AOQxUMJbpioWMH3CUbkkCBM5_j-CFhDFurpxaxJKOl4",
   },

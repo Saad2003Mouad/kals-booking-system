@@ -19,18 +19,20 @@ export default function robots(): MetadataRoute.Robots {
           "/api/",
           "/login",
           "/checkout",
+          "/*?*_page=*",
+          "/*?*page=*",
         ],
       },
       // Allow major search engine crawlers full access
       {
         userAgent: "Googlebot",
         allow: "/",
-        disallow: ["/admin/", "/driver/", "/customer/", "/api/"],
+        disallow: ["/admin/", "/driver/", "/customer/", "/api/", "/*?*_page=*", "/*?*page=*"],
       },
       {
         userAgent: "Bingbot",
         allow: "/",
-        disallow: ["/admin/", "/driver/", "/customer/", "/api/"],
+        disallow: ["/admin/", "/driver/", "/customer/", "/api/", "/*?*_page=*", "/*?*page=*"],
       },
       // Allow AI search engine crawlers (for AI Search Optimization)
       {
