@@ -13,8 +13,7 @@ const nextConfig = {
           { key: 'X-Frame-Options', value: 'DENY' },
           { key: 'X-XSS-Protection', value: '1; mode=block' },
           { key: 'Referrer-Policy', value: 'origin-when-cross-origin' },
-          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
-          { key: 'Content-Security-Policy', value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.prod.website-files.com https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.google-analytics.com https://maps.googleapis.com https://connect.facebook.net https://snap.licdn.com https://static.ads-twitter.com https://www.googleadservices.com https://googleads.g.doubleclick.net; style-src 'self' 'unsafe-inline' https://cdn.prod.website-files.com https://cdn.jsdelivr.net https://fonts.googleapis.com https://unpkg.com; img-src 'self' data: blob: https://cdn.prod.website-files.com https://maps.gstatic.com https://maps.googleapis.com https://www.google-analytics.com https://www.googletagmanager.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.prod.website-files.com; connect-src 'self' https://maps.googleapis.com https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net; frame-src 'self' https://www.google.com https://td.doubleclick.net; worker-src 'self' blob:;" }
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' }
         ]
       }
     ];

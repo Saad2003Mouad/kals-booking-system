@@ -1,6 +1,5 @@
 import nodemailer from "nodemailer";
 import { prisma } from "./prisma";
-import { convert } from "html-to-text";
 
 const BRAND_NAVY = "#000223";
 const BRAND_GOLD = "#FFA000";
@@ -14,13 +13,12 @@ let _transporter: nodemailer.Transporter | null = null;
 function getTransporter(): nodemailer.Transporter {
   if (_transporter) return _transporter;
   _transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
+    service: "gmail",
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
+    tls: { rejectUnauthorized: false },
     pool: true,
     maxConnections: 3,
     maxMessages: 100,
@@ -32,7 +30,7 @@ function getTransporter(): nodemailer.Transporter {
 function baseTemplate(content: string, title: string) {
   return `
     <!DOCTYPE html>
-    <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+    <html lang="en">
     <head>
       <meta charset="utf-8"/>
       <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -92,21 +90,15 @@ export async function sendEmail({ to, subject, html, title }: { to: string; subj
 
   const MAX_RETRIES = 2;
   const RETRY_DELAY_MS = 2000;
-  const finalHtml = baseTemplate(html, title || subject);
-  const textFallback = convert(finalHtml, { wordwrap: 130 });
-  const senderEmail = process.env.SMTP_USER || "info@bostonlegendicecreamtruck.com";
 
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
       const transporter = getTransporter();
       await transporter.sendMail({
-        from: `"Boston Legend Ice Cream" <${senderEmail}>`,
-        sender: senderEmail,
-        replyTo: senderEmail,
+        from: `"Boston Legend Ice Cream" <${process.env.SMTP_USER}>`,
         to,
         subject,
-        html: finalHtml,
-        text: textFallback,
+        html: baseTemplate(html, title || subject),
       });
       console.log(`[Email] ✅ Sent "${subject}" → ${to} (attempt ${attempt})`);
       return true;
