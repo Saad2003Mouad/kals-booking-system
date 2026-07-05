@@ -34,7 +34,7 @@ export async function POST(req: Request) {
     // to ensure maximum deliverability and consistent formatting.
     const success = await sendEmail({
       to: "info@bostonlegendicecreamtruck.com",
-      subject: \`New Contact Form Submission: \${subject || "No Subject"}\`,
+      subject: `New Contact Form Submission: ${subject || "No Subject"}`,
       html: htmlContent,
       title: "Contact Form Submission",
     });
