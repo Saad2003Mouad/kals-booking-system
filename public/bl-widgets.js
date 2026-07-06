@@ -846,7 +846,7 @@
         background: radial-gradient(circle at 50% 50%, #FFE6F2 0%, #FFB3D9 50%, #FFA000 100%);
         overflow: hidden;
         pointer-events: none;
-        animation: blIntroFadeOut 0.8s cubic-bezier(0.4, 0, 0.2, 1) 2.5s forwards;
+        animation: blIntroFadeOut 0.8s cubic-bezier(0.4, 0, 0.2, 1) 4.0s forwards;
       }
       #bl-cinematic-glow {
         position: absolute;
@@ -951,7 +951,7 @@
     
     document.body.appendChild(container);
 
-    // Remove from DOM after 3.5 seconds
+    // Remove from DOM after 5.5 seconds
     setTimeout(function() {
       if (container.parentNode) {
         container.parentNode.removeChild(container);
@@ -959,7 +959,7 @@
       if (style.parentNode) {
         style.parentNode.removeChild(style);
       }
-    }, 4000);
+    }, 5500);
   }
 
 })();
