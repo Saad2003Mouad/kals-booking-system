@@ -8,7 +8,7 @@ const nextConfig = {
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://vercel.live https://*.vercel-scripts.com https://d3e54v103j8qbb.cloudfront.net https://cdn.prod.website-files.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.prod.website-files.com",
       "font-src 'self' https://fonts.gstatic.com https://cdn.prod.website-files.com",
-      "img-src 'self' data: blob: https://cdn.prod.website-files.com https://www.bostonlegendicecreamtruck.com https://*.googleusercontent.com",
+      "img-src 'self' data: blob: https://cdn.prod.website-files.com https://www.bostonlegendicecreamtruck.com https://*.googleusercontent.com https://*.public.blob.vercel-storage.com https://*.basemaps.cartocdn.com https://unpkg.com",
       "connect-src 'self' https://vitals.vercel-insights.com https://www.google-analytics.com",
       "frame-src 'none'",
       "object-src 'none'",
@@ -42,6 +42,10 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'www.bostonlegendicecreamtruck.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.public.blob.vercel-storage.com',
       },
     ],
   },
