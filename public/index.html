@@ -12,15 +12,19 @@ fs-list
  #my-date, 
   #my-date[readonly] {
     background-color: #ffffff !important;
-    opacity: 1 !important; 
-  }
+}
 </style>
-
 <style>
 .hover-cta:hover {
     transform: translateY(-5px) scale(1.02);
     box-shadow: 0 15px 35px rgba(0, 2, 35, 0.4) !important;
     color: white !important;
+}
+
+/* Force Swiper to have a continuous linear marquee effect */
+.swiper-movies .swiper-wrapper {
+    -webkit-transition-timing-function: linear !important;
+    transition-timing-function: linear !important;
 }
 </style> <link rel="canonical" href="https://www.bostonlegendicecreamtruck.com/"/>
 <meta property="og:url" content="https://www.bostonlegendicecreamtruck.com/"/>
@@ -161,9 +165,6 @@ fs-list
 </script>
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
-  // Apply linear transition via JS before init
-  document.querySelector('.swiper-movies .swiper-wrapper').style.transitionTimingFunction = 'linear';
-  
   const swiper = new Swiper('.swiper-movies', {
       spaceBetween: 30,
       speed: 3000, 
@@ -202,5 +203,5 @@ fs-list
 
 
 
-<script src="/bl-widgets.js?v=8" async></script>
+<script src="/bl-widgets.js?v=9" async></script>
 </body></html>
