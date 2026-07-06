@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: #FAF6EF; /* Warm Cream background */
+    --background: #ffffff; /* Clean White background */
     --foreground: #2C1E14; /* Dark Chocolate text */
     --primary: #FFA000;    /* Gold/Amber accent */
     --navy: #000223;       /* Premium Navy */

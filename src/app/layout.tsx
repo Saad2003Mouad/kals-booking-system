@@ -364,7 +364,7 @@ export default function RootLayout({
         )}
       </head>
       <body
-        className={`${sans.variable} ${playfair.variable} antialiased font-sans bg-amber-50 page`}
+        className={`${sans.variable} ${playfair.variable} antialiased font-sans bg-white page`}
       >
         <Providers>{children}</Providers>
         {/* Unified Chat, Nav Injector & Swiper Init */}

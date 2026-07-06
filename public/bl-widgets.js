@@ -437,10 +437,10 @@
       var brandEl = document.querySelector('.swiper-movies');
       if (brandEl && !brandEl.swiper) {
         new window.Swiper('.swiper-movies', {
-          spaceBetween: 0, speed: 5000, slidesPerView: 2, loop: true, pagination: false,
+          spaceBetween: 30, speed: 4000, slidesPerView: 2, loop: true, pagination: false,
           autoplay: { delay: 0, disableOnInteraction: false },
-          freeMode: true, freeModeMomentum: false,
-          breakpoints: { 766: { slidesPerView: 4 } },
+          freeMode: { enabled: true, momentum: false },
+          breakpoints: { 640: { slidesPerView: 3 }, 992: { slidesPerView: 5 } },
         });
       }
 
@@ -866,9 +866,12 @@
       }
       #bl-cinematic-logo {
         display: block;
-        width: 280px;
+        width: 340px;
+        max-width: 80vw;
         height: auto;
-        filter: brightness(0) invert(1) drop-shadow(0px 10px 20px rgba(0,0,0,0.4));
+        object-fit: contain;
+        border-radius: 16px;
+        filter: drop-shadow(0px 16px 40px rgba(0,0,0,0.5));
       }
       #bl-cinematic-tagline {
         margin-top: 36px;
@@ -926,7 +929,7 @@
     
     var logo = document.createElement('img');
     logo.id = 'bl-cinematic-logo';
-    logo.src = 'https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/67e3936366827af4bed1d0d0_logo-boston-legend-ice-cream-truck.avif';
+    logo.src = '/slogan.jpg';
     logo.alt = 'Boston Legend';
     
     var tagline = document.createElement('div');
