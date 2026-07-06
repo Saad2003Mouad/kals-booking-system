@@ -436,10 +436,18 @@
 
       var brandEl = document.querySelector('.swiper-movies');
       if (brandEl && !brandEl.swiper) {
+        // Add linear transition to the wrapper for a smooth continuous marquee effect
+        var wrapper = brandEl.querySelector('.swiper-wrapper');
+        if (wrapper) {
+          wrapper.style.transitionTimingFunction = 'linear';
+        }
         new window.Swiper('.swiper-movies', {
-          spaceBetween: 30, speed: 4000, slidesPerView: 2, loop: true, pagination: false,
+          spaceBetween: 30, 
+          speed: 3000, 
+          slidesPerView: 2, 
+          loop: true, 
+          pagination: false,
           autoplay: { delay: 0, disableOnInteraction: false },
-          freeMode: { enabled: true, momentum: false },
           breakpoints: { 640: { slidesPerView: 3 }, 992: { slidesPerView: 5 } },
         });
       }
@@ -835,23 +843,23 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        background: radial-gradient(circle at 50% 50%, #000223 0%, #000000 100%);
+        background: radial-gradient(circle at 50% 50%, #FFE6F2 0%, #FFB3D9 50%, #FFA000 100%);
         overflow: hidden;
         pointer-events: none;
-        animation: blIntroFadeOut 0.8s cubic-bezier(0.4, 0, 0.2, 1) 3.2s forwards;
+        animation: blIntroFadeOut 0.8s cubic-bezier(0.4, 0, 0.2, 1) 2.5s forwards;
       }
       #bl-cinematic-glow {
         position: absolute;
-        width: 60vw;
-        height: 60vw;
-        background: radial-gradient(circle, rgba(255,160,0,0.12) 0%, rgba(0,0,0,0) 70%);
+        width: 100vw;
+        height: 100vw;
+        background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 60%);
         border-radius: 50%;
-        filter: blur(40px);
+        filter: blur(20px);
         top: 50%;
         left: 50%;
-        transform: translate(-50%, -50%) scale(0.8);
+        transform: translate(-50%, -50%) scale(0.5);
         opacity: 0;
-        animation: blGlowPulse 2.8s ease-in-out 0.2s forwards;
+        animation: blGlowPulseFun 2s ease-out 0.1s forwards;
       }
       #bl-cinematic-logo-wrapper {
         position: relative;
@@ -860,59 +868,58 @@
         flex-direction: column;
         align-items: center;
         opacity: 0;
-        transform: scale(1.1) translateY(10px);
-        filter: blur(8px);
-        animation: blLogoReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+        transform: scale(0.5) translateY(50px) rotate(-10deg);
+        animation: blLogoBounce 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s forwards;
       }
       #bl-cinematic-logo {
         display: block;
-        width: 340px;
-        max-width: 80vw;
+        width: 320px;
+        max-width: 85vw;
         height: auto;
         object-fit: contain;
-        border-radius: 16px;
-        filter: drop-shadow(0px 16px 40px rgba(0,0,0,0.5));
+        border-radius: 20px;
+        filter: drop-shadow(0px 12px 24px rgba(0,2,35,0.2));
+        border: 4px solid white;
+        background: white;
+        padding: 10px;
       }
       #bl-cinematic-tagline {
-        margin-top: 36px;
-        color: #FAF6EF;
-        font-size: 14px;
-        font-weight: 800;
-        letter-spacing: 0.35em;
+        margin-top: 24px;
+        color: #000223;
+        font-size: 22px;
+        font-weight: 900;
+        letter-spacing: 0.05em;
         text-transform: uppercase;
-        font-family: var(--font-sans), sans-serif;
+        font-family: var(--font-sans), 'Nunito', sans-serif;
         text-align: center;
         opacity: 0;
-        transform: translateY(12px);
-        filter: blur(5px);
-        animation: blTaglineReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.9s forwards;
-      }
-      #bl-cinematic-tagline span {
-        color: #FAF6EF;
-        text-shadow: 0px 0px 0px rgba(255,160,0,0);
-        animation: blTextGlow 1.8s ease-in-out 1.2s forwards;
+        transform: translateY(20px);
+        animation: blTaglineBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.7s forwards;
+        background: white;
+        padding: 8px 24px;
+        border-radius: 50px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border: 2px solid #FFA000;
       }
 
       @keyframes blIntroFadeOut {
-        0% { opacity: 1; filter: blur(0px); transform: scale(1); }
-        100% { opacity: 0; filter: blur(10px); transform: scale(1.05); }
+        0% { opacity: 1; transform: translateY(0); }
+        100% { opacity: 0; transform: translateY(-100%); }
       }
-      @keyframes blGlowPulse {
-        0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
-        50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.2); }
-        100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
+      @keyframes blGlowPulseFun {
+        0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+        50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+        100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
       }
-      @keyframes blLogoReveal {
-        0% { opacity: 0; transform: scale(1.15) translateY(10px); filter: blur(12px); }
-        100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0px); }
+      @keyframes blLogoBounce {
+        0% { opacity: 0; transform: scale(0.5) translateY(50px) rotate(-10deg); }
+        70% { opacity: 1; transform: scale(1.1) translateY(-10px) rotate(5deg); }
+        100% { opacity: 1; transform: scale(1) translateY(0) rotate(0deg); }
       }
-      @keyframes blTaglineReveal {
-        0% { opacity: 0; transform: translateY(15px); filter: blur(8px); }
-        100% { opacity: 1; transform: translateY(0); filter: blur(0px); }
-      }
-      @keyframes blTextGlow {
-        0% { color: #FAF6EF; text-shadow: 0px 0px 0px rgba(255,160,0,0); }
-        100% { color: #FFA000; text-shadow: 0px 0px 20px rgba(255,160,0,0.8); }
+      @keyframes blTaglineBounce {
+        0% { opacity: 0; transform: translateY(20px) scale(0.8); }
+        70% { opacity: 1; transform: translateY(-5px) scale(1.05); }
+        100% { opacity: 1; transform: translateY(0) scale(1); }
       }
     `;
     document.head.appendChild(style);
@@ -934,7 +941,7 @@
     
     var tagline = document.createElement('div');
     tagline.id = 'bl-cinematic-tagline';
-    tagline.innerHTML = '<span>The Premium Experience</span>';
+    tagline.innerHTML = 'Get Ready for a Sweet Legend! 🍦';
     
     logoWrapper.appendChild(logo);
     logoWrapper.appendChild(tagline);
@@ -944,7 +951,7 @@
     
     document.body.appendChild(container);
 
-    // Remove from DOM after 4.5 seconds
+    // Remove from DOM after 3.5 seconds
     setTimeout(function() {
       if (container.parentNode) {
         container.parentNode.removeChild(container);
@@ -952,7 +959,7 @@
       if (style.parentNode) {
         style.parentNode.removeChild(style);
       }
-    }, 8500);
+    }, 4000);
   }
 
 })();
