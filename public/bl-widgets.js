@@ -760,6 +760,7 @@
   ───────────────────────────────────────────── */
   function init() {
     console.log('[BostonLegend] init() called, readyState:', document.readyState);
+    try { injectCinematicEntry(); } catch(e) { console.error('[BL] Cinematic entry error:', e); }
     try { injectNavButtons(); } catch(e) { console.error('[BL] Nav buttons error:', e); }
     try { injectManageBookingLink(); } catch(e) { console.error('[BL] Manage booking error:', e); }
     try { buildChatWidget(); } catch(e) { console.error('[BL] Chat widget error:', e); }
@@ -808,6 +809,149 @@
         }
       }).observe(document.body, { childList: true, subtree: false });
     });
+  }
+
+  /* ─────────────────────────────────────────────
+     6. CINEMATIC PREMIUM ENTRY (Runs on ALL pages)
+  ───────────────────────────────────────────── */
+  function injectCinematicEntry() {
+    var SESSION_KEY = "bl_cinematic_played_v4";
+    if (sessionStorage.getItem(SESSION_KEY)) return;
+    
+    // Check for reduced motion
+    var mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (mediaQuery.matches) {
+      sessionStorage.setItem(SESSION_KEY, '1');
+      return;
+    }
+    
+    sessionStorage.setItem(SESSION_KEY, '1');
+
+    var style = document.createElement('style');
+    style.innerHTML = `
+      #bl-cinematic-intro {
+        position: fixed;
+        inset: 0;
+        z-index: 2147483647;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(circle at 50% 50%, #0a0a1a 0%, #000000 100%);
+        overflow: hidden;
+        pointer-events: none;
+        animation: blIntroFadeOut 1.5s cubic-bezier(0.4, 0, 0.2, 1) 6.5s forwards;
+      }
+      #bl-cinematic-glow {
+        position: absolute;
+        width: 60vw;
+        height: 60vw;
+        background: radial-gradient(circle, rgba(255,160,0,0.08) 0%, rgba(0,0,0,0) 70%);
+        border-radius: 50%;
+        filter: blur(40px);
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0;
+        animation: blGlowPulse 6s ease-in-out 1s forwards;
+      }
+      #bl-cinematic-logo-wrapper {
+        position: relative;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        opacity: 0;
+        transform: scale(1.15) translateY(10px);
+        filter: blur(12px);
+        animation: blLogoReveal 2s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards;
+      }
+      #bl-cinematic-logo {
+        display: block;
+        width: 260px;
+        height: auto;
+        filter: brightness(0) invert(1) drop-shadow(0px 10px 20px rgba(0,0,0,0.5));
+      }
+      #bl-cinematic-tagline {
+        margin-top: 32px;
+        color: #E5E7EB;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        font-family: var(--font-sans), sans-serif;
+        text-align: center;
+        opacity: 0;
+        transform: translateY(15px);
+        filter: blur(8px);
+        animation: blTaglineReveal 2s cubic-bezier(0.16, 1, 0.3, 1) 2.5s forwards;
+      }
+      #bl-cinematic-tagline span {
+        color: #E5E7EB;
+        text-shadow: 0px 0px 0px rgba(255,160,0,0);
+        animation: blTextGlow 3s ease-in-out 4s forwards;
+      }
+
+      @keyframes blIntroFadeOut {
+        0% { opacity: 1; filter: blur(0px); transform: scale(1); }
+        100% { opacity: 0; filter: blur(10px); transform: scale(1.05); }
+      }
+      @keyframes blGlowPulse {
+        0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+        50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.2); }
+        100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
+      }
+      @keyframes blLogoReveal {
+        0% { opacity: 0; transform: scale(1.15) translateY(10px); filter: blur(12px); }
+        100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0px); }
+      }
+      @keyframes blTaglineReveal {
+        0% { opacity: 0; transform: translateY(15px); filter: blur(8px); }
+        100% { opacity: 1; transform: translateY(0); filter: blur(0px); }
+      }
+      @keyframes blTextGlow {
+        0% { color: #E5E7EB; text-shadow: 0px 0px 0px rgba(255,160,0,0); }
+        100% { color: #FFF; text-shadow: 0px 0px 15px rgba(255,160,0,0.6); }
+      }
+    `;
+    document.head.appendChild(style);
+
+    var container = document.createElement('div');
+    container.id = 'bl-cinematic-intro';
+    container.setAttribute('aria-hidden', 'true');
+
+    var glow = document.createElement('div');
+    glow.id = 'bl-cinematic-glow';
+    
+    var logoWrapper = document.createElement('div');
+    logoWrapper.id = 'bl-cinematic-logo-wrapper';
+    
+    var logo = document.createElement('img');
+    logo.id = 'bl-cinematic-logo';
+    logo.src = 'https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/67e3936366827af4bed1d0d0_logo-boston-legend-ice-cream-truck.avif';
+    logo.alt = 'Boston Legend';
+    
+    var tagline = document.createElement('div');
+    tagline.id = 'bl-cinematic-tagline';
+    tagline.innerHTML = '<span>The Premium Experience</span>';
+    
+    logoWrapper.appendChild(logo);
+    logoWrapper.appendChild(tagline);
+    
+    container.appendChild(glow);
+    container.appendChild(logoWrapper);
+    
+    document.body.appendChild(container);
+
+    // Remove from DOM after 8.5 seconds
+    setTimeout(function() {
+      if (container.parentNode) {
+        container.parentNode.removeChild(container);
+      }
+      if (style.parentNode) {
+        style.parentNode.removeChild(style);
+      }
+    }, 8500);
   }
 
 })();

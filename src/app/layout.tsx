@@ -5,8 +5,6 @@ import "./globals.css";
 import Providers from "./providers";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
-import dynamic from "next/dynamic";
-const PremiumEntry = dynamic(() => import("@/components/PremiumEntry"), { ssr: false });
 const sans = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-sans",
@@ -367,7 +365,6 @@ export default function RootLayout({
       <body
         className={`${sans.variable} ${playfair.variable} antialiased font-sans bg-amber-50 page`}
       >
-        <PremiumEntry />
         <Providers>{children}</Providers>
         {/* Unified Chat, Nav Injector & Swiper Init */}
         <Script src="/bl-widgets.js" strategy="afterInteractive" />

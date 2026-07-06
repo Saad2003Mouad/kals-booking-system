@@ -315,9 +315,9 @@ export default function SiteHeader() {
 
             {/* ── DESKTOP NAV ── */}
             <nav role="navigation" className="desktop-nav-menu nav-menu w-nav-menu">
-              <a href="/" className="nav-link w-nav-link" onClick={handleNavTo('/')}>Home</a>
-              <a href="/about" className="nav-link w-nav-link" onClick={handleNavTo('/about')}>About</a>
-              <a href="/menu" className="nav-link w-nav-link" onClick={handleNavTo('/menu')}>Menu</a>
+              <a href="/" className="nav-link w-nav-link">Home</a>
+              <a href="/about" className="nav-link w-nav-link">About</a>
+              <a href="/menu" className="nav-link w-nav-link">Menu</a>
 
               <div
                 className="w-dropdown"
@@ -341,7 +341,6 @@ export default function SiteHeader() {
                           <a
                             href={`/occasions/${slug}`}
                             className="dropdown-link w-inline-block"
-                            onClick={handleNavTo(`/occasions/${slug}`)}
                           >
                             <div className="dorpdown-move">
                               <div className="dorp-down-b">{label}</div>
@@ -355,13 +354,13 @@ export default function SiteHeader() {
                 </nav>
               </div>
 
-              <a href="/packages" className="nav-link w-nav-link" onClick={handleNavTo('/packages')}>Packages</a>
-              <a href="/manage-booking" className="nav-link w-nav-link" onClick={handleNavTo('/manage-booking')}>Manage Booking</a>
-              <a href="/contact-us" className="nav-link w-nav-link" onClick={handleNavTo('/contact-us')}>Contact</a>
+              <a href="/packages" className="nav-link w-nav-link">Packages</a>
+              <a href="/manage-booking" className="nav-link w-nav-link">Manage Booking</a>
+              <a href="/contact-us" className="nav-link w-nav-link">Contact</a>
             </nav>
 
             <div className="right-menu-links desktop-nav-menu sign-in-desktop-only">
-              <a href="/login" className="link-bt menu-bt" onClick={handleNavTo('/login')}>
+              <a href="/login" className="link-bt menu-bt">
                 Sign In or Sign Up
               </a>
             </div>
