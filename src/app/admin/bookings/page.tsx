@@ -24,12 +24,13 @@ type Booking = {
 };
 
 const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string; icon: any }> = {
-  PENDING_REVIEW:  { label: "Pending Review",  bg: "bg-amber-50",   text: "text-amber-600",  icon: Clock },
-  PENDING_PAYMENT: { label: "Pending Payment", bg: "bg-blue-50",    text: "text-blue-600",   icon: DollarSign },
-  CONFIRMED:       { label: "Confirmed",       bg: "bg-emerald-50", text: "text-emerald-700",icon: CheckCircle2 },
-  COMPLETED:       { label: "Completed",       bg: "bg-slate-50",   text: "text-slate-600",  icon: CheckCircle2 },
-  CANCELLED:       { label: "Cancelled",       bg: "bg-red-50",     text: "text-red-600",    icon: XCircle },
-  REJECTED:        { label: "Rejected",        bg: "bg-rose-50",    text: "text-rose-600",   icon: XCircle },
+  PENDING_REVIEW:         { label: "Pending Review",  bg: "bg-amber-50",   text: "text-amber-600",  icon: Clock },
+  PENDING_PAYMENT:        { label: "Pending Payment", bg: "bg-blue-50",    text: "text-blue-600",   icon: DollarSign },
+  CONFIRMED:              { label: "Confirmed",       bg: "bg-emerald-50", text: "text-emerald-700",icon: CheckCircle2 },
+  COMPLETED:              { label: "Completed",       bg: "bg-slate-50",   text: "text-slate-600",  icon: CheckCircle2 },
+  CANCELLED:              { label: "Cancelled",       bg: "bg-red-50",     text: "text-red-600",    icon: XCircle },
+  CANCELLATION_REQUESTED: { label: "Cancellation Requested", bg: "bg-red-100", text: "text-red-700", icon: XCircle },
+  REJECTED:               { label: "Rejected",        bg: "bg-rose-50",    text: "text-rose-600",   icon: XCircle },
 };
 
 export default function AdminBookingsPage() {
@@ -187,7 +188,7 @@ export default function AdminBookingsPage() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {filtered.map(b => {
-                  const sc = STATUS_CONFIG[b.status] ?? STATUS_CONFIG.PENDING;
+                  const sc = STATUS_CONFIG[b.status] ?? STATUS_CONFIG.PENDING_REVIEW;
                   const StatusIcon = sc.icon;
                   const eventDate = new Date(b.eventDate + "T12:00:00");
                   const dateStr = eventDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
