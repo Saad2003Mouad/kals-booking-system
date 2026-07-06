@@ -435,21 +435,60 @@
       if (typeof window.Swiper === 'undefined') return;
 
       var brandEl = document.querySelector('.swiper-movies');
-      if (brandEl && !brandEl.swiper) {
-        // Add linear transition to the wrapper for a smooth continuous marquee effect
+      if (brandEl) {
+        // Destroy existing swiper if any (from index.html)
+        if (brandEl.swiper) {
+          brandEl.swiper.destroy(true, true);
+        }
+        
+        // Prevent re-initialization
+        brandEl.classList.remove('swiper-movies');
+        brandEl.classList.add('bl-marquee-container');
+        
         var wrapper = brandEl.querySelector('.swiper-wrapper');
         if (wrapper) {
-          wrapper.style.transitionTimingFunction = 'linear';
+          wrapper.classList.remove('swiper-wrapper');
+          wrapper.classList.add('bl-marquee-track');
+          
+          // Duplicate the slides 3 times to ensure enough width for continuous loop
+          var slides = wrapper.innerHTML;
+          wrapper.innerHTML = slides + slides + slides + slides;
+          
+          // Inject Marquee CSS
+          var style = document.createElement('style');
+          style.innerHTML = `
+            .bl-marquee-container {
+              overflow: hidden;
+              width: 100%;
+              position: relative;
+            }
+            .bl-marquee-track {
+              display: flex;
+              width: max-content;
+              animation: blMarqueeAnim 20s linear infinite;
+            }
+            .bl-marquee-track:hover {
+              animation-play-state: paused;
+            }
+            .bl-marquee-track .swiper-slide {
+              width: 250px !important;
+              flex-shrink: 0;
+              margin-right: 30px;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+            }
+            @keyframes blMarqueeAnim {
+              0% { transform: translateX(0); }
+              100% { transform: translateX(-50%); } /* Scrolls half of the 4x duplicated content (i.e. 2x width), loops perfectly */
+            }
+            @media (max-width: 768px) {
+               .bl-marquee-track .swiper-slide { width: 180px !important; }
+               .bl-marquee-track { animation-duration: 15s; }
+            }
+          `;
+          document.head.appendChild(style);
         }
-        new window.Swiper('.swiper-movies', {
-          spaceBetween: 30, 
-          speed: 3000, 
-          slidesPerView: 2, 
-          loop: true, 
-          pagination: false,
-          autoplay: { delay: 0, disableOnInteraction: false },
-          breakpoints: { 640: { slidesPerView: 3 }, 992: { slidesPerView: 5 } },
-        });
       }
 
       var reviewEl = document.querySelector('.swiper-review');
