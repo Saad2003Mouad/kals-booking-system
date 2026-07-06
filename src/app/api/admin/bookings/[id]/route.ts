@@ -119,7 +119,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         entityType: "BOOKING",
         entityId:   params.id,
         action:     "BOOKING_EDITED",
-        userId:     user.id,
+        actorId:    user.id,
         metadataJson: JSON.stringify({ updatedFields: Object.keys(updateData), by: user.email }),
       },
     });
