@@ -860,7 +860,7 @@
      6. CINEMATIC PREMIUM ENTRY (Runs on ALL pages)
   ───────────────────────────────────────────── */
   function injectCinematicEntry() {
-    var SESSION_KEY = "bl_cinematic_played_v4";
+    var SESSION_KEY = "bl_cinematic_played_v5";
     if (sessionStorage.getItem(SESSION_KEY)) return;
     
     // Check for reduced motion
