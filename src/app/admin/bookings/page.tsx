@@ -81,13 +81,17 @@ export default function AdminBookingsPage() {
   };
 
   return (
-    <div className="space-y-6 pb-10" style={{ fontFamily: "'Nunito', sans-serif" }}>
+    <div className="space-y-6 pb-10">
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black tracking-tight" style={{ color: "#000223" }}>Bookings</h1>
-          <p className="text-slate-500 font-semibold mt-1 text-sm">
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#FFA000]" />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Operations</span>
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-[#000223]">Bookings</h1>
+          <p className="text-slate-500 font-semibold mt-2 text-sm sm:text-base">
             {counts.PENDING_REVIEW} pending review · {counts.PENDING_PAYMENT} pending payment · {counts.CONFIRMED} confirmed
           </p>
         </div>
@@ -154,7 +158,7 @@ export default function AdminBookingsPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="card-premium overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-24">
             <Loader2 className="w-8 h-8 animate-spin text-[#FFA000]" />

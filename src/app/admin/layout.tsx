@@ -9,6 +9,7 @@ import {
   CheckCircle, AlertTriangle, Clock, ChevronDown, MapPin
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+import useSWR from "swr";
 
 type NavItem = { href: string; label: string; icon: any };
 type NavGroup = { title: string; items: NavItem[] };
@@ -94,9 +95,10 @@ type Notification = {
   id: string;
   title: string;
   body: string;
-  type: "info" | "warning" | "success";
+  type: "info" | "warning" | "error" | "success";
   time: string;
   read: boolean;
+  link: string;
 };
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -110,53 +112,27 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const notifRef = useRef<HTMLDivElement>(null);
   const userRef = useRef<HTMLDivElement>(null);
 
+  // SWR-powered notifications: auto-polls every 30s, deduplicates in-flight requests,
+  // gracefully handles errors, and shows stale data while revalidating.
+  const notifFetcher = (url: string) => fetch(url).then((r) => r.ok ? r.json() : { data: [] });
+  const { data: notifData, isLoading: notifLoading } = useSWR(
+    "/api/admin/notifications",
+    notifFetcher,
+    { refreshInterval: 30_000, revalidateOnFocus: false, dedupingInterval: 10_000 }
+  );
+
+  // Sync SWR data into local state (to allow marking as read client-side)
+  const [readIds, setReadIds] = useState<Set<string>>(new Set());
+  const rawNotifications: Notification[] = notifData?.data || [];
+  const notifications = rawNotifications.map(n => ({ ...n, read: readIds.has(n.id) }));
+  const unreadCount = notifications.filter(n => !n.read).length;
+
   const isActive = (href: string) =>
     href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
-
-  // Fetch real notifications (pending bookings + new inquiries)
-  useEffect(() => {
-    async function loadNotifications() {
-      try {
-        const [bRes, iRes] = await Promise.all([
-          fetch("/api/admin/bookings?status=PENDING_REVIEW"),
-          fetch("/api/admin/inquiries?status=NEW"),
-        ]);
-        const bData = bRes.ok ? await bRes.json() : { data: [] };
-        const iData = iRes.ok ? await iRes.json() : { data: [] };
-
-        const items: Notification[] = [];
-        (bData.data || []).slice(0, 5).forEach((b: any) => {
-          items.push({
-            id: `b-${b.id}`,
-            title: "New Booking Pending Review",
-            body: `${b.customer?.firstName} ${b.customer?.lastName} — ${b.eventType}`,
-            type: "warning",
-            time: new Date(b.createdAt).toLocaleDateString(),
-            read: false,
-          });
-        });
-        (iData.data || []).slice(0, 3).forEach((i: any) => {
-          items.push({
-            id: `i-${i.id}`,
-            title: "New Inquiry",
-            body: `${i.name}: ${(i.notes || "").substring(0, 60)}...`,
-            type: "info",
-            time: new Date(i.createdAt).toLocaleDateString(),
-            read: false,
-          });
-        });
-        setNotifications(items);
-        setUnreadCount(items.length);
-      } catch {}
-    }
-    loadNotifications();
-  }, []);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -173,8 +149,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, []);
 
   const markAllRead = () => {
-    setNotifications(n => n.map(x => ({ ...x, read: true })));
-    setUnreadCount(0);
+    setReadIds(new Set(notifications.map(n => n.id)));
   };
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -201,7 +176,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`} 
         style={{ 
-          background: "linear-gradient(180deg, #020617 0%, #0F172A 100%)",
+          background: "#000223",
           boxShadow: "4px 0 24px rgba(0,0,0,0.1)"
         }}
       >
@@ -248,7 +223,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                       onClick={() => setMobileMenuOpen(false)}
                       className={`flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group ${
                         active 
-                          ? "bg-gradient-to-r from-[#FFA000]/20 to-transparent text-[#FFA000] border-l-2 border-[#FFA000]" 
+                          ? "bg-gradient-to-r from-[#FFA000]/10 to-transparent text-[#FFA000] border-l-2 border-[#FFA000]" 
                           : "text-white/60 hover:bg-white/5 hover:text-white border-l-2 border-transparent"
                       }`}
                     >
@@ -350,23 +325,27 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                       </div>
                     ) : (
                       notifications.map(n => (
-                        <div key={n.id} className={`px-5 py-3.5 flex gap-3 hover:bg-slate-50 transition-colors ${!n.read ? "bg-amber-50/40" : ""}`}>
-                          <div className={`mt-0.5 w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                            n.type === "warning" ? "bg-amber-100" : n.type === "success" ? "bg-emerald-100" : "bg-blue-100"
-                          }`}>
-                            {n.type === "warning" 
-                              ? <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
-                              : n.type === "success"
-                              ? <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
-                              : <Clock className="w-3.5 h-3.5 text-blue-600" />
-                            }
+                        <Link href={n.link || "#"} key={n.id} onClick={() => setShowNotifications(false)} className={`block px-5 py-3.5 hover:bg-slate-50 transition-colors ${!n.read && n.type === 'error' ? "bg-red-50/50" : !n.read ? "bg-amber-50/40" : ""}`}>
+                          <div className="flex gap-3">
+                            <div className={`mt-0.5 w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                              n.type === "warning" ? "bg-amber-100" : n.type === "success" ? "bg-emerald-100" : n.type === "error" ? "bg-red-100" : "bg-blue-100"
+                            }`}>
+                              {n.type === "warning" 
+                                ? <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+                                : n.type === "error"
+                                ? <AlertTriangle className="w-3.5 h-3.5 text-red-600" />
+                                : n.type === "success"
+                                ? <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
+                                : <Clock className="w-3.5 h-3.5 text-blue-600" />
+                              }
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-bold text-xs text-[#000223]">{n.title}</div>
+                              <div className="text-xs text-slate-500 font-medium mt-0.5 truncate">{n.body}</div>
+                              <div className="text-[10px] text-slate-400 font-semibold mt-1">{n.time}</div>
+                            </div>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="font-bold text-xs text-[#000223]">{n.title}</div>
-                            <div className="text-xs text-slate-500 font-medium mt-0.5 truncate">{n.body}</div>
-                            <div className="text-[10px] text-slate-400 font-semibold mt-1">{n.time}</div>
-                          </div>
-                        </div>
+                        </Link>
                       ))
                     )}
                   </div>
@@ -431,7 +410,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </header>
 
         {/* Content */}
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-[#F8FAFC] p-4 sm:p-8">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-[#FAF6EF] p-4 sm:p-8">
           <div className="max-w-[1600px] mx-auto">
             {children}
           </div>

@@ -54,6 +54,7 @@ export async function GET(req: NextRequest) {
         customer: true,
         vehicle: true,
         package: true,
+        quote: true,
         assignment: {
           include: {
             driver: true

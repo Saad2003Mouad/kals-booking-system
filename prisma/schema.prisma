@@ -123,8 +123,11 @@ model Booking {
   assignment         VehicleAssignment?
 
   @@index([status])
+  @@index([eventDate])
+  @@index([createdAt])
   @@index([deletedAt])
   @@index([cancelledAt])
+  @@index([customerId])
 }
 
 model BookingItem {
@@ -229,6 +232,9 @@ model Inquiry {
   booking      Booking?  @relation(fields: [bookingId], references: [id])
   customer     Customer? @relation(fields: [customerId], references: [id])
   tasks        Task[]
+
+  @@index([status])
+  @@index([createdAt])
 }
 
 model AssistantMessage {
@@ -273,6 +279,10 @@ model AuditLog {
   bookingId      String?
   user           User?    @relation(fields: [actorId], references: [id])
   booking        Booking? @relation(fields: [bookingId], references: [id])
+
+  @@index([entityType, entityId])
+  @@index([actorId])
+  @@index([createdAt])
 }
 
 model Setting {

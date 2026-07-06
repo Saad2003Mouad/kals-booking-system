@@ -329,7 +329,12 @@ export default function SiteHeader() {
                   className="nav-link dropdown w-dropdown-toggle"
                   style={{ cursor: "pointer" }}
                 >
-                  <div className="dropdown-menu-icon w-icon-dropdown-toggle" />
+                  <svg
+                    style={{ position: "absolute", right: "0", top: "0", bottom: "0", margin: "auto", width: "16px", height: "16px", flexShrink: 0, transition: "transform 0.2s", transform: occasionsOpen ? "rotate(180deg)" : "rotate(0deg)" }}
+                    viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
                   <div>Occasions</div>
                 </div>
 

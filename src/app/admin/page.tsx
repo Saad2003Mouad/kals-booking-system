@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import useSWR from "swr";
+
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { 
@@ -18,11 +20,23 @@ const Tooltip      = dynamic(()=>import("recharts").then(m=>m.Tooltip),       {s
 const ResponsiveContainer = dynamic(()=>import("recharts").then(m=>m.ResponsiveContainer),{ssr:false});
 
 type DashData = {
-  stats:{ todayJobs:number; pending:number; weekRevenue:number; monthRevenue:number; completedMonth:number; totalCustomers:number };
-  todayBookings:{ bookingNumber:string; startTime:string; customer:{firstName:string;lastName:string}; eventType:string; city:string; vehicle:{code:string}|null; status:string }[];
-  pendingBookings:{ id:string; bookingNumber:string; customer:{firstName:string;lastName:string}; eventType:string; totalAmount:number }[];
-  vehicles:{ code:string; type:string; status:string }[];
-  revenueChart:{ day:string; revenue:number }[];
+  stats: { 
+    todayJobs: number; 
+    pending: number; 
+    cancellations: number;
+    newInquiries: number;
+    activeFleet: number;
+    totalFleet: number;
+    weekRevenue: number; 
+    monthRevenue: number; 
+    revenueTrend: number;
+    completedMonth: number; 
+    totalCustomers: number;
+  };
+  todayBookings: { bookingNumber: string; startTime: string; customer: { firstName: string; lastName: string }; eventType: string; city: string; vehicle: { code: string } | null; status: string }[];
+  actionRequiredBookings: { id: string; bookingNumber: string; customer: { firstName: string; lastName: string }; eventType: string; totalAmount: number; status: string; cancellationReason: string | null }[];
+  vehicles: { code: string; type: string; status: string }[];
+  revenueChart: { day: string; revenue: number }[];
 };
 
 const STATUS_OPTIONS = [
@@ -49,20 +63,20 @@ const VEHICLE_COLOR:Record<string,{bg:string;text:string}> = {
 
 function StatCard({label,value,icon:Icon,trend,href,bgClass,iconColor}:{label:string;value:string|number;icon:any;trend?:string;href:string;bgClass:string;iconColor:string}) {
   return (
-    <Link href={href} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/60 hover:shadow-md hover:border-[#FFA000]/30 transition-all group flex flex-col justify-between h-full relative overflow-hidden">
+    <Link href={href} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-md hover:border-[#000223] transition-all group flex flex-col justify-between h-full relative overflow-hidden">
       <div className={`absolute -right-6 -top-6 w-24 h-24 rounded-full opacity-10 ${bgClass} blur-xl pointer-events-none group-hover:scale-150 transition-transform duration-500`} />
       <div className="flex justify-between items-start mb-4 relative z-10">
         <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${bgClass} bg-opacity-10 text-opacity-100 shadow-sm border border-white`}>
           <Icon className={`w-6 h-6 ${iconColor}`} />
         </div>
         {trend && (
-          <span className="flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full border border-emerald-100">
-            <TrendingUp className="w-3 h-3" /> {trend}
+          <span className={`flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full border ${trend.startsWith('-') ? 'text-red-600 bg-red-50 border-red-100' : 'text-emerald-600 bg-emerald-50 border-emerald-100'}`}>
+            <TrendingUp className={`w-3 h-3 ${trend.startsWith('-') ? 'rotate-180' : ''}`} /> {trend}
           </span>
         )}
       </div>
       <div className="relative z-10">
-        <h3 className="text-3xl font-black text-slate-800 tracking-tight mb-1">{value}</h3>
+        <h3 className="text-3xl font-black text-[#000223] tracking-tight mb-1">{value}</h3>
         <p className="text-sm font-semibold text-slate-500">{label}</p>
       </div>
     </Link>
@@ -105,8 +119,9 @@ function DriverDashboardView() {
 
   const statusStyle = (s: string) => STATUS_OPTIONS.find(o => o.value === s) ?? STATUS_OPTIONS[0];
   const todayStr  = new Date().toISOString().split("T")[0];
-  const todayJobs = assignments.filter(a => a.booking.eventDate.startsWith(todayStr));
-  const upcoming  = assignments.filter(a => !a.booking.eventDate.startsWith(todayStr));
+  const todayJobs = assignments.filter((a: any) => a.booking.eventDate.startsWith(todayStr));
+  const upcoming  = assignments.filter((a: any) => !a.booking.eventDate.startsWith(todayStr));
+
   const mapsUrl   = (a: any) =>
     `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${a.booking.address},${a.booking.city},MA ${a.booking.zip}`)}`;
 
@@ -360,59 +375,35 @@ function DriverDashboardView() {
 }
 
 export default function AdminDashboard() {
-  const { data: session } = useSession();
-  const [data, setData]       = useState<DashData|null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState<string | null>(null);
+  const { data: session, status } = useSession();
 
-  const userRole = (session?.user as any)?.role || "DRIVER";
-
-  useEffect(() => {
-    if (userRole === "DRIVER") {
-      setLoading(false);
-      return;
+  const userRole = (session?.user as any)?.role || "OWNER";
+  
+  // revalidates in background, and handles errors gracefully.
+  const dashFetcher = async (url: string) => {
+    const res = await fetch(url);
+    const json = await res.json();
+    if (!res.ok || json.success === false) {
+      throw new Error(json?.error || `Dashboard API error ${res.status}`);
     }
+    return json.data;
+  };
 
-    async function loadDashboard() {
-      try {
-        setLoading(true);
-        setError(null);
+  const { data, error, isLoading } = useSWR<DashData>(
+    status === "authenticated" && userRole !== "DRIVER" ? "/api/admin/dashboard" : null,
+    dashFetcher,
+    { refreshInterval: 60_000, revalidateOnFocus: false, dedupingInterval: 30_000 }
+  );
 
-        const res = await fetch("/api/admin/dashboard", { cache: "no-store" });
-        const text = await res.text();
+  const loading = isLoading || status === "loading";
 
-        let json;
-        try {
-          json = text ? JSON.parse(text) : null;
-        } catch (e) {
-          // Parsing failed
-        }
-
-        if (!res.ok) {
-          throw new Error(
-            json?.error || `Dashboard API failed with status ${res.status}`
-          );
-        }
-
-        if (!json) {
-          throw new Error("Dashboard API returned empty response");
-        }
-
-        if (json.success === false) {
-          throw new Error(json.error || "Failed to load dashboard data");
-        }
-
-        setData(json.data || json);
-      } catch (err) {
-        console.error("Failed to load dashboard:", err);
-        setError(err instanceof Error ? err.message : "Failed to load dashboard data");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadDashboard();
-  }, [userRole]);
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#FAF6EF]">
+        <div className="w-8 h-8 border-4 border-[#FFA000] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   if (userRole === "DRIVER") {
     return <DriverDashboardView />;
@@ -425,11 +416,11 @@ export default function AdminDashboard() {
         <div className="h-10 w-32 bg-slate-200 rounded-xl"></div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-5">
-        {[...Array(6)].map((_,i)=><div key={i} className="h-36 bg-white rounded-2xl border border-slate-100 shadow-sm"></div>)}
+        {[...Array(6)].map((_,i)=><div key={i} className="h-36 bg-white rounded-2xl border border-slate-200 shadow-sm"></div>)}
       </div>
       <div className="grid xl:grid-cols-3 gap-6">
-        <div className="xl:col-span-2 h-[400px] bg-white rounded-2xl border border-slate-100 shadow-sm"></div>
-        <div className="h-[400px] bg-white rounded-2xl border border-slate-100 shadow-sm"></div>
+        <div className="xl:col-span-2 h-[400px] bg-white rounded-2xl border border-slate-200 shadow-sm"></div>
+        <div className="h-[400px] bg-white rounded-2xl border border-slate-200 shadow-sm"></div>
       </div>
     </div>
   );
@@ -442,14 +433,17 @@ export default function AdminDashboard() {
             <AlertCircle className="w-6 h-6 text-red-600" />
           </div>
           <h2 className="text-xl font-bold text-red-800 mb-2">Dashboard Error</h2>
-          <p className="text-red-600 font-medium">{error}</p>
+          <p className="text-red-600 font-medium">{error instanceof Error ? error.message : "Failed to load dashboard data"}</p>
+          <button onClick={() => window.location.reload()} className="mt-4 px-4 py-2 text-sm font-bold rounded-xl bg-red-600 text-white hover:bg-red-700 transition-colors">
+            Retry
+          </button>
         </div>
       </div>
     );
   }
 
   if(!data) return null;
-  const { stats, todayBookings, pendingBookings, vehicles, revenueChart } = data;
+  const { stats, todayBookings, actionRequiredBookings, vehicles, revenueChart } = data;
 
   const getGreeting = () => {
     const hours = new Date().getHours();
@@ -460,33 +454,40 @@ export default function AdminDashboard() {
 
   const displayName = session?.user?.name || session?.user?.email?.split("@")[0] || "Admin";
 
+  const numFormat = (val: number, isCurrency = false) => {
+    if (isCurrency) {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val);
+    }
+    return new Intl.NumberFormat('en-US').format(val);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header Area */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-2">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-800 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-black text-[#000223] tracking-tight">
             {getGreeting()}, {displayName}
           </h1>
           <p className="text-slate-500 mt-1 font-medium text-sm">
             Here's what's happening with Boston Legend today.
           </p>
         </div>
-        <Link href="/booking" target="_blank" className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#020617] text-white hover:bg-[#FFA000] hover:text-[#020617] font-bold text-sm shadow-md transition-all">
+        <Link href="/booking" target="_blank" className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#000223] text-[#FFA000] hover:bg-[#000445] font-bold text-sm shadow-md transition-all">
           <Plus className="w-4 h-4" /> New Booking
         </Link>
       </div>
 
-      {/* KPI Row (6/5 Cards depending on role) */}
+      {/* KPI Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-5">
-        <StatCard label="Total Bookings"  value={stats.completedMonth + stats.pending} icon={CalendarDays} href="/admin/bookings" bgClass="bg-blue-500" iconColor="text-blue-600" trend="+12%" />
+        <StatCard label="Total Bookings"  value={numFormat(stats.completedMonth + stats.pending)} icon={CalendarDays} href="/admin/bookings" bgClass="bg-[#000223]" iconColor="text-[#000223]" />
         {userRole !== "SUPPORT" && (
-          <StatCard label="Revenue (M)"     value={`$${(stats.monthRevenue/1000).toFixed(1)}k`} icon={DollarSign} href="/admin/bookings" bgClass="bg-emerald-500" iconColor="text-emerald-600" trend="+8%" />
+          <StatCard label="Revenue (30d)"   value={numFormat(stats.monthRevenue, true)} icon={DollarSign} href="/admin/bookings" bgClass="bg-emerald-500" iconColor="text-emerald-600" trend={stats.revenueTrend !== 0 ? `${stats.revenueTrend > 0 ? '+' : ''}${stats.revenueTrend.toFixed(1)}%` : undefined} />
         )}
-        <StatCard label="Customers"       value={stats.totalCustomers} icon={Users} href="/admin/customers" bgClass="bg-purple-500" iconColor="text-purple-600" />
-        <StatCard label="Pending Apps"    value={stats.pending} icon={AlertCircle} href="/admin/bookings?status=PENDING" bgClass="bg-amber-500" iconColor="text-amber-600" />
-        <StatCard label="Active Fleet"    value={vehicles.filter(v=>v.status==="ON_JOB").length} icon={Truck} href="/admin/vehicles" bgClass="bg-[#FFA000]" iconColor="text-[#FFA000]" />
-        <StatCard label="New Inquiries"   value="0" icon={Inbox} href="/admin/inquiries" bgClass="bg-rose-500" iconColor="text-rose-600" />
+        <StatCard label="Customers"       value={numFormat(stats.totalCustomers)} icon={Users} href="/admin/customers" bgClass="bg-purple-500" iconColor="text-purple-600" />
+        <StatCard label="Action Required" value={numFormat(stats.pending + stats.cancellations)} icon={AlertCircle} href="/admin/bookings?status=PENDING_REVIEW" bgClass="bg-[#FFA000]" iconColor="text-[#FFA000]" />
+        <StatCard label="Active Fleet"    value={`${stats.activeFleet} / ${stats.totalFleet}`} icon={Truck} href="/admin/vehicles" bgClass="bg-[#000223]" iconColor="text-[#000223]" />
+        <StatCard label="New Inquiries"   value={numFormat(stats.newInquiries)} icon={Inbox} href="/admin/inquiries" bgClass="bg-rose-500" iconColor="text-rose-600" />
       </div>
 
       <div className="grid xl:grid-cols-3 gap-6">
@@ -496,15 +497,20 @@ export default function AdminDashboard() {
 
           {/* Revenue Chart */}
           {userRole !== "SUPPORT" && (
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/60">
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h2 className="font-bold text-lg text-slate-800">Revenue Overview</h2>
+                  <h2 className="font-bold text-lg text-[#000223]">Revenue Overview</h2>
                   <p className="text-sm font-medium text-slate-500">Last 7 days performance</p>
                 </div>
                 <div className="text-right">
-                  <span className="text-2xl font-black text-slate-800">${stats.weekRevenue.toFixed(0)}</span>
-                  <div className="text-xs font-bold text-emerald-600 flex items-center justify-end gap-1"><TrendingUp className="w-3 h-3"/> +4.5%</div>
+                  <span className="text-2xl font-black text-[#000223]">{numFormat(stats.weekRevenue, true)}</span>
+                  {stats.revenueTrend !== 0 && (
+                    <div className={`text-xs font-bold flex items-center justify-end gap-1 ${stats.revenueTrend > 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                      <TrendingUp className={`w-3 h-3 ${stats.revenueTrend < 0 ? 'rotate-180' : ''}`}/> 
+                      {stats.revenueTrend > 0 ? '+' : ''}{stats.revenueTrend.toFixed(1)}%
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="h-[250px] w-full">
@@ -512,19 +518,19 @@ export default function AdminDashboard() {
                   <AreaChart data={revenueChart} margin={{top:10,right:0,left:-20,bottom:0}}>
                     <defs>
                       <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%"  stopColor="#FFA000" stopOpacity={0.4}/>
-                        <stop offset="100%" stopColor="#FFA000" stopOpacity={0}/>
+                        <stop offset="0%"  stopColor="#000223" stopOpacity={0.15}/>
+                        <stop offset="100%" stopColor="#000223" stopOpacity={0}/>
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="#E2E8F0"/>
                     <XAxis dataKey="day" tick={{fontSize:12,fontWeight:600,fill:"#64748B"}} axisLine={false} tickLine={false} dy={10}/>
-                    <YAxis tick={{fontSize:12,fontWeight:600,fill:"#64748B"}} axisLine={false} tickLine={false} tickFormatter={v=>`$${v}`}/>
+                    <YAxis tick={{fontSize:12,fontWeight:600,fill:"#64748B"}} axisLine={false} tickLine={false} tickFormatter={v=>`$${new Intl.NumberFormat('en-US').format(v)}`}/>
                     <Tooltip 
-                      formatter={(v:any)=>[`$${Number(v).toFixed(2)}`,"Revenue"]} 
-                      contentStyle={{borderRadius:12,border:"none",boxShadow:"0 10px 25px rgba(0,0,0,0.1)",fontWeight:"bold"}}
-                      itemStyle={{color:"#020617"}}
+                      formatter={(v:any)=>[`$${new Intl.NumberFormat('en-US').format(v)}`,"Revenue"]} 
+                      contentStyle={{borderRadius:12,border:"1px solid #E2E8F0",boxShadow:"0 10px 25px rgba(0,0,0,0.05)",fontWeight:"bold"}}
+                      itemStyle={{color:"#000223"}}
                     />
-                    <Area type="monotone" dataKey="revenue" stroke="#FFA000" strokeWidth={3} fill="url(#revGrad)" activeDot={{r:6, fill:"#020617", stroke:"#FFA000", strokeWidth:3}}/>
+                    <Area type="monotone" dataKey="revenue" stroke="#000223" strokeWidth={3} fill="url(#revGrad)" activeDot={{r:6, fill:"#FFA000", stroke:"#000223", strokeWidth:3}}/>
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
@@ -532,12 +538,12 @@ export default function AdminDashboard() {
           )}
 
           {/* Today's Schedule Table */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden flex flex-col">
-            <div className="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-              <h2 className="font-bold text-lg text-slate-800 flex items-center gap-2">
-                <CalendarDays className="w-5 h-5 text-blue-500"/> Today's Operations
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+            <div className="px-6 py-5 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
+              <h2 className="font-bold text-lg text-[#000223] flex items-center gap-2">
+                <CalendarDays className="w-5 h-5 text-[#000223]"/> Today's Operations
               </h2>
-              <Link href="/admin/bookings" className="text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 bg-blue-50 px-3 py-1.5 rounded-lg transition-colors">
+              <Link href="/admin/bookings" className="text-sm font-bold text-[#000223] hover:text-[#FFA000] flex items-center gap-1 bg-slate-100 px-3 py-1.5 rounded-lg transition-colors">
                 View All <ArrowRight className="w-4 h-4"/>
               </Link>
             </div>
@@ -554,24 +560,24 @@ export default function AdminDashboard() {
               ) : (
                 <table className="w-full text-left border-collapse min-w-[600px]">
                   <thead>
-                    <tr className="border-b border-slate-100">
-                      <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Time</th>
-                      <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Client & Event</th>
-                      <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Vehicle</th>
-                      <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">Status</th>
+                    <tr className="border-b border-slate-200">
+                      <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Time</th>
+                      <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Client & Event</th>
+                      <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Vehicle</th>
+                      <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-50">
+                  <tbody className="divide-y divide-slate-100">
                     {todayBookings.map(b=>(
-                      <tr key={b.bookingNumber} className="hover:bg-slate-50/50 transition-colors cursor-pointer group">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-black text-slate-700">{b.startTime}</td>
+                      <tr key={b.bookingNumber} className="hover:bg-slate-50 transition-colors cursor-pointer group">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-black text-[#000223]">{b.startTime}</td>
                         <td className="px-6 py-4">
-                          <div className="font-bold text-slate-800">{b.customer.firstName} {b.customer.lastName}</div>
+                          <div className="font-bold text-[#000223]">{b.customer.firstName} {b.customer.lastName}</div>
                           <div className="text-xs text-slate-500 font-medium mt-0.5">{b.eventType} · {b.city}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           {b.vehicle ? (
-                            <span className="inline-flex items-center gap-1.5 text-sm font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-md">
+                            <span className="inline-flex items-center gap-1.5 text-sm font-bold text-[#000223] bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-md">
                               {b.vehicle.code.startsWith("VAN")?"🚐":"🚌"} {b.vehicle.code}
                             </span>
                           ) : (
@@ -595,42 +601,49 @@ export default function AdminDashboard() {
         {/* Right Column (Side Panels) */}
         <div className="space-y-6">
           
-          {/* Action Required / Pending */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
-              <h2 className="font-bold text-base text-slate-800 flex items-center gap-2">
-                <AlertCircle className="w-5 h-5 text-amber-500"/> Action Required
-                {pendingBookings.length > 0 && (
-                  <span className="bg-amber-100 text-amber-700 text-xs font-bold px-2 py-0.5 rounded-full ml-1">{pendingBookings.length}</span>
+          {/* Action Required */}
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
+              <h2 className="font-bold text-base text-[#000223] flex items-center gap-2">
+                <AlertCircle className="w-5 h-5 text-red-500"/> Action Required
+                {actionRequiredBookings.length > 0 && (
+                  <span className="bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full ml-1">
+                    {numFormat(actionRequiredBookings.length)}
+                  </span>
                 )}
               </h2>
             </div>
             
-            {pendingBookings.length === 0 ? (
+            {actionRequiredBookings.length === 0 ? (
               <div className="p-6 text-center">
                 <CheckCircle2 className="w-10 h-10 text-emerald-400 mx-auto mb-3" />
                 <p className="text-sm font-bold text-slate-600">All caught up!</p>
                 <p className="text-xs text-slate-400 mt-1">No pending approvals needed.</p>
               </div>
             ) : (
-              <div className="divide-y divide-slate-50 max-h-[350px] overflow-y-auto">
-                {pendingBookings.slice(0, 5).map(b=>(
-                  <div key={b.id} className="p-5 flex items-center gap-4 hover:bg-slate-50 transition-colors">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 border border-amber-300 flex items-center justify-center font-black text-amber-800 text-sm flex-shrink-0">
+              <div className="divide-y divide-slate-100 max-h-[350px] overflow-y-auto">
+                {actionRequiredBookings.slice(0, 5).map(b=>(
+                  <div key={b.id} className={`p-5 flex items-start gap-4 hover:bg-slate-50 transition-colors ${b.status === 'CANCELLATION_REQUESTED' ? 'bg-red-50/30' : ''}`}>
+                    <div className={`w-10 h-10 rounded-full border flex items-center justify-center font-black text-sm flex-shrink-0 ${b.status === 'CANCELLATION_REQUESTED' ? 'bg-red-100 border-red-200 text-red-800' : 'bg-[#FFA000]/10 border-[#FFA000]/30 text-[#FFA000]'}`}>
                       {b.customer.firstName.charAt(0)}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-bold text-slate-800 truncate">{b.customer.firstName} {b.customer.lastName}</div>
-                      <div className="text-xs text-slate-500 font-medium mt-0.5 truncate">{b.eventType} · <span className="text-amber-600 font-bold">${b.totalAmount.toFixed(2)}</span></div>
+                    <div className="flex-1 min-w-0 pt-0.5">
+                      <div className="font-bold text-[#000223] truncate">{b.customer.firstName} {b.customer.lastName}</div>
+                      <div className="text-xs text-slate-500 font-medium mt-0.5 truncate">{b.eventType} · <span className="font-bold">{numFormat(b.totalAmount, true)}</span></div>
+                      {b.status === 'CANCELLATION_REQUESTED' ? (
+                         <div className="text-[10px] font-bold text-red-600 uppercase tracking-wider mt-1.5 bg-red-50 inline-block px-1.5 py-0.5 rounded">Cancellation Request</div>
+                      ) : (
+                         <div className="text-[10px] font-bold text-amber-600 uppercase tracking-wider mt-1.5 bg-amber-50 inline-block px-1.5 py-0.5 rounded">Pending Review</div>
+                      )}
                     </div>
-                    <Link href={`/admin/bookings/${b.id}`} className="flex-shrink-0 w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-[#FFA000] hover:border-[#FFA000] hover:bg-[#FFA000]/10 transition-all">
+                    <Link href={`/admin/bookings/${b.id}`} className="flex-shrink-0 w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-[#000223] hover:text-[#FFA000] hover:border-[#FFA000] hover:bg-[#FFA000]/10 transition-all">
                       <ArrowRight className="w-4 h-4" />
                     </Link>
                   </div>
                 ))}
-                {pendingBookings.length > 5 && (
-                  <Link href="/admin/bookings?status=PENDING" className="block p-4 text-center text-sm font-bold text-amber-600 hover:bg-amber-50 transition-colors">
-                    View {pendingBookings.length - 5} more
+                {actionRequiredBookings.length > 5 && (
+                  <Link href="/admin/bookings?status=PENDING_REVIEW" className="block p-4 text-center text-sm font-bold text-[#000223] hover:bg-slate-50 hover:text-[#FFA000] transition-colors">
+                    View {numFormat(actionRequiredBookings.length - 5)} more
                   </Link>
                 )}
               </div>
@@ -638,22 +651,22 @@ export default function AdminDashboard() {
           </div>
 
           {/* Fleet Status */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-              <h3 className="font-bold text-base text-slate-800 flex items-center gap-2"><Truck className="w-4 h-4 text-slate-400"/> Fleet Status</h3>
-              <Link href="/admin/vehicles" className="text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors">Manage</Link>
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
+              <h3 className="font-bold text-base text-[#000223] flex items-center gap-2"><Truck className="w-4 h-4 text-[#000223]"/> Fleet Status</h3>
+              <Link href="/admin/vehicles" className="text-xs font-bold text-slate-500 hover:text-[#000223] transition-colors">Manage</Link>
             </div>
             <div className="p-2">
               {vehicles.map(v=>{
-                const c = VEHICLE_COLOR[v.status]??{bg:"bg-slate-100 text-slate-600",text:""};
+                const c = VEHICLE_COLOR[v.status]??{bg:"bg-slate-100 text-slate-600 border-slate-200",text:""};
                 return (
                   <div key={v.code} className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition-colors">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-lg">
+                      <div className="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-lg shadow-sm">
                         {v.code.startsWith("VAN")?"🚐":"🚌"}
                       </div>
                       <div>
-                        <div className="text-sm font-bold text-slate-800 leading-tight">{v.code}</div>
+                        <div className="text-sm font-bold text-[#000223] leading-tight">{v.code}</div>
                         <div className="text-xs text-slate-500 font-medium mt-0.5">{v.type}</div>
                       </div>
                     </div>

@@ -4,11 +4,17 @@ import { sendBookingApprovedEmail, sendBookingRejectedEmail, sendBookingPendingR
 import { getSessionUser, hasPermission, unauthenticated, unauthorized } from "@/lib/rbac";
 import { googleCalendarService } from "@/lib/google-calendar";
 import { createAuditLog } from "@/lib/audit";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { logger } from "@/lib/logger";
 
 
 export const dynamic = "force-dynamic";
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+  // Rate limit: 10 status changes per minute per IP (prevents rapid abuse)
+  const limited = checkRateLimit(req, { limit: 10, windowMs: 60_000, prefix: "booking-status" });
+  if (limited) return limited;
+
   try {
     const user = await getSessionUser(req);
     if (!user) return unauthenticated();
@@ -108,6 +114,15 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       actorRole: user.role
     });
 
+    // Structured admin action log
+    logger.adminAction(
+      `STATUS_CHANGED_TO_${targetStatus}`,
+      user.id,
+      "BOOKING",
+      booking.id,
+      { bookingNumber: booking.bookingNumber, previousStatus: booking.status, newStatus: targetStatus, actorRole: user.role }
+    );
+
     // Send emails on status change
     try {
       if (status === "CONFIRMED" || status === "PENDING_PAYMENT") {
@@ -177,8 +192,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
           if (delayMs <= 0) {
             scheduleReview(); // Event already passed, send immediately
           } else {
-            setTimeout(scheduleReview, delayMs); // Schedule for 24h after event end
-            console.log(`[ReviewRequest] ⏰ Scheduled review email for ${booking.bookingNumber} in ${Math.round(delayMs / 3600000)}h`);
+            setTimeout(scheduleReview, delayMs);
+            logger.info("Review email scheduled", { bookingNumber: booking.bookingNumber, delayHours: Math.round(delayMs / 3_600_000) });
           }
         }
       }
@@ -217,9 +232,9 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       console.error("[Google Calendar Sync Error]", gcalErr);
     }
 
-    return NextResponse.json({ success: true, data: booking });
-  } catch (error) {
-    console.error("Booking status update error:", error);
+    return NextResponse.json({ success: true, data: { id: booking.id, bookingNumber: booking.bookingNumber, status: booking.status } });
+  } catch (error: any) {
+    logger.error("Booking status update error", { bookingId: params.id, error: error.message });
     return NextResponse.json({ success: false, error: "Failed to update status" }, { status: 500 });
   }
 }

@@ -118,21 +118,25 @@ export default function SettingsPage() {
   );
 
   return (
-    <div className="max-w-4xl mx-auto pb-12" style={{ fontFamily: "'Inter','Nunito',sans-serif" }}>
+    <div className="max-w-4xl mx-auto pb-12">
 
       {/* Toast */}
       {toast && (
-        <div className={`fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-xl text-sm font-bold transition-all ${toast.type === "success" ? "bg-emerald-50 border border-emerald-200 text-emerald-800" : "bg-red-50 border border-red-200 text-red-800"}`}>
+        <div className={`fixed top-6 right-6 z-[9999] flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-xl text-sm font-bold transition-all ${toast.type === "success" ? "bg-emerald-50 border border-emerald-200 text-emerald-800" : "bg-red-50 border border-red-200 text-red-800"}`}>
           {toast.type === "success" ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
           {toast.msg}
         </div>
       )}
 
       {/* Header */}
-      <div className="flex items-end justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-black tracking-tight" style={{ color: "#000223" }}>Platform Settings</h1>
-          <p className="text-slate-500 font-semibold mt-1 text-sm">Configure pricing, distance rules, and business hours. Changes take effect immediately.</p>
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#FFA000]" />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">System Configuration</span>
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-[#000223]">Platform Settings</h1>
+          <p className="text-slate-500 font-semibold mt-2 text-sm sm:text-base">Configure pricing, distance rules, and business hours. Changes take effect immediately.</p>
         </div>
         <div className="flex gap-2">
           {isDirty && (

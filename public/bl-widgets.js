@@ -431,11 +431,8 @@
      3. SWIPER INIT
   ───────────────────────────────────────────── */
   function initSwipers() {
-    if (window.__blSwipersInited) return;
-
     function doInit() {
       if (typeof window.Swiper === 'undefined') return;
-      window.__blSwipersInited = true;
 
       var brandEl = document.querySelector('.swiper-movies');
       if (brandEl && !brandEl.swiper) {
@@ -781,6 +778,7 @@
     }
     try { injectNavButtons(); } catch(e) {}
     try { injectManageBookingLink(); } catch(e) {}
+    try { initSwipers(); } catch(e) {}
   });
 
   var retryCount = 0;
@@ -837,23 +835,23 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        background: radial-gradient(circle at 50% 50%, #0a0a1a 0%, #000000 100%);
+        background: radial-gradient(circle at 50% 50%, #000223 0%, #000000 100%);
         overflow: hidden;
         pointer-events: none;
-        animation: blIntroFadeOut 1.5s cubic-bezier(0.4, 0, 0.2, 1) 6.5s forwards;
+        animation: blIntroFadeOut 0.8s cubic-bezier(0.4, 0, 0.2, 1) 3.2s forwards;
       }
       #bl-cinematic-glow {
         position: absolute;
         width: 60vw;
         height: 60vw;
-        background: radial-gradient(circle, rgba(255,160,0,0.08) 0%, rgba(0,0,0,0) 70%);
+        background: radial-gradient(circle, rgba(255,160,0,0.12) 0%, rgba(0,0,0,0) 70%);
         border-radius: 50%;
         filter: blur(40px);
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%) scale(0.8);
         opacity: 0;
-        animation: blGlowPulse 6s ease-in-out 1s forwards;
+        animation: blGlowPulse 2.8s ease-in-out 0.2s forwards;
       }
       #bl-cinematic-logo-wrapper {
         position: relative;
@@ -862,34 +860,34 @@
         flex-direction: column;
         align-items: center;
         opacity: 0;
-        transform: scale(1.15) translateY(10px);
-        filter: blur(12px);
-        animation: blLogoReveal 2s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards;
+        transform: scale(1.1) translateY(10px);
+        filter: blur(8px);
+        animation: blLogoReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
       }
       #bl-cinematic-logo {
         display: block;
-        width: 260px;
+        width: 280px;
         height: auto;
-        filter: brightness(0) invert(1) drop-shadow(0px 10px 20px rgba(0,0,0,0.5));
+        filter: brightness(0) invert(1) drop-shadow(0px 10px 20px rgba(0,0,0,0.4));
       }
       #bl-cinematic-tagline {
-        margin-top: 32px;
-        color: #E5E7EB;
-        font-size: 13px;
-        font-weight: 600;
-        letter-spacing: 0.3em;
+        margin-top: 36px;
+        color: #FAF6EF;
+        font-size: 14px;
+        font-weight: 800;
+        letter-spacing: 0.35em;
         text-transform: uppercase;
         font-family: var(--font-sans), sans-serif;
         text-align: center;
         opacity: 0;
-        transform: translateY(15px);
-        filter: blur(8px);
-        animation: blTaglineReveal 2s cubic-bezier(0.16, 1, 0.3, 1) 2.5s forwards;
+        transform: translateY(12px);
+        filter: blur(5px);
+        animation: blTaglineReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.9s forwards;
       }
       #bl-cinematic-tagline span {
-        color: #E5E7EB;
+        color: #FAF6EF;
         text-shadow: 0px 0px 0px rgba(255,160,0,0);
-        animation: blTextGlow 3s ease-in-out 4s forwards;
+        animation: blTextGlow 1.8s ease-in-out 1.2s forwards;
       }
 
       @keyframes blIntroFadeOut {
@@ -910,8 +908,8 @@
         100% { opacity: 1; transform: translateY(0); filter: blur(0px); }
       }
       @keyframes blTextGlow {
-        0% { color: #E5E7EB; text-shadow: 0px 0px 0px rgba(255,160,0,0); }
-        100% { color: #FFF; text-shadow: 0px 0px 15px rgba(255,160,0,0.6); }
+        0% { color: #FAF6EF; text-shadow: 0px 0px 0px rgba(255,160,0,0); }
+        100% { color: #FFA000; text-shadow: 0px 0px 20px rgba(255,160,0,0.8); }
       }
     `;
     document.head.appendChild(style);
@@ -943,7 +941,7 @@
     
     document.body.appendChild(container);
 
-    // Remove from DOM after 8.5 seconds
+    // Remove from DOM after 4.5 seconds
     setTimeout(function() {
       if (container.parentNode) {
         container.parentNode.removeChild(container);

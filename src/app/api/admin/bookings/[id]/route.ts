@@ -52,3 +52,81 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ success: false, error: "Failed to fetch booking" }, { status: 500 });
   }
 }
+
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    const user = await getSessionUser(req);
+    if (!user) return unauthenticated();
+
+    if (!hasPermission(user.role, "bookings.update")) {
+      return unauthorized();
+    }
+
+    const body = await req.json();
+    const {
+      notes,
+      internalNote,
+      eventDate,
+      startTime,
+      durationMins,
+      guests,
+      address,
+      city,
+      zip,
+      totalAmount,
+      eventType,
+    } = body;
+
+    const updateData: any = {};
+    if (notes !== undefined)       updateData.notes        = notes;
+    if (internalNote !== undefined) updateData.internalNote = internalNote;
+    if (eventDate !== undefined)   updateData.eventDate    = new Date(eventDate);
+    if (startTime !== undefined)   updateData.startTime    = startTime;
+    if (durationMins !== undefined) updateData.durationMins = Number(durationMins);
+    if (guests !== undefined)      updateData.guests       = Number(guests);
+    if (address !== undefined)     updateData.address      = address;
+    if (city !== undefined)        updateData.city         = city;
+    if (zip !== undefined)         updateData.zip          = zip;
+    if (totalAmount !== undefined) updateData.totalAmount  = parseFloat(totalAmount);
+    if (eventType !== undefined)   updateData.eventType    = eventType;
+
+    const booking = await prisma.booking.update({
+      where: { id: params.id },
+      data: updateData,
+      include: {
+        customer: true,
+        package: true,
+        vehicle: true,
+        quote: true,
+        stops: { orderBy: { stopOrder: "asc" } },
+        assignment: { include: { vehicle: true, driver: { include: { user: true } } } },
+      },
+    });
+
+    // Update quote total if totalAmount changed
+    if (totalAmount !== undefined) {
+      const existingQuote = await prisma.quote.findUnique({ where: { bookingId: params.id } });
+      if (existingQuote) {
+        await prisma.quote.update({
+          where: { bookingId: params.id },
+          data: { totalAmount: parseFloat(totalAmount) },
+        });
+      }
+    }
+
+    await prisma.auditLog.create({
+      data: {
+        entityType: "BOOKING",
+        entityId:   params.id,
+        action:     "BOOKING_EDITED",
+        userId:     user.id,
+        metadataJson: JSON.stringify({ updatedFields: Object.keys(updateData), by: user.email }),
+      },
+    });
+
+    return NextResponse.json({ success: true, data: booking });
+  } catch (error) {
+    console.error("Booking update error:", error);
+    return NextResponse.json({ success: false, error: "Failed to update booking" }, { status: 500 });
+  }
+}

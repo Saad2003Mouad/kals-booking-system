@@ -22,11 +22,11 @@
 @layer components {
   /* Premium buttons */
   .btn-premium-primary {
-    @apply px-6 py-3.5 bg-[#000223] text-[#FFA000] rounded-xl font-bold text-base transition-all duration-205 hover:bg-[#000445] disabled:opacity-40 disabled:pointer-events-none;
+    @apply px-6 py-3.5 bg-[#000223] text-[#FFA000] rounded-xl font-bold text-base transition-all duration-200 hover:bg-[#000445] disabled:opacity-40 disabled:pointer-events-none;
   }
   
   .btn-premium-secondary {
-    @apply px-6 py-3.5 bg-white text-[#000223] border border-slate-200 rounded-xl font-bold text-base transition-all duration-205 hover:bg-slate-50;
+    @apply px-6 py-3.5 bg-white text-[#000223] border border-slate-200 rounded-xl font-bold text-base transition-all duration-200 hover:bg-slate-50;
   }
 
   /* Premium inputs & selects */
@@ -235,11 +235,8 @@ html, body {
 }
 
 @media screen and (max-width: 767px) {
-  /* Prevent horizontal elastic scroll */
-  body {
-    /* Removed overscroll-behavior-y: none; to fix iOS Safari scroll lock */
-  }
-  
+  /* Prevent horizontal elastic scroll — overscroll-behavior-y removed to fix iOS Safari scroll lock */
+
   /* Ensure touch targets are at least 44x44px for WCAG/Google UX */
   a.footer-link, a.nav-menu-link, .w-nav-button, button, .btn {
     min-height: 44px;

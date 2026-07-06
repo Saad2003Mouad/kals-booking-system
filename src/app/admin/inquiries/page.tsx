@@ -129,13 +129,17 @@ export default function AdminInquiriesPage() {
   if (error) return <div className="p-10 text-red-500 font-bold text-center bg-red-50 rounded-xl">{error}</div>;
 
   return (
-    <div className="flex h-[calc(100vh-80px)] overflow-hidden">
+    <div className="flex h-[calc(100vh-100px)] overflow-hidden pb-4">
       {/* Main Content */}
-      <div className={`flex-1 overflow-y-auto pr-6 transition-all ${selected ? "hidden lg:block lg:w-1/2" : "w-full"}`}>
-        <div className="flex justify-between items-end mb-6">
+      <div className={`flex-1 overflow-y-auto pr-2 lg:pr-6 transition-all ${selected ? "hidden lg:block lg:w-1/2" : "w-full"}`}>
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-black text-[#000223]">Inquiries</h1>
-            <p className="text-sm font-semibold text-slate-500 mt-1">Manage customer questions and escalations.</p>
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#FFA000]" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Communication</span>
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-[#000223]">Inquiries</h1>
+            <p className="text-slate-500 font-semibold mt-2 text-sm sm:text-base">Manage customer questions and AI-escalated chats.</p>
           </div>
           <div className="flex items-center gap-3">
             <a
@@ -155,8 +159,8 @@ export default function AdminInquiriesPage() {
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mb-10">
-          <div className="p-4 border-b border-slate-100">
+        <div className="card-premium overflow-hidden mb-10">
+          <div className="p-4 border-b border-slate-100 bg-white">
             <div className="relative">
               <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
               <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search inquiries..." className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold outline-none focus:border-blue-500" />
@@ -194,10 +198,10 @@ export default function AdminInquiriesPage() {
 
       {/* Drawer */}
       {selected && (
-        <div className="w-full lg:w-[500px] h-full bg-white border-l border-slate-200 shadow-2xl flex flex-col absolute right-0 top-0 lg:relative z-10 animate-in slide-in-from-right duration-300">
-          <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-            <h2 className="font-black text-lg text-[#000223]">Inquiry Details</h2>
-            <button onClick={() => setSelected(null)} className="text-slate-400 hover:text-slate-800"><XCircle className="w-6 h-6"/></button>
+        <div className="w-full lg:w-[450px] xl:w-[500px] h-full bg-white border border-slate-200 rounded-3xl shadow-2xl flex flex-col absolute right-0 top-0 lg:relative z-10 animate-in slide-in-from-right duration-300 ml-0 lg:ml-6">
+          <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-[#FAF6EF] rounded-t-3xl">
+            <h2 className="font-black text-xl text-[#000223]">Inquiry Details</h2>
+            <button onClick={() => setSelected(null)} className="text-slate-400 hover:text-red-500 transition-colors bg-white p-1.5 rounded-full shadow-sm"><XCircle className="w-6 h-6"/></button>
           </div>
           
           <div className="flex-1 overflow-y-auto p-6 space-y-6">

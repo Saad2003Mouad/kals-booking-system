@@ -3,6 +3,20 @@ const nextConfig = {
   poweredByHeader: false,
   productionBrowserSourceMaps: false,
   async headers() {
+    const csp = [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://vercel.live https://*.vercel-scripts.com https://d3e54v103j8qbb.cloudfront.net https://cdn.prod.website-files.com",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.prod.website-files.com",
+      "font-src 'self' https://fonts.gstatic.com https://cdn.prod.website-files.com",
+      "img-src 'self' data: blob: https://cdn.prod.website-files.com https://www.bostonlegendicecreamtruck.com https://*.googleusercontent.com",
+      "connect-src 'self' https://vitals.vercel-insights.com https://www.google-analytics.com",
+      "frame-src 'none'",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "upgrade-insecure-requests",
+    ].join("; ");
+
     return [
       {
         source: '/(.*)',
@@ -12,8 +26,9 @@ const nextConfig = {
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'X-Frame-Options', value: 'DENY' },
           { key: 'X-XSS-Protection', value: '1; mode=block' },
-          { key: 'Referrer-Policy', value: 'origin-when-cross-origin' },
-          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' }
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), payment=()' },
+          { key: 'Content-Security-Policy', value: csp },
         ]
       }
     ];

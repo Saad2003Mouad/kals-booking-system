@@ -98,8 +98,7 @@ export default function VehiclesPage() {
   };
 
   return (
-    <div className="space-y-8 pb-10" style={{ fontFamily:"'Inter', 'Nunito', sans-serif" }}>
-      
+    <div className="space-y-6 pb-10">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
@@ -112,30 +111,29 @@ export default function VehiclesPage() {
         </div>
         <button 
           onClick={openAdd} 
-          className="px-5 py-2.5 rounded-xl text-sm font-black text-[#000223] bg-[#FFA000] hover:bg-[#FFB020] shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
+          className="btn-premium-primary flex items-center gap-2"
         >
-          <Plus className="w-4.5 h-4.5" /> Add Vehicle
+          <Plus className="w-5 h-5" /> Add Vehicle
         </button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label:"Total Fleet",  value: vehicles.length,                             bg:"from-slate-50 to-white", text:"text-[#000223]" },
-          { label:"Available",    value: vehicles.filter(v=>v.status==="AVAILABLE").length, bg:"from-emerald-50/50 to-white", text:"text-emerald-600" },
-          { label:"On Assignment",value: vehicles.filter(v=>v.status==="ON_JOB").length,    bg:"from-amber-50/50 to-white", text:"text-amber-600" },
-          { label:"Maintenance",  value: vehicles.filter(v=>v.status==="MAINTENANCE").length, bg:"from-red-50/50 to-white", text:"text-rose-600" },
+          { label:"Total Fleet",  value: vehicles.length,                             text:"text-[#000223]" },
+          { label:"Available",    value: vehicles.filter(v=>v.status==="AVAILABLE").length, text:"text-emerald-600" },
+          { label:"On Assignment",value: vehicles.filter(v=>v.status==="ON_JOB").length,    text:"text-amber-600" },
+          { label:"Maintenance",  value: vehicles.filter(v=>v.status==="MAINTENANCE").length, text:"text-rose-600" },
         ].map((s,i) => (
-          <div key={i} className={`bg-gradient-to-br ${s.bg} rounded-2xl border border-slate-200 shadow-sm p-6 relative overflow-hidden group`}>
-            <div className="absolute -right-4 -top-4 w-16 h-16 bg-white/40 rounded-full blur-xl group-hover:bg-white/60 transition-all duration-300" />
+          <div key={i} className="card-premium p-5 flex flex-col justify-center">
             <div className={`text-3xl font-black ${s.text} mb-1 tracking-tight`}>{s.value}</div>
-            <div className="text-xs text-slate-450 font-black uppercase tracking-widest">{s.label}</div>
+            <div className="text-xs text-slate-400 font-black uppercase tracking-widest">{s.label}</div>
           </div>
         ))}
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 flex gap-4">
+      <div className="card-premium p-4 flex gap-4">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400" />
           <input 

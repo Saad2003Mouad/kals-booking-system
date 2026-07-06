@@ -46,121 +46,141 @@ export default function AdminCalendarPage() {
   };
 
   return (
-    <div className="p-4 sm:p-8 space-y-8 bg-slate-50 min-h-screen">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-            <CalendarIcon className="w-8 h-8 text-[#FFA000]" />
-            Business Calendar
-          </h1>
-          <p className="text-slate-500 mt-2 font-medium">View all confirmed and pending events across the organization.</p>
-        </div>
-      </div>
-
-      <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200 relative z-0">
-        <FullCalendar
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
-          initialView="dayGridMonth"
-          headerToolbar={{
-            left: "prev,next today",
-            center: "title",
-            right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek"
-          }}
-          events={fetchEvents}
-          eventClick={(info) => {
-            setSelectedEvent(info.event);
-          }}
-          height="auto"
-          aspectRatio={1.5}
-          slotMinTime="08:00:00"
-          slotMaxTime="23:00:00"
-        />
-      </div>
-
-      {/* Event Details Modal */}
-      {selectedEvent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden">
-            <div className="p-6 border-b border-slate-100 flex justify-between items-start">
-              <div>
-                <h3 className="text-xl font-black text-slate-900 leading-tight">
-                  {selectedEvent.title}
-                </h3>
-                <span className="inline-block mt-2 px-2.5 py-1 bg-slate-100 text-slate-700 text-xs font-bold rounded-md">
-                  {selectedEvent.extendedProps.status}
-                </span>
-              </div>
-              <button
-                onClick={() => setSelectedEvent(null)}
-                className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1.5 rounded-full transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="p-6 space-y-4">
-              <div className="flex items-start gap-3">
-                <CalendarIcon className="w-5 h-5 text-[#FFA000] shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-bold text-slate-900">Event Time</p>
-                  <p className="text-sm text-slate-600">
-                    {selectedEvent.start?.toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}
-                    {" – "}
-                    {selectedEvent.end?.toLocaleTimeString([], { timeStyle: "short" })}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-[#FFA000] shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-bold text-slate-900">Location</p>
-                  <p className="text-sm text-slate-600">{selectedEvent.extendedProps.address}</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <User className="w-5 h-5 text-[#FFA000] shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-bold text-slate-900">Customer</p>
-                  <p className="text-sm text-slate-600">{selectedEvent.extendedProps.customerName}</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <Phone className="w-5 h-5 text-[#FFA000] shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-bold text-slate-900">Phone</p>
-                  <p className="text-sm text-slate-600">{selectedEvent.extendedProps.phone}</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <Mail className="w-5 h-5 text-[#FFA000] shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-bold text-slate-900">Email</p>
-                  <p className="text-sm text-slate-600">{selectedEvent.extendedProps.email}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
-              <button
-                onClick={() => setSelectedEvent(null)}
-                className="px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-200 bg-slate-100 rounded-xl transition-colors"
-              >
-                Close
-              </button>
-              <Link
-                href={`/admin/bookings/${selectedEvent.id}`}
-                className="px-4 py-2.5 text-sm font-bold text-[#000223] bg-[#FFA000] hover:bg-[#e69000] rounded-xl transition-colors shadow-sm"
-              >
-                View Full Booking
-              </Link>
-            </div>
+    <div>
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-black text-[#000223] tracking-tight flex items-center gap-3">
+              <CalendarIcon className="w-8 h-8 sm:w-10 sm:h-10 text-[#FFA000]" />
+              Business Calendar
+            </h1>
+            <p className="text-slate-500 mt-2 font-semibold text-sm sm:text-base">
+              View and manage all confirmed and pending events.
+            </p>
           </div>
         </div>
-      )}
+
+        {/* Calendar Card */}
+        <div className="card-premium p-4 sm:p-8 relative z-0">
+          <FullCalendar
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
+            initialView="dayGridMonth"
+            headerToolbar={{
+              left: "prev,next today",
+              center: "title",
+              right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek"
+            }}
+            events={fetchEvents}
+            eventClick={(info) => {
+              setSelectedEvent(info.event);
+            }}
+            height="auto"
+            aspectRatio={1.5}
+            slotMinTime="08:00:00"
+            slotMaxTime="23:00:00"
+          />
+        </div>
+
+        {/* Event Details Modal */}
+        {selectedEvent && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-[#000223]/40 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden scale-in-95 animate-in duration-200">
+              <div className="p-6 sm:p-8 border-b border-slate-100 flex justify-between items-start">
+                <div>
+                  <h3 className="text-2xl font-black text-[#000223] leading-tight">
+                    {selectedEvent.title}
+                  </h3>
+                  <div className="mt-3 flex items-center gap-2">
+                    <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-black uppercase tracking-wider rounded-lg border border-blue-100">
+                      {selectedEvent.extendedProps.status}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedEvent(null)}
+                  className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-full transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="p-6 sm:p-8 space-y-5">
+                <div className="flex items-start gap-4">
+                  <div className="p-2.5 bg-[#FFA000]/10 rounded-xl shrink-0">
+                    <CalendarIcon className="w-5 h-5 text-[#FFA000]" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-wider text-slate-400 mb-0.5">Event Time</p>
+                    <p className="text-base font-bold text-[#000223]">
+                      {selectedEvent.start?.toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}
+                      {" – "}
+                      {selectedEvent.end?.toLocaleTimeString([], { timeStyle: "short" })}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="p-2.5 bg-[#FFA000]/10 rounded-xl shrink-0">
+                    <MapPin className="w-5 h-5 text-[#FFA000]" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-wider text-slate-400 mb-0.5">Location</p>
+                    <p className="text-base font-bold text-[#000223]">{selectedEvent.extendedProps.address}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="p-2.5 bg-[#FFA000]/10 rounded-xl shrink-0">
+                    <User className="w-5 h-5 text-[#FFA000]" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-wider text-slate-400 mb-0.5">Customer</p>
+                    <p className="text-base font-bold text-[#000223]">{selectedEvent.extendedProps.customerName}</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex items-start gap-4">
+                    <div className="p-2.5 bg-[#FFA000]/10 rounded-xl shrink-0">
+                      <Phone className="w-5 h-5 text-[#FFA000]" />
+                    </div>
+                    <div className="overflow-hidden">
+                      <p className="text-xs font-black uppercase tracking-wider text-slate-400 mb-0.5">Phone</p>
+                      <p className="text-sm font-bold text-[#000223] truncate">{selectedEvent.extendedProps.phone}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4">
+                    <div className="p-2.5 bg-[#FFA000]/10 rounded-xl shrink-0">
+                      <Mail className="w-5 h-5 text-[#FFA000]" />
+                    </div>
+                    <div className="overflow-hidden">
+                      <p className="text-xs font-black uppercase tracking-wider text-slate-400 mb-0.5">Email</p>
+                      <p className="text-sm font-bold text-[#000223] truncate">{selectedEvent.extendedProps.email}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6 sm:p-8 border-t border-slate-100 bg-[#FAF6EF] flex justify-end gap-3 rounded-b-3xl">
+                <button
+                  onClick={() => setSelectedEvent(null)}
+                  className="btn-premium-secondary"
+                >
+                  Close
+                </button>
+                <Link
+                  href={`/admin/bookings/${selectedEvent.id}`}
+                  className="btn-premium-primary"
+                >
+                  View Full Booking
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -333,52 +333,56 @@ export default function ServiceAreasPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto pb-12" style={{ fontFamily: FN }}>
+    <div className="space-y-6 pb-10">
       {toast && <Toast type={toast.type} msg={toast.msg} onClose={() => setToast(null)} />}
       {showAdd && <AddZipModal onAdd={handleAdd} onClose={() => setShowAdd(false)} />}
       {editRec && <EditModal record={editRec} onSave={handleEdit} onClose={() => setEditRec(null)} />}
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <div className="flex items-center gap-3 mb-1">
-            <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-amber-100">
-              <MapPin className="w-5 h-5 text-[#FFA000]" />
-            </div>
-            <h1 className="text-3xl font-black tracking-tight" style={{ color: "#000223" }}>Service Areas</h1>
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#FFA000]" />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Logistics</span>
           </div>
-          <p className="text-slate-500 font-semibold text-sm ml-1">Manage Massachusetts ZIP codes — active ZIPs appear in customer booking form</p>
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-[#000223] flex items-center gap-3">
+            <MapPin className="w-8 h-8 text-[#FFA000]" />
+            Service Areas
+          </h1>
+          <p className="text-slate-500 font-semibold mt-2 text-sm sm:text-base">
+            Manage Massachusetts ZIP codes — active ZIPs appear in customer booking form
+          </p>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          <button onClick={handleSeed} disabled={seeding} className="flex items-center gap-2 px-5 py-3 rounded-2xl text-sm font-black border-2 border-slate-200 text-slate-600 hover:border-[#FFA000] hover:text-[#000223] transition-all bg-white disabled:opacity-50">
+        <div className="flex items-center gap-3 flex-wrap">
+          <button onClick={handleSeed} disabled={seeding} className="btn-premium-secondary flex items-center gap-2">
             {seeding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
             {seeding ? "Seeding…" : "Seed MA Defaults"}
           </button>
-          <button onClick={exportCsv} className="flex items-center gap-2 px-5 py-3 rounded-2xl text-sm font-black border-2 border-slate-200 text-slate-600 hover:border-slate-400 bg-white transition-all">
+          <button onClick={exportCsv} className="btn-premium-secondary flex items-center gap-2">
             <Download className="w-4 h-4" /> Export CSV
           </button>
-          <button onClick={() => setShowAdd(true)} className="flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-black shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all" style={{ background: "#000223", color: "#FFA000" }}>
+          <button onClick={() => setShowAdd(true)} className="btn-premium-primary flex items-center gap-2">
             <Plus className="w-4 h-4" /> Add ZIP Code
           </button>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
-          { label: "Total ZIPs", value: records.length, color: "#000223", bg: "rgba(0,2,35,0.06)" },
-          { label: "Active (visible to customers)", value: activeCount, color: "#10B981", bg: "rgba(16,185,129,0.08)" },
-          { label: "Inactive (hidden)", value: inactiveCount, color: "#F59E0B", bg: "rgba(245,158,11,0.08)" },
+          { label: "Total ZIPs", value: records.length, color: "text-[#000223]" },
+          { label: "Active (visible)", value: activeCount, color: "text-emerald-600" },
+          { label: "Inactive (hidden)", value: inactiveCount, color: "text-amber-600" },
         ].map(s => (
-          <div key={s.label} className="bg-white rounded-[2rem] border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.015)] px-6 py-5 flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-black shrink-0" style={{ background: s.bg, color: s.color }}>{s.value}</div>
-            <div className="text-sm font-bold text-[#000223]/70 leading-tight">{s.label}</div>
+          <div key={s.label} className="card-premium p-5 flex items-center gap-4">
+            <div className={`text-3xl font-black ${s.color}`}>{s.value}</div>
+            <div className="text-xs font-black uppercase tracking-widest text-slate-400">{s.label}</div>
           </div>
         ))}
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-[2rem] border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.015)] p-5 mb-5 flex flex-col md:flex-row gap-4 items-center">
+      <div className="card-premium p-4 flex flex-col md:flex-row gap-4 items-center">
         <div className="relative flex-1 w-full">
           <Search className="absolute left-4 top-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by ZIP, city, or county…"
@@ -428,7 +432,7 @@ export default function ServiceAreasPage() {
       )}
 
       {/* Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="card-premium overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>

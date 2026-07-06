@@ -19,6 +19,13 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
   const [selectedDriverId, setSelectedDriverId] = useState("");
   const [assigning, setAssigning] = useState(false);
 
+  const [confirmModal, setConfirmModal] = useState<{ action: string; title: string; desc: string; confirmText: string; confirmColor: string } | null>(null);
+
+  // Edit booking state
+  const [editMode, setEditMode] = useState(false);
+  const [editSaving, setEditSaving] = useState(false);
+  const [editFields, setEditFields] = useState<Record<string, string>>({});
+
   const loadBooking = async () => {
     setLoading(true);
     try {
@@ -35,6 +42,20 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
         } else if (json.data.vehicleId) {
           setSelectedVehicleId(json.data.vehicleId);
         }
+        // Populate edit fields
+        setEditFields({
+          eventDate: json.data.eventDate?.split("T")[0] || "",
+          startTime: json.data.startTime || "",
+          durationMins: String(json.data.durationMins || 60),
+          guests: String(json.data.guests || ""),
+          address: json.data.address || "",
+          city: json.data.city || "",
+          zip: json.data.zip || "",
+          eventType: json.data.eventType || "",
+          notes: json.data.notes || "",
+          internalNote: json.data.internalNote || "",
+          totalAmount: json.data.totalAmount > 0 ? String(json.data.totalAmount) : "",
+        });
       }
     } catch (e) { }
     setLoading(false);
@@ -50,7 +71,6 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
         ]);
         if (resV.ok) setVehicles(await resV.json());
         if (resD.ok) {
-          // Flatten drivers if nested inside user structure
           const driversData = await resD.json();
           setDrivers(driversData);
         }
@@ -86,8 +106,9 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
     }
   };
 
-  const updateStatus = async (status: string) => {
+  const executeStatusUpdate = async (status: string) => {
     setUpdating(status);
+    setConfirmModal(null);
     try {
       await fetch(`/api/admin/bookings/${params.id}/status`, {
         method: "PATCH",
@@ -97,6 +118,42 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
       await loadBooking();
     } catch (e) { }
     setUpdating("");
+  };
+
+  const saveEdits = async () => {
+    setEditSaving(true);
+    try {
+      const res = await fetch(`/api/admin/bookings/${params.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editFields),
+      });
+      if (res.ok) {
+        setEditMode(false);
+        await loadBooking();
+      } else {
+        const json = await res.json();
+        alert(json.error || "Failed to save changes.");
+      }
+    } catch (e) {
+      alert("Network error saving booking.");
+    }
+    setEditSaving(false);
+  };
+
+  const requestStatusUpdate = (status: string) => {
+    if (!booking) return;
+    if (status === "REJECTED") {
+       setConfirmModal({ action: status, title: "Reject Booking", desc: "Are you sure you want to reject this booking? This will cancel it completely.", confirmText: "Reject", confirmColor: "bg-red-600 hover:bg-red-700" });
+    } else if (status === "CONFIRMED" && booking.status === "PENDING_REVIEW") {
+       setConfirmModal({ action: status, title: "Approve Booking", desc: "Are you sure you want to approve this quote and lock in the price?", confirmText: "Approve", confirmColor: "bg-emerald-600 hover:bg-emerald-700" });
+    } else if (status === "CANCELLED") {
+       setConfirmModal({ action: status, title: "Approve Cancellation", desc: "Are you sure you want to cancel this booking? This action cannot be undone.", confirmText: "Cancel Booking", confirmColor: "bg-red-600 hover:bg-red-700" });
+    } else if (status === "CONFIRMED" && booking.status === "CANCELLATION_REQUESTED") {
+       setConfirmModal({ action: status, title: "Keep Booking", desc: "Are you sure you want to deny the cancellation request and keep the booking active?", confirmText: "Keep Booking", confirmColor: "bg-[#000223] hover:bg-[#000445]" });
+    } else {
+       executeStatusUpdate(status);
+    }
   };
 
   if (loading) return <div className="flex items-center justify-center p-24"><Loader2 className="w-8 h-8 animate-spin text-[#FFA000]"/></div>;
@@ -126,6 +183,24 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
 
   return (
     <div className="max-w-4xl mx-auto pb-12 animate-in fade-in zoom-in duration-300">
+      {/* Confirmation Modal */}
+      {confirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-200">
+            <h3 className="text-xl font-black text-[#000223] mb-2">{confirmModal.title}</h3>
+            <p className="text-sm font-medium text-slate-500 mb-6">{confirmModal.desc}</p>
+            <div className="flex gap-3 justify-end">
+              <button onClick={() => setConfirmModal(null)} className="px-4 py-2 rounded-xl text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors">
+                Cancel
+              </button>
+              <button onClick={() => executeStatusUpdate(confirmModal.action)} className={`px-4 py-2 rounded-xl text-sm font-bold text-white transition-colors ${confirmModal.confirmColor}`}>
+                {confirmModal.confirmText}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Link href="/admin/bookings" className="inline-flex items-center gap-2 text-sm text-[#000223]/70 hover:text-[#000223] mb-6 font-bold bg-white border border-slate-100 shadow-sm px-4 py-2 rounded-xl transition-all hover:-translate-y-0.5">
         <ChevronLeft className="w-4 h-4" /> Back to Bookings
       </Link>
@@ -136,15 +211,48 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
             #{booking.bookingNumber}
             <span className={`px-3 py-1 text-[11px] rounded-full font-black uppercase tracking-widest ${
               booking.status.includes("PENDING") ? "bg-amber-100 text-amber-700" :
+              booking.status === "CANCELLATION_REQUESTED" ? "bg-red-100 text-red-700" :
               booking.status === "CONFIRMED" ? "bg-emerald-100 text-emerald-700" :
-              booking.status === "REJECTED" || booking.status === "CANCELLED" ? "bg-red-100 text-red-700" :
+              booking.status === "REJECTED" || booking.status === "CANCELLED" ? "bg-slate-200 text-slate-600" :
               "bg-slate-100 text-slate-700"
             }`}>
-              {booking.status.replace("_", " ")}
+              {booking.status.replace(/_/g, " ")}
             </span>
           </h2>
-          <p className="text-sm font-semibold text-slate-500 mt-1">Placed on {new Date(booking.createdAt).toLocaleString()}</p>
+          <p className="text-sm font-semibold text-slate-500 mt-1">Placed on {new Date(booking.createdAt).toLocaleString("en-US")}</p>
         </div>
+
+        {booking.status === "CANCELLATION_REQUESTED" && (
+          <div className="flex flex-col gap-4 p-5 bg-red-50 rounded-2xl border border-red-200 w-full md:w-auto shadow-sm">
+            <div>
+              <div className="text-xs font-black text-red-800 uppercase tracking-wider mb-1 flex items-center gap-1">
+                <AlertCircle className="w-4 h-4" /> Cancellation Requested
+              </div>
+              <div className="text-sm font-semibold text-slate-700">
+                Customer requested to cancel this booking.<br/>
+                <span className="font-bold">Reason:</span> {booking.cancellationReason || "Not provided."}
+              </div>
+            </div>
+            
+            <div className="flex gap-3 pt-2">
+              <button 
+                disabled={!!updating} 
+                onClick={() => requestStatusUpdate("CONFIRMED")} 
+                className="btn-secondary py-2.5 px-6 text-sm font-bold text-[#000223] border-slate-300 bg-white hover:bg-slate-50 disabled:opacity-50 flex items-center gap-2 rounded-xl"
+              >
+                Keep Booking
+              </button>
+              <button 
+                disabled={!!updating} 
+                onClick={() => requestStatusUpdate("CANCELLED")} 
+                className="btn-primary py-2.5 px-6 text-sm font-bold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 flex items-center gap-2 rounded-xl"
+              >
+                {updating === "CANCELLED" ? <Loader2 className="w-4 h-4 animate-spin"/> : <XCircle className="w-4 h-4"/>}
+                Approve Cancellation
+              </button>
+            </div>
+          </div>
+        )}
 
         {booking.status === "PENDING_REVIEW" && (() => {
           const isCustomPackage = booking.package?.slug === "custom-event-package" || booking.package?.serviceType === "CUSTOM";
@@ -200,11 +308,11 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
               )}
 
               <div className="flex gap-3 pt-2">
-                <button disabled={!!updating} onClick={() => updateStatus("REJECTED")} className="btn-secondary py-2.5 px-6 text-sm text-red-650 border-red-200 hover:bg-red-50 disabled:opacity-50 flex items-center gap-2"><XCircle className="w-4 h-4"/> Reject</button>
+                <button disabled={!!updating} onClick={() => requestStatusUpdate("REJECTED")} className="btn-secondary py-2.5 px-6 text-sm text-red-650 border-red-200 hover:bg-red-50 disabled:opacity-50 flex items-center gap-2 rounded-xl bg-white font-bold"><XCircle className="w-4 h-4"/> Reject</button>
                 <button 
                   disabled={!!updating || (isCustomPackage && !customPrice)} 
-                  onClick={() => updateStatus("CONFIRMED")} 
-                  className="btn-primary py-2.5 px-6 text-sm bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 flex items-center gap-2"
+                  onClick={() => requestStatusUpdate("CONFIRMED")} 
+                  className="btn-primary py-2.5 px-6 text-sm bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 flex items-center gap-2 rounded-xl text-white font-bold"
                 >
                   {updating === "CONFIRMED" ? <Loader2 className="w-4 h-4 animate-spin"/> : <CheckCircle2 className="w-4 h-4"/>}
                   Approve Booking
@@ -400,6 +508,81 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
           />
         </div>
       )}
+
+      {/* ── Edit Booking Panel ── */}
+      <div className="mt-6 card-premium p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-black text-[#000223] flex items-center gap-2">
+            ✏️ Edit Booking Details
+          </h3>
+          <button
+            onClick={() => setEditMode(v => !v)}
+            className="px-4 py-2 rounded-xl text-sm font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+          >
+            {editMode ? "Cancel" : "Edit"}
+          </button>
+        </div>
+
+        {!editMode ? (
+          <p className="text-sm font-semibold text-slate-400">Click "Edit" to modify booking details such as event date, time, guests, address, notes, or total amount.</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {[
+              { label: "Event Date", key: "eventDate", type: "date" },
+              { label: "Start Time", key: "startTime", type: "text", placeholder: "e.g. 2:00 PM" },
+              { label: "Duration (mins)", key: "durationMins", type: "number" },
+              { label: "Guests", key: "guests", type: "number" },
+              { label: "Event Type", key: "eventType", type: "text" },
+              { label: "Address", key: "address", type: "text" },
+              { label: "City", key: "city", type: "text" },
+              { label: "ZIP Code", key: "zip", type: "text" },
+              { label: "Total Amount ($)", key: "totalAmount", type: "number" },
+            ].map(({ label, key, type, placeholder }) => (
+              <div key={key}>
+                <label className="block text-xs font-black text-slate-500 uppercase tracking-wider mb-1">{label}</label>
+                <input
+                  type={type}
+                  value={editFields[key] || ""}
+                  onChange={e => setEditFields(f => ({ ...f, [key]: e.target.value }))}
+                  placeholder={placeholder}
+                  className="w-full py-2.5 px-3.5 rounded-xl border-2 border-slate-100 font-semibold text-sm bg-white text-[#000223] outline-none focus:border-[#FFA000] focus:ring-2 focus:ring-[#FFA000]/15 transition-colors"
+                />
+              </div>
+            ))}
+
+            <div className="md:col-span-2">
+              <label className="block text-xs font-black text-slate-500 uppercase tracking-wider mb-1">Customer Notes</label>
+              <textarea
+                value={editFields.notes || ""}
+                onChange={e => setEditFields(f => ({ ...f, notes: e.target.value }))}
+                rows={3}
+                className="w-full py-2.5 px-3.5 rounded-xl border-2 border-slate-100 font-semibold text-sm bg-white text-[#000223] outline-none focus:border-[#FFA000] focus:ring-2 focus:ring-[#FFA000]/15 transition-colors"
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-xs font-black text-slate-500 uppercase tracking-wider mb-1">Internal Note (staff only)</label>
+              <textarea
+                value={editFields.internalNote || ""}
+                onChange={e => setEditFields(f => ({ ...f, internalNote: e.target.value }))}
+                rows={2}
+                className="w-full py-2.5 px-3.5 rounded-xl border-2 border-slate-100 font-semibold text-sm bg-white text-[#000223] outline-none focus:border-[#FFA000] focus:ring-2 focus:ring-[#FFA000]/15 transition-colors"
+              />
+            </div>
+
+            <div className="md:col-span-2 flex justify-end pt-2">
+              <button
+                onClick={saveEdits}
+                disabled={editSaving}
+                className="px-8 py-3 rounded-2xl font-black text-base text-[#000223] bg-[#FFA000] hover:bg-[#FFB020] disabled:opacity-50 transition-all flex items-center gap-2"
+              >
+                {editSaving ? <Loader2 className="w-5 h-5 animate-spin"/> : <CheckCircle2 className="w-5 h-5"/>}
+                Save Changes
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

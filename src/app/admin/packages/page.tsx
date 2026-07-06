@@ -311,16 +311,20 @@ export default function AdminPackagesPage() {
   };
 
   return (
-    <div className="pb-12" style={{ fontFamily: "'Nunito', sans-serif" }}>
-      <div className="flex justify-between items-end mb-8">
+    <div className="space-y-6 pb-10">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-[#000223] flex items-center gap-3">
-            <PackageIcon className="w-8 h-8 text-[#FFA000]" />
-            Manage Packages
-          </h1>
-          <p className="text-slate-500 font-semibold mt-1 text-sm">Add, edit, or disable Boston Legend packages. Changes sync instantly.</p>
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#FFA000]" />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Inventory</span>
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-[#000223]">Packages</h1>
+          <p className="text-slate-500 font-semibold mt-2 text-sm sm:text-base">
+            Add, edit, or disable Boston Legend packages. Changes sync instantly.
+          </p>
         </div>
-        <button onClick={openAdd} className="btn-primary py-2.5 px-5 flex items-center gap-2">
+        <button onClick={openAdd} className="btn-premium-primary flex items-center gap-2">
           <Plus className="w-5 h-5" /> New Package
         </button>
       </div>

@@ -43,106 +43,113 @@ function getCityData(slug: string) {
   let contentHtml = html.substring(contentStart + 9, contentEnd);
 
   // Clean up content:
-  // 1. Remove the old booking form block and replace it with the new premium CTA banner
-  const formStartToken = '<div class="w-form">';
-  const formEndToken = 'Thank you! Your submission has been received!</div></div><div class="w-form-fail"><div>Oops! Something went wrong while submitting the form.</div></div></div>';
+  // 1. We replace the booking form section with our dynamic React components
+  const formStartToken = '<div class="w-layout-blockcontainer container-w book w-container">';
+  const formEndToken = 'Thank you! Your submission has been received!</div></div><div class="w-form-fail"><div>Oops! Something went wrong while submitting the form.</div></div></div></div></div></div></div></main>';
 
-  const startIndex = contentHtml.indexOf(formStartToken);
-  const endIndex = contentHtml.indexOf(formEndToken);
+  if (contentHtml.includes(formStartToken) && contentHtml.includes(formEndToken)) {
+    const startIndex = contentHtml.indexOf(formStartToken);
+    const endIndex = contentHtml.indexOf(formEndToken) + formEndToken.length;
 
-  if (startIndex !== -1 && endIndex !== -1) {
-    // Inject our unique SEO content blocks right before the CTA
     const uniqueHtmlBlocks = `
-<div class="seo-unique-content" style="padding: 40px 20px; font-family: 'Nunito', sans-serif; max-width: 1200px; margin: 0 auto;">
+<section class="w-full bg-[#000223] py-20 px-4 sm:px-6 lg:px-8 border-b-4 border-[#FFA000]">
+    <div class="max-w-[1280px] mx-auto text-center">
+        <h2 class="font-sans font-black text-4xl md:text-5xl lg:text-6xl text-white mb-6 leading-tight">
+            Boston Legend Ice Cream Truck Service For Catering & Events <br/>
+            <span class="text-[#FFA000] text-3xl md:text-4xl">in ${seoData.cityName}</span>
+        </h2>
+        <p class="font-sans font-semibold text-lg md:text-xl text-white/90 max-w-4xl mx-auto leading-relaxed">
+            ${seoData.cityName}'s favorite choice for ice cream truck rentals. Whether you need us for 50 guests or 500, Boston Legend delivers a premium experience that guests rave about long after the last cone.
+        </p>
+    </div>
+</section>
 
-    <!-- Intro -->
-    <h2 style="font-size: 2rem; font-weight: 900; color: #000223; margin-bottom: 16px; line-height: 1.3;">${seoData.intro}</h2>
-
-    <!-- Neighborhoods + Landmarks -->
-    <div style="display: flex; flex-wrap: wrap; gap: 32px; margin-top: 40px;">
-        <div style="flex: 1; min-width: 280px;">
-            <h3 style="font-size: 1.4rem; color: #FFA000; font-weight: 800; margin-bottom: 12px;">🏘️ Neighborhoods We Serve in ${seoData.cityName}</h3>
-            <ul style="list-style: none; padding: 0; margin: 0;">
-                ${seoData.neighborhoods.map((n: string) => `<li style="padding: 8px 0; border-bottom: 1px solid #F3F4F6; color: #374151; font-weight: 600;">✓ ${n}</li>`).join('')}
-            </ul>
+<section class="w-full bg-[#FAF6EF] py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    <div class="absolute -right-40 -top-40 w-96 h-96 bg-[#FFA000]/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -left-40 -bottom-40 w-96 h-96 bg-[#000223]/5 rounded-full blur-3xl pointer-events-none"></div>
+    
+    <div class="max-w-[1280px] mx-auto flex flex-col lg:flex-row gap-12 lg:gap-20">
+        <!-- Neighborhoods -->
+        <div class="w-full lg:w-1/2">
+            <div class="flex items-center gap-3 mb-8">
+                <span class="text-4xl">🏘️</span>
+                <h3 class="font-sans font-black text-3xl text-[#000223] mt-0 mb-0">Neighborhoods We Serve</h3>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                ${seoData.neighborhoods.map((n: string) => `
+                <div class="bg-white rounded-xl p-4 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border-l-4 border-[#FFA000] flex items-center gap-3 hover:-translate-y-1 transition-transform">
+                    <span class="text-[#000223] font-bold">✓</span>
+                    <span class="font-sans font-bold text-[#000223]">${n}</span>
+                </div>`).join('')}
+            </div>
         </div>
-        <div style="flex: 1; min-width: 280px;">
-            <h3 style="font-size: 1.4rem; color: #FFA000; font-weight: 800; margin-bottom: 12px;">📍 Popular Locations We Serve</h3>
-            <ul style="list-style: none; padding: 0; margin: 0;">
-                ${seoData.landmarks.map((lm: string) => `<li style="padding: 8px 0; border-bottom: 1px solid #F3F4F6; color: #374151; font-weight: 600;">📌 ${lm}</li>`).join('')}
-            </ul>
+        
+        <!-- Locations -->
+        <div class="w-full lg:w-1/2">
+            <div class="flex items-center gap-3 mb-8">
+                <span class="text-4xl">📍</span>
+                <h3 class="font-sans font-black text-3xl text-[#000223] mt-0 mb-0">Popular Locations</h3>
+            </div>
+            <div class="flex flex-col gap-4">
+                ${seoData.landmarks.map((loc: string) => `
+                <div class="bg-white rounded-xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex items-start gap-4 hover:-translate-y-1 transition-transform">
+                    <span class="text-xl">📌</span>
+                    <span class="font-sans font-bold text-lg text-[#000223]">${loc}</span>
+                </div>`).join('')}
+            </div>
         </div>
     </div>
+</section>
 
-    <!-- Events -->
-    <div style="margin-top: 40px;">
-        <h3 style="font-size: 1.4rem; color: #FFA000; font-weight: 800; margin-bottom: 16px;">🎉 Events We've Served Near ${seoData.cityName}</h3>
-        <div style="display: flex; flex-wrap: wrap; gap: 12px;">
-            ${seoData.events.map((ev: string) => `<span style="display: inline-block; background: #FFFBEB; border: 1px solid #FFA000; color: #000223; padding: 8px 16px; border-radius: 50px; font-size: 14px; font-weight: 700;">${ev}</span>`).join('')}
-        </div>
+<section class="w-full bg-white py-20 px-4 sm:px-6 lg:px-8 border-t border-slate-100">
+    <div class="max-w-[1280px] mx-auto text-center mb-16">
+        <span class="text-5xl mb-4 block">🎉</span>
+        <h3 class="font-sans font-black text-3xl md:text-5xl text-[#000223] mt-0 mb-6">Events We've Served Near <span class="text-[#FFA000]">${seoData.cityName}</span></h3>
+        <div class="h-1 w-24 bg-[#FFA000] mx-auto rounded-full"></div>
     </div>
-
-    <!-- Packages -->
-    <div style="margin-top: 48px;">
-        <h3 style="font-size: 1.4rem; color: #FFA000; font-weight: 800; margin-bottom: 16px;">🍦 Popular Packages for ${seoData.cityName} Events</h3>
-        <div style="display: flex; flex-wrap: wrap; gap: 16px;">
-            ${seoData.packages.map((pkg: {name: string; desc: string}) => `
-            <div style="flex: 1; min-width: 200px; background: #F8F9FC; border-radius: 16px; padding: 20px; border-top: 3px solid #FFA000;">
-                <p style="font-weight: 900; color: #000223; font-size: 16px; margin: 0 0 8px;">${pkg.name}</p>
-                <p style="color: #6B7280; font-size: 14px; font-weight: 600; margin: 0;">${pkg.desc}</p>
-            </div>`).join('')}
-        </div>
-        <div style="text-align: center; margin-top: 24px;">
-            <a href="/packages" style="display: inline-block; background: #FFA000; color: #000223; padding: 14px 36px; border-radius: 50px; font-weight: 900; font-size: 15px; text-decoration: none;">View All Packages →</a>
-        </div>
-    </div>
-
-    <!-- Testimonials -->
-    <div style="margin-top: 48px;">
-        <h3 style="font-size: 1.4rem; color: #FFA000; font-weight: 800; margin-bottom: 16px;">⭐ What ${seoData.cityName} Customers Say</h3>
-        <div style="display: flex; flex-wrap: wrap; gap: 20px;">
-            ${seoData.testimonials.map((t: {name: string; text: string}) => `
-            <div style="flex: 1; min-width: 260px; background: #FFFBEB; padding: 24px; border-radius: 16px; border-left: 4px solid #FFA000;">
-                <p style="font-style: italic; color: #374151; font-size: 15px; line-height: 1.6; margin: 0 0 12px;">&quot;${t.text}&quot;</p>
-                <p style="font-weight: 900; margin: 0; color: #000223; font-size: 14px;">— ${t.name}</p>
-                <div style="color: #FFA000; font-size: 16px; margin-top: 6px;">★★★★★</div>
-            </div>`).join('')}
-        </div>
-    </div>
-
-    <!-- FAQ -->
-    <div style="margin-top: 48px;">
-        <h3 style="font-size: 1.4rem; color: #FFA000; font-weight: 800; margin-bottom: 20px;">❓ Frequently Asked Questions — ${seoData.cityName}</h3>
-        ${seoData.faqs.map((faq: {q: string; a: string}) => `
-        <div style="margin-bottom: 20px; background: #F8F9FC; border-radius: 12px; padding: 20px;">
-            <h4 style="font-weight: 900; color: #000223; margin: 0 0 8px; font-size: 16px;">${faq.q}</h4>
-            <p style="color: #6B7280; margin: 0; font-weight: 600; line-height: 1.6;">${faq.a}</p>
+    
+    <div class="max-w-[1000px] mx-auto flex flex-wrap justify-center gap-4">
+        ${seoData.events.map((evt: string) => `
+        <div class="px-8 py-4 bg-[#FAF6EF] rounded-full border border-slate-200 shadow-sm text-center">
+            <span class="font-sans font-bold text-lg text-[#000223]">${evt}</span>
         </div>`).join('')}
     </div>
+</section>
 
-    <!-- Nearby Cities -->
-    <div style="margin-top: 48px; padding: 24px; background: #F8F9FC; border-radius: 16px;">
-        <h3 style="font-size: 1.2rem; color: #000223; font-weight: 900; margin-bottom: 12px;">🗺️ We Also Serve These Nearby Cities</h3>
-        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-            ${seoData.nearbyCities.map((c: {slug: string; name: string}) => `<a href="/cities/${c.slug}" style="background: white; border: 1px solid #E5E7EB; color: #000223; padding: 8px 18px; border-radius: 50px; font-weight: 700; font-size: 14px; text-decoration: none; transition: all 0.2s;">Ice Cream Truck in ${c.name}</a>`).join('')}
-            <a href="/packages" style="background: #000223; color: #FFA000; padding: 8px 18px; border-radius: 50px; font-weight: 700; font-size: 14px; text-decoration: none;">View Our Packages →</a>
+<section class="w-full bg-[#FAF6EF] py-20 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-[1280px] mx-auto">
+        <div class="text-center mb-12">
+            <h3 class="font-sans font-black text-3xl md:text-5xl text-[#000223] mt-0 mb-6">🍦 Popular Packages for <span class="text-[#FFA000]">${seoData.cityName}</span></h3>
+            <p class="font-sans font-semibold text-lg text-slate-600 max-w-3xl mx-auto">
+                ${seoData.cityName} residents know that when it's time for something sweet, Boston Legend delivers. We offer flexible packages designed to fit your budget, your headcount, and your vision.
+            </p>
         </div>
-    </div>
-
-</div>
+        
+        <div class="flex flex-wrap justify-center gap-3">
+            ${seoData.nearbyCities.map((c: {slug: string; name: string}) => `
+            <a href="/cities/${c.slug}" class="px-6 py-3 bg-white border border-slate-200 text-[#000223] rounded-full font-bold text-sm hover:bg-slate-100 transition-colors">Ice Cream Truck in ${c.name}</a>`).join('')}
+            <a href="/packages" class="px-6 py-3 bg-[#000223] text-[#FFA000] rounded-full font-bold text-sm hover:bg-[#000445] transition-colors">View Our Packages →</a>
+        </div>
     `;
 
     const formReplacementHtml = uniqueHtmlBlocks + `
-<div class="w-form premium-cta-container" style="display:flex; flex-direction:column; justify-content:center; align-items:center; padding: 60px 20px; background: linear-gradient(135deg, rgba(255, 160, 0, 0.1), rgba(243, 145, 189, 0.1)); border-radius: 24px; border: 1px solid rgba(255,160,0,0.3); min-height: 400px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.05); margin: 40px 0;">
-    <img src="https://cdn.prod.website-files.com/67dc601bc29781a5af1632a2/67e3936366827af4bed1d0d0_logo-boston-legend-ice-cream-truck.avif" alt="Boston Legend Logo" style="height: 60px; margin-bottom: 30px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));" />
-    <h3 style="font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 2rem; color: #000223; margin-bottom: 10px;">Ready to sweeten your event in ${seoData.cityName}?</h3>
-    <p style="font-family: 'Nunito', sans-serif; font-size: 1.1rem; color: #666; margin-bottom: 30px; max-width: 400px;">Get an instant quote and secure your ice cream truck in under 3 minutes.</p>
-    <a href="/packages" class="link-bt w-button hover-cta" style="font-family: 'Nunito', sans-serif; font-size: 1.25rem; padding: 20px 48px; border-radius: 50px; background: #000223; color: #FFA000; box-shadow: 0 10px 30px rgba(0, 2, 35, 0.3); transition: all 0.3s ease; text-decoration: none; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; display: inline-block;">
-        Book Your ${seoData.cityName} Event 🍦
-    </a>
+<div class="w-full max-w-[1280px] mx-auto my-12 px-4 sm:px-6 lg:px-8">
+    <div class="bg-gradient-to-br from-[#000223] to-[#000445] rounded-[40px] py-16 px-8 md:px-14 shadow-2xl relative overflow-hidden text-center">
+        <h3 class="font-sans font-black text-3xl md:text-5xl text-white mt-0 mb-6 leading-tight">
+            Ready to sweeten your event in <span class="text-[#FFA000]">${seoData.cityName}</span>?
+        </h3>
+        <p class="font-sans font-semibold text-lg text-white/80 mb-10 max-w-3xl mx-auto leading-relaxed">
+            Get an instant quote and secure your premium ice cream truck in under 3 minutes. We bring the joy directly to you.
+        </p>
+        
+        <a href="/packages" class="inline-block px-12 py-5 rounded-full bg-[#FFA000] text-[#000223] font-sans font-black text-lg no-underline shadow-[0_10px_30px_rgba(255,160,0,0.3)] uppercase tracking-wider hover:scale-105 transition-transform">
+            Book Your ${seoData.cityName} Event 🍦
+        </a>
+    </div>
 </div>
+</main>
     `;
-    contentHtml = contentHtml.substring(0, startIndex) + formReplacementHtml + contentHtml.substring(endIndex + formEndToken.length);
+    contentHtml = contentHtml.substring(0, startIndex) + formReplacementHtml + contentHtml.substring(endIndex);
   }
 
   // 2. Remove absolute domain references to keep links clean and local
@@ -176,6 +183,39 @@ function getCityData(slug: string) {
     const regex = new RegExp(`href="\\/occasion\\/${legacySlug}(?:-[a-z-]+)?"`, 'g');
     contentHtml = contentHtml.replace(regex, 'href="/packages"');
   });
+
+  // 5. Append dynamic FAQ right before closing main or body tag
+  const faqHtml = `
+  <section class="bl-faq-section" style="background:#F8FAFC; padding:80px 20px; border-top:2px solid rgba(0,2,35,0.06);">
+    <div style="max-width:860px; margin:0 auto; font-family:'Nunito', sans-serif;">
+      <div style="text-align:center; margin-bottom:48px;">
+        <span style="display:inline-block; background:rgba(255,160,0,0.12); color:#000223; font-weight:900; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; padding:6px 18px; border-radius:50px; border:1.5px solid rgba(255,160,0,0.4); margin-bottom:16px;">
+          Common Questions
+        </span>
+        <h2 style="font-family:'Playfair Display', Georgia, serif; font-weight:900; font-size:clamp(1.8rem, 4vw, 2.6rem); color:#000223; margin:0 0 12px; line-height:1.2;">
+          Questions about booking in ${seoData.cityName}?
+        </h2>
+        <p style="font-weight:600; font-size:1.05rem; color:#64748B; max-width:560px; margin:0 auto;">
+          Everything you need to know about reserving our premium ice cream truck for your next event.
+        </p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        ${seoData.faqs.map((faq: {q: string; a: string}) => `
+        <div style="background:#fff; border-radius:16px; overflow:hidden; box-shadow:0 2px 12px rgba(0,2,35,0.06); border:1.5px solid rgba(0,2,35,0.07);">
+          <div style="padding:22px 28px; font-weight:800; font-size:1.05rem; color:#000223;">
+            ${faq.q}
+          </div>
+          <div style="padding:0 28px 24px; font-weight:600; font-size:1rem; color:#475569; line-height:1.6;">
+            ${faq.a}
+          </div>
+        </div>
+        `).join('')}
+      </div>
+    </div>
+  </section>
+  `;
+  
+  contentHtml += faqHtml;
 
   return {
     title: cleanTitle,
