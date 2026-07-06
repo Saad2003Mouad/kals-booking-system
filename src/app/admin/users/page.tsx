@@ -91,7 +91,7 @@ export default function AdminStaffPage() {
       ...prev,
       permissions: allSelected
         ? prev.permissions.filter(p => !perms.includes(p))
-        : [...new Set([...prev.permissions, ...perms])]
+        : Array.from(new Set([...prev.permissions, ...perms]))
     }));
   };
 
