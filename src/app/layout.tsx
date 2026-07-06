@@ -368,7 +368,7 @@ export default function RootLayout({
       >
         <Providers>{children}</Providers>
         {/* Unified Chat, Nav Injector & Swiper Init */}
-        <Script src="/bl-widgets.js?v=10" strategy="afterInteractive" />
+        <Script src="/bl-widgets.js?v=11" strategy="afterInteractive" />
         {/* Swiper JS for React-rendered pages (cities, booking, etc.) */}
         <Script
           src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"

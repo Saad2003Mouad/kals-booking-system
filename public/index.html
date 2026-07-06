@@ -165,22 +165,7 @@ fs-list
 </script>
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
-  const swiper = new Swiper('.swiper-movies', {
-      spaceBetween: 30,
-      speed: 3000, 
-      slidesPerView: 2,
-      loop: true,
-      pagination: false,
-      autoplay: { 
-        delay: 0,
-        disableOnInteraction: false
-      },
-      breakpoints: {
-        640: { slidesPerView: 3 },
-        766: { slidesPerView: 4 },
-        992: { slidesPerView: 5 }
-      },
-  });
+  // The brand marquee (.swiper-movies) is now handled via pure CSS in bl-widgets.js
   const swiper2 = new Swiper('.swiper-review', {
      
     slidesPerView: 1,
@@ -203,5 +188,5 @@ fs-list
 
 
 
-<script src="/bl-widgets.js?v=10" async></script>
+<script src="/bl-widgets.js?v=11" async></script>
 </body></html>
